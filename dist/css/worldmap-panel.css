@@ -91,7 +91,8 @@ td.aqi{
   border-radius: 2px;
   z-index: 100;
   width: 400px;
-  height: 100px;
+  max-height: 110px;
+  height: auto;
   position: absolute;
   bottom: 10px;
   left: 220px;
@@ -113,7 +114,7 @@ td.aqi{
 #healthRisk {
   color: black;
   padding-top: 3px;
-  font-size: 97%;
+  font-size: 100%;
 }
 
 #measures-table {

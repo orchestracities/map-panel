@@ -3,7 +3,7 @@
 System.register(['lodash', './libs/leaflet'], function (_export, _context) {
   "use strict";
 
-  var _, L, _createClass, AQI, mapControl, mapZoom, globalCircles, globalMarkers, tileServers, carMarker, WorldMap;
+  var _, L, _createClass, AQI, carsCount, mapControl, mapZoom, globalCircles, globalMarkers, globalPolylines, tileServers, carMarker, WorldMap;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -94,10 +94,15 @@ System.register(['lodash', './libs/leaflet'], function (_export, _context) {
         'color': ['#009966', '#ffde33', '#ff9933', '#cc0033', '#660099', '#7e0023'],
         'risks': ['Air quality is considered satisfactory, and air pollution poses little or no risk.', 'Air quality is acceptable; however, for some pollutants there may be a moderate health concern for a very small number of people who are unusually sensitive to air pollution.', 'Members of sensitive groups may experience health effects. The general public is not likely to be affected.', 'Everyone may begin to experience health effects; members of sensitive groups may experience more serious health effects.', 'Health alert: everyone may experience more serious health effects.', 'Health warnings of emergency conditions. The entire population is more likely to be affected.']
       };
+      carsCount = {
+        'range': [15, 30, 45, 60, 75, 90, 105],
+        'color': ['#009966', '#ffde33', '#ff9933', '#cc0033', '#660099', '#7e0023']
+      };
       mapControl = void 0;
       mapZoom = void 0;
       globalCircles = [];
       globalMarkers = [];
+      globalPolylines = [];
       tileServers = {
         'CartoDB Positron': { url: 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>', subdomains: 'abcd' },
         'CartoDB Dark': { url: 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png', attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>', subdomains: 'abcd' }
@@ -187,11 +192,22 @@ System.register(['lodash', './libs/leaflet'], function (_export, _context) {
             }
           }
         }, {
+          key: 'clearPolylines',
+          value: function clearPolylines() {
+            if (this.polylinesLayer) {
+              this.polylinesLayer.clearLayers();
+              this.removePolylines(this.polylinesLayer);
+              globalPolylines = [];
+            }
+          }
+        }, {
           key: 'drawPoints',
           value: function drawPoints() {
             var data = this.filterEmptyAndZeroValues(this.ctrl.data);
             this.clearCircles();
             this.clearMarkers();
+            this.clearPolylines();
+
             this.createPoints(data);
           }
         }, {
@@ -205,9 +221,10 @@ System.register(['lodash', './libs/leaflet'], function (_export, _context) {
                 globalCircles.push(newCircle);
                 _this2.circlesLayer = _this2.addCircles(globalCircles);
               } else if (dataPoint.type === 'traffic') {
-                var newMarker = _this2.createMarker(dataPoint);
-                globalMarkers.push(newMarker);
-                _this2.markersLayer = _this2.addMarkers(globalMarkers);
+                _this2.createMarker(dataPoint);
+                // const newMarker = this.createMarker(dataPoint);
+                // globalMarkers.push(newMarker);
+                // this.markersLayer = this.addMarkers(globalMarkers);
               } else {
                 console.log('Map point type ' + dataPoint.type + ' invalid. Must be environment or traffic');
               }
@@ -216,10 +233,64 @@ System.register(['lodash', './libs/leaflet'], function (_export, _context) {
         }, {
           key: 'createMarker',
           value: function createMarker(dataPoint) {
-            var marker = window.L.marker([dataPoint.locationLatitude, dataPoint.locationLongitude]);
+            // const marker = window.L.marker([dataPoint.locationLatitude, dataPoint.locationLongitude]);
+            var way = this.calculatePointPolyline(dataPoint.locationLatitude, dataPoint.locationLongitude, dataPoint.value);
+            // this.createPopupMarker(marker, dataPoint.value);
+            // return marker;
+          }
+        }, {
+          key: 'createPolyline',
+          value: function createPolyline(way, value) {
+            var polyline = [];
+            way.forEach(function (point) {
+              polyline.push([point[1], point[0]]);
+            });
 
-            this.createPopupMarker(marker, dataPoint.value);
-            return marker;
+            var colorIndex = void 0;
+            carsCount.range.forEach(function (_value, index) {
+              if (value > _value && value <= carsCount.range[index + 1]) {
+                colorIndex = index;
+              }
+            });
+
+            var color = carsCount.color[colorIndex];
+
+            var polygon = window.L.polyline(polyline, {
+              color: color,
+              weight: 5,
+              smoothFactor: 1
+            });
+            globalPolylines.push(polygon);
+            this.polylinesLayer = this.addPolylines(globalPolylines);
+
+            this.createPopupPolyline(polygon, value);
+          }
+        }, {
+          key: 'calculatePointPolyline',
+          value: function calculatePointPolyline(latitude, longitude, value) {
+            var way = this.nominatim(latitude, longitude, value);
+            return way;
+          }
+        }, {
+          key: 'nominatim',
+          value: function nominatim(latitude, longitude, value) {
+            var _this3 = this;
+
+            var urlStart = 'http://nominatim.openstreetmap.org/reverse?format=json&';
+            var urlFinish = '&zoom=16&addressdetails=1&polygon_geojson=1';
+
+            window.$.ajax({
+              url: urlStart + 'lat=' + latitude + '&lon=' + longitude + urlFinish,
+              type: 'GET',
+              dataType: 'json',
+              cache: false,
+              success: function success(data) {
+                _this3.createPolyline(data.geojson.coordinates, value);
+              },
+              error: function error(_error) {
+                alert('Nominatim ERROR');
+              }
+            });
           }
         }, {
           key: 'createCircle',
@@ -280,6 +351,24 @@ System.register(['lodash', './libs/leaflet'], function (_export, _context) {
             }
           }
         }, {
+          key: 'createPopupPolyline',
+          value: function createPopupPolyline(polyline, value) {
+            var label = ('Number of cars: ' + value).trim();
+            polyline.bindPopup(label, { 'offset': window.L.point(0, -2), 'className': 'worldmap-popup', 'closeButton': this.ctrl.panel.stickyLabels });
+
+            polyline.on('mouseover', function onMouseOver(evt) {
+              // const layer = evt.target;
+              // layer.bringToFront();
+              this.openPopup();
+            });
+
+            if (!this.ctrl.panel.stickyLabels) {
+              polyline.on('mouseout', function onMouseOut() {
+                polyline.closePopup();
+              });
+            }
+          }
+        }, {
           key: 'resize',
           value: function resize() {
             this.map.invalidateSize();
@@ -307,6 +396,12 @@ System.register(['lodash', './libs/leaflet'], function (_export, _context) {
             return window.L.layerGroup(markers).addTo(this.map);
           }
         }, {
+          key: 'addPolylines',
+          value: function addPolylines(polylines) {
+            console.log(polylines);
+            return window.L.layerGroup(polylines).addTo(this.map);
+          }
+        }, {
           key: 'removeCircles',
           value: function removeCircles() {
             this.map.removeLayer(this.circlesLayer);
@@ -315,6 +410,11 @@ System.register(['lodash', './libs/leaflet'], function (_export, _context) {
           key: 'removeMarkers',
           value: function removeMarkers() {
             this.map.removeLayer(this.markersLayer);
+          }
+        }, {
+          key: 'removePolylines',
+          value: function removePolylines() {
+            this.map.removeLayer(this.polylinesLayer);
           }
         }, {
           key: 'setZoom',

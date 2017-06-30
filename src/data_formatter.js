@@ -71,7 +71,7 @@ export default class DataFormatter {
             locationLatitude: value.value,
             locationLongitude: longitudes[index].value,
             value: values[index].value,
-            type: values[index].type,
+            type: values[index].type
           };
         }
         data.push(dataValue);

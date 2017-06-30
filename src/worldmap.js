@@ -10,11 +10,17 @@ const AQI = {
   'risks': ['Air quality is considered satisfactory, and air pollution poses little or no risk.', 'Air quality is acceptable; however, for some pollutants there may be a moderate health concern for a very small number of people who are unusually sensitive to air pollution.', 'Members of sensitive groups may experience health effects. The general public is not likely to be affected.', 'Everyone may begin to experience health effects; members of sensitive groups may experience more serious health effects.', 'Health alert: everyone may experience more serious health effects.', 'Health warnings of emergency conditions. The entire population is more likely to be affected.']
 };
 
+const carsCount = {
+  'range': [15, 30, 45, 60, 75, 90, 105],
+  'color': ['#009966', '#ffde33', '#ff9933', '#cc0033', '#660099', '#7e0023']
+};
+
 let mapControl;
 let mapZoom;
 
 let globalCircles = [];
 let globalMarkers = [];
+let globalPolylines = [];
 
 const tileServers = {
   'CartoDB Positron': { url: 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>', subdomains: 'abcd'},
@@ -77,38 +83,6 @@ export default class WorldMap {
     }).addTo(this.map, true);
   }
 
-  // createLegend() {
-  //   this.legend = window.L.control({position: 'bottomleft'});
-  //   this.legend.onAdd = () => {
-  //     this.legend._div = window.L.DomUtil.create('div', 'info legend');
-  //     this.legend.update();
-  //     return this.legend._div;
-  //   };
-
-  //   this.legend.update = () => {
-  //     const thresholds = this.ctrl.data.thresholds;
-  //     let legendHtml = '';
-  //     legendHtml += '<i style="background:' + this.ctrl.panel.colors[0] + '"></i> ' +
-  //         '&lt; ' + thresholds[0] + '<br>';
-  //     for (let index = 0; index < thresholds.length; index += 1) {
-  //       legendHtml +=
-  //         '<i style="background:' + this.getColor(thresholds[index] + 1) + '"></i> ' +
-  //         thresholds[index] + (thresholds[index + 1] ? '&ndash;' + thresholds[index + 1] + '<br>' : '+');
-  //     }
-  //     this.legend._div.innerHTML = legendHtml;
-  //   };
-  //   this.legend.addTo(this.map);
-  // }
-
-  // needToRedrawCircles(data) {
-  //   if (this.circles.length === 0 && data.length > 0) return true;
-
-  //   if (this.circles.length !== data.length) return true;
-  //   const locations = _.map(_.map(this.circles, 'options'), 'location').sort();
-  //   const dataPoints = _.map(data, 'key').sort();
-  //   return !_.isEqual(locations, dataPoints);
-  // }
-
   filterEmptyAndZeroValues(data) {
     return _.filter(data, (o) => { return !(this.ctrl.panel.hideEmpty && _.isNil(o.value)) && !(this.ctrl.panel.hideZero && o.value === 0); });
   }
@@ -127,32 +101,21 @@ export default class WorldMap {
       globalMarkers = [];
     }
   }
-  // drawMarkers() {
-  //   const data = this.filterEmptyAndZeroValues(this.ctrl.data);
-  //   // console.log(data);
-  //   data.forEach((dataPoint) => {
-  //     this.createMarker(dataPoint);
-  //   });
-  // }
 
-  // createMarker(dataPoint) {
-  //   const markers = [];
-
-  //   const marker = window.L.marker([dataPoint.locationLatitude, dataPoint.locationLongitude]).on('click', onClickMarker);
-
-  //   if (markers.indexOf(marker) === -1) {
-  //     markers.push(marker);
-  //     this.circlesLayer = this.addCircles(markers);
-  //     this.markers = markers;
-
-  //     this.createPopup(marker, dataPoint.name, dataPoint.value);
-  //   }
-  // }
+  clearPolylines() {
+    if (this.polylinesLayer) {
+      this.polylinesLayer.clearLayers();
+      this.removePolylines(this.polylinesLayer);
+      globalPolylines = [];
+    }
+  }
 
   drawPoints() {
     const data = this.filterEmptyAndZeroValues(this.ctrl.data);
     this.clearCircles();
     this.clearMarkers();
+    this.clearPolylines();
+
     this.createPoints(data);
   }
 
@@ -163,9 +126,10 @@ export default class WorldMap {
         globalCircles.push(newCircle);
         this.circlesLayer = this.addCircles(globalCircles);
       } else if (dataPoint.type === 'traffic') {
-        const newMarker = this.createMarker(dataPoint);
-        globalMarkers.push(newMarker);
-        this.markersLayer = this.addMarkers(globalMarkers);
+        this.createMarker(dataPoint);
+        // const newMarker = this.createMarker(dataPoint);
+        // globalMarkers.push(newMarker);
+        // this.markersLayer = this.addMarkers(globalMarkers);
       } else {
         console.log('Map point type ' + dataPoint.type + ' invalid. Must be environment or traffic');
       }
@@ -173,31 +137,60 @@ export default class WorldMap {
   }
 
   createMarker(dataPoint) {
-    const marker = window.L.marker([dataPoint.locationLatitude, dataPoint.locationLongitude]);
-
-    this.createPopupMarker(marker, dataPoint.value);
-    return marker;
+    // const marker = window.L.marker([dataPoint.locationLatitude, dataPoint.locationLongitude]);
+    const way = this.calculatePointPolyline(dataPoint.locationLatitude, dataPoint.locationLongitude, dataPoint.value);
+    // this.createPopupMarker(marker, dataPoint.value);
+    // return marker;
   }
 
-  // updateCircles(data) {
-  //   data.forEach((dataPoint) => {
-  //     if (!dataPoint.locationName) return;
+  createPolyline(way, value) {
+    const polyline = [];
+    way.forEach((point) => {
+      polyline.push([point[1], point[0]]);
+    });
 
-  //     const circle = _.find(this.circles, (cir) => { return cir.options.location === dataPoint.key; });
+    let colorIndex;
+    carsCount.range.forEach((_value, index) => {
+      if (value > _value && value <= carsCount.range[index + 1]) {
+        colorIndex = index;
+      }
+    });
 
-  //     if (circle) {
-  //       circle.setRadius(this.calcCircleSize(dataPoint.value || 0));
-  //       circle.setStyle({
-  //         color: this.getColor(dataPoint.value),
-  //         fillColor: this.getColor(dataPoint.value),
-  //         fillOpacity: 0.5,
-  //         location: dataPoint.key,
-  //       });
-  //       circle.unbindPopup();
-  //       this.createPopup(circle, dataPoint.locationName, dataPoint.valueRounded);
-  //     }
-  //   });
-  // }
+    const color = carsCount.color[colorIndex];
+
+    const polygon = window.L.polyline(polyline, {
+      color: color,
+      weight: 5,
+      smoothFactor: 1
+    });
+    globalPolylines.push(polygon);
+    this.polylinesLayer = this.addPolylines(globalPolylines);
+
+    this.createPopupPolyline(polygon, value);
+  }
+
+  calculatePointPolyline(latitude, longitude, value) {
+    const way = this.nominatim(latitude, longitude, value);
+    return way;
+  }
+
+  nominatim(latitude, longitude, value) {
+    const urlStart = 'http://nominatim.openstreetmap.org/reverse?format=json&';
+    const urlFinish = '&zoom=16&addressdetails=1&polygon_geojson=1';
+
+    window.$.ajax({
+      url: urlStart + 'lat=' + latitude + '&lon=' + longitude + urlFinish,
+      type: 'GET',
+      dataType: 'json',
+      cache: false,
+      success: (data) => {
+        this.createPolyline(data.geojson.coordinates, value);
+      },
+      error: (error) => {
+        alert('Nominatim ERROR');
+      }
+    });
+  }
 
   createCircle(dataPoint) {
     const aqi = calculateAQI(dataPoint.value);
@@ -220,19 +213,6 @@ export default class WorldMap {
     return circle;
   }
 
-  // calcCircleSize(dataPointValue) {
-  //   const circleMinSize = parseInt(this.ctrl.panel.circleMinSize, 10) || 2;
-  //   const circleMaxSize = parseInt(this.ctrl.panel.circleMaxSize, 10) || 30;
-
-  //   if (this.ctrl.data.valueRange === 0) {
-  //     return circleMaxSize;
-  //   }
-
-  //   const dataFactor = (dataPointValue - this.ctrl.data.lowestValue) / this.ctrl.data.valueRange;
-  //   const circleSizeRange = circleMaxSize - circleMinSize;
-
-  //   return (circleSizeRange * dataFactor) + circleMinSize;
-  // }
   createPopupMarker(marker, value) {
     const label = ('Cars: ' + value);
     marker.bindPopup(label, {'offset': window.L.point(0, -2), 'className': 'worldmap-popup', 'closeButton': this.ctrl.panel.stickyLabels});
@@ -267,6 +247,23 @@ export default class WorldMap {
     }
   }
 
+  createPopupPolyline(polyline, value) {
+    const label = ('Number of cars: ' + value).trim();
+    polyline.bindPopup(label, {'offset': window.L.point(0, -2), 'className': 'worldmap-popup', 'closeButton': this.ctrl.panel.stickyLabels});
+
+    polyline.on('mouseover', function onMouseOver(evt) {
+      // const layer = evt.target;
+      // layer.bringToFront();
+      this.openPopup();
+    });
+
+    if (!this.ctrl.panel.stickyLabels) {
+      polyline.on('mouseout', function onMouseOut() {
+        polyline.closePopup();
+      });
+    }
+  }
+
   resize() {
     this.map.invalidateSize();
   }
@@ -288,6 +285,11 @@ export default class WorldMap {
     return window.L.layerGroup(markers).addTo(this.map);
   }
 
+  addPolylines(polylines) {
+    console.log(polylines);
+    return window.L.layerGroup(polylines).addTo(this.map);
+  }
+
   removeCircles() {
     this.map.removeLayer(this.circlesLayer);
   }
@@ -296,16 +298,13 @@ export default class WorldMap {
     this.map.removeLayer(this.markersLayer);
   }
 
+  removePolylines() {
+    this.map.removeLayer(this.polylinesLayer);
+  }
+
   setZoom(zoomFactor) {
     this.map.setZoom(parseInt(zoomFactor, 10));
   }
-
-  // remove() {
-  //   this.circles = [];
-  //   if (this.circlesLayer) this.removeCircles();
-  //   if (this.legend) this.removeLegend();
-  //   this.map.remove();
-  // }
 }
 
 function showPollutants(e) {
