@@ -20,8 +20,9 @@ export default function link(scope, elem, attrs, ctrl) {
 
     if (ctrl.mapCenterMoved) ctrl.map.panToMapCenter();
 
-    if (!ctrl.map.legend && ctrl.panel.showLegend) ctrl.map.createLegend();
+    // if (!ctrl.map.legend && ctrl.panel.showLegend) ctrl.map.createLegend();
 
-    ctrl.map.drawCircles();
+    ctrl.map.drawPoints();
+    // ctrl.map.drawMarkers();
   }
 }

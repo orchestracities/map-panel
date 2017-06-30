@@ -1,5 +1,7 @@
-import _ from 'lodash';
-import decodeGeoHash from './geohash';
+// import _ from 'lodash';
+// import decodeGeoHash from './geohash';
+
+const allowedPollutants = ['h', 'no2', 'p', 'pm10', 'pm25', 't'];
 
 export default class DataFormatter {
   constructor(ctrl, kbn) {
@@ -8,136 +10,72 @@ export default class DataFormatter {
   }
 
   setValues(data) {
+    const setSeries = {};
+    let serieType;
+    let pollutantsAux;
+
     if (this.ctrl.series && this.ctrl.series.length > 0) {
-      let highestValue = 0;
-      let lowestValue = Number.MAX_VALUE;
-
       this.ctrl.series.forEach((serie) => {
-        const lastPoint = _.last(serie.datapoints);
-        const lastValue = _.isArray(lastPoint) ? lastPoint[0] : null;
-        const location = _.find(this.ctrl.locations, (loc) => { return loc.key.toUpperCase() === serie.alias.toUpperCase(); });
+        // console.log(serie);
+        serieType = serie.id.split(':')[0];
+        const serieName = serie.alias.split(': ')[1];
 
-        if (!location) return;
-
-        if (_.isString(lastValue)) {
-          data.push({key: serie.alias, value: 0, valueFormatted: lastValue, valueRounded: 0});
-        } else {
-          const dataValue = {
-            key: serie.alias,
-            locationName: location.name,
-            locationLatitude: location.latitude,
-            locationLongitude: location.longitude,
-            value: serie.stats[this.ctrl.panel.valueName],
-            valueFormatted: lastValue,
-            valueRounded: 0
-          };
-
-          if (dataValue.value > highestValue) highestValue = dataValue.value;
-          if (dataValue.value < lowestValue) lowestValue = dataValue.value;
-
-          dataValue.valueRounded = this.kbn.roundValue(dataValue.value, parseInt(this.ctrl.panel.decimals, 10) || 0);
-          data.push(dataValue);
+        // VERIFY HERE ALL TYPES RECEIVED
+        if (!(setSeries[serieName])) {
+          setSeries[serieName] = [];
         }
-      });
 
-      data.highestValue = highestValue;
-      data.lowestValue = lowestValue;
-      data.valueRange = highestValue - lowestValue;
-    }
-  }
-
-  setGeohashValues(dataList, data) {
-    if (!this.ctrl.panel.esGeoPoint || !this.ctrl.panel.esMetric) return;
-
-    if (dataList && dataList.length > 0) {
-      let highestValue = 0;
-      let lowestValue = Number.MAX_VALUE;
-
-      dataList[0].datapoints.forEach((datapoint) => {
-        const encodedGeohash = datapoint[this.ctrl.panel.esGeoPoint];
-        const decodedGeohash = decodeGeoHash(encodedGeohash);
-
-        const dataValue = {
-          key: encodedGeohash,
-          locationName: this.ctrl.panel.esLocationName ? datapoint[this.ctrl.panel.esLocationName] : encodedGeohash,
-          locationLatitude: decodedGeohash.latitude,
-          locationLongitude: decodedGeohash.longitude,
-          value: datapoint[this.ctrl.panel.esMetric],
-          valueFormatted: datapoint[this.ctrl.panel.esMetric],
-          valueRounded: 0
-        };
-
-        if (dataValue.value > highestValue) highestValue = dataValue.value;
-        if (dataValue.value < lowestValue) lowestValue = dataValue.value;
-
-        dataValue.valueRounded = this.kbn.roundValue(dataValue.value, this.ctrl.panel.decimals || 0);
-        data.push(dataValue);
-      });
-
-      data.highestValue = highestValue;
-      data.lowestValue = lowestValue;
-      data.valueRange = highestValue - lowestValue;
-    }
-  }
-
-  static tableHandler(tableData) {
-    const datapoints = [];
-
-    if (tableData.type === 'table') {
-      const columnNames = {};
-
-      tableData.columns.forEach((column, columnIndex) => {
-        columnNames[columnIndex] = column.text;
-      });
-
-      tableData.rows.forEach((row) => {
-        const datapoint = {};
-
-        row.forEach((value, columnIndex) => {
-          const key = columnNames[columnIndex];
-          datapoint[key] = value;
+        serie.datapoints.forEach((datapoint) => {
+          const datapointValue = parseFloat(datapoint[0]);
+          const valueAndType = {'value': datapointValue, 'type': serieType};
+          setSeries[serieName].push(valueAndType);
         });
-
-        datapoints.push(datapoint);
       });
-    }
 
-    return datapoints;
-  }
+      const latitudes = setSeries.latitude;
+      const longitudes = setSeries.longitude;
+      const values = setSeries.value;
 
-  setTableValues(tableData, data) {
-    if (tableData && tableData.length > 0) {
-      let highestValue = 0;
-      let lowestValue = Number.MAX_VALUE;
+      setSeries.pollutants = [];
+      pollutantsAux = [];
 
-      tableData[0].forEach((datapoint) => {
-        if (!datapoint.geohash) {
-          return;
+      allowedPollutants.forEach((pollutant) => {
+        if (setSeries[pollutant]) {
+          const receivedPoll = [];
+          setSeries[pollutant].forEach((poll) => {
+            receivedPoll.push(poll);
+          });
+
+          pollutantsAux.push({'name': pollutant, 'value': receivedPoll});
+          delete setSeries[pollutant];
         }
+      });
 
-        const encodedGeohash = datapoint.geohash;
-        const decodedGeohash = decodeGeoHash(encodedGeohash);
+      latitudes.forEach((value, index) => {
+        let dataValue;
 
-        const dataValue = {
-          key: encodedGeohash,
-          locationName: datapoint[this.ctrl.panel.tableLabel] || 'n/a',
-          locationLatitude: decodedGeohash.latitude,
-          locationLongitude: decodedGeohash.longitude,
-          value: datapoint.metric,
-          valueFormatted: datapoint.metric,
-          valueRounded: 0
-        };
-
-        if (dataValue.value > highestValue) highestValue = dataValue.value;
-        if (dataValue.value < lowestValue) lowestValue = dataValue.value;
-
-        dataValue.valueRounded = this.kbn.roundValue(dataValue.value, this.ctrl.panel.decimals || 0);
+        if (value.type === 'environment') {
+          const thisPollutants = [];
+          pollutantsAux.forEach((pollAux) => {
+            thisPollutants.push({'name': pollAux.name, 'value': pollAux.value[index].value});
+          });
+          dataValue = {
+            locationLatitude: value.value,
+            locationLongitude: longitudes[index].value,
+            value: values[index].value,
+            type: values[index].type,
+            pollutants: thisPollutants
+          };
+        } else if (value.type === 'traffic') {
+          dataValue = {
+            locationLatitude: value.value,
+            locationLongitude: longitudes[index].value,
+            value: values[index].value,
+            type: values[index].type,
+          };
+        }
         data.push(dataValue);
       });
-
-      data.highestValue = highestValue;
-      data.lowestValue = lowestValue;
-      data.valueRange = highestValue - lowestValue;
     }
   }
 }

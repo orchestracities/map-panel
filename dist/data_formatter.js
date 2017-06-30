@@ -1,9 +1,9 @@
 'use strict';
 
-System.register(['lodash', './geohash'], function (_export, _context) {
+System.register([], function (_export, _context) {
   "use strict";
 
-  var _, decodeGeoHash, _createClass, DataFormatter;
+  var _createClass, allowedPollutants, DataFormatter;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -12,11 +12,7 @@ System.register(['lodash', './geohash'], function (_export, _context) {
   }
 
   return {
-    setters: [function (_lodash) {
-      _ = _lodash.default;
-    }, function (_geohash) {
-      decodeGeoHash = _geohash.default;
-    }],
+    setters: [],
     execute: function () {
       _createClass = function () {
         function defineProperties(target, props) {
@@ -36,6 +32,8 @@ System.register(['lodash', './geohash'], function (_export, _context) {
         };
       }();
 
+      allowedPollutants = ['h', 'no2', 'p', 'pm10', 'pm25', 't'];
+
       DataFormatter = function () {
         function DataFormatter(ctrl, kbn) {
           _classCallCheck(this, DataFormatter);
@@ -47,156 +45,73 @@ System.register(['lodash', './geohash'], function (_export, _context) {
         _createClass(DataFormatter, [{
           key: 'setValues',
           value: function setValues(data) {
-            var _this = this;
+            var setSeries = {};
+            var serieType = void 0;
+            var pollutantsAux = void 0;
 
             if (this.ctrl.series && this.ctrl.series.length > 0) {
-              (function () {
-                var highestValue = 0;
-                var lowestValue = Number.MAX_VALUE;
+              this.ctrl.series.forEach(function (serie) {
+                // console.log(serie);
+                serieType = serie.id.split(':')[0];
+                var serieName = serie.alias.split(': ')[1];
 
-                _this.ctrl.series.forEach(function (serie) {
-                  var lastPoint = _.last(serie.datapoints);
-                  var lastValue = _.isArray(lastPoint) ? lastPoint[0] : null;
-                  var location = _.find(_this.ctrl.locations, function (loc) {
-                    return loc.key.toUpperCase() === serie.alias.toUpperCase();
+                // VERIFY HERE ALL TYPES RECEIVED
+                if (!setSeries[serieName]) {
+                  setSeries[serieName] = [];
+                }
+
+                serie.datapoints.forEach(function (datapoint) {
+                  var datapointValue = parseFloat(datapoint[0]);
+                  var valueAndType = { 'value': datapointValue, 'type': serieType };
+                  setSeries[serieName].push(valueAndType);
+                });
+              });
+
+              var latitudes = setSeries.latitude;
+              var longitudes = setSeries.longitude;
+              var values = setSeries.value;
+
+              setSeries.pollutants = [];
+              pollutantsAux = [];
+
+              allowedPollutants.forEach(function (pollutant) {
+                if (setSeries[pollutant]) {
+                  var receivedPoll = [];
+                  setSeries[pollutant].forEach(function (poll) {
+                    receivedPoll.push(poll);
                   });
 
-                  if (!location) return;
+                  pollutantsAux.push({ 'name': pollutant, 'value': receivedPoll });
+                  delete setSeries[pollutant];
+                }
+              });
 
-                  if (_.isString(lastValue)) {
-                    data.push({ key: serie.alias, value: 0, valueFormatted: lastValue, valueRounded: 0 });
-                  } else {
-                    var dataValue = {
-                      key: serie.alias,
-                      locationName: location.name,
-                      locationLatitude: location.latitude,
-                      locationLongitude: location.longitude,
-                      value: serie.stats[_this.ctrl.panel.valueName],
-                      valueFormatted: lastValue,
-                      valueRounded: 0
-                    };
+              latitudes.forEach(function (value, index) {
+                var dataValue = void 0;
 
-                    if (dataValue.value > highestValue) highestValue = dataValue.value;
-                    if (dataValue.value < lowestValue) lowestValue = dataValue.value;
-
-                    dataValue.valueRounded = _this.kbn.roundValue(dataValue.value, parseInt(_this.ctrl.panel.decimals, 10) || 0);
-                    data.push(dataValue);
-                  }
-                });
-
-                data.highestValue = highestValue;
-                data.lowestValue = lowestValue;
-                data.valueRange = highestValue - lowestValue;
-              })();
-            }
-          }
-        }, {
-          key: 'setGeohashValues',
-          value: function setGeohashValues(dataList, data) {
-            var _this2 = this;
-
-            if (!this.ctrl.panel.esGeoPoint || !this.ctrl.panel.esMetric) return;
-
-            if (dataList && dataList.length > 0) {
-              (function () {
-                var highestValue = 0;
-                var lowestValue = Number.MAX_VALUE;
-
-                dataList[0].datapoints.forEach(function (datapoint) {
-                  var encodedGeohash = datapoint[_this2.ctrl.panel.esGeoPoint];
-                  var decodedGeohash = decodeGeoHash(encodedGeohash);
-
-                  var dataValue = {
-                    key: encodedGeohash,
-                    locationName: _this2.ctrl.panel.esLocationName ? datapoint[_this2.ctrl.panel.esLocationName] : encodedGeohash,
-                    locationLatitude: decodedGeohash.latitude,
-                    locationLongitude: decodedGeohash.longitude,
-                    value: datapoint[_this2.ctrl.panel.esMetric],
-                    valueFormatted: datapoint[_this2.ctrl.panel.esMetric],
-                    valueRounded: 0
-                  };
-
-                  if (dataValue.value > highestValue) highestValue = dataValue.value;
-                  if (dataValue.value < lowestValue) lowestValue = dataValue.value;
-
-                  dataValue.valueRounded = _this2.kbn.roundValue(dataValue.value, _this2.ctrl.panel.decimals || 0);
-                  data.push(dataValue);
-                });
-
-                data.highestValue = highestValue;
-                data.lowestValue = lowestValue;
-                data.valueRange = highestValue - lowestValue;
-              })();
-            }
-          }
-        }, {
-          key: 'setTableValues',
-          value: function setTableValues(tableData, data) {
-            var _this3 = this;
-
-            if (tableData && tableData.length > 0) {
-              (function () {
-                var highestValue = 0;
-                var lowestValue = Number.MAX_VALUE;
-
-                tableData[0].forEach(function (datapoint) {
-                  if (!datapoint.geohash) {
-                    return;
-                  }
-
-                  var encodedGeohash = datapoint.geohash;
-                  var decodedGeohash = decodeGeoHash(encodedGeohash);
-
-                  var dataValue = {
-                    key: encodedGeohash,
-                    locationName: datapoint[_this3.ctrl.panel.tableLabel] || 'n/a',
-                    locationLatitude: decodedGeohash.latitude,
-                    locationLongitude: decodedGeohash.longitude,
-                    value: datapoint.metric,
-                    valueFormatted: datapoint.metric,
-                    valueRounded: 0
-                  };
-
-                  if (dataValue.value > highestValue) highestValue = dataValue.value;
-                  if (dataValue.value < lowestValue) lowestValue = dataValue.value;
-
-                  dataValue.valueRounded = _this3.kbn.roundValue(dataValue.value, _this3.ctrl.panel.decimals || 0);
-                  data.push(dataValue);
-                });
-
-                data.highestValue = highestValue;
-                data.lowestValue = lowestValue;
-                data.valueRange = highestValue - lowestValue;
-              })();
-            }
-          }
-        }], [{
-          key: 'tableHandler',
-          value: function tableHandler(tableData) {
-            var datapoints = [];
-
-            if (tableData.type === 'table') {
-              (function () {
-                var columnNames = {};
-
-                tableData.columns.forEach(function (column, columnIndex) {
-                  columnNames[columnIndex] = column.text;
-                });
-
-                tableData.rows.forEach(function (row) {
-                  var datapoint = {};
-
-                  row.forEach(function (value, columnIndex) {
-                    var key = columnNames[columnIndex];
-                    datapoint[key] = value;
+                if (value.type === 'environment') {
+                  var thisPollutants = [];
+                  pollutantsAux.forEach(function (pollAux) {
+                    thisPollutants.push({ 'name': pollAux.name, 'value': pollAux.value[index].value });
                   });
-
-                  datapoints.push(datapoint);
-                });
-              })();
+                  dataValue = {
+                    locationLatitude: value.value,
+                    locationLongitude: longitudes[index].value,
+                    value: values[index].value,
+                    type: values[index].type,
+                    pollutants: thisPollutants
+                  };
+                } else if (value.type === 'traffic') {
+                  dataValue = {
+                    locationLatitude: value.value,
+                    locationLongitude: longitudes[index].value,
+                    value: values[index].value,
+                    type: values[index].type
+                  };
+                }
+                data.push(dataValue);
+              });
             }
-
-            return datapoints;
           }
         }]);
 

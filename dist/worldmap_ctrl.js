@@ -37,7 +37,6 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
 
   return {
     setters: [function (_appPluginsSdk) {
-      /* eslint import/no-extraneous-dependencies: 0 */
       MetricsPanelCtrl = _appPluginsSdk.MetricsPanelCtrl;
     }, function (_appCoreTime_series) {
       TimeSeries = _appCoreTime_series.default;
@@ -78,7 +77,6 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
         valueName: 'total',
         circleMinSize: 2,
         circleMaxSize: 30,
-        locationData: 'countries',
         thresholds: '0,10',
         colors: ['rgba(245, 54, 54, 0.9)', 'rgba(237, 129, 40, 0.89)', 'rgba(50, 172, 45, 0.97)'],
         unitSingle: '',
@@ -91,7 +89,7 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
         stickyLabels: false
       };
       mapCenters = {
-        '(0°, 0°)': { mapCenterLatitude: 0, mapCenterLongitude: 0 },
+        '(0°, 0°)': { mapCenterLatitude: 0.0, mapCenterLongitude: 0.0 },
         'North America': { mapCenterLatitude: 40, mapCenterLongitude: -100 },
         'Europe': { mapCenterLatitude: 46, mapCenterLongitude: 14 },
         'West Asia': { mapCenterLatitude: 26, mapCenterLongitude: 53 },
@@ -113,10 +111,10 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
 
           _this.events.on('init-edit-mode', _this.onInitEditMode.bind(_this));
           _this.events.on('data-received', _this.onDataReceived.bind(_this));
-          _this.events.on('panel-teardown', _this.onPanelTeardown.bind(_this));
-          _this.events.on('data-snapshot-load', _this.onDataSnapshotLoad.bind(_this));
+          // this.events.on('panel-teardown', this.onPanelTeardown.bind(this));
+          // this.events.on('data-snapshot-load', this.onDataSnapshotLoad.bind(this));
 
-          _this.loadLocationDataFromFile();
+          // this.loadLocationDataFromFile();
           return _this;
         }
 
@@ -134,51 +132,6 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
             } else {
               this.saturationClass = '';
             }
-          }
-        }, {
-          key: 'loadLocationDataFromFile',
-          value: function loadLocationDataFromFile(reload) {
-            var _this2 = this;
-
-            if (this.map && !reload) return;
-
-            if (this.panel.snapshotLocationData) {
-              this.locations = this.panel.snapshotLocationData;
-              return;
-            }
-
-            if (this.panel.locationData === 'jsonp endpoint') {
-              if (!this.panel.jsonpUrl || !this.panel.jsonpCallback) return;
-
-              window.$.ajax({
-                type: 'GET',
-                url: this.panel.jsonpUrl + '?callback=?',
-                contentType: 'application/json',
-                jsonpCallback: this.panel.jsonpCallback,
-                dataType: 'jsonp',
-                success: function success(res) {
-                  _this2.locations = res;
-                  _this2.render();
-                }
-              });
-            } else if (this.panel.locationData === 'json endpoint') {
-              if (!this.panel.jsonUrl) return;
-
-              window.$.getJSON(this.panel.jsonUrl).then(function (res) {
-                _this2.locations = res;
-                _this2.render();
-              });
-            } else if (this.panel.locationData === 'table') {
-              // .. Do nothing
-            } else if (this.panel.locationData !== 'geohash') {
-                window.$.getJSON('public/plugins/grafana-worldmap-panel/data/' + this.panel.locationData + '.json').then(this.reloadLocations.bind(this));
-              }
-          }
-        }, {
-          key: 'reloadLocations',
-          value: function reloadLocations(res) {
-            this.locations = res;
-            this.refresh();
           }
         }, {
           key: 'onPanelTeardown',
@@ -201,18 +154,23 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
 
             var data = [];
 
-            if (this.panel.locationData === 'geohash') {
-              this.dataFormatter.setGeohashValues(dataList, data);
-            } else if (this.panel.locationData === 'table') {
-              var tableData = dataList.map(DataFormatter.tableHandler.bind(this));
-              this.dataFormatter.setTableValues(tableData, data);
-            } else {
-              this.series = dataList.map(this.seriesHandler.bind(this));
-              this.dataFormatter.setValues(data);
-            }
+            // if (this.panel.locationData === 'geohash') {
+            //   this.dataFormatter.setGeohashValues(dataList, data);
+            // } else if (this.panel.locationData === 'table') {
+            //   const tableData = dataList.map(DataFormatter.tableHandler.bind(this));
+            //   this.dataFormatter.setTableValues(tableData, data);
+            // } else {
+            //   this.series = dataList.map(this.seriesHandler.bind(this));
+            //   this.dataFormatter.setValues(data);
+            // }
+
+            this.series = dataList.map(this.seriesHandler.bind(this));
+
+            this.dataFormatter.setValues(data);
+
             this.data = data;
 
-            this.updateThresholdData();
+            // this.updateThresholdData();
 
             this.render();
           }
@@ -239,12 +197,15 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
               this.panel.mapCenterLatitude = mapCenters[this.panel.mapCenter].mapCenterLatitude;
               this.panel.mapCenterLongitude = mapCenters[this.panel.mapCenter].mapCenterLongitude;
             }
+
+            console.log(this.panel.mapCenterLatitude, this.panel.mapCenterLongitude);
             this.mapCenterMoved = true;
             this.render();
           }
         }, {
           key: 'setZoom',
           value: function setZoom() {
+            console.log(this.panel.initialZoom);
             this.map.setZoom(this.panel.initialZoom || 1);
           }
         }, {
@@ -282,15 +243,6 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
               // not enough colors. add one.
               var newColor = 'rgba(50, 172, 45, 0.97)';
               this.panel.colors.push(newColor);
-            }
-          }
-        }, {
-          key: 'changeLocationData',
-          value: function changeLocationData() {
-            this.loadLocationDataFromFile(true);
-
-            if (this.panel.locationData === 'geohash') {
-              this.render();
             }
           }
         }, {

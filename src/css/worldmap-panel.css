@@ -26,3 +26,120 @@
 .leaflet-top.leaflet-left, .leaflet-bottom.leaflet-left, .leaflet-bottom.leaflet-right {
   z-index: 100;
 }
+
+/*---------------------------ADDED-------------------------------------*/
+
+#aqiLegend {
+    z-index: 100;
+    left: 10px;
+    top: 10px;
+    position: absolute;
+}
+
+.aqi_table{
+  width: auto;
+  max-width: 100px;
+  height: auto;
+  background-color: rgba(255,255,255,0.9);
+  color: black;
+  padding: 1px;
+  border-radius: 2px;
+  min-width: 15%;
+  text-align: left;
+  border-collapse:separate;
+  border-spacing:2px 1px;
+  font-size: 80%;
+
+  margin: 1px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+  transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+  z-index: 100;
+}
+
+td.aqi{
+  width: 100px;
+  height: 10px;
+  color: black;
+  padding-right: 15px;
+  padding-left: 15px;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  text-align: center;
+  margin-right: 2px;
+  z-index: 100;
+}
+
+#measuresTable {
+  z-index: 100;
+  width: 200px;
+  height: auto;
+  max-height: 350px;
+  background-color: white;
+  position: absolute;
+  z-index: 100;
+  bottom: 10px;
+  left: 10px;
+  overflow-y: auto;
+  padding: 2px;
+  border-radius: 2px;
+  font-weight: bold;
+  display: none;
+}
+#healthConcernsWrapper {
+  padding: 2px;
+  background-color: white;
+  border-radius: 2px;
+  z-index: 100;
+  width: 400px;
+  height: 100px;
+  position: absolute;
+  bottom: 10px;
+  left: 220px;
+  display: none;
+}
+#healthConcerns {
+  z-index: 100;
+  width: 100%;
+  height: 100%;
+  z-index: 100;
+  overflow-y: auto;
+  padding: 2px;
+  border-radius: 2px;
+  font-weight: bold;
+  text-align: justify;
+  padding: 5px;
+}
+
+#healthRisk {
+  color: black;
+  padding-top: 3px;
+  font-size: 97%;
+}
+
+#measures-table {
+  z-index: 100;
+  height: 100%;
+  width: 100%;
+  background-color:#6b6f75;
+}
+
+table {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+td, th {
+    text-align: left;
+    padding: 8px;
+}
+
+tr.measure {
+  background-color: #abafb5;
+  color: black;
+}
+
+tr.measure:nth-child(even) {
+    background-color: #dddddd;
+    color: black;
+}

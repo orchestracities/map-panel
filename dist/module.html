@@ -1,1 +1,30 @@
-<div id="mapid_{{ctrl.panel.id}}" class="mapcontainer {{ctrl.saturationClass}}" ng-style="{height: ctrl.height}"></div>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.css">
+ 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.js"></script>
+
+<div id="mapid_{{ctrl.panel.id}}" class="mapcontainer {{ctrl.saturationClass}}" ng-style="{height: ctrl.height}">
+    <div id="aqiLegend">
+        <table class="aqi_table">
+            <tr>
+                <td class="aqi" style="background-color: #009966">Good</td>
+                <td class="aqi" style="background-color: #ffde33">Moderate</td>
+                <td class="aqi" style="background-color: #ff9933">Unhealthy (sensitive groups)</td>
+                <td class="aqi" style="background-color: #cc0033">Unhealthy</td>
+                <td class="aqi" style="background-color: #660099">Very Unhealthy</td>
+                <td class="aqi" style="background-color: #7e0023">Hazardous</td>
+            </tr>
+
+            </table>
+        </div>
+        <div id="measuresTable">
+            <label style="text-align:center; color:black">Air Parameters</label>
+            <table id="measures-table">
+        </table>
+        </div>
+        <div id="healthConcernsWrapper">
+            <div id="healthConcerns">
+                <label style="text-align:center; color:black">Health Concerns</label>
+                <label id="healthRisk"></label>
+            </div>
+        </div>
+</div>
