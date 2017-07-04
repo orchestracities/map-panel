@@ -1,4 +1,7 @@
 import _ from 'lodash';
+
+import Highcharts from './libs/highcharts';
+
 /* eslint-disable id-length, no-unused-vars */
 import L from './libs/leaflet';
 /* eslint-disable id-length, no-unused-vars */
@@ -54,6 +57,8 @@ export default class WorldMap {
     this.map.on('zoomstart', (e) => {
       mapZoom = mapControl.getZoom();
     });
+
+    drawChart();
 
     // this.map.on('zoomend', (e) => {
     //   globalCircles.forEach((circle) => {
@@ -359,4 +364,30 @@ function calculateAQI(aqi) {
     }
   });
   return aqiIndex;
+}
+
+function drawChart() {
+  const myChart = window.Highcharts.chart('graphContainer', {
+    chart: {
+      type: 'bar'
+    },
+    title: {
+      text: 'Fruit Consumption'
+    },
+    xAxis: {
+      categories: ['Apples', 'Bananas', 'Oranges']
+    },
+    yAxis: {
+      title: {
+        text: 'Fruit eaten'
+      }
+    },
+    series: [{
+      name: 'Jane',
+      data: [1, 0, 4]
+    }, {
+      name: 'John',
+      data: [5, 7, 3]
+    }]
+  });
 }

@@ -1,9 +1,9 @@
 'use strict';
 
-System.register(['lodash', './libs/leaflet'], function (_export, _context) {
+System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_export, _context) {
   "use strict";
 
-  var _, L, _createClass, AQI, carsCount, mapControl, mapZoom, globalCircles, globalMarkers, globalPolylines, tileServers, carMarker, WorldMap;
+  var _, Highcharts, L, _createClass, AQI, carsCount, mapControl, mapZoom, globalCircles, globalMarkers, globalPolylines, tileServers, carMarker, WorldMap;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -63,9 +63,37 @@ System.register(['lodash', './libs/leaflet'], function (_export, _context) {
     });
     return aqiIndex;
   }
+
+  function drawChart() {
+    var myChart = window.Highcharts.chart('graphContainer', {
+      chart: {
+        type: 'bar'
+      },
+      title: {
+        text: 'Fruit Consumption'
+      },
+      xAxis: {
+        categories: ['Apples', 'Bananas', 'Oranges']
+      },
+      yAxis: {
+        title: {
+          text: 'Fruit eaten'
+        }
+      },
+      series: [{
+        name: 'Jane',
+        data: [1, 0, 4]
+      }, {
+        name: 'John',
+        data: [5, 7, 3]
+      }]
+    });
+  }
   return {
     setters: [function (_lodash) {
       _ = _lodash.default;
+    }, function (_libsHighcharts) {
+      Highcharts = _libsHighcharts.default;
     }, function (_libsLeaflet) {
       L = _libsLeaflet.default;
     }],
@@ -136,6 +164,8 @@ System.register(['lodash', './libs/leaflet'], function (_export, _context) {
             this.map.on('zoomstart', function (e) {
               mapZoom = mapControl.getZoom();
             });
+
+            drawChart();
 
             // this.map.on('zoomend', (e) => {
             //   globalCircles.forEach((circle) => {

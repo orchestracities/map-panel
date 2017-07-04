@@ -8,7 +8,7 @@
     "lint": "eslint --color .",
     "lint:watch": "onchange 'src/**/*.js' -- npm run lint",
     "build": "grunt",
-    "prebuild": "npm run lint && npm run clean",
+    "prebuild": "npm run clean",
     "build:watch": "onchange 'src/**/*.js' 'plugin.json' -- npm run build",
     "test:watch": "karma start",
     "test": "karma start --single-run"
@@ -52,6 +52,7 @@
   "dependencies": {
     "es6-module-loader": "^0.17.11",
     "grafana-sdk-test": "^1.0.0",
+    "highcharts": "^5.0.12",
     "lodash": "~4.16.2"
   }
 }

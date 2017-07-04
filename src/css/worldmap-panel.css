@@ -144,3 +144,10 @@ tr.measure:nth-child(even) {
     background-color: #dddddd;
     color: black;
 }
+
+#dataChart {
+  width: 100%;
+  height: 250px;
+  background-color: white;
+  margin-top: 1%;
+}
