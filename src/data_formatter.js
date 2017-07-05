@@ -36,6 +36,7 @@ export default class DataFormatter {
       const longitudes = setSeries.longitude;
       const values = setSeries.value;
       const ids = setSeries.id;
+      const times = setSeries.created_at
 
       setSeries.pollutants = [];
       pollutantsAux = [];
@@ -66,7 +67,8 @@ export default class DataFormatter {
             value: values[index].value,
             type: values[index].type,
             pollutants: thisPollutants,
-            id: ids[value].id
+            id: ids[index].value,
+            time: times[index].value
           };
         } else if (value.type === 'traffic') {
           dataValue = {
@@ -74,7 +76,8 @@ export default class DataFormatter {
             locationLongitude: longitudes[index].value,
             value: values[index].value,
             type: values[index].type,
-            id: ids[value].id
+            id: ids[index].value,
+            time: times[index].value
           };
         }
         data.push(dataValue);

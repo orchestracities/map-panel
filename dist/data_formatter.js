@@ -71,6 +71,7 @@ System.register([], function (_export, _context) {
               var longitudes = setSeries.longitude;
               var values = setSeries.value;
               var ids = setSeries.id;
+              var times = setSeries.created_at;
 
               setSeries.pollutants = [];
               pollutantsAux = [];
@@ -101,7 +102,8 @@ System.register([], function (_export, _context) {
                     value: values[index].value,
                     type: values[index].type,
                     pollutants: thisPollutants,
-                    id: ids[value].id
+                    id: ids[index].value,
+                    time: times[index].value
                   };
                 } else if (value.type === 'traffic') {
                   dataValue = {
@@ -109,7 +111,8 @@ System.register([], function (_export, _context) {
                     locationLongitude: longitudes[index].value,
                     value: values[index].value,
                     type: values[index].type,
-                    id: ids[value].id
+                    id: ids[index].value,
+                    time: times[index].value
                   };
                 }
                 data.push(dataValue);
