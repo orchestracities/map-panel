@@ -272,6 +272,8 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
             this.clearMarkers();
             this.clearPolylines();
 
+            console.log(data);
+
             this.createPoints(data);
           }
         }, {

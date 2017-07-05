@@ -121,6 +121,8 @@ export default class WorldMap {
     this.clearMarkers();
     this.clearPolylines();
 
+    console.log(data);
+
     this.createPoints(data);
   }
 
