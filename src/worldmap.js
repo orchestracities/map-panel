@@ -362,6 +362,22 @@ function showPollutants(e) {
 
   while (measuresTable.rows[0]) measuresTable.deleteRow(0);
 
+  // Remove air paramters from dropdown
+  var el = document.getElementById('airParametersDropdown');
+  while ( el.firstChild ) {
+    el.removeChild( el.firstChild )
+  }
+
+  // ---
+
+  // Add default pollutant option
+  const defaultPollutantOption = document.createElement('option');
+  const html = '<option value="0" selected="selected">AirQualityIndex</option>';
+
+  defaultPollutantOption.innerHTML = html;
+  document.getElementById('airParametersDropdown').appendChild(defaultPollutantOption);
+
+  // -----
   const circlePollutants = e.target.options.pollutants;
 
   circlePollutants.forEach((pollutant) => {
@@ -379,6 +395,15 @@ function showPollutants(e) {
     cell1.innerHTML = innerCell1;
     cell0.className = 'cell';
     cell1.className = 'cell';
+
+    // Add Pollutants to Chart Dropdown
+    const newPollutant = document.createElement('option');
+    const selectHTML = '<option value='+pollutant.name.toUpperCase()+'>'+pollutant.name.toUpperCase()+'</option>';
+
+    newPollutant.innerHTML = selectHTML;
+    document.getElementById('airParametersDropdown').appendChild(newPollutant);
+
+    // ----
   });
 
   document.getElementById('measuresTable').style.display = 'inherit';
@@ -411,6 +436,13 @@ function calculateAQI(aqi) {
   return aqiIndex;
 }
 
+function getAirPollutantDropdownValue() {
+
+  const e = document.getElementById('airParametersDropdown');
+  return  e.options[e.selectedIndex].value;
+
+}
+
 function drawChart(e) {
   const chart = document.getElementById('dataChart');
   chart.style.display = 'block';
@@ -420,6 +452,9 @@ function drawChart(e) {
 
   const values = timeSeries.values[id];
   let title = '';
+
+  const selectedPollutant = getAirPollutantDropdownValue();
+  console.log(selectedPollutant);
 
   if (type === 'environment'){
     // const pollutants = timeSeries.pollutants;

@@ -16,7 +16,23 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
 
     while (measuresTable.rows[0]) {
       measuresTable.deleteRow(0);
-    }var circlePollutants = e.target.options.pollutants;
+    } // Remove air paramters from dropdown
+    var el = document.getElementById('airParametersDropdown');
+    while (el.firstChild) {
+      el.removeChild(el.firstChild);
+    }
+
+    // ---
+
+    // Add default pollutant option
+    var defaultPollutantOption = document.createElement('option');
+    var html = '<option value="0" selected="selected">Select an Air Parameter</option>';
+
+    defaultPollutantOption.innerHTML = html;
+    document.getElementById('airParametersDropdown').appendChild(defaultPollutantOption);
+
+    // -----
+    var circlePollutants = e.target.options.pollutants;
 
     circlePollutants.forEach(function (pollutant) {
       var row = measuresTable.insertRow(0);
@@ -32,6 +48,15 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
       cell1.innerHTML = innerCell1;
       cell0.className = 'cell';
       cell1.className = 'cell';
+
+      // Add Pollutants to Chart Dropdown
+      var newPollutant = document.createElement('option');
+      var selectHTML = '<option value=' + pollutant.name.toUpperCase() + '>' + pollutant.name.toUpperCase() + '</option>';
+
+      newPollutant.innerHTML = selectHTML;
+      document.getElementById('airParametersDropdown').appendChild(newPollutant);
+
+      // ----
     });
 
     document.getElementById('measuresTable').style.display = 'inherit';
@@ -64,6 +89,12 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
     return aqiIndex;
   }
 
+  function getAirPollutantDropdownValue() {
+
+    var e = document.getElementById('airParametersDropdown');
+    return e.options[e.selectedIndex].value;
+  }
+
   function drawChart(e) {
     var chart = document.getElementById('dataChart');
     chart.style.display = 'block';
@@ -73,6 +104,9 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
 
     var values = timeSeries.values[id];
     var title = '';
+
+    var selectedPollutant = getAirPollutantDropdownValue();
+    console.log(selectedPollutant);
 
     if (type === 'environment') {
       // const pollutants = timeSeries.pollutants;
