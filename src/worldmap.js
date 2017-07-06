@@ -27,6 +27,9 @@ let globalCircles = [];
 let globalMarkers = [];
 let globalPolylines = [];
 
+let currentTargetForChart;
+let currentParameterForChart = 'aqi';
+
 const tileServers = {
   'CartoDB Positron': { url: 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>', subdomains: 'abcd'},
   'CartoDB Dark': {url: 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png', attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>', subdomains: 'abcd'}
@@ -47,6 +50,7 @@ export default class WorldMap {
     this.createMap();
     this.circles = [];
   }
+  
 
   createMap() {
     const mapCenter = window.L.latLng(parseFloat(this.ctrl.panel.mapCenterLatitude), parseFloat(this.ctrl.panel.mapCenterLongitude));
@@ -60,22 +64,10 @@ export default class WorldMap {
       mapZoom = mapControl.getZoom();
     });
 
-    // this.map.on('zoomend', (e) => {
-    //   globalCircles.forEach((circle) => {
-    //     console.log(mapZoom, e.target._zoom);
-    //     if (e.target._zoom !== 0 && e.target._zoom >= mapZoom) {
-    //       circle.setRadius(circle.getRadius() + Math.round(mapZoom));
-    //     }
-    //     if (e.target._zoom !== 0 && e.target._zoom <= mapZoom) {
-    //       circle.setRadius(circle.getRadius() - Math.round(mapZoom));
-    //     }
-    //     console.log(circle.getRadius());
-    //   });
-    // });
-
     this.map.on('click', (e) => {
       document.getElementById('measuresTable').style.display = 'none';
       document.getElementById('healthConcernsWrapper').style.display = 'none';
+      document.getElementById('dataChart').style.display = 'none';
     });
 
     const selectedTileServer = tileServers[this.ctrl.tileServer];
@@ -86,6 +78,14 @@ export default class WorldMap {
       detectRetina: true,
       attribution: selectedTileServer.attribution
     }).addTo(this.map, true);
+
+    const airParametersDropdown = document.getElementById('airParametersDropdown');
+
+    airParametersDropdown.addEventListener("change", function() {
+      currentParameterForChart = this.value;
+      console.log(airParametersDropdown.value);
+      drawChart(currentTargetForChart);
+    });
   }
 
   filterEmptyAndZeroValues(data) {
@@ -208,7 +208,7 @@ export default class WorldMap {
       smoothFactor: 1,
       id: id,
       type: type
-    }).on('click', drawChart);
+    }).on('click', drawChart).on('click', this.setTarget).on('click', this.removePollDropdown);;
 
     globalPolylines.push(polygon);
     this.polylinesLayer = this.addPolylines(globalPolylines);
@@ -248,6 +248,8 @@ export default class WorldMap {
     const id = dataPoint.id;
     const type = dataPoint.type;
 
+    pollutants.push({'name': 'aqi', 'value': dataPoint.value});
+
     const circle = window.L.circle([dataPoint.locationLatitude, dataPoint.locationLongitude], 200, {
       color: aqiColor,
       fillColor: aqiColor,
@@ -258,10 +260,18 @@ export default class WorldMap {
       pollutants: pollutants,
       id: id,
       type: type
-    }).on('click', drawChart).on('mouseover', showPollutants);
+    }).on('click', drawChart).on('click', this.setTarget).on('click', this.addPollDropdown);
 
     this.createPopupCircle(circle, dataPoint.value, aqiMeaning);
     return circle;
+  
+}
+  addPollDropdown() {
+    document.getElementById('dataDetails').style.display = 'block'
+  }
+
+  removePollDropdown() {
+    document.getElementById('dataDetails').style.display = 'none'
   }
 
   createPopupMarker(marker, value) {
@@ -313,6 +323,10 @@ export default class WorldMap {
         polyline.closePopup();
       });
     }
+  }
+
+  setTarget(e) {
+    currentTargetForChart = e;
   }
 
   resize() {
@@ -371,11 +385,11 @@ function showPollutants(e) {
   // ---
 
   // Add default pollutant option
-  const defaultPollutantOption = document.createElement('option');
-  const html = '<option value="0" selected="selected">AirQualityIndex</option>';
+  // const defaultPollutantOption = document.createElement('option');
+  // const html = '<option value="aqi" selected="selected">AQI</option>';
 
-  defaultPollutantOption.innerHTML = html;
-  document.getElementById('airParametersDropdown').appendChild(defaultPollutantOption);
+  // defaultPollutantOption.innerHTML = html;
+  // document.getElementById('airParametersDropdown').appendChild(defaultPollutantOption);
 
   // -----
   const circlePollutants = e.target.options.pollutants;
@@ -398,9 +412,15 @@ function showPollutants(e) {
 
     // Add Pollutants to Chart Dropdown
     const newPollutant = document.createElement('option');
-    const selectHTML = '<option value='+pollutant.name.toUpperCase()+'>'+pollutant.name.toUpperCase()+'</option>';
 
-    newPollutant.innerHTML = selectHTML;
+    // if (pollutant.name === 'aqi'){
+    //   newPollutant.selected = 'selected'
+    // }
+    newPollutant.id = 'pollutantOption';
+    newPollutant.value = pollutant.name.toUpperCase();
+
+    newPollutant.innerHTML = pollutant.name.toUpperCase();
+ 
     document.getElementById('airParametersDropdown').appendChild(newPollutant);
 
     // ----
@@ -436,14 +456,10 @@ function calculateAQI(aqi) {
   return aqiIndex;
 }
 
-function getAirPollutantDropdownValue() {
-
-  const e = document.getElementById('airParametersDropdown');
-  return  e.options[e.selectedIndex].value;
-
-}
 
 function drawChart(e) {
+  const currentParameter = currentParameterForChart.toLowerCase();
+
   const chart = document.getElementById('dataChart');
   chart.style.display = 'block';
 
@@ -452,32 +468,52 @@ function drawChart(e) {
 
   const values = timeSeries.values[id];
   let title = '';
+  let data = [];
 
-  const selectedPollutant = getAirPollutantDropdownValue();
-  console.log(selectedPollutant);
-
-  if (type === 'environment'){
-    // const pollutants = timeSeries.pollutants;
-    title = 'Air Quality Index ';
-  }
-  else {
-    title = 'Number Of Cars ';
+  if (type === 'environment') {
+    showPollutants(e);
   }
 
-  const data = [];
+  if (type === 'environment' && currentParameter !== 'aqi') {
 
-  values.forEach((value) => {
-    const time = new Date(value.time);
+    const parameterChoice = timeSeries.pollutants[currentParameter];
+    
+    parameterChoice.forEach((sensor) => {
+      if (sensor.id === id) {
+        const time = new Date(sensor.time);
 
-    const day = time.getDay();
-    const month = time.getMonth();
-    const year = time.getFullYear();
-    const hour = time.getHours() - 1 ;
-    const minutes = time.getMinutes();
-    const seconds = time.getSeconds();
+        const day = time.getDay();
+        const month = time.getMonth();
+        const year = time.getFullYear();
+        const hour = time.getHours() - 1 ;
+        const minutes = time.getMinutes();
+        const seconds = time.getSeconds();
 
-    data.push([Date.UTC(year, month, day, hour, minutes, seconds), value.value]);
-  });
+        data.push([Date.UTC(year, month, day, hour, minutes, seconds), sensor.value]);
+      }
+    });
+
+    title = currentParameter.toUpperCase() + ' values for sensor ' + id;
+  }
+  if ((type === 'environment' && currentParameter === 'aqi')  || type === 'traffic') {
+
+    if(type === 'traffic') {
+      title = 'Number of cars for sensor ' + id;
+    }
+
+    values.forEach((value) => {
+      const time = new Date(value.time);
+
+      const day = time.getDay();
+      const month = time.getMonth();
+      const year = time.getFullYear();
+      const hour = time.getHours() - 1 ;
+      const minutes = time.getMinutes();
+      const seconds = time.getSeconds();
+
+      data.push([Date.UTC(year, month, day, hour, minutes, seconds), value.value]);
+    });
+  }
 
   window.Highcharts.chart('graphContainer', {
       chart: {
@@ -485,7 +521,7 @@ function drawChart(e) {
           backgroundColor: '#1f1d1d'
       },
       title: {
-          text: title + 'for Sensor ' + id
+          text: title
       },
       subtitle: {
           text: document.ontouchstart === undefined ? '' : ''
