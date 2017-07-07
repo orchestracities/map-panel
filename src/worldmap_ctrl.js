@@ -126,24 +126,12 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
 
     const data = [];
 
-    // if (this.panel.locationData === 'geohash') {
-    //   this.dataFormatter.setGeohashValues(dataList, data);
-    // } else if (this.panel.locationData === 'table') {
-    //   const tableData = dataList.map(DataFormatter.tableHandler.bind(this));
-    //   this.dataFormatter.setTableValues(tableData, data);
-    // } else {
-    //   this.series = dataList.map(this.seriesHandler.bind(this));
-    //   this.dataFormatter.setValues(data);
-    // }
-
     this.series = dataList.map(this.seriesHandler.bind(this));
 
 
     this.dataFormatter.setValues(data);
 
     this.data = data;
-
-    // this.updateThresholdData();
 
     this.render();
   }
@@ -195,29 +183,6 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
     this.map.legend.update();
     this.render();
   }
-
-  updateThresholdData() {
-    this.data.thresholds = this.panel.thresholds.split(',').map((strValue) => {
-      return Number(strValue.trim());
-    });
-    while (_.size(this.panel.colors) > _.size(this.data.thresholds) + 1) {
-      // too many colors. remove the last one.
-      this.panel.colors.pop();
-    }
-    while (_.size(this.panel.colors) < _.size(this.data.thresholds) + 1) {
-      // not enough colors. add one.
-      const newColor = 'rgba(50, 172, 45, 0.97)';
-      this.panel.colors.push(newColor);
-    }
-  }
-
-  // changeLocationData() {
-  //   this.loadLocationDataFromFile(true);
-
-  //   if (this.panel.locationData === 'geohash') {
-  //     this.render();
-  //   }
-  // }
 
 /* eslint class-methods-use-this: 0 */
   link(scope, elem, attrs, ctrl) {

@@ -154,23 +154,11 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
 
             var data = [];
 
-            // if (this.panel.locationData === 'geohash') {
-            //   this.dataFormatter.setGeohashValues(dataList, data);
-            // } else if (this.panel.locationData === 'table') {
-            //   const tableData = dataList.map(DataFormatter.tableHandler.bind(this));
-            //   this.dataFormatter.setTableValues(tableData, data);
-            // } else {
-            //   this.series = dataList.map(this.seriesHandler.bind(this));
-            //   this.dataFormatter.setValues(data);
-            // }
-
             this.series = dataList.map(this.seriesHandler.bind(this));
 
             this.dataFormatter.setValues(data);
 
             this.data = data;
-
-            // this.updateThresholdData();
 
             this.render();
           }
@@ -228,22 +216,6 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
             this.updateThresholdData();
             this.map.legend.update();
             this.render();
-          }
-        }, {
-          key: 'updateThresholdData',
-          value: function updateThresholdData() {
-            this.data.thresholds = this.panel.thresholds.split(',').map(function (strValue) {
-              return Number(strValue.trim());
-            });
-            while (_.size(this.panel.colors) > _.size(this.data.thresholds) + 1) {
-              // too many colors. remove the last one.
-              this.panel.colors.pop();
-            }
-            while (_.size(this.panel.colors) < _.size(this.data.thresholds) + 1) {
-              // not enough colors. add one.
-              var newColor = 'rgba(50, 172, 45, 0.97)';
-              this.panel.colors.push(newColor);
-            }
           }
         }, {
           key: 'link',

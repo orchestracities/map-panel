@@ -18,6 +18,16 @@ const carsCount = {
   'color': ['#009966', '#ffde33', '#ff9933', '#cc0033', '#660099', '#7e0023']
 };
 
+const Pollutants = {
+  'h': {'name': 'Hydrogen', 'unit': ''}, 
+  'no2': {'name': 'Nitrogen Dioxide', 'unit': 'µg/m3'}, 
+  'p': {'name': 'Pressure', 'unit': 'hPa'}, 
+  'pm10': {'name': 'PM10', 'unit': 'ug/m3'}, 
+  'pm25': {'name': 'PM25', 'unit': 'ug/m3'},  
+  't': {'name': 'Temperature', 'unit': 'ºC'}, 
+  'aqi': {'name': 'Air Quality Index', 'unit': ''}
+};
+
 let timeSeries = {};
 
 let mapControl;
@@ -27,7 +37,7 @@ let globalCircles = [];
 let globalMarkers = [];
 let globalPolylines = [];
 
-let currentTargetForChart;
+let currentTargetForChart = null;
 let currentParameterForChart = 'aqi';
 
 const tileServers = {
@@ -83,7 +93,6 @@ export default class WorldMap {
 
     airParametersDropdown.addEventListener("change", function() {
       currentParameterForChart = this.value;
-      console.log(airParametersDropdown.value);
       drawChart(currentTargetForChart);
     });
   }
@@ -115,6 +124,25 @@ export default class WorldMap {
     }
   }
 
+  dataTreatment(data) {
+    const finalData = {};
+    let auxData = {};
+
+    data.forEach((value) => {
+      if (!(finalData[value.id])) {
+        finalData[value.id] = [];
+      }
+      if (value.type === 'environment'){
+          finalData[value.id].push({'id': value.id, 'locationLatitude': value.locationLatitude, 'locationLongitude': value.locationLongitude, 'time': value.time, 'type': value.type, 'value': value.value,'pollutants': value.pollutants});
+      }
+      else {
+          finalData[value.id].push({'id': value.id, 'locationLatitude': value.locationLatitude, 'locationLongitude': value.locationLongitude, 'time': value.time, 'type': value.type, 'value': value.value});
+      }
+    });
+
+    return finalData;
+  }
+
   drawPoints() {
     const data = this.filterEmptyAndZeroValues(this.ctrl.data);
     this.clearCircles();
@@ -123,9 +151,15 @@ export default class WorldMap {
 
     timeSeries = {};
 
-    this.createTimeSeries(data);
+    const treatedData = this.dataTreatment(data);
 
-    this.createPoints(data);
+    this.createTimeSeries(treatedData);
+    this.createPoints(treatedData);
+
+    // Id sensor selected and new data arrives the chart will be updated
+    if (currentTargetForChart !== null){
+      drawChart(currentTargetForChart);
+    }
   }
 
   createTimeSeries(data) {
@@ -134,48 +168,51 @@ export default class WorldMap {
     const values = [];
     const pollutantsValues = [];
 
-    data.forEach((point) => {
-      const id = point.id;
-      const time = point.time;
-      let pollutants = '';
+    Object.keys(data).forEach(key => {
+      data[key].forEach((point) => {
+        const id = point.id;
+        const time = point.time;
+        let pollutants = '';
 
-      if(point.type === 'environment'){
-        pollutants = point.pollutants;
-      }
-      const value = point.value;
-      
-      if(point.type === 'environment'){
-        const pollutantsTemp = {};
+        if(point.type === 'environment'){
+          pollutants = point.pollutants;
+        }
+        const value = point.value;
+        
+        if(point.type === 'environment'){
+          const pollutantsTemp = {};
 
-        pollutants.forEach((pollutant) => {
-          if(!(pollutantsValues[pollutant.name])){
-            pollutantsValues[pollutant.name] = [];
-          }
-          pollutantsValues[pollutant.name].push({'time': time, 'value': pollutant.value, 'id': id});
-        });
-      }
+          pollutants.forEach((pollutant) => {
+            if(!(pollutantsValues[pollutant.name])){
+              pollutantsValues[pollutant.name] = [];
+            }
+            pollutantsValues[pollutant.name].push({'time': time, 'value': pollutant.value, 'id': id});
+          });
+        }
 
-      if (!(valueValues[point.id])){
-        valueValues[point.id] = [];
-      }
-      valueValues[point.id].push({'time': time, 'value': value, 'id': id});
+        if (!(valueValues[point.id])){
+          valueValues[point.id] = [];
+        }
+        valueValues[point.id].push({'time': time, 'value': value, 'id': id});
+      });
     });
     timeSeries = {'values': valueValues, 'pollutants': pollutantsValues};
   }
 
   createPoints(data) {
-    data.forEach((dataPoint) => {
-      if (dataPoint.type === 'environment') {
-        const newCircle = this.createCircle(dataPoint);
+    Object.keys(data).forEach(key => {
+      const value = data[key][data[key].length - 1 ]; // Use the last data for each sensor to create on map -> avoid repeated markers on map and use just the last measurement (the one needed to show on marker)
+      if (value.type === 'environment') {
+        const newCircle = this.createCircle(value);
         globalCircles.push(newCircle);
         this.circlesLayer = this.addCircles(globalCircles);
-      } else if (dataPoint.type === 'traffic') {
-        this.createMarker(dataPoint);
+      } else if (value.type === 'traffic') {
+        this.createMarker(value);
         // const newMarker = this.createMarker(dataPoint);
         // globalMarkers.push(newMarker);
         // this.markersLayer = this.addMarkers(globalMarkers);
       } else {
-        console.log('Map point type ' + dataPoint.type + ' invalid. Must be environment or traffic');
+        console.log('Map point type ' + value.type + ' invalid. Must be environment or traffic');
       }
     });
   }
@@ -205,7 +242,7 @@ export default class WorldMap {
     const polygon = window.L.polyline(polyline, {
       color: color,
       weight: 5,
-      smoothFactor: 1,
+      smoothFactor: 5,
       id: id,
       type: type
     }).on('click', drawChart).on('click', this.setTarget).on('click', this.removePollDropdown);;
@@ -240,6 +277,7 @@ export default class WorldMap {
   }
 
   createCircle(dataPoint) {
+    console.log(dataPoint);
     const aqi = calculateAQI(dataPoint.value);
     const aqiColor = AQI.color[aqi];
     const aqiMeaning = AQI.meaning[aqi];
@@ -259,7 +297,10 @@ export default class WorldMap {
       aqiRisk: aqiRisk,
       pollutants: pollutants,
       id: id,
-      type: type
+      type: type,
+      latitude: dataPoint.locationLatitude,
+      longitude: dataPoint.locationLongitude,
+      aqi: dataPoint.value
     }).on('click', drawChart).on('click', this.setTarget).on('click', this.addPollDropdown);
 
     this.createPopupCircle(circle, dataPoint.value, aqiMeaning);
@@ -371,7 +412,8 @@ export default class WorldMap {
   }
 }
 
-function showPollutants(e) {
+function showPollutants(allPollutants, id, aqi) {
+
   const measuresTable = document.getElementById('measures-table');
 
   while (measuresTable.rows[0]) measuresTable.deleteRow(0);
@@ -384,22 +426,36 @@ function showPollutants(e) {
 
   // ---
 
-  // Add default pollutant option
-  // const defaultPollutantOption = document.createElement('option');
-  // const html = '<option value="aqi" selected="selected">AQI</option>';
+  // Add default pollutant option to dropdown
+  const defaultPollutantOption = document.createElement('option');
+  const html = '<option value="0" selected="selected">Air Parameter</option>';
 
-  // defaultPollutantOption.innerHTML = html;
-  // document.getElementById('airParametersDropdown').appendChild(defaultPollutantOption);
+  defaultPollutantOption.innerHTML = html;
+  document.getElementById('airParametersDropdown').appendChild(defaultPollutantOption);
 
   // -----
-  const circlePollutants = e.target.options.pollutants;
 
-  circlePollutants.forEach((pollutant) => {
+
+  const pollutantsToShow = {};
+  for (const key in allPollutants) {
+    allPollutants[key].forEach((_value) => {
+      if (_value.id === id) {
+        if (!(pollutantsToShow[key])){
+          pollutantsToShow[key] = 0;
+        }
+        pollutantsToShow[key] = _value.value;
+      }
+    });
+  }
+
+  pollutantsToShow['aqi'] = aqi;
+
+  for (const pollutant in pollutantsToShow){
     const row = measuresTable.insertRow(0);
     row.className = 'measure';
 
-    const innerCell0 = pollutant.name.toUpperCase();
-    const innerCell1 = pollutant.value;
+    const innerCell0 = Pollutants[pollutant].name;
+    const innerCell1 = pollutantsToShow[pollutant] + ' ' + Pollutants[pollutant].unit;
 
     const cell0 = row.insertCell(0);
     const cell1 = row.insertCell(1);
@@ -417,30 +473,30 @@ function showPollutants(e) {
     //   newPollutant.selected = 'selected'
     // }
     newPollutant.id = 'pollutantOption';
-    newPollutant.value = pollutant.name.toUpperCase();
+    newPollutant.value = pollutant.toUpperCase();
 
-    newPollutant.innerHTML = pollutant.name.toUpperCase();
+    newPollutant.innerHTML = Pollutants[pollutant].name;
  
     document.getElementById('airParametersDropdown').appendChild(newPollutant);
 
     // ----
-  });
+  };
 
   document.getElementById('measuresTable').style.display = 'inherit';
 
-  showHealthConcerns(e);
+  // showHealthConcerns(e);
 }
 
-function showHealthConcerns(e) {
+function showHealthConcerns(risk, color, meaning) {
   const healthConcernsWrapper = document.getElementById('healthConcernsWrapper');
   const healthConcerns = document.getElementById('healthConcerns');
   const healthRisk = document.getElementById('healthRisk');
 
   healthConcernsWrapper.style.display = 'inherit';
 
-  const risk = e.target.options.aqiRisk;
-  const color = e.target.options.aqiColor;
-  const meaning = e.target.options.aqiMeaning;
+  // const risk = e.target.options.aqiRisk;
+  // const color = e.target.options.aqiColor;
+  // const meaning = e.target.options.aqiMeaning;
 
   healthConcerns.style.backgroundColor = color;
   healthRisk.innerHTML = risk;
@@ -456,7 +512,6 @@ function calculateAQI(aqi) {
   return aqiIndex;
 }
 
-
 function drawChart(e) {
   const currentParameter = currentParameterForChart.toLowerCase();
 
@@ -468,11 +523,27 @@ function drawChart(e) {
 
   const values = timeSeries.values[id];
   let title = '';
+  let parameterUnit = '';
   let data = [];
 
+  const lastValueMeasure = values[values.length - 1].value;
+
+  const aqiIndex = calculateAQI(lastValueMeasure);
+  // Show Pollutants Legend (MAP)
   if (type === 'environment') {
-    showPollutants(e);
+    const allPollutants = timeSeries.pollutants;
+    showPollutants(allPollutants, id, lastValueMeasure);
+    showHealthConcerns(AQI.risks[aqiIndex], AQI.color[aqiIndex], AQI.meaning[aqiIndex]);
+  } else { // Hide legend
+    document.getElementById('healthConcernsWrapper').style.display = 'none';
+    document.getElementById('measuresTable').style.display = 'none';
+
   }
+  // ------
+
+  parameterUnit = Pollutants[currentParameter].unit;
+
+  title = Pollutants[currentParameter].name + ' - Sensor ' + id;
 
   if (type === 'environment' && currentParameter !== 'aqi') {
 
@@ -492,13 +563,12 @@ function drawChart(e) {
         data.push([Date.UTC(year, month, day, hour, minutes, seconds), sensor.value]);
       }
     });
-
-    title = currentParameter.toUpperCase() + ' values for sensor ' + id;
   }
   if ((type === 'environment' && currentParameter === 'aqi')  || type === 'traffic') {
 
     if(type === 'traffic') {
-      title = 'Number of cars for sensor ' + id;
+      title = 'Cars Count - Sensor ' + id;
+      parameterUnit = 'Cars'
     }
 
     values.forEach((value) => {
@@ -531,7 +601,7 @@ function drawChart(e) {
       },
       yAxis: {
           title: {
-              text: title
+              text: parameterUnit
           }
       },
       legend: {
@@ -539,25 +609,25 @@ function drawChart(e) {
       },
       plotOptions: {
           area: {
-              fillColor: {
-                linearGradient: {
-                  x1: 0,
-                  y1: 0,
-                  x2: 0,
-                  y2: 1
-                },
-                stops: [
-                    [0, '#009933'],
-                    [1, '#00FFFFFF']
-                ]
-              },
+              // fillColor: {
+              //   linearGradient: {
+              //     x1: 0,
+              //     y1: 0,
+              //     x2: 0,
+              //     y2: 1
+                // }
+                // stops: [
+                //     [0, '#CCCCCC'],
+                //     [1, '#FFFFFF']
+                // ]
+              // },
               marker: {
-                  radius: 3
+                  radius: 4
               },
-              lineWidth: 2,
+              lineWidth: 3,
               states: {
                   hover: {
-                      lineWidth: 3
+                      lineWidth: 4
                   }
               },
               threshold: null
@@ -567,7 +637,7 @@ function drawChart(e) {
       series: [{
           type: 'area',
           name: title,
-          color: '#009933',
+          color: '#CCCCCC',
           data: data
       }]
   });
