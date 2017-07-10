@@ -2,6 +2,7 @@
 // import decodeGeoHash from './geohash';
 
 const allowedPollutants = ['h', 'no2', 'p', 'pm10', 'pm25', 't'];
+const allowedTypes = ['traffic', 'environment'];
 
 export default class DataFormatter {
   constructor(ctrl, kbn) {
@@ -16,8 +17,12 @@ export default class DataFormatter {
 
     if (this.ctrl.series && this.ctrl.series.length > 0) {
       this.ctrl.series.forEach((serie) => {
-        // console.log(serie);
+
         serieType = serie.id.split(':')[0];
+        
+        if (allowedTypes.indexOf(serieType) === -1){
+          throw new Error("Please make sure you group series by type (environment or traffic)");
+        }
         const serieName = serie.alias.split(': ')[1];
 
         // VERIFY HERE ALL TYPES RECEIVED
@@ -37,6 +42,10 @@ export default class DataFormatter {
       const values = setSeries.value;
       const ids = setSeries.id;
       const times = setSeries.created_at
+
+      if(!(latitudes) || !(longitudes) || !(values) || !(ids) || !(times)){
+        throw new Error("Please make sure you selected Raw Data for latitude, longitude, value, id and created_at series");
+      }
 
       setSeries.pollutants = [];
       pollutantsAux = [];

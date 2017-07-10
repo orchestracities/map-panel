@@ -1,30 +1,25 @@
 {
   "type": "panel",
-  "name": "Worldmap Panel",
-  "id": "grafana-worldmap-panel",
+  "name": "Environment and Traffic Panel",
+  "id": "grafana-traffic-env-panel",
 
   "info": {
-    "description": "World Map panel for grafana. Displays time series data or geohash data from Elasticsearch overlaid on a world map.",
+    "description": "Map panel for grafana using traffic and environment data",
     "author": {
-      "name": "Raintank Inc.",
-      "url": "http://raintank.io"
+      "name": "Ubiwhere",
+      "url": ""
     },
-    "keywords": ["worldmap", "panel"],
+    "keywords": ["worldmap", "panel", "traffic", "environment"],
     "logos": {
       "small": "src/images/worldmap_logo.svg",
       "large": "src/images/worldmap_logo.svg"
     },
     "links": [
-      {"name": "Project site", "url": "https://github.com/grafana/worldmap-panel"},
-      {"name": "MIT License", "url": "https://github.com/grafana/worldmap-panel/blob/master/LICENSE"}
+      {"name": "Project site", "url": ""},
+      {"name": "MIT License", "url": ""}
     ],
-    "screenshots": [
-      {"name": "World", "path": "src/images/worldmap-world.png"},
-      {"name": "USA", "path": "src/images/worldmap-usa.png"},
-      {"name": "Light Theme", "path": "src/images/worldmap-light-theme.png"}
-    ],
-    "version": "0.0.17",
-    "updated": "2016-10-20"
+    "version": "0",
+    "updated": "2017-07-10"
   },
 
   "dependencies": {

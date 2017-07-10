@@ -283,7 +283,7 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
         'color': ['#009966', '#ffde33', '#ff9933', '#cc0033', '#660099', '#7e0023']
       };
       Pollutants = {
-        'h': { 'name': 'Hydrogen', 'unit': '' },
+        'h': { 'name': 'Relative Humidity', 'unit': '%' },
         'no2': { 'name': 'Nitrogen Dioxide', 'unit': 'µg/m3' },
         'p': { 'name': 'Pressure', 'unit': 'hPa' },
         'pm10': { 'name': 'PM10', 'unit': 'ug/m3' },
@@ -300,8 +300,8 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
       currentTargetForChart = null;
       currentParameterForChart = 'aqi';
       tileServers = {
-        'CartoDB Positron': { url: 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>', subdomains: 'abcd' },
-        'CartoDB Dark': { url: 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png', attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>', subdomains: 'abcd' }
+        'CartoDB Positron': { url: 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', attribution: '', subdomains: 'abcd' },
+        'CartoDB Dark': { url: 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png', attribution: '', subdomains: 'abcd' }
       };
       carMarker = window.L.icon({
         iconUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Map_marker.svg/2000px-Map_marker.svg.png',
@@ -325,7 +325,7 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
           key: 'createMap',
           value: function createMap() {
             var mapCenter = window.L.latLng(parseFloat(this.ctrl.panel.mapCenterLatitude), parseFloat(this.ctrl.panel.mapCenterLongitude));
-            mapControl = this.map = window.L.map(this.mapContainer, { worldCopyJump: true, center: mapCenter, zoomControl: false }).fitWorld().zoomIn(parseInt(this.ctrl.panel.initialZoom, 5));
+            mapControl = this.map = window.L.map(this.mapContainer, { worldCopyJump: true, center: mapCenter, zoomControl: false, attributionControl: false }).fitWorld().zoomIn(parseInt(this.ctrl.panel.initialZoom, 5));
             this.map.panTo(mapCenter);
             window.L.control.zoom({ position: 'topright' }).addTo(this.map);
 
@@ -557,7 +557,6 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
         }, {
           key: 'createCircle',
           value: function createCircle(dataPoint) {
-            console.log(dataPoint);
             var aqi = calculateAQI(dataPoint.value);
             var aqiColor = AQI.color[aqi];
             var aqiMeaning = AQI.meaning[aqi];

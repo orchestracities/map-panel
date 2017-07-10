@@ -3,7 +3,7 @@
 System.register([], function (_export, _context) {
   "use strict";
 
-  var _createClass, allowedPollutants, DataFormatter;
+  var _createClass, allowedPollutants, allowedTypes, DataFormatter;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -33,6 +33,7 @@ System.register([], function (_export, _context) {
       }();
 
       allowedPollutants = ['h', 'no2', 'p', 'pm10', 'pm25', 't'];
+      allowedTypes = ['traffic', 'environment'];
 
       DataFormatter = function () {
         function DataFormatter(ctrl, kbn) {
@@ -51,8 +52,12 @@ System.register([], function (_export, _context) {
 
             if (this.ctrl.series && this.ctrl.series.length > 0) {
               this.ctrl.series.forEach(function (serie) {
-                // console.log(serie);
+
                 serieType = serie.id.split(':')[0];
+
+                if (allowedTypes.indexOf(serieType) === -1) {
+                  throw new Error("Please make sure you group series by type (environment or traffic)");
+                }
                 var serieName = serie.alias.split(': ')[1];
 
                 // VERIFY HERE ALL TYPES RECEIVED
@@ -72,6 +77,10 @@ System.register([], function (_export, _context) {
               var values = setSeries.value;
               var ids = setSeries.id;
               var times = setSeries.created_at;
+
+              if (!latitudes || !longitudes || !values || !ids || !times) {
+                throw new Error("Please make sure you selected Raw Data for latitude, longitude, value, id and created_at series");
+              }
 
               setSeries.pollutants = [];
               pollutantsAux = [];

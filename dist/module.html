@@ -4,7 +4,7 @@
 
 <div id="mapid_{{ctrl.panel.id}}" class="mapcontainer {{ctrl.saturationClass}}" ng-style="{height: ctrl.height}">
     <div id="aqiLegend">
-        <table class="aqi_table">
+        <!--<table class="aqi_table">
             <tr>
                 <td class="aqi" style="background-color: #009966">Good</td>
                 <td class="aqi" style="background-color: #ffde33">Moderate</td>
@@ -14,8 +14,39 @@
                 <td class="aqi" style="background-color: #7e0023">Hazardous</td>
             </tr>
 
-            </table>
-        </div>
+        </table>-->
+
+        <table>
+            <tr>
+                <th>AQI Interval</th>
+                <th>Meaning</th>
+            </tr>
+            <tr>
+                <td style="background-color: #009966">[0, 50]</td>
+                <td style="background-color: #009966">Good</td>
+            </tr>
+            <tr>
+                <td style="background-color: #ffde33">[51, 100]</td>
+                <td style="background-color: #ffde33">Moderate</td>
+            </tr>
+            <tr>
+                <td style="background-color: #ff9933">[101, 150]</td>
+                <td style="background-color: #ff9933">Unhealthy (sensitive groups)</td>
+            </tr>
+            <tr>
+                <td style="background-color: #cc0033">[151, 200]</td>
+                <td style="background-color: #cc0033">Unhealthy</td>
+            </tr>
+            <tr>
+                <td style="background-color: #660099">[201, 300]</td>
+                <td style="background-color: #660099">Very Unhealthy</td>
+            </tr>
+            <tr>
+                <td style="background-color: #7e0023">[301, 400]</td>
+                <td style="background-color: #7e0023">Hazardous</td>
+            </tr>
+        </table>
+    </div>
         <div id="measuresTable">
             <label style="text-align:center; color:black">Air Parameters</label>
             <table id="measures-table">

@@ -19,7 +19,7 @@ const carsCount = {
 };
 
 const Pollutants = {
-  'h': {'name': 'Hydrogen', 'unit': ''}, 
+  'h': {'name': 'Relative Humidity', 'unit': '%'}, 
   'no2': {'name': 'Nitrogen Dioxide', 'unit': 'µg/m3'}, 
   'p': {'name': 'Pressure', 'unit': 'hPa'}, 
   'pm10': {'name': 'PM10', 'unit': 'ug/m3'}, 
@@ -41,8 +41,8 @@ let currentTargetForChart = null;
 let currentParameterForChart = 'aqi';
 
 const tileServers = {
-  'CartoDB Positron': { url: 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>', subdomains: 'abcd'},
-  'CartoDB Dark': {url: 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png', attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>', subdomains: 'abcd'}
+  'CartoDB Positron': { url: 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', attribution: '', subdomains: 'abcd'},
+  'CartoDB Dark': {url: 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png', attribution: '', subdomains: 'abcd'}
 };
 
 const carMarker = window.L.icon({
@@ -64,7 +64,7 @@ export default class WorldMap {
 
   createMap() {
     const mapCenter = window.L.latLng(parseFloat(this.ctrl.panel.mapCenterLatitude), parseFloat(this.ctrl.panel.mapCenterLongitude));
-    mapControl = this.map = window.L.map(this.mapContainer, {worldCopyJump: true, center: mapCenter, zoomControl: false})
+    mapControl = this.map = window.L.map(this.mapContainer, {worldCopyJump: true, center: mapCenter, zoomControl: false, attributionControl: false})
       .fitWorld()
       .zoomIn(parseInt(this.ctrl.panel.initialZoom, 5));
     this.map.panTo(mapCenter);
@@ -277,7 +277,6 @@ export default class WorldMap {
   }
 
   createCircle(dataPoint) {
-    console.log(dataPoint);
     const aqi = calculateAQI(dataPoint.value);
     const aqiColor = AQI.color[aqi];
     const aqiMeaning = AQI.meaning[aqi];
