@@ -50,6 +50,7 @@
     "onchange": "^3.0.2"
   },
   "dependencies": {
+    "element-resize-event": "^2.0.9",
     "es6-module-loader": "^0.17.11",
     "grafana-sdk-test": "^1.0.0",
     "highcharts": "^5.0.12",

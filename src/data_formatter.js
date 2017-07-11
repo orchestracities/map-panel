@@ -10,6 +10,15 @@ export default class DataFormatter {
     this.kbn = kbn;
   }
 
+  validateJSON(data){
+    try {
+      JSON.parse(data);
+    } catch (e) {
+      return false;
+    }
+    return true;
+  }
+
   setValues(data) {
     const setSeries = {};
     let serieType;
@@ -50,17 +59,40 @@ export default class DataFormatter {
       setSeries.pollutants = [];
       pollutantsAux = [];
 
-      allowedPollutants.forEach((pollutant) => {
-        if (setSeries[pollutant]) {
-          const receivedPoll = [];
-          setSeries[pollutant].forEach((poll) => {
-            receivedPoll.push(poll);
-          });
+      // console.log(this.validateJSON(this.ctrl.panel.pollutants));
+      if (!(this.validateJSON(this.ctrl.panel.pollutants))) {
+        throw new Error("Please insert a valid JSON in the Available Pollutants field");
+      } else {
+        const polls = JSON.parse(this.ctrl.panel.pollutants);
 
-          pollutantsAux.push({'name': pollutant, 'value': receivedPoll});
-          delete setSeries[pollutant];
-        }
-      });
+        Object.keys(polls).forEach(key => {
+          const currentPoll = polls[key];
+
+          if (setSeries[key]) {
+            const receivedPoll = [];
+            setSeries[key].forEach((poll) => {
+              receivedPoll.push(poll);
+            });
+
+            pollutantsAux.push({'name': key, 'value': receivedPoll});
+            delete setSeries[currentPoll.name];
+          }
+        });
+      }
+
+      console.log(pollutantsAux);
+
+      // allowedPollutants.forEach((pollutant) => {
+      //   if (setSeries[pollutant]) {
+      //     const receivedPoll = [];
+      //     setSeries[pollutant].forEach((poll) => {
+      //       receivedPoll.push(poll);
+      //     });
+
+      //     pollutantsAux.push({'name': pollutant, 'value': receivedPoll});
+      //     delete setSeries[pollutant];
+      //   }
+      // });
 
       latitudes.forEach((value, index) => {
         let dataValue;

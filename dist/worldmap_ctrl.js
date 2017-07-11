@@ -86,7 +86,8 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
         decimals: 0,
         hideEmpty: false,
         hideZero: false,
-        stickyLabels: false
+        stickyLabels: false,
+        pollutants: {}
       };
       mapCenters = {
         '(0°, 0°)': { mapCenterLatitude: 0.0, mapCenterLongitude: 0.0 },
@@ -141,7 +142,7 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
         }, {
           key: 'onInitEditMode',
           value: function onInitEditMode() {
-            this.addEditorTab('Worldmap', 'public/plugins/grafana-worldmap-panel/partials/editor.html', 2);
+            this.addEditorTab('Worldmap', 'public/plugins/grafana-traffic-env-panel/partials/editor.html', 2);
           }
         }, {
           key: 'onDataReceived',
@@ -185,15 +186,12 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
               this.panel.mapCenterLatitude = mapCenters[this.panel.mapCenter].mapCenterLatitude;
               this.panel.mapCenterLongitude = mapCenters[this.panel.mapCenter].mapCenterLongitude;
             }
-
-            console.log(this.panel.mapCenterLatitude, this.panel.mapCenterLongitude);
             this.mapCenterMoved = true;
             this.render();
           }
         }, {
           key: 'setZoom',
           value: function setZoom() {
-            console.log(this.panel.initialZoom);
             this.map.setZoom(this.panel.initialZoom || 1);
           }
         }, {
@@ -216,6 +214,11 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
             this.updateThresholdData();
             this.map.legend.update();
             this.render();
+          }
+        }, {
+          key: 'setPollutants',
+          value: function setPollutants() {
+            console.log("SET POLL");
           }
         }, {
           key: 'link',

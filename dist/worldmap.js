@@ -3,7 +3,7 @@
 System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_export, _context) {
   "use strict";
 
-  var _, Highcharts, L, _createClass, AQI, carsCount, Pollutants, timeSeries, mapControl, mapZoom, globalCircles, globalMarkers, globalPolylines, currentTargetForChart, currentParameterForChart, tileServers, carMarker, WorldMap;
+  var _, Highcharts, L, _createClass, AQI, carsCount, providedPollutants, timeSeries, mapControl, mapZoom, globalCircles, globalMarkers, globalPolylines, currentTargetForChart, currentParameterForChart, tileServers, carMarker, WorldMap;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -11,7 +11,7 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
     }
   }
 
-  function showPollutants(allPollutants, id, aqi) {
+  function showPollutants(providedPollutants, allPollutants, id, aqi) {
 
     var measuresTable = document.getElementById('measures-table');
 
@@ -58,8 +58,8 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
       var row = measuresTable.insertRow(0);
       row.className = 'measure';
 
-      var innerCell0 = Pollutants[pollutant].name;
-      var innerCell1 = pollutantsToShow[pollutant] + ' ' + Pollutants[pollutant].unit;
+      var innerCell0 = providedPollutants[pollutant].name;
+      var innerCell1 = pollutantsToShow[pollutant] + ' ' + providedPollutants[pollutant].unit;
 
       var cell0 = row.insertCell(0);
       var cell1 = row.insertCell(1);
@@ -78,7 +78,7 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
       newPollutant.id = 'pollutantOption';
       newPollutant.value = pollutant.toUpperCase();
 
-      newPollutant.innerHTML = Pollutants[pollutant].name;
+      newPollutant.innerHTML = providedPollutants[pollutant].name;
 
       document.getElementById('airParametersDropdown').appendChild(newPollutant);
 
@@ -90,7 +90,7 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
     // showHealthConcerns(e);
   }
 
-  function showHealthConcerns(risk, color, meaning) {
+  function showHealthConcerns(providedPollutants, risk, color, meaning) {
     var healthConcernsWrapper = document.getElementById('healthConcernsWrapper');
     var healthConcerns = document.getElementById('healthConcerns');
     var healthRisk = document.getElementById('healthRisk');
@@ -115,7 +115,7 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
     return aqiIndex;
   }
 
-  function drawChart(e) {
+  function drawChart(providedPollutants, e) {
     var currentParameter = currentParameterForChart.toLowerCase();
 
     var chart = document.getElementById('dataChart');
@@ -132,11 +132,14 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
     var lastValueMeasure = values[values.length - 1].value;
 
     var aqiIndex = calculateAQI(lastValueMeasure);
+
+    console.log(providedPollutants, currentParameter);
+
     // Show Pollutants Legend (MAP)
     if (type === 'environment') {
       var allPollutants = timeSeries.pollutants;
-      showPollutants(allPollutants, id, lastValueMeasure);
-      showHealthConcerns(AQI.risks[aqiIndex], AQI.color[aqiIndex], AQI.meaning[aqiIndex]);
+      showPollutants(providedPollutants, allPollutants, id, lastValueMeasure);
+      showHealthConcerns(providedPollutants, AQI.risks[aqiIndex], AQI.color[aqiIndex], AQI.meaning[aqiIndex]);
     } else {
       // Hide legend
       document.getElementById('healthConcernsWrapper').style.display = 'none';
@@ -144,9 +147,9 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
     }
     // ------
 
-    parameterUnit = Pollutants[currentParameter].unit;
+    parameterUnit = providedPollutants[currentParameter].unit;
 
-    title = Pollutants[currentParameter].name + ' - Sensor ' + id;
+    title = providedPollutants[currentParameter].name + ' - Sensor ' + id;
 
     if (type === 'environment' && currentParameter !== 'aqi') {
 
@@ -282,15 +285,7 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
         'range': [15, 30, 45, 60, 75, 90, 105],
         'color': ['#009966', '#ffde33', '#ff9933', '#cc0033', '#660099', '#7e0023']
       };
-      Pollutants = {
-        'h': { 'name': 'Relative Humidity', 'unit': '%' },
-        'no2': { 'name': 'Nitrogen Dioxide', 'unit': 'µg/m3' },
-        'p': { 'name': 'Pressure', 'unit': 'hPa' },
-        'pm10': { 'name': 'PM10', 'unit': 'ug/m3' },
-        'pm25': { 'name': 'PM25', 'unit': 'ug/m3' },
-        't': { 'name': 'Temperature', 'unit': 'ºC' },
-        'aqi': { 'name': 'Air Quality Index', 'unit': '' }
-      };
+      providedPollutants = void 0;
       timeSeries = {};
       mapControl = void 0;
       mapZoom = void 0;
@@ -300,8 +295,8 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
       currentTargetForChart = null;
       currentParameterForChart = 'aqi';
       tileServers = {
-        'CartoDB Positron': { url: 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', attribution: '', subdomains: 'abcd' },
-        'CartoDB Dark': { url: 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png', attribution: '', subdomains: 'abcd' }
+        'CartoDB Positron': { url: 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>', subdomains: 'abcd' },
+        'CartoDB Dark': { url: 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png', attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>', subdomains: 'abcd' }
       };
       carMarker = window.L.icon({
         iconUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Map_marker.svg/2000px-Map_marker.svg.png',
@@ -339,6 +334,8 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
               document.getElementById('dataChart').style.display = 'none';
             });
 
+            providedPollutants = JSON.parse(this.ctrl.panel.pollutants);
+
             var selectedTileServer = tileServers[this.ctrl.tileServer];
             window.L.tileLayer(selectedTileServer.url, {
               maxZoom: 18,
@@ -352,7 +349,7 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
 
             airParametersDropdown.addEventListener("change", function () {
               currentParameterForChart = this.value;
-              drawChart(currentTargetForChart);
+              drawChart(providedPollutants, currentTargetForChart);
             });
           }
         }, {
@@ -427,7 +424,7 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
 
             // Id sensor selected and new data arrives the chart will be updated
             if (currentTargetForChart !== null) {
-              drawChart(currentTargetForChart);
+              drawChart(providedPollutants, currentTargetForChart);
             }
           }
         }, {
@@ -520,7 +517,9 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
               smoothFactor: 5,
               id: id,
               type: type
-            }).on('click', drawChart).on('click', this.setTarget).on('click', this.removePollDropdown);;
+            }).on('click', function (e) {
+              drawChart(providedPollutants, e);
+            }).on('click', this.setTarget).on('click', this.removePollDropdown);;
 
             globalPolylines.push(polygon);
             this.polylinesLayer = this.addPolylines(globalPolylines);
@@ -547,10 +546,11 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
               dataType: 'json',
               cache: false,
               success: function success(data) {
+                console.log(urlStart + 'lat=' + latitude + '&lon=' + longitude + urlFinish);
                 _this3.createPolyline(data.geojson.coordinates, value, id, type);
               },
               error: function error(_error) {
-                alert('Nominatim ERROR');
+                console.log(_error);
               }
             });
           }
@@ -580,7 +580,9 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
               latitude: dataPoint.locationLatitude,
               longitude: dataPoint.locationLongitude,
               aqi: dataPoint.value
-            }).on('click', drawChart).on('click', this.setTarget).on('click', this.addPollDropdown);
+            }).on('click', function (e) {
+              drawChart(providedPollutants, e);
+            }).on('click', this.setTarget).on('click', this.addPollDropdown);
 
             this.createPopupCircle(circle, dataPoint.value, aqiMeaning);
             return circle;

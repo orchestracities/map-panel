@@ -44,6 +44,16 @@ System.register([], function (_export, _context) {
         }
 
         _createClass(DataFormatter, [{
+          key: 'validateJSON',
+          value: function validateJSON(data) {
+            try {
+              JSON.parse(data);
+            } catch (e) {
+              return false;
+            }
+            return true;
+          }
+        }, {
           key: 'setValues',
           value: function setValues(data) {
             var setSeries = {};
@@ -85,17 +95,40 @@ System.register([], function (_export, _context) {
               setSeries.pollutants = [];
               pollutantsAux = [];
 
-              allowedPollutants.forEach(function (pollutant) {
-                if (setSeries[pollutant]) {
-                  var receivedPoll = [];
-                  setSeries[pollutant].forEach(function (poll) {
-                    receivedPoll.push(poll);
-                  });
+              // console.log(this.validateJSON(this.ctrl.panel.pollutants));
+              if (!this.validateJSON(this.ctrl.panel.pollutants)) {
+                throw new Error("Please insert a valid JSON in the Available Pollutants field");
+              } else {
+                var polls = JSON.parse(this.ctrl.panel.pollutants);
 
-                  pollutantsAux.push({ 'name': pollutant, 'value': receivedPoll });
-                  delete setSeries[pollutant];
-                }
-              });
+                Object.keys(polls).forEach(function (key) {
+                  var currentPoll = polls[key];
+
+                  if (setSeries[key]) {
+                    var receivedPoll = [];
+                    setSeries[key].forEach(function (poll) {
+                      receivedPoll.push(poll);
+                    });
+
+                    pollutantsAux.push({ 'name': key, 'value': receivedPoll });
+                    delete setSeries[currentPoll.name];
+                  }
+                });
+              }
+
+              console.log(pollutantsAux);
+
+              // allowedPollutants.forEach((pollutant) => {
+              //   if (setSeries[pollutant]) {
+              //     const receivedPoll = [];
+              //     setSeries[pollutant].forEach((poll) => {
+              //       receivedPoll.push(poll);
+              //     });
+
+              //     pollutantsAux.push({'name': pollutant, 'value': receivedPoll});
+              //     delete setSeries[pollutant];
+              //   }
+              // });
 
               latitudes.forEach(function (value, index) {
                 var dataValue = void 0;

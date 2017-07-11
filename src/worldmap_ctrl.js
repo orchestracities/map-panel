@@ -26,7 +26,8 @@ const panelDefaults = {
   decimals: 0,
   hideEmpty: false,
   hideZero: false,
-  stickyLabels: false
+  stickyLabels: false,
+  pollutants: {}
 };
 
 const mapCenters = {
@@ -114,7 +115,7 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
   }
 
   onInitEditMode() {
-    this.addEditorTab('Worldmap', 'public/plugins/grafana-worldmap-panel/partials/editor.html', 2);
+    this.addEditorTab('Worldmap', 'public/plugins/grafana-traffic-env-panel/partials/editor.html', 2);
   }
 
   onDataReceived(dataList) {
@@ -155,14 +156,11 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
       this.panel.mapCenterLatitude = mapCenters[this.panel.mapCenter].mapCenterLatitude;
       this.panel.mapCenterLongitude = mapCenters[this.panel.mapCenter].mapCenterLongitude;
     }
-
-    console.log(this.panel.mapCenterLatitude, this.panel.mapCenterLongitude);
     this.mapCenterMoved = true;
     this.render();
   }
 
   setZoom() {
-    console.log(this.panel.initialZoom);
     this.map.setZoom(this.panel.initialZoom || 1);
   }
 
@@ -182,6 +180,10 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
     this.updateThresholdData();
     this.map.legend.update();
     this.render();
+  }
+
+  setPollutants() {
+    console.log("SET POLL");
   }
 
 /* eslint class-methods-use-this: 0 */

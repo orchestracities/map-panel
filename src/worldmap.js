@@ -18,15 +18,7 @@ const carsCount = {
   'color': ['#009966', '#ffde33', '#ff9933', '#cc0033', '#660099', '#7e0023']
 };
 
-const Pollutants = {
-  'h': {'name': 'Relative Humidity', 'unit': '%'}, 
-  'no2': {'name': 'Nitrogen Dioxide', 'unit': 'µg/m3'}, 
-  'p': {'name': 'Pressure', 'unit': 'hPa'}, 
-  'pm10': {'name': 'PM10', 'unit': 'ug/m3'}, 
-  'pm25': {'name': 'PM25', 'unit': 'ug/m3'},  
-  't': {'name': 'Temperature', 'unit': 'ºC'}, 
-  'aqi': {'name': 'Air Quality Index', 'unit': ''}
-};
+let providedPollutants;
 
 let timeSeries = {};
 
@@ -41,10 +33,9 @@ let currentTargetForChart = null;
 let currentParameterForChart = 'aqi';
 
 const tileServers = {
-  'CartoDB Positron': { url: 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', attribution: '', subdomains: 'abcd'},
-  'CartoDB Dark': {url: 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png', attribution: '', subdomains: 'abcd'}
+  'CartoDB Positron': { url: 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>', subdomains: 'abcd'},
+  'CartoDB Dark': {url: 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png', attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>', subdomains: 'abcd'}
 };
-
 const carMarker = window.L.icon({
   iconUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Map_marker.svg/2000px-Map_marker.svg.png',
 
@@ -80,6 +71,8 @@ export default class WorldMap {
       document.getElementById('dataChart').style.display = 'none';
     });
 
+    providedPollutants = JSON.parse(this.ctrl.panel.pollutants)
+
     const selectedTileServer = tileServers[this.ctrl.tileServer];
     window.L.tileLayer(selectedTileServer.url, {
       maxZoom: 18,
@@ -93,7 +86,7 @@ export default class WorldMap {
 
     airParametersDropdown.addEventListener("change", function() {
       currentParameterForChart = this.value;
-      drawChart(currentTargetForChart);
+      drawChart(providedPollutants, currentTargetForChart);
     });
   }
 
@@ -158,7 +151,7 @@ export default class WorldMap {
 
     // Id sensor selected and new data arrives the chart will be updated
     if (currentTargetForChart !== null){
-      drawChart(currentTargetForChart);
+      drawChart(providedPollutants, currentTargetForChart);
     }
   }
 
@@ -245,7 +238,9 @@ export default class WorldMap {
       smoothFactor: 5,
       id: id,
       type: type
-    }).on('click', drawChart).on('click', this.setTarget).on('click', this.removePollDropdown);;
+    }).on('click', function(e){
+      drawChart(providedPollutants, e);
+    }).on('click', this.setTarget).on('click', this.removePollDropdown);;
 
     globalPolylines.push(polygon);
     this.polylinesLayer = this.addPolylines(globalPolylines);
@@ -268,10 +263,11 @@ export default class WorldMap {
       dataType: 'json',
       cache: false,
       success: (data) => {
+        console.log(urlStart + 'lat=' + latitude + '&lon=' + longitude + urlFinish);
         this.createPolyline(data.geojson.coordinates, value, id, type);
       },
       error: (error) => {
-        alert('Nominatim ERROR');
+        console.log(error);
       }
     });
   }
@@ -300,7 +296,9 @@ export default class WorldMap {
       latitude: dataPoint.locationLatitude,
       longitude: dataPoint.locationLongitude,
       aqi: dataPoint.value
-    }).on('click', drawChart).on('click', this.setTarget).on('click', this.addPollDropdown);
+    }).on('click', function(e){
+      drawChart(providedPollutants, e);
+    }).on('click', this.setTarget).on('click', this.addPollDropdown);
 
     this.createPopupCircle(circle, dataPoint.value, aqiMeaning);
     return circle;
@@ -409,9 +407,10 @@ export default class WorldMap {
   setZoom(zoomFactor) {
     this.map.setZoom(parseInt(zoomFactor, 10));
   }
+
 }
 
-function showPollutants(allPollutants, id, aqi) {
+function showPollutants(providedPollutants, allPollutants, id, aqi) {
 
   const measuresTable = document.getElementById('measures-table');
 
@@ -453,8 +452,8 @@ function showPollutants(allPollutants, id, aqi) {
     const row = measuresTable.insertRow(0);
     row.className = 'measure';
 
-    const innerCell0 = Pollutants[pollutant].name;
-    const innerCell1 = pollutantsToShow[pollutant] + ' ' + Pollutants[pollutant].unit;
+    const innerCell0 = providedPollutants[pollutant].name;
+    const innerCell1 = pollutantsToShow[pollutant] + ' ' + providedPollutants[pollutant].unit;
 
     const cell0 = row.insertCell(0);
     const cell1 = row.insertCell(1);
@@ -474,7 +473,7 @@ function showPollutants(allPollutants, id, aqi) {
     newPollutant.id = 'pollutantOption';
     newPollutant.value = pollutant.toUpperCase();
 
-    newPollutant.innerHTML = Pollutants[pollutant].name;
+    newPollutant.innerHTML = providedPollutants[pollutant].name;
  
     document.getElementById('airParametersDropdown').appendChild(newPollutant);
 
@@ -486,7 +485,7 @@ function showPollutants(allPollutants, id, aqi) {
   // showHealthConcerns(e);
 }
 
-function showHealthConcerns(risk, color, meaning) {
+function showHealthConcerns(providedPollutants, risk, color, meaning) {
   const healthConcernsWrapper = document.getElementById('healthConcernsWrapper');
   const healthConcerns = document.getElementById('healthConcerns');
   const healthRisk = document.getElementById('healthRisk');
@@ -511,7 +510,7 @@ function calculateAQI(aqi) {
   return aqiIndex;
 }
 
-function drawChart(e) {
+function drawChart(providedPollutants, e) {
   const currentParameter = currentParameterForChart.toLowerCase();
 
   const chart = document.getElementById('dataChart');
@@ -528,11 +527,14 @@ function drawChart(e) {
   const lastValueMeasure = values[values.length - 1].value;
 
   const aqiIndex = calculateAQI(lastValueMeasure);
+
+  console.log(providedPollutants, currentParameter);
+
   // Show Pollutants Legend (MAP)
   if (type === 'environment') {
     const allPollutants = timeSeries.pollutants;
-    showPollutants(allPollutants, id, lastValueMeasure);
-    showHealthConcerns(AQI.risks[aqiIndex], AQI.color[aqiIndex], AQI.meaning[aqiIndex]);
+    showPollutants(providedPollutants, allPollutants, id, lastValueMeasure);
+    showHealthConcerns(providedPollutants, AQI.risks[aqiIndex], AQI.color[aqiIndex], AQI.meaning[aqiIndex]);
   } else { // Hide legend
     document.getElementById('healthConcernsWrapper').style.display = 'none';
     document.getElementById('measuresTable').style.display = 'none';
@@ -540,9 +542,9 @@ function drawChart(e) {
   }
   // ------
 
-  parameterUnit = Pollutants[currentParameter].unit;
+  parameterUnit = providedPollutants[currentParameter].unit;
 
-  title = Pollutants[currentParameter].name + ' - Sensor ' + id;
+  title = providedPollutants[currentParameter].name + ' - Sensor ' + id;
 
   if (type === 'environment' && currentParameter !== 'aqi') {
 

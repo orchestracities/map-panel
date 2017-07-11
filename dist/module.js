@@ -13,8 +13,8 @@ System.register(['app/plugins/sdk', './worldmap_ctrl'], function (_export, _cont
     execute: function () {
       /* eslint import/no-extraneous-dependencies: 0 */
       loadPluginCss({
-        dark: 'plugins/grafana-worldmap-panel/css/worldmap.dark.css',
-        light: 'plugins/grafana-worldmap-panel/css/worldmap.light.css'
+        dark: 'plugins/grafana-traffic-env-panel/css/worldmap.dark.css',
+        light: 'plugins/grafana-traffic-env-panel/css/worldmap.light.css'
       });
 
       /* eslint import/prefer-default-export: 0 */
