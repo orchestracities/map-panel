@@ -89,6 +89,11 @@ export default class WorldMap {
       currentParameterForChart = this.value;
       drawChart(providedPollutants, currentTargetForChart);
     });
+
+    $('.mapcontainer').bind('heightChange', function(){
+        alert('xxx');
+    });
+
   }
 
   filterEmptyAndZeroValues(data) {
