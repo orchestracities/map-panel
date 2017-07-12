@@ -1,7 +1,5 @@
 // import _ from 'lodash';
 // import decodeGeoHash from './geohash';
-
-const allowedPollutants = ['h', 'no2', 'p', 'pm10', 'pm25', 't'];
 const allowedTypes = ['traffic', 'environment'];
 
 export default class DataFormatter {
@@ -26,11 +24,10 @@ export default class DataFormatter {
 
     if (this.ctrl.series && this.ctrl.series.length > 0) {
       this.ctrl.series.forEach((serie) => {
-
         serieType = serie.id.split(':')[0];
-        
-        if (allowedTypes.indexOf(serieType) === -1){
-          throw new Error("Please make sure you group series by type (environment or traffic)");
+
+        if (allowedTypes.indexOf(serieType) === -1) {
+          throw new Error('Please make sure you group series by type (environment or traffic)');
         }
         const serieName = serie.alias.split(': ')[1];
 
@@ -50,9 +47,9 @@ export default class DataFormatter {
       const longitudes = setSeries.longitude;
       const values = setSeries.value;
       const ids = setSeries.id;
-      const times = setSeries.created_at
+      const times = setSeries.created_at;
 
-      if(!(latitudes) || !(longitudes) || !(values) || !(ids) || !(times)){
+      if (!(latitudes) || !(longitudes) || !(values) || !(ids) || !(times)){
         throw new Error("Please make sure you selected Raw Data for latitude, longitude, value, id and created_at series");
       }
 
@@ -79,20 +76,6 @@ export default class DataFormatter {
           }
         });
       }
-
-      console.log(pollutantsAux);
-
-      // allowedPollutants.forEach((pollutant) => {
-      //   if (setSeries[pollutant]) {
-      //     const receivedPoll = [];
-      //     setSeries[pollutant].forEach((poll) => {
-      //       receivedPoll.push(poll);
-      //     });
-
-      //     pollutantsAux.push({'name': pollutant, 'value': receivedPoll});
-      //     delete setSeries[pollutant];
-      //   }
-      // });
 
       latitudes.forEach((value, index) => {
         let dataValue;

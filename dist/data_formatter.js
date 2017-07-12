@@ -3,7 +3,7 @@
 System.register([], function (_export, _context) {
   "use strict";
 
-  var _createClass, allowedPollutants, allowedTypes, DataFormatter;
+  var _createClass, allowedTypes, DataFormatter;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -32,7 +32,6 @@ System.register([], function (_export, _context) {
         };
       }();
 
-      allowedPollutants = ['h', 'no2', 'p', 'pm10', 'pm25', 't'];
       allowedTypes = ['traffic', 'environment'];
 
       DataFormatter = function () {
@@ -62,11 +61,10 @@ System.register([], function (_export, _context) {
 
             if (this.ctrl.series && this.ctrl.series.length > 0) {
               this.ctrl.series.forEach(function (serie) {
-
                 serieType = serie.id.split(':')[0];
 
                 if (allowedTypes.indexOf(serieType) === -1) {
-                  throw new Error("Please make sure you group series by type (environment or traffic)");
+                  throw new Error('Please make sure you group series by type (environment or traffic)');
                 }
                 var serieName = serie.alias.split(': ')[1];
 
@@ -115,20 +113,6 @@ System.register([], function (_export, _context) {
                   }
                 });
               }
-
-              console.log(pollutantsAux);
-
-              // allowedPollutants.forEach((pollutant) => {
-              //   if (setSeries[pollutant]) {
-              //     const receivedPoll = [];
-              //     setSeries[pollutant].forEach((poll) => {
-              //       receivedPoll.push(poll);
-              //     });
-
-              //     pollutantsAux.push({'name': pollutant, 'value': receivedPoll});
-              //     delete setSeries[pollutant];
-              //   }
-              // });
 
               latitudes.forEach(function (value, index) {
                 var dataValue = void 0;

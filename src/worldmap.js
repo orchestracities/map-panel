@@ -14,7 +14,7 @@ const AQI = {
 };
 
 const carsCount = {
-  'range': [15, 30, 45, 60, 75, 90, 105],
+  'range': [0, 15, 30, 45, 70, 85, 100],
   'color': ['#009966', '#ffde33', '#ff9933', '#cc0033', '#660099', '#7e0023']
 };
 
@@ -51,7 +51,6 @@ export default class WorldMap {
     this.createMap();
     this.circles = [];
   }
-  
 
   createMap() {
     const mapCenter = window.L.latLng(parseFloat(this.ctrl.panel.mapCenterLatitude), parseFloat(this.ctrl.panel.mapCenterLongitude));
@@ -69,9 +68,11 @@ export default class WorldMap {
       document.getElementById('measuresTable').style.display = 'none';
       document.getElementById('healthConcernsWrapper').style.display = 'none';
       document.getElementById('dataChart').style.display = 'none';
+      document.getElementById('environmentTable').style.display = 'none';
+      document.getElementById('trafficTable').style.display = 'none';
     });
 
-    providedPollutants = JSON.parse(this.ctrl.panel.pollutants)
+    providedPollutants = JSON.parse(this.ctrl.panel.pollutants);
 
     const selectedTileServer = tileServers[this.ctrl.tileServer];
     window.L.tileLayer(selectedTileServer.url, {
@@ -84,7 +85,7 @@ export default class WorldMap {
 
     const airParametersDropdown = document.getElementById('airParametersDropdown');
 
-    airParametersDropdown.addEventListener("change", function() {
+    airParametersDropdown.addEventListener('change', function() {
       currentParameterForChart = this.value;
       drawChart(providedPollutants, currentTargetForChart);
     });
@@ -161,29 +162,28 @@ export default class WorldMap {
     const values = [];
     const pollutantsValues = [];
 
-    Object.keys(data).forEach(key => {
+    Object.keys(data).forEach((key) => {
       data[key].forEach((point) => {
         const id = point.id;
         const time = point.time;
         let pollutants = '';
 
-        if(point.type === 'environment'){
+        if (point.type === 'environment') {
           pollutants = point.pollutants;
         }
         const value = point.value;
-        
-        if(point.type === 'environment'){
+        if (point.type === 'environment') {
           const pollutantsTemp = {};
 
           pollutants.forEach((pollutant) => {
-            if(!(pollutantsValues[pollutant.name])){
+            if (!(pollutantsValues[pollutant.name])) {
               pollutantsValues[pollutant.name] = [];
             }
             pollutantsValues[pollutant.name].push({'time': time, 'value': pollutant.value, 'id': id});
           });
         }
 
-        if (!(valueValues[point.id])){
+        if (!(valueValues[point.id])) {
           valueValues[point.id] = [];
         }
         valueValues[point.id].push({'time': time, 'value': value, 'id': id});
@@ -193,13 +193,14 @@ export default class WorldMap {
   }
 
   createPoints(data) {
-    Object.keys(data).forEach(key => {
+    Object.keys(data).forEach((key) => {
       const value = data[key][data[key].length - 1 ]; // Use the last data for each sensor to create on map -> avoid repeated markers on map and use just the last measurement (the one needed to show on marker)
       if (value.type === 'environment') {
         const newCircle = this.createCircle(value);
         globalCircles.push(newCircle);
         this.circlesLayer = this.addCircles(globalCircles);
       } else if (value.type === 'traffic') {
+        console.log(value);
         this.createMarker(value);
         // const newMarker = this.createMarker(dataPoint);
         // globalMarkers.push(newMarker);
@@ -225,8 +226,8 @@ export default class WorldMap {
 
     let colorIndex;
     carsCount.range.forEach((_value, index) => {
-      if (value > _value && value <= carsCount.range[index + 1]) {
-        colorIndex = index;
+      if (value >= _value) {
+        colorIndex = index - 1;
       }
     });
 
@@ -238,9 +239,9 @@ export default class WorldMap {
       smoothFactor: 5,
       id: id,
       type: type
-    }).on('click', function(e){
+    }).on('click', function (e) {
       drawChart(providedPollutants, e);
-    }).on('click', this.setTarget).on('click', this.removePollDropdown);;
+    }).on('click', this.setTarget).on('click', this.removePollDropdown);
 
     globalPolylines.push(polygon);
     this.polylinesLayer = this.addPolylines(globalPolylines);
@@ -296,20 +297,34 @@ export default class WorldMap {
       latitude: dataPoint.locationLatitude,
       longitude: dataPoint.locationLongitude,
       aqi: dataPoint.value
-    }).on('click', function(e){
+    }).on('click', function (e) {
       drawChart(providedPollutants, e);
     }).on('click', this.setTarget).on('click', this.addPollDropdown);
 
     this.createPopupCircle(circle, dataPoint.value, aqiMeaning);
     return circle;
-  
-}
+  }
+
   addPollDropdown() {
-    document.getElementById('dataDetails').style.display = 'block'
+    // Add pollutants chart dropdown 
+    document.getElementById('dataDetails').style.display = 'block';
+
+    // Remove traffic colors table
+    document.getElementById('trafficTable').style.display = 'none';
+
+    // Add environment colors table
+    document.getElementById('environmentTable').style.display = 'block';
   }
 
   removePollDropdown() {
-    document.getElementById('dataDetails').style.display = 'none'
+    // Remove pollutants chart dropdown
+    document.getElementById('dataDetails').style.display = 'none';
+
+    // Remove environmentcolors table
+    document.getElementById('environmentTable').style.display = 'none';
+
+    // Add traffic colors table
+    document.getElementById('trafficTable').style.display = 'block';
   }
 
   createPopupMarker(marker, value) {
@@ -528,8 +543,6 @@ function drawChart(providedPollutants, e) {
 
   const aqiIndex = calculateAQI(lastValueMeasure);
 
-  console.log(providedPollutants, currentParameter);
-
   // Show Pollutants Legend (MAP)
   if (type === 'environment') {
     const allPollutants = timeSeries.pollutants;
@@ -552,16 +565,20 @@ function drawChart(providedPollutants, e) {
     
     parameterChoice.forEach((sensor) => {
       if (sensor.id === id) {
+        console.log(sensor.time);
         const time = new Date(sensor.time);
 
         const day = time.getDay();
         const month = time.getMonth();
         const year = time.getFullYear();
-        const hour = time.getHours() - 1 ;
+        const hour = time.getHours() - 1;
         const minutes = time.getMinutes();
         const seconds = time.getSeconds();
+        const milliseconds = time.getMilliseconds();
 
-        data.push([Date.UTC(year, month, day, hour, minutes, seconds), sensor.value]);
+        console.log(day);
+
+        data.push([Date.UTC(year, month, day, hour, minutes, seconds, milliseconds), sensor.value]);
       }
     });
   }
@@ -575,14 +592,17 @@ function drawChart(providedPollutants, e) {
     values.forEach((value) => {
       const time = new Date(value.time);
 
-      const day = time.getDay();
+      const day = time.getDate();
       const month = time.getMonth();
       const year = time.getFullYear();
-      const hour = time.getHours() - 1 ;
+      const hour = time.getHours() - 1;
       const minutes = time.getMinutes();
       const seconds = time.getSeconds();
+      const milliseconds = time.getMilliseconds();
 
-      data.push([Date.UTC(year, month, day, hour, minutes, seconds), value.value]);
+      console.log(day);
+
+      data.push([Date.UTC(year, month, day, hour, minutes, seconds, milliseconds), value.value]);
     });
   }
 

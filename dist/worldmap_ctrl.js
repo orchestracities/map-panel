@@ -87,7 +87,15 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
         hideEmpty: false,
         hideZero: false,
         stickyLabels: false,
-        pollutants: {}
+        pollutants: {
+          'h': { 'name': 'Hydrogen', 'unit': '' },
+          'no2': { 'name': 'Nitrogen Dioxide', 'unit': 'µg/m3' },
+          'p': { 'name': 'Pressure', 'unit': 'hPa' },
+          'pm10': { 'name': 'PM10', 'unit': 'ug/m3' },
+          'pm25': { 'name': 'PM25', 'unit': 'ug/m3' },
+          't': { 'name': 'Temperature', 'unit': 'ºC' },
+          'aqi': { 'name': 'Air Quality Index', 'unit': '' }
+        }
       };
       mapCenters = {
         '(0°, 0°)': { mapCenterLatitude: 0.0, mapCenterLongitude: 0.0 },

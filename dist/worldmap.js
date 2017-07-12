@@ -133,8 +133,6 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
 
     var aqiIndex = calculateAQI(lastValueMeasure);
 
-    console.log(providedPollutants, currentParameter);
-
     // Show Pollutants Legend (MAP)
     if (type === 'environment') {
       var allPollutants = timeSeries.pollutants;
@@ -157,6 +155,7 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
 
       parameterChoice.forEach(function (sensor) {
         if (sensor.id === id) {
+          console.log(sensor.time);
           var time = new Date(sensor.time);
 
           var day = time.getDay();
@@ -165,8 +164,11 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
           var hour = time.getHours() - 1;
           var minutes = time.getMinutes();
           var seconds = time.getSeconds();
+          var milliseconds = time.getMilliseconds();
 
-          data.push([Date.UTC(year, month, day, hour, minutes, seconds), sensor.value]);
+          console.log(day);
+
+          data.push([Date.UTC(year, month, day, hour, minutes, seconds, milliseconds), sensor.value]);
         }
       });
     }
@@ -180,14 +182,17 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
       values.forEach(function (value) {
         var time = new Date(value.time);
 
-        var day = time.getDay();
+        var day = time.getDate();
         var month = time.getMonth();
         var year = time.getFullYear();
         var hour = time.getHours() - 1;
         var minutes = time.getMinutes();
         var seconds = time.getSeconds();
+        var milliseconds = time.getMilliseconds();
 
-        data.push([Date.UTC(year, month, day, hour, minutes, seconds), value.value]);
+        console.log(day);
+
+        data.push([Date.UTC(year, month, day, hour, minutes, seconds, milliseconds), value.value]);
       });
     }
 
@@ -282,7 +287,7 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
         'risks': ['Air quality is considered satisfactory, and air pollution poses little or no risk.', 'Air quality is acceptable; however, for some pollutants there may be a moderate health concern for a very small number of people who are unusually sensitive to air pollution.', 'Members of sensitive groups may experience health effects. The general public is not likely to be affected.', 'Everyone may begin to experience health effects; members of sensitive groups may experience more serious health effects.', 'Health alert: everyone may experience more serious health effects.', 'Health warnings of emergency conditions. The entire population is more likely to be affected.']
       };
       carsCount = {
-        'range': [15, 30, 45, 60, 75, 90, 105],
+        'range': [0, 15, 30, 45, 70, 85, 100],
         'color': ['#009966', '#ffde33', '#ff9933', '#cc0033', '#660099', '#7e0023']
       };
       providedPollutants = void 0;
@@ -332,6 +337,8 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
               document.getElementById('measuresTable').style.display = 'none';
               document.getElementById('healthConcernsWrapper').style.display = 'none';
               document.getElementById('dataChart').style.display = 'none';
+              document.getElementById('environmentTable').style.display = 'none';
+              document.getElementById('trafficTable').style.display = 'none';
             });
 
             providedPollutants = JSON.parse(this.ctrl.panel.pollutants);
@@ -347,7 +354,7 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
 
             var airParametersDropdown = document.getElementById('airParametersDropdown');
 
-            airParametersDropdown.addEventListener("change", function () {
+            airParametersDropdown.addEventListener('change', function () {
               currentParameterForChart = this.value;
               drawChart(providedPollutants, currentTargetForChart);
             });
@@ -445,7 +452,6 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
                   pollutants = point.pollutants;
                 }
                 var value = point.value;
-
                 if (point.type === 'environment') {
                   var pollutantsTemp = {};
 
@@ -477,6 +483,7 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
                 globalCircles.push(newCircle);
                 _this2.circlesLayer = _this2.addCircles(globalCircles);
               } else if (value.type === 'traffic') {
+                console.log(value);
                 _this2.createMarker(value);
                 // const newMarker = this.createMarker(dataPoint);
                 // globalMarkers.push(newMarker);
@@ -504,8 +511,8 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
 
             var colorIndex = void 0;
             carsCount.range.forEach(function (_value, index) {
-              if (value > _value && value <= carsCount.range[index + 1]) {
-                colorIndex = index;
+              if (value >= _value) {
+                colorIndex = index - 1;
               }
             });
 
@@ -519,7 +526,7 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
               type: type
             }).on('click', function (e) {
               drawChart(providedPollutants, e);
-            }).on('click', this.setTarget).on('click', this.removePollDropdown);;
+            }).on('click', this.setTarget).on('click', this.removePollDropdown);
 
             globalPolylines.push(polygon);
             this.polylinesLayer = this.addPolylines(globalPolylines);
@@ -590,12 +597,26 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
         }, {
           key: 'addPollDropdown',
           value: function addPollDropdown() {
+            // Add pollutants chart dropdown 
             document.getElementById('dataDetails').style.display = 'block';
+
+            // Remove traffic colors table
+            document.getElementById('trafficTable').style.display = 'none';
+
+            // Add environment colors table
+            document.getElementById('environmentTable').style.display = 'block';
           }
         }, {
           key: 'removePollDropdown',
           value: function removePollDropdown() {
+            // Remove pollutants chart dropdown
             document.getElementById('dataDetails').style.display = 'none';
+
+            // Remove environmentcolors table
+            document.getElementById('environmentTable').style.display = 'none';
+
+            // Add traffic colors table
+            document.getElementById('trafficTable').style.display = 'block';
           }
         }, {
           key: 'createPopupMarker',

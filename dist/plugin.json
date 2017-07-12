@@ -9,10 +9,10 @@
       "name": "Ubiwhere",
       "url": ""
     },
-    "keywords": ["worldmap", "panel", "traffic", "environment"],
+    "keywords": ["map", "panel", "traffic", "environment"],
     "logos": {
-      "small": "src/images/worldmap_logo.svg",
-      "large": "src/images/worldmap_logo.svg"
+      "small": "src/images/icon.svg",
+      "large": "src/images/icon.svg"
     },
     "links": [
       {"name": "Project site", "url": ""},
