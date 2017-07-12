@@ -64,6 +64,8 @@ export default class WorldMap {
       mapZoom = mapControl.getZoom();
     });
 
+    providedPollutants = JSON.parse(this.ctrl.panel.pollutants);
+
     this.map.on('click', (e) => {
       document.getElementById('measuresTable').style.display = 'none';
       document.getElementById('healthConcernsWrapper').style.display = 'none';
@@ -71,8 +73,6 @@ export default class WorldMap {
       document.getElementById('environmentTable').style.display = 'none';
       document.getElementById('trafficTable').style.display = 'none';
     });
-
-    providedPollutants = JSON.parse(this.ctrl.panel.pollutants);
 
     const selectedTileServer = tileServers[this.ctrl.tileServer];
     window.L.tileLayer(selectedTileServer.url, {
