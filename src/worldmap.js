@@ -90,10 +90,6 @@ export default class WorldMap {
       drawChart(providedPollutants, currentTargetForChart);
     });
 
-    $('.mapcontainer').bind('heightChange', function(){
-        alert('xxx');
-    });
-
   }
 
   filterEmptyAndZeroValues(data) {
@@ -143,6 +139,11 @@ export default class WorldMap {
   }
 
   drawPoints() {
+    const mapDivHeight = document.getElementsByClassName('mapcontainer')[0].offsetHeight;
+    const mapDivWidth = document.getElementsByClassName('mapcontainer')[0].offsetWidth;
+
+    console.log(mapDivHeight, mapDivWidth);
+
     const data = this.filterEmptyAndZeroValues(this.ctrl.data);
     this.clearCircles();
     this.clearMarkers();
@@ -205,7 +206,6 @@ export default class WorldMap {
         globalCircles.push(newCircle);
         this.circlesLayer = this.addCircles(globalCircles);
       } else if (value.type === 'traffic') {
-        console.log(value);
         this.createMarker(value);
         // const newMarker = this.createMarker(dataPoint);
         // globalMarkers.push(newMarker);
@@ -269,7 +269,6 @@ export default class WorldMap {
       dataType: 'json',
       cache: false,
       success: (data) => {
-        console.log(urlStart + 'lat=' + latitude + '&lon=' + longitude + urlFinish);
         this.createPolyline(data.geojson.coordinates, value, id, type);
       },
       error: (error) => {
@@ -570,18 +569,15 @@ function drawChart(providedPollutants, e) {
     
     parameterChoice.forEach((sensor) => {
       if (sensor.id === id) {
-        console.log(sensor.time);
         const time = new Date(sensor.time);
 
-        const day = time.getDay();
+        const day = time.getDate();
         const month = time.getMonth();
         const year = time.getFullYear();
         const hour = time.getHours() - 1;
         const minutes = time.getMinutes();
         const seconds = time.getSeconds();
         const milliseconds = time.getMilliseconds();
-
-        console.log(day);
 
         data.push([Date.UTC(year, month, day, hour, minutes, seconds, milliseconds), sensor.value]);
       }
@@ -604,8 +600,6 @@ function drawChart(providedPollutants, e) {
       const minutes = time.getMinutes();
       const seconds = time.getSeconds();
       const milliseconds = time.getMilliseconds();
-
-      console.log(day);
 
       data.push([Date.UTC(year, month, day, hour, minutes, seconds, milliseconds), value.value]);
     });
