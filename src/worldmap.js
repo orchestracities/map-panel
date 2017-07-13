@@ -139,10 +139,7 @@ export default class WorldMap {
   }
 
   drawPoints() {
-    const mapDivHeight = document.getElementsByClassName('mapcontainer')[0].offsetHeight;
-    const mapDivWidth = document.getElementsByClassName('mapcontainer')[0].offsetWidth;
-
-    console.log(mapDivHeight, mapDivWidth);
+    this.hideAllTables();
 
     const data = this.filterEmptyAndZeroValues(this.ctrl.data);
     this.clearCircles();
@@ -159,6 +156,19 @@ export default class WorldMap {
     // Id sensor selected and new data arrives the chart will be updated
     if (currentTargetForChart !== null){
       drawChart(providedPollutants, currentTargetForChart);
+    }
+  }
+
+  hideAllTables() {
+    const mapDivHeight = document.getElementsByClassName('mapcontainer')[0].offsetHeight;
+    const mapDivWidth = document.getElementsByClassName('mapcontainer')[0].offsetWidth;
+
+    // Remove the map secundary data (tables) when the map div is too small
+    if (mapDivHeight <= 405 || mapDivHeight <= 860) {
+      document.getElementById('measuresTable').style.display = 'none';
+      document.getElementById('healthConcernsWrapper').style.display = 'none';
+      document.getElementById('environmentTable').style.display = 'none';
+      document.getElementById('trafficTable').style.display = 'none';
     }
   }
 
@@ -316,8 +326,14 @@ export default class WorldMap {
     // Remove traffic colors table
     document.getElementById('trafficTable').style.display = 'none';
 
-    // Add environment colors table
-    document.getElementById('environmentTable').style.display = 'block';
+    const mapDivHeight = document.getElementsByClassName('mapcontainer')[0].offsetHeight;
+    const mapDivWidth = document.getElementsByClassName('mapcontainer')[0].offsetWidth;
+    
+    // Only show the map secundary data (tables) when the map div is not too small
+    if (mapDivHeight >= 405 && mapDivHeight >= 860) {
+      // Add environment colors table
+      document.getElementById('environmentTable').style.display = 'block';
+    }
   }
 
   removePollDropdown() {
@@ -327,8 +343,15 @@ export default class WorldMap {
     // Remove environmentcolors table
     document.getElementById('environmentTable').style.display = 'none';
 
-    // Add traffic colors table
-    document.getElementById('trafficTable').style.display = 'block';
+    const mapDivHeight = document.getElementsByClassName('mapcontainer')[0].offsetHeight;
+    const mapDivWidth = document.getElementsByClassName('mapcontainer')[0].offsetWidth;
+
+    // Only show the map secundary data (tables) when the map div is not too small
+    if (mapDivHeight >= 405 && mapDivHeight >= 860) {
+      // Add traffic colors table
+      document.getElementById('trafficTable').style.display = 'block';
+    }
+    
   }
 
   createPopupMarker(marker, value) {
@@ -486,9 +509,6 @@ function showPollutants(providedPollutants, allPollutants, id, aqi) {
     // Add Pollutants to Chart Dropdown
     const newPollutant = document.createElement('option');
 
-    // if (pollutant.name === 'aqi'){
-    //   newPollutant.selected = 'selected'
-    // }
     newPollutant.id = 'pollutantOption';
     newPollutant.value = pollutant.toUpperCase();
 
@@ -498,10 +518,14 @@ function showPollutants(providedPollutants, allPollutants, id, aqi) {
 
     // ----
   };
-
-  document.getElementById('measuresTable').style.display = 'inherit';
-
-  // showHealthConcerns(e);
+  const mapDivHeight = document.getElementsByClassName('mapcontainer')[0].offsetHeight;
+  const mapDivWidth = document.getElementsByClassName('mapcontainer')[0].offsetWidth;
+  console.log(mapDivHeight, mapDivWidth);
+  // Only show the map secundary data (tables) when the map div is not too small
+  if (mapDivHeight >= 405 && mapDivWidth >= 860) {
+    document.getElementById('environmentTable').style.display = 'block';
+    document.getElementById('measuresTable').style.display = 'block';
+  }
 }
 
 function showHealthConcerns(providedPollutants, risk, color, meaning) {
@@ -509,14 +533,15 @@ function showHealthConcerns(providedPollutants, risk, color, meaning) {
   const healthConcerns = document.getElementById('healthConcerns');
   const healthRisk = document.getElementById('healthRisk');
 
-  healthConcernsWrapper.style.display = 'inherit';
+  const mapDivHeight = document.getElementsByClassName('mapcontainer')[0].offsetHeight;
+  const mapDivWidth = document.getElementsByClassName('mapcontainer')[0].offsetWidth;
 
-  // const risk = e.target.options.aqiRisk;
-  // const color = e.target.options.aqiColor;
-  // const meaning = e.target.options.aqiMeaning;
-
-  healthConcerns.style.backgroundColor = color;
-  healthRisk.innerHTML = risk;
+  // Only show the map secundary data (tables) when the map div is not too small
+  if (mapDivHeight >= 405 && mapDivWidth >= 860) {
+    healthConcernsWrapper.style.display = 'block';
+    healthConcerns.style.backgroundColor = color;
+    healthRisk.innerHTML = risk;
+  }
 }
 
 function calculateAQI(aqi) {
@@ -553,6 +578,12 @@ function drawChart(providedPollutants, e) {
     showPollutants(providedPollutants, allPollutants, id, lastValueMeasure);
     showHealthConcerns(providedPollutants, AQI.risks[aqiIndex], AQI.color[aqiIndex], AQI.meaning[aqiIndex]);
   } else { // Hide legend
+    const mapDivHeight = document.getElementsByClassName('mapcontainer')[0].offsetHeight;
+    const mapDivWidth = document.getElementsByClassName('mapcontainer')[0].offsetWidth;
+
+    if (mapDivHeight >= 405 && mapDivWidth >= 860) {
+      document.getElementById('trafficTable').style.display = 'block';
+    }
     document.getElementById('healthConcernsWrapper').style.display = 'none';
     document.getElementById('measuresTable').style.display = 'none';
 

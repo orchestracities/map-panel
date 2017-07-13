@@ -72,9 +72,6 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
       // Add Pollutants to Chart Dropdown
       var newPollutant = document.createElement('option');
 
-      // if (pollutant.name === 'aqi'){
-      //   newPollutant.selected = 'selected'
-      // }
       newPollutant.id = 'pollutantOption';
       newPollutant.value = pollutant.toUpperCase();
 
@@ -84,10 +81,14 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
 
       // ----
     };
-
-    document.getElementById('measuresTable').style.display = 'inherit';
-
-    // showHealthConcerns(e);
+    var mapDivHeight = document.getElementsByClassName('mapcontainer')[0].offsetHeight;
+    var mapDivWidth = document.getElementsByClassName('mapcontainer')[0].offsetWidth;
+    console.log(mapDivHeight, mapDivWidth);
+    // Only show the map secundary data (tables) when the map div is not too small
+    if (mapDivHeight >= 405 && mapDivWidth >= 860) {
+      document.getElementById('environmentTable').style.display = 'block';
+      document.getElementById('measuresTable').style.display = 'block';
+    }
   }
 
   function showHealthConcerns(providedPollutants, risk, color, meaning) {
@@ -95,14 +96,15 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
     var healthConcerns = document.getElementById('healthConcerns');
     var healthRisk = document.getElementById('healthRisk');
 
-    healthConcernsWrapper.style.display = 'inherit';
+    var mapDivHeight = document.getElementsByClassName('mapcontainer')[0].offsetHeight;
+    var mapDivWidth = document.getElementsByClassName('mapcontainer')[0].offsetWidth;
 
-    // const risk = e.target.options.aqiRisk;
-    // const color = e.target.options.aqiColor;
-    // const meaning = e.target.options.aqiMeaning;
-
-    healthConcerns.style.backgroundColor = color;
-    healthRisk.innerHTML = risk;
+    // Only show the map secundary data (tables) when the map div is not too small
+    if (mapDivHeight >= 405 && mapDivWidth >= 860) {
+      healthConcernsWrapper.style.display = 'block';
+      healthConcerns.style.backgroundColor = color;
+      healthRisk.innerHTML = risk;
+    }
   }
 
   function calculateAQI(aqi) {
@@ -140,6 +142,12 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
       showHealthConcerns(providedPollutants, AQI.risks[aqiIndex], AQI.color[aqiIndex], AQI.meaning[aqiIndex]);
     } else {
       // Hide legend
+      var mapDivHeight = document.getElementsByClassName('mapcontainer')[0].offsetHeight;
+      var mapDivWidth = document.getElementsByClassName('mapcontainer')[0].offsetWidth;
+
+      if (mapDivHeight >= 405 && mapDivWidth >= 860) {
+        document.getElementById('trafficTable').style.display = 'block';
+      }
       document.getElementById('healthConcernsWrapper').style.display = 'none';
       document.getElementById('measuresTable').style.display = 'none';
     }
@@ -155,18 +163,15 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
 
       parameterChoice.forEach(function (sensor) {
         if (sensor.id === id) {
-          console.log(sensor.time);
           var time = new Date(sensor.time);
 
-          var day = time.getDay();
+          var day = time.getDate();
           var month = time.getMonth();
           var year = time.getFullYear();
           var hour = time.getHours() - 1;
           var minutes = time.getMinutes();
           var seconds = time.getSeconds();
           var milliseconds = time.getMilliseconds();
-
-          console.log(day);
 
           data.push([Date.UTC(year, month, day, hour, minutes, seconds, milliseconds), sensor.value]);
         }
@@ -189,8 +194,6 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
         var minutes = time.getMinutes();
         var seconds = time.getSeconds();
         var milliseconds = time.getMilliseconds();
-
-        console.log(day);
 
         data.push([Date.UTC(year, month, day, hour, minutes, seconds, milliseconds), value.value]);
       });
@@ -333,6 +336,8 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
               mapZoom = mapControl.getZoom();
             });
 
+            providedPollutants = JSON.parse(this.ctrl.panel.pollutants);
+
             this.map.on('click', function (e) {
               document.getElementById('measuresTable').style.display = 'none';
               document.getElementById('healthConcernsWrapper').style.display = 'none';
@@ -340,8 +345,6 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
               document.getElementById('environmentTable').style.display = 'none';
               document.getElementById('trafficTable').style.display = 'none';
             });
-
-            providedPollutants = JSON.parse(this.ctrl.panel.pollutants);
 
             var selectedTileServer = tileServers[this.ctrl.tileServer];
             window.L.tileLayer(selectedTileServer.url, {
@@ -417,6 +420,8 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
         }, {
           key: 'drawPoints',
           value: function drawPoints() {
+            this.hideAllTables();
+
             var data = this.filterEmptyAndZeroValues(this.ctrl.data);
             this.clearCircles();
             this.clearMarkers();
@@ -432,6 +437,20 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
             // Id sensor selected and new data arrives the chart will be updated
             if (currentTargetForChart !== null) {
               drawChart(providedPollutants, currentTargetForChart);
+            }
+          }
+        }, {
+          key: 'hideAllTables',
+          value: function hideAllTables() {
+            var mapDivHeight = document.getElementsByClassName('mapcontainer')[0].offsetHeight;
+            var mapDivWidth = document.getElementsByClassName('mapcontainer')[0].offsetWidth;
+
+            // Remove the map secundary data (tables) when the map div is too small
+            if (mapDivHeight <= 405 || mapDivHeight <= 860) {
+              document.getElementById('measuresTable').style.display = 'none';
+              document.getElementById('healthConcernsWrapper').style.display = 'none';
+              document.getElementById('environmentTable').style.display = 'none';
+              document.getElementById('trafficTable').style.display = 'none';
             }
           }
         }, {
@@ -483,7 +502,6 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
                 globalCircles.push(newCircle);
                 _this2.circlesLayer = _this2.addCircles(globalCircles);
               } else if (value.type === 'traffic') {
-                console.log(value);
                 _this2.createMarker(value);
                 // const newMarker = this.createMarker(dataPoint);
                 // globalMarkers.push(newMarker);
@@ -553,7 +571,6 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
               dataType: 'json',
               cache: false,
               success: function success(data) {
-                console.log(urlStart + 'lat=' + latitude + '&lon=' + longitude + urlFinish);
                 _this3.createPolyline(data.geojson.coordinates, value, id, type);
               },
               error: function error(_error) {
@@ -603,8 +620,14 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
             // Remove traffic colors table
             document.getElementById('trafficTable').style.display = 'none';
 
-            // Add environment colors table
-            document.getElementById('environmentTable').style.display = 'block';
+            var mapDivHeight = document.getElementsByClassName('mapcontainer')[0].offsetHeight;
+            var mapDivWidth = document.getElementsByClassName('mapcontainer')[0].offsetWidth;
+
+            // Only show the map secundary data (tables) when the map div is not too small
+            if (mapDivHeight >= 405 && mapDivHeight >= 860) {
+              // Add environment colors table
+              document.getElementById('environmentTable').style.display = 'block';
+            }
           }
         }, {
           key: 'removePollDropdown',
@@ -615,8 +638,14 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
             // Remove environmentcolors table
             document.getElementById('environmentTable').style.display = 'none';
 
-            // Add traffic colors table
-            document.getElementById('trafficTable').style.display = 'block';
+            var mapDivHeight = document.getElementsByClassName('mapcontainer')[0].offsetHeight;
+            var mapDivWidth = document.getElementsByClassName('mapcontainer')[0].offsetWidth;
+
+            // Only show the map secundary data (tables) when the map div is not too small
+            if (mapDivHeight >= 405 && mapDivHeight >= 860) {
+              // Add traffic colors table
+              document.getElementById('trafficTable').style.display = 'block';
+            }
           }
         }, {
           key: 'createPopupMarker',
