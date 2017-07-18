@@ -1,9 +1,9 @@
 'use strict';
 
-System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_export, _context) {
+System.register(['lodash', './libs/highstock', './libs/leaflet'], function (_export, _context) {
   "use strict";
 
-  var _, Highcharts, L, _createClass, AQI, carsCount, providedPollutants, timeSeries, mapControl, mapZoom, globalCircles, globalMarkers, globalPolylines, currentTargetForChart, currentParameterForChart, tileServers, carMarker, WorldMap;
+  var _, Highcharts, L, _createClass, AQI, carsCount, providedPollutants, timeSeries, chartData, chartSeries, mapControl, mapZoom, globalCircles, globalMarkers, globalPolylines, currentTargetForChart, currentParameterForChart, tileServers, carMarker, WorldMap;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -83,7 +83,7 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
     };
     var mapDivHeight = document.getElementsByClassName('mapcontainer')[0].offsetHeight;
     var mapDivWidth = document.getElementsByClassName('mapcontainer')[0].offsetWidth;
-    console.log(mapDivHeight, mapDivWidth);
+
     // Only show the map secundary data (tables) when the map div is not too small
     if (mapDivHeight >= 405 && mapDivWidth >= 860) {
       document.getElementById('environmentTable').style.display = 'block';
@@ -117,7 +117,7 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
     return aqiIndex;
   }
 
-  function drawChart(providedPollutants, e) {
+  function drawChart(providedPollutants, e, redrawChart) {
     var currentParameter = currentParameterForChart.toLowerCase();
 
     var chart = document.getElementById('dataChart');
@@ -129,9 +129,8 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
     var values = timeSeries.values[id];
     var title = '';
     var parameterUnit = '';
-    var data = [];
 
-    var lastValueMeasure = values[values.length - 1].value;
+    var lastValueMeasure = values[values.length - 1].value; //values array is the one for the AQI values
 
     var aqiIndex = calculateAQI(lastValueMeasure);
 
@@ -153,17 +152,42 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
     }
     // ------
 
-    parameterUnit = providedPollutants[currentParameter].unit;
+    if (redrawChart) {
+      chartData = [];
 
-    title = providedPollutants[currentParameter].name + ' - Sensor ' + id;
+      parameterUnit = providedPollutants[currentParameter].unit;
 
-    if (type === 'environment' && currentParameter !== 'aqi') {
+      title = providedPollutants[currentParameter].name + ' - Sensor ' + id;
 
-      var parameterChoice = timeSeries.pollutants[currentParameter];
+      if (type === 'environment' && currentParameter !== 'aqi') {
 
-      parameterChoice.forEach(function (sensor) {
-        if (sensor.id === id) {
-          var time = new Date(sensor.time);
+        var parameterChoice = timeSeries.pollutants[currentParameter];
+
+        parameterChoice.forEach(function (sensor) {
+          if (sensor.id === id) {
+            var time = new Date(sensor.time);
+
+            var day = time.getDate();
+            var month = time.getMonth();
+            var year = time.getFullYear();
+            var hour = time.getHours() - 1;
+            var minutes = time.getMinutes();
+            var seconds = time.getSeconds();
+            var milliseconds = time.getMilliseconds();
+
+            chartData.push([Date.UTC(year, month, day, hour, minutes, seconds, milliseconds), sensor.value]);
+          }
+        });
+      }
+      if (type === 'environment' && currentParameter === 'aqi' || type === 'traffic') {
+
+        if (type === 'traffic') {
+          title = 'Cars Count - Sensor ' + id;
+          parameterUnit = 'Cars';
+        }
+
+        values.forEach(function (value) {
+          var time = new Date(value.time);
 
           var day = time.getDate();
           var month = time.getMonth();
@@ -173,94 +197,269 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
           var seconds = time.getSeconds();
           var milliseconds = time.getMilliseconds();
 
-          data.push([Date.UTC(year, month, day, hour, minutes, seconds, milliseconds), sensor.value]);
-        }
-      });
-    }
-    if (type === 'environment' && currentParameter === 'aqi' || type === 'traffic') {
-
-      if (type === 'traffic') {
-        title = 'Cars Count - Sensor ' + id;
-        parameterUnit = 'Cars';
+          chartData.push([Date.UTC(year, month, day, hour, minutes, seconds, milliseconds), value.value]);
+        });
       }
 
-      values.forEach(function (value) {
-        var time = new Date(value.time);
-
-        var day = time.getDate();
-        var month = time.getMonth();
-        var year = time.getFullYear();
-        var hour = time.getHours() - 1;
-        var minutes = time.getMinutes();
-        var seconds = time.getSeconds();
-        var milliseconds = time.getMilliseconds();
-
-        data.push([Date.UTC(year, month, day, hour, minutes, seconds, milliseconds), value.value]);
-      });
-    }
-
-    window.Highcharts.chart('graphContainer', {
-      chart: {
-        zoomType: 'x',
-        backgroundColor: '#1f1d1d'
-      },
-      title: {
-        text: title
-      },
-      subtitle: {
-        text: document.ontouchstart === undefined ? '' : ''
-      },
-      xAxis: {
-        type: 'datetime'
-      },
-      yAxis: {
-        title: {
-          text: parameterUnit
-        }
-      },
-      legend: {
-        enabled: false
-      },
-      plotOptions: {
-        area: {
-          // fillColor: {
-          //   linearGradient: {
-          //     x1: 0,
-          //     y1: 0,
-          //     x2: 0,
-          //     y2: 1
-          // }
-          // stops: [
-          //     [0, '#CCCCCC'],
-          //     [1, '#FFFFFF']
-          // ]
-          // },
-          marker: {
-            radius: 4
+      window.Highcharts.theme = {
+        colors: ['#2b908f', '#90ee7e', '#f45b5b', '#7798BF', '#aaeeee', '#ff0066', '#eeaaee', '#55BF3B', '#DF5353', '#7798BF', '#aaeeee'],
+        chart: {
+          backgroundColor: {
+            linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
+            stops: [[0, '#2a2a2b'], [1, '#3e3e40']]
           },
-          lineWidth: 3,
-          states: {
-            hover: {
-              lineWidth: 4
+          style: {
+            fontFamily: '\'Unica One\', sans-serif'
+          },
+          plotBorderColor: '#606063'
+        },
+        title: {
+          style: {
+            color: '#E0E0E3',
+            // textTransform: 'uppercase',
+            fontSize: '20px'
+          }
+        },
+        subtitle: {
+          style: {
+            color: '#E0E0E3',
+            textTransform: 'uppercase'
+          }
+        },
+        xAxis: {
+          gridLineColor: '#707073',
+          labels: {
+            style: {
+              color: '#E0E0E3'
             }
           },
-          threshold: null
-        }
-      },
+          lineColor: '#707073',
+          minorGridLineColor: '#505053',
+          tickColor: '#707073',
+          title: {
+            style: {
+              color: '#A0A0A3'
 
-      series: [{
-        type: 'area',
-        name: title,
-        color: '#CCCCCC',
-        data: data
-      }]
-    });
+            }
+          }
+        },
+        yAxis: {
+          gridLineColor: '#707073',
+          labels: {
+            style: {
+              color: '#E0E0E3'
+            }
+          },
+          lineColor: '#707073',
+          minorGridLineColor: '#505053',
+          tickColor: '#707073',
+          tickWidth: 1,
+          title: {
+            style: {
+              color: '#A0A0A3'
+            }
+          }
+        },
+        tooltip: {
+          backgroundColor: 'rgba(0, 0, 0, 0.85)',
+          style: {
+            color: '#F0F0F0'
+          }
+        },
+        plotOptions: {
+          series: {
+            dataLabels: {
+              color: '#B0B0B3'
+            },
+            marker: {
+              lineColor: '#333'
+            }
+          },
+          boxplot: {
+            fillColor: '#505053'
+          },
+          candlestick: {
+            lineColor: 'white'
+          },
+          errorbar: {
+            color: 'white'
+          }
+        },
+        legend: {
+          itemStyle: {
+            color: '#E0E0E3'
+          },
+          itemHoverStyle: {
+            color: '#FFF'
+          },
+          itemHiddenStyle: {
+            color: '#606063'
+          }
+        },
+        credits: {
+          style: {
+            color: '#666'
+          }
+        },
+        labels: {
+          style: {
+            color: '#707073'
+          }
+        },
+
+        drilldown: {
+          activeAxisLabelStyle: {
+            color: '#F0F0F3'
+          },
+          activeDataLabelStyle: {
+            color: '#F0F0F3'
+          }
+        },
+
+        navigation: {
+          buttonOptions: {
+            symbolStroke: '#DDDDDD',
+            theme: {
+              fill: '#505053'
+            }
+          }
+        },
+
+        // scroll charts
+        rangeSelector: {
+          buttonTheme: {
+            fill: '#505053',
+            stroke: '#000000',
+            style: {
+              color: '#CCC'
+            },
+            states: {
+              hover: {
+                fill: '#707073',
+                stroke: '#000000',
+                style: {
+                  color: 'white'
+                }
+              },
+              select: {
+                fill: '#000003',
+                stroke: '#000000',
+                style: {
+                  color: 'white'
+                }
+              }
+            }
+          },
+          inputBoxBorderColor: '#505053',
+          inputStyle: {
+            backgroundColor: '#333',
+            color: 'silver'
+          },
+          labelStyle: {
+            color: 'silver'
+          }
+        },
+
+        navigator: {
+          handles: {
+            backgroundColor: '#666',
+            borderColor: '#AAA'
+          },
+          outlineColor: '#CCC',
+          maskFill: 'rgba(255,255,255,0.1)',
+          series: {
+            color: '#7798BF',
+            lineColor: '#A6C7ED'
+          },
+          xAxis: {
+            gridLineColor: '#505053'
+          }
+        },
+
+        scrollbar: {
+          barBackgroundColor: '#808083',
+          barBorderColor: '#808083',
+          buttonArrowColor: '#CCC',
+          buttonBackgroundColor: '#606063',
+          buttonBorderColor: '#606063',
+          rifleColor: '#FFF',
+          trackBackgroundColor: '#404043',
+          trackBorderColor: '#404043'
+        },
+
+        // special colors for some of the
+        legendBackgroundColor: 'rgba(0, 0, 0, 0.5)',
+        background2: '#505053',
+        dataLabelsColor: '#B0B0B3',
+        textColor: '#C0C0C0',
+        contrastTextColor: '#F0F0F3',
+        maskColor: 'rgba(255,255,255,0.3)'
+      };
+      window.Highcharts.setOptions(window.Highcharts.theme);
+
+      window.Highcharts.stockChart('graphContainer', {
+        chart: {
+          zoomType: 'x',
+          backgroundColor: '#1f1d1d',
+          events: {
+            load: function load() {
+              // set up the updating of the chart each second
+              chartSeries = this.series[0];
+              // setInterval(function () {
+              //     const x = chartData[chartData.length - 1][0];
+              //     const y = chartData[chartData.length - 1][1];
+              //     series.addPoint([x, y], true, true);
+              //     //console.log(chartData[chartData.length - 1]);
+              // }, 1000);
+            }
+          }
+        },
+        title: {
+          text: title
+        },
+        subtitle: {
+          text: document.ontouchstart === undefined ? '' : ''
+        },
+        xAxis: {
+          type: 'datetime'
+        },
+        yAxis: {
+          title: {
+            text: parameterUnit
+          }
+        },
+        legend: {
+          enabled: false
+        },
+        rangeSelector: {
+          buttons: [{
+            count: 5,
+            type: 'minute',
+            text: '5M'
+          }, {
+            count: 10,
+            type: 'minute',
+            text: '10M'
+          }, {
+            type: 'all',
+            text: 'All'
+          }],
+          inputEnabled: false,
+          selected: 2
+        },
+
+        series: [{
+          name: title,
+          data: chartData
+        }]
+      });
+    }
   }
   return {
     setters: [function (_lodash) {
       _ = _lodash.default;
-    }, function (_libsHighcharts) {
-      Highcharts = _libsHighcharts.default;
+    }, function (_libsHighstock) {
+      Highcharts = _libsHighstock.default;
     }, function (_libsLeaflet) {
       L = _libsLeaflet.default;
     }],
@@ -295,6 +494,8 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
       };
       providedPollutants = void 0;
       timeSeries = {};
+      chartData = [];
+      chartSeries = void 0;
       mapControl = void 0;
       mapZoom = void 0;
       globalCircles = [];
@@ -359,7 +560,7 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
 
             airParametersDropdown.addEventListener('change', function () {
               currentParameterForChart = this.value;
-              drawChart(providedPollutants, currentTargetForChart);
+              drawChart(providedPollutants, currentTargetForChart, 1);
             });
           }
         }, {
@@ -434,9 +635,58 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
             this.createTimeSeries(treatedData);
             this.createPoints(treatedData);
 
-            // Id sensor selected and new data arrives the chart will be updated
+            // Id sensor selected and new data arrives the chart will be updated (no redraw)
             if (currentTargetForChart !== null) {
-              drawChart(providedPollutants, currentTargetForChart);
+              drawChart(providedPollutants, currentTargetForChart, 0); // call drawChart but redraw the chart just update information related
+
+              var targetType = currentTargetForChart.target.options.type;
+              var targetId = currentTargetForChart.target.options.id;
+              var currentParameter = currentParameterForChart.toLowerCase();
+              var lastMeasure = void 0;
+              var lastTime = void 0;
+
+              if (targetType === 'environment') {
+                var timeEnvironment = void 0;
+                if (currentParameter !== 'aqi') {
+                  timeEnvironment = timeSeries.pollutants[currentParameter];
+                  timeEnvironment.forEach(function (val) {
+                    if (val.id === targetId) {
+                      lastTime = val.time;
+                      lastMeasure = val.value;
+                    }
+                  });
+                } else {
+                  timeEnvironment = timeSeries.values[targetId];
+                  lastMeasure = timeEnvironment[timeEnvironment.length - 1].value;
+                  lastTime = timeEnvironment[timeEnvironment.length - 1].time;
+                }
+              }
+              if (targetType === 'traffic') {
+                var timeTraffic = timeSeries.values[targetId];
+                lastMeasure = timeTraffic[timeTraffic.length - 1].value;
+                lastTime = timeTraffic[timeTraffic.length - 1].time;
+              }
+
+              var time = new Date(lastTime);
+
+              var day = time.getDate();
+              var month = time.getMonth();
+              var year = time.getFullYear();
+              var hour = time.getHours() - 1;
+              var minutes = time.getMinutes();
+              var seconds = time.getSeconds();
+              var milliseconds = time.getMilliseconds();
+
+              var chartLastDisplayedValue = chartSeries.data[chartSeries.data.length - 1].y;
+              var chartLastDisplayedTime = chartSeries.data[chartSeries.data.length - 1].x;
+              var chartLastDisplayedId = chartSeries.name.split(' ');
+              chartLastDisplayedId = parseInt(chartLastDisplayedId[chartLastDisplayedId.length - 1]);
+
+              console.log(chartLastDisplayedId, targetId);
+
+              if (!(lastTime === chartLastDisplayedTime && lastMeasure === chartLastDisplayedValue && targetId === chartLastDisplayedId)) {
+                chartSeries.addPoint([Date.UTC(year, month, day, hour, minutes, seconds, milliseconds), lastMeasure], true, true);
+              }
             }
           }
         }, {
@@ -523,9 +773,9 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
           key: 'createPolyline',
           value: function createPolyline(way, value, id, type) {
             var polyline = [];
-            way.forEach(function (point) {
-              polyline.push([point[1], point[0]]);
-            });
+            // way.forEach((point) => {
+            //   polyline.push([point[1], point[0]]);
+            // });
 
             var colorIndex = void 0;
             carsCount.range.forEach(function (_value, index) {
@@ -536,14 +786,14 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
 
             var color = carsCount.color[colorIndex];
 
-            var polygon = window.L.polyline(polyline, {
+            var polygon = window.L.polyline(way, {
               color: color,
               weight: 5,
               smoothFactor: 5,
               id: id,
               type: type
             }).on('click', function (e) {
-              drawChart(providedPollutants, e);
+              drawChart(providedPollutants, e, 1);
             }).on('click', this.setTarget).on('click', this.removePollDropdown);
 
             globalPolylines.push(polygon);
@@ -562,7 +812,7 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
           value: function nominatim(latitude, longitude, value, id, type) {
             var _this3 = this;
 
-            var urlStart = 'http://nominatim.openstreetmap.org/reverse?format=json&';
+            var urlStart = 'http://nominatim.ubiwhere.com/reverse?format=json&';
             var urlFinish = '&zoom=16&addressdetails=1&polygon_geojson=1';
 
             window.$.ajax({
@@ -571,10 +821,58 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
               dataType: 'json',
               cache: false,
               success: function success(data) {
-                _this3.createPolyline(data.geojson.coordinates, value, id, type);
+                // console.log(data);
+                _this3.osm(data.osm_id, value, id, type);
+                // this.createPolyline(data.geojson.coordinates, value, id, type);
               },
               error: function error(_error) {
+                // this.osm(120550284, value, id, type);
+                console.log('Nominatim Error');
                 console.log(_error);
+              }
+            });
+          }
+        }, {
+          key: 'osm',
+          value: function osm(osm_id, value, id, type) {
+            var _this4 = this;
+
+            var url = 'http://api.openstreetmap.org/api/0.6/way/' + osm_id + '/full';
+            var wayCoordinates = [];
+            var nodesAux = {};
+
+            window.$.ajax({
+              url: url,
+              type: 'GET',
+              dataType: 'xml',
+              cache: false,
+              success: function success(data) {
+                var nodes = data.getElementsByTagName('node');
+                var nds = data.getElementsByTagName('nd');
+
+                var i = void 0;
+                for (i = 0; i < nodes.length; i++) {
+                  var nodeId = nodes[i].attributes.id.value;
+                  var lat = parseFloat(nodes[i].attributes.lat.value);
+                  var lon = parseFloat(nodes[i].attributes.lon.value);
+
+                  if (!nodesAux[nodeId]) {
+                    nodesAux[nodeId] = {};
+                  }
+                  nodesAux[nodeId].lat = lat;
+                  nodesAux[nodeId].lng = lon;
+                }
+
+                for (i = 0; i < nds.length; i++) {
+                  var nd = nds[i].attributes.ref.value;
+
+                  wayCoordinates.push([nodesAux[nd].lat, nodesAux[nd].lng]);
+                }
+                _this4.createPolyline(wayCoordinates, value, id, type);
+              },
+              error: function error(_error2) {
+                console.log('OSM Error');
+                console.log(_error2);
               }
             });
           }
@@ -605,7 +903,7 @@ System.register(['lodash', './libs/highcharts', './libs/leaflet'], function (_ex
               longitude: dataPoint.locationLongitude,
               aqi: dataPoint.value
             }).on('click', function (e) {
-              drawChart(providedPollutants, e);
+              drawChart(providedPollutants, e, 1);
             }).on('click', this.setTarget).on('click', this.addPollDropdown);
 
             this.createPopupCircle(circle, dataPoint.value, aqiMeaning);

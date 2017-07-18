@@ -1,6 +1,7 @@
 import _ from 'lodash';
 
-import Highcharts from './libs/highcharts';
+// import Highcharts from './libs/highcharts';
+import Highcharts from './libs/highstock';
 
 /* eslint-disable id-length, no-unused-vars */
 import L from './libs/leaflet';
@@ -21,6 +22,8 @@ const carsCount = {
 let providedPollutants;
 
 let timeSeries = {};
+let chartData = [];
+let chartSeries;
 
 let mapControl;
 let mapZoom;
@@ -87,7 +90,7 @@ export default class WorldMap {
 
     airParametersDropdown.addEventListener('change', function() {
       currentParameterForChart = this.value;
-      drawChart(providedPollutants, currentTargetForChart);
+      drawChart(providedPollutants, currentTargetForChart, 1);
     });
 
   }
@@ -153,9 +156,58 @@ export default class WorldMap {
     this.createTimeSeries(treatedData);
     this.createPoints(treatedData);
 
-    // Id sensor selected and new data arrives the chart will be updated
+    // Id sensor selected and new data arrives the chart will be updated (no redraw)
     if (currentTargetForChart !== null){
-      drawChart(providedPollutants, currentTargetForChart);
+      drawChart(providedPollutants, currentTargetForChart, 0); // call drawChart but redraw the chart just update information related
+
+      const targetType = currentTargetForChart.target.options.type;
+      const targetId = currentTargetForChart.target.options.id;
+      const currentParameter = currentParameterForChart.toLowerCase();
+      let lastMeasure;
+      let lastTime;
+
+      if (targetType === 'environment') {
+        let timeEnvironment;
+        if (currentParameter !== 'aqi'){
+          timeEnvironment = timeSeries.pollutants[currentParameter];
+          timeEnvironment.forEach((val) => {
+            if (val.id === targetId){
+              lastTime = val.time;
+              lastMeasure = val.value;
+            } 
+          });
+        }else {
+          timeEnvironment = timeSeries.values[targetId];
+          lastMeasure = timeEnvironment[timeEnvironment.length - 1].value;
+          lastTime = timeEnvironment[timeEnvironment.length - 1].time
+        }
+      }
+      if (targetType === 'traffic') {
+        const timeTraffic = timeSeries.values[targetId];
+        lastMeasure = timeTraffic[timeTraffic.length - 1].value;
+        lastTime = timeTraffic[timeTraffic.length - 1].time
+      }
+
+      const time = new Date(lastTime);
+
+      const day = time.getDate();
+      const month = time.getMonth();
+      const year = time.getFullYear();
+      const hour = time.getHours() - 1;
+      const minutes = time.getMinutes();
+      const seconds = time.getSeconds();
+      const milliseconds = time.getMilliseconds();
+
+      const chartLastDisplayedValue = chartSeries.data[chartSeries.data.length - 1].y;
+      const chartLastDisplayedTime = chartSeries.data[chartSeries.data.length - 1].x;
+      let chartLastDisplayedId = chartSeries.name.split(' ');
+      chartLastDisplayedId = parseInt(chartLastDisplayedId[chartLastDisplayedId.length - 1]);
+
+      console.log(chartLastDisplayedId, targetId);
+
+      if (!(lastTime === chartLastDisplayedTime && lastMeasure === chartLastDisplayedValue && targetId === chartLastDisplayedId)){
+        chartSeries.addPoint([Date.UTC(year, month, day, hour, minutes, seconds, milliseconds), lastMeasure], true, true);
+      }
     }
   }
 
@@ -235,9 +287,9 @@ export default class WorldMap {
 
   createPolyline(way, value, id, type) {
     const polyline = [];
-    way.forEach((point) => {
-      polyline.push([point[1], point[0]]);
-    });
+    // way.forEach((point) => {
+    //   polyline.push([point[1], point[0]]);
+    // });
 
     let colorIndex;
     carsCount.range.forEach((_value, index) => {
@@ -248,14 +300,14 @@ export default class WorldMap {
 
     const color = carsCount.color[colorIndex];
 
-    const polygon = window.L.polyline(polyline, {
+    const polygon = window.L.polyline(way, {
       color: color,
       weight: 5,
       smoothFactor: 5,
       id: id,
       type: type
     }).on('click', function (e) {
-      drawChart(providedPollutants, e);
+      drawChart(providedPollutants, e, 1);
     }).on('click', this.setTarget).on('click', this.removePollDropdown);
 
     globalPolylines.push(polygon);
@@ -270,7 +322,7 @@ export default class WorldMap {
   }
 
   nominatim(latitude, longitude, value, id, type) {
-    const urlStart = 'http://nominatim.openstreetmap.org/reverse?format=json&';
+    const urlStart = 'http://nominatim.ubiwhere.com/reverse?format=json&';
     const urlFinish = '&zoom=16&addressdetails=1&polygon_geojson=1';
 
     window.$.ajax({
@@ -279,9 +331,54 @@ export default class WorldMap {
       dataType: 'json',
       cache: false,
       success: (data) => {
-        this.createPolyline(data.geojson.coordinates, value, id, type);
+        // console.log(data);
+        this.osm(data.osm_id, value, id, type);
+        // this.createPolyline(data.geojson.coordinates, value, id, type);
       },
       error: (error) => {
+        // this.osm(120550284, value, id, type);
+        console.log('Nominatim Error');
+        console.log(error);
+      }
+    });
+  }
+
+  osm(osm_id, value, id, type) {
+    const url = 'http://api.openstreetmap.org/api/0.6/way/' + osm_id + '/full';
+    const wayCoordinates = [];
+    const nodesAux = {}
+
+    window.$.ajax({
+      url: url,
+      type: 'GET',
+      dataType: 'xml',
+      cache: false,
+      success: (data) => {
+        const nodes = data.getElementsByTagName('node');
+        const nds = data.getElementsByTagName('nd');
+
+        let i;
+        for (i = 0; i < nodes.length; i++) {
+          let nodeId = nodes[i].attributes.id.value;
+          let lat = parseFloat(nodes[i].attributes.lat.value);
+          let lon = parseFloat(nodes[i].attributes.lon.value);
+
+          if (!(nodesAux[nodeId])) {
+            nodesAux[nodeId] = {};
+          }
+          nodesAux[nodeId].lat = lat;
+          nodesAux[nodeId].lng = lon;
+        }
+        
+        for (i = 0; i < nds.length; i++) {
+          let nd = nds[i].attributes.ref.value;
+
+          wayCoordinates.push([nodesAux[nd].lat, nodesAux[nd].lng]);
+        }
+        this.createPolyline(wayCoordinates, value, id, type);
+      },
+      error: (error) => {
+        console.log('OSM Error');
         console.log(error);
       }
     });
@@ -312,7 +409,7 @@ export default class WorldMap {
       longitude: dataPoint.locationLongitude,
       aqi: dataPoint.value
     }).on('click', function (e) {
-      drawChart(providedPollutants, e);
+      drawChart(providedPollutants, e, 1);
     }).on('click', this.setTarget).on('click', this.addPollDropdown);
 
     this.createPopupCircle(circle, dataPoint.value, aqiMeaning);
@@ -520,7 +617,7 @@ function showPollutants(providedPollutants, allPollutants, id, aqi) {
   };
   const mapDivHeight = document.getElementsByClassName('mapcontainer')[0].offsetHeight;
   const mapDivWidth = document.getElementsByClassName('mapcontainer')[0].offsetWidth;
-  console.log(mapDivHeight, mapDivWidth);
+
   // Only show the map secundary data (tables) when the map div is not too small
   if (mapDivHeight >= 405 && mapDivWidth >= 860) {
     document.getElementById('environmentTable').style.display = 'block';
@@ -554,7 +651,7 @@ function calculateAQI(aqi) {
   return aqiIndex;
 }
 
-function drawChart(providedPollutants, e) {
+function drawChart(providedPollutants, e, redrawChart) {
   const currentParameter = currentParameterForChart.toLowerCase();
 
   const chart = document.getElementById('dataChart');
@@ -566,9 +663,8 @@ function drawChart(providedPollutants, e) {
   const values = timeSeries.values[id];
   let title = '';
   let parameterUnit = '';
-  let data = [];
 
-  const lastValueMeasure = values[values.length - 1].value;
+  const lastValueMeasure = values[values.length - 1].value; //values array is the one for the AQI values
 
   const aqiIndex = calculateAQI(lastValueMeasure);
 
@@ -590,17 +686,42 @@ function drawChart(providedPollutants, e) {
   }
   // ------
 
-  parameterUnit = providedPollutants[currentParameter].unit;
+  if (redrawChart) {
+    chartData = [];
 
-  title = providedPollutants[currentParameter].name + ' - Sensor ' + id;
+    parameterUnit = providedPollutants[currentParameter].unit;
 
-  if (type === 'environment' && currentParameter !== 'aqi') {
+    title = providedPollutants[currentParameter].name + ' - Sensor ' + id;
 
-    const parameterChoice = timeSeries.pollutants[currentParameter];
-    
-    parameterChoice.forEach((sensor) => {
-      if (sensor.id === id) {
-        const time = new Date(sensor.time);
+    if (type === 'environment' && currentParameter !== 'aqi') {
+
+      const parameterChoice = timeSeries.pollutants[currentParameter];
+      
+      parameterChoice.forEach((sensor) => {
+        if (sensor.id === id) {
+          const time = new Date(sensor.time);
+
+          const day = time.getDate();
+          const month = time.getMonth();
+          const year = time.getFullYear();
+          const hour = time.getHours() - 1;
+          const minutes = time.getMinutes();
+          const seconds = time.getSeconds();
+          const milliseconds = time.getMilliseconds();
+
+          chartData.push([Date.UTC(year, month, day, hour, minutes, seconds, milliseconds), sensor.value]);
+        }
+      });
+    }
+    if ((type === 'environment' && currentParameter === 'aqi')  || type === 'traffic') {
+
+      if(type === 'traffic') {
+        title = 'Cars Count - Sensor ' + id;
+        parameterUnit = 'Cars'
+      }
+
+      values.forEach((value) => {
+        const time = new Date(value.time);
 
         const day = time.getDate();
         const month = time.getMonth();
@@ -610,86 +731,265 @@ function drawChart(providedPollutants, e) {
         const seconds = time.getSeconds();
         const milliseconds = time.getMilliseconds();
 
-        data.push([Date.UTC(year, month, day, hour, minutes, seconds, milliseconds), sensor.value]);
-      }
-    });
-  }
-  if ((type === 'environment' && currentParameter === 'aqi')  || type === 'traffic') {
-
-    if(type === 'traffic') {
-      title = 'Cars Count - Sensor ' + id;
-      parameterUnit = 'Cars'
+        chartData.push([Date.UTC(year, month, day, hour, minutes, seconds, milliseconds), value.value]);
+      });
     }
 
-    values.forEach((value) => {
-      const time = new Date(value.time);
-
-      const day = time.getDate();
-      const month = time.getMonth();
-      const year = time.getFullYear();
-      const hour = time.getHours() - 1;
-      const minutes = time.getMinutes();
-      const seconds = time.getSeconds();
-      const milliseconds = time.getMilliseconds();
-
-      data.push([Date.UTC(year, month, day, hour, minutes, seconds, milliseconds), value.value]);
-    });
-  }
-
-  window.Highcharts.chart('graphContainer', {
+    window.Highcharts.theme = {
+      colors: ['#2b908f', '#90ee7e', '#f45b5b', '#7798BF', '#aaeeee', '#ff0066', '#eeaaee',
+          '#55BF3B', '#DF5353', '#7798BF', '#aaeeee'],
       chart: {
-          zoomType: 'x',
-          backgroundColor: '#1f1d1d'
+          backgroundColor: {
+            linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
+            stops: [
+                [0, '#2a2a2b'],
+                [1, '#3e3e40']
+            ]
+          },
+          style: {
+            fontFamily: '\'Unica One\', sans-serif'
+          },
+          plotBorderColor: '#606063'
       },
       title: {
-          text: title
+          style: {
+            color: '#E0E0E3',
+            // textTransform: 'uppercase',
+            fontSize: '20px'
+          }
       },
       subtitle: {
-          text: document.ontouchstart === undefined ? '' : ''
+          style: {
+            color: '#E0E0E3',
+            textTransform: 'uppercase'
+          }
       },
       xAxis: {
-          type: 'datetime'
+          gridLineColor: '#707073',
+          labels: {
+            style: {
+                color: '#E0E0E3'
+            }
+          },
+          lineColor: '#707073',
+          minorGridLineColor: '#505053',
+          tickColor: '#707073',
+          title: {
+            style: {
+                color: '#A0A0A3'
+
+            }
+          }
       },
       yAxis: {
+          gridLineColor: '#707073',
+          labels: {
+            style: {
+                color: '#E0E0E3'
+            }
+          },
+          lineColor: '#707073',
+          minorGridLineColor: '#505053',
+          tickColor: '#707073',
+          tickWidth: 1,
           title: {
-              text: parameterUnit
+            style: {
+                color: '#A0A0A3'
+            }
+          }
+      },
+      tooltip: {
+          backgroundColor: 'rgba(0, 0, 0, 0.85)',
+          style: {
+            color: '#F0F0F0'
+          }
+      },
+      plotOptions: {
+          series: {
+            dataLabels: {
+                color: '#B0B0B3'
+            },
+            marker: {
+                lineColor: '#333'
+            }
+          },
+          boxplot: {
+            fillColor: '#505053'
+          },
+          candlestick: {
+            lineColor: 'white'
+          },
+          errorbar: {
+            color: 'white'
           }
       },
       legend: {
-          enabled: false
+          itemStyle: {
+            color: '#E0E0E3'
+          },
+          itemHoverStyle: {
+            color: '#FFF'
+          },
+          itemHiddenStyle: {
+            color: '#606063'
+          }
       },
-      plotOptions: {
-          area: {
-              // fillColor: {
-              //   linearGradient: {
-              //     x1: 0,
-              //     y1: 0,
-              //     x2: 0,
-              //     y2: 1
-                // }
-                // stops: [
-                //     [0, '#CCCCCC'],
-                //     [1, '#FFFFFF']
-                // ]
-              // },
-              marker: {
-                  radius: 4
-              },
-              lineWidth: 3,
-              states: {
-                  hover: {
-                      lineWidth: 4
-                  }
-              },
-              threshold: null
+      credits: {
+          style: {
+            color: '#666'
+          }
+      },
+      labels: {
+          style: {
+            color: '#707073'
           }
       },
 
-      series: [{
-          type: 'area',
-          name: title,
-          color: '#CCCCCC',
-          data: data
-      }]
-  });
+      drilldown: {
+          activeAxisLabelStyle: {
+            color: '#F0F0F3'
+          },
+          activeDataLabelStyle: {
+            color: '#F0F0F3'
+          }
+      },
+
+      navigation: {
+          buttonOptions: {
+            symbolStroke: '#DDDDDD',
+            theme: {
+                fill: '#505053'
+            }
+          }
+      },
+
+      // scroll charts
+      rangeSelector: {
+          buttonTheme: {
+            fill: '#505053',
+            stroke: '#000000',
+            style: {
+                color: '#CCC'
+            },
+            states: {
+                hover: {
+                  fill: '#707073',
+                  stroke: '#000000',
+                  style: {
+                      color: 'white'
+                  }
+                },
+                select: {
+                  fill: '#000003',
+                  stroke: '#000000',
+                  style: {
+                      color: 'white'
+                  }
+                }
+            }
+          },
+          inputBoxBorderColor: '#505053',
+          inputStyle: {
+            backgroundColor: '#333',
+            color: 'silver'
+          },
+          labelStyle: {
+            color: 'silver'
+          }
+      },
+
+      navigator: {
+          handles: {
+            backgroundColor: '#666',
+            borderColor: '#AAA'
+          },
+          outlineColor: '#CCC',
+          maskFill: 'rgba(255,255,255,0.1)',
+          series: {
+            color: '#7798BF',
+            lineColor: '#A6C7ED'
+          },
+          xAxis: {
+            gridLineColor: '#505053'
+          }
+      },
+
+      scrollbar: {
+          barBackgroundColor: '#808083',
+          barBorderColor: '#808083',
+          buttonArrowColor: '#CCC',
+          buttonBackgroundColor: '#606063',
+          buttonBorderColor: '#606063',
+          rifleColor: '#FFF',
+          trackBackgroundColor: '#404043',
+          trackBorderColor: '#404043'
+      },
+
+      // special colors for some of the
+      legendBackgroundColor: 'rgba(0, 0, 0, 0.5)',
+      background2: '#505053',
+      dataLabelsColor: '#B0B0B3',
+      textColor: '#C0C0C0',
+      contrastTextColor: '#F0F0F3',
+      maskColor: 'rgba(255,255,255,0.3)'
+    };
+    window.Highcharts.setOptions(window.Highcharts.theme);
+
+    window.Highcharts.stockChart('graphContainer', {
+        chart: {
+          zoomType: 'x',
+          backgroundColor: '#1f1d1d',
+          events: {
+            load: function () {
+              // set up the updating of the chart each second
+              chartSeries = this.series[0];
+              // setInterval(function () {
+              //     const x = chartData[chartData.length - 1][0];
+              //     const y = chartData[chartData.length - 1][1];
+              //     series.addPoint([x, y], true, true);
+              //     //console.log(chartData[chartData.length - 1]);
+              // }, 1000);
+            }
+          }
+        },
+        title: {
+            text: title
+        },
+        subtitle: {
+            text: document.ontouchstart === undefined ? '' : ''
+        },
+        xAxis: {
+            type: 'datetime'
+        },
+        yAxis: {
+            title: {
+                text: parameterUnit
+            }
+        },
+        legend: {
+            enabled: false
+        },
+        rangeSelector: {
+          buttons: [{
+              count: 5,
+              type: 'minute',
+              text: '5M'
+          }, {
+              count: 10,
+              type: 'minute',
+              text: '10M'
+          }, {
+              type: 'all',
+              text: 'All'
+          }],
+          inputEnabled: false,
+          selected: 2
+        },
+
+        series: [{
+            name: title,
+            data: chartData
+        }]
+    });
+  }
 }
