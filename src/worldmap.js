@@ -56,18 +56,21 @@ export default class WorldMap {
   }
 
   createMap() {
+
     const mapCenter = window.L.latLng(parseFloat(this.ctrl.panel.mapCenterLatitude), parseFloat(this.ctrl.panel.mapCenterLongitude));
     mapControl = this.map = window.L.map(this.mapContainer, {worldCopyJump: true, center: mapCenter, zoomControl: false, attributionControl: false})
       .fitWorld()
-      .zoomIn(parseInt(this.ctrl.panel.initialZoom, 5));
+      // .zoomIn(parseInt(this.ctrl.panel.initialZoom, 5));
+    this.map.setZoom(this.ctrl.panel.initialZoom);
+    this.map._initPathRoot();
+    this.map._updatePathViewport();
+
     this.map.panTo(mapCenter);
     window.L.control.zoom({position: 'topright'}).addTo(this.map);
 
     this.map.on('zoomstart', (e) => {
       mapZoom = mapControl.getZoom();
     });
-
-    providedPollutants = JSON.parse(this.ctrl.panel.pollutants);
 
     this.map.on('click', (e) => {
       document.getElementById('measuresTable').style.display = 'none';
@@ -142,6 +145,13 @@ export default class WorldMap {
   }
 
   drawPoints() {
+
+    try{
+      providedPollutants = JSON.parse(this.ctrl.panel.pollutants);
+    }catch(error){
+      throw new Error('Please insert a valid JSON in the Available Pollutants field');
+    }
+
     this.hideAllTables();
 
     const data = this.filterEmptyAndZeroValues(this.ctrl.data);
@@ -202,8 +212,6 @@ export default class WorldMap {
       const chartLastDisplayedTime = chartSeries.data[chartSeries.data.length - 1].x;
       let chartLastDisplayedId = chartSeries.name.split(' ');
       chartLastDisplayedId = parseInt(chartLastDisplayedId[chartLastDisplayedId.length - 1]);
-
-      console.log(chartLastDisplayedId, targetId);
 
       if (!(lastTime === chartLastDisplayedTime && lastMeasure === chartLastDisplayedValue && targetId === chartLastDisplayedId)){
         chartSeries.addPoint([Date.UTC(year, month, day, hour, minutes, seconds, milliseconds), lastMeasure], true, true);
@@ -293,8 +301,8 @@ export default class WorldMap {
 
     let colorIndex;
     carsCount.range.forEach((_value, index) => {
-      if (value >= _value) {
-        colorIndex = index - 1;
+      if (value > _value) {
+        colorIndex = index;
       }
     });
 
@@ -322,7 +330,7 @@ export default class WorldMap {
   }
 
   nominatim(latitude, longitude, value, id, type) {
-    const urlStart = 'http://nominatim.ubiwhere.com/reverse?format=json&';
+    const urlStart = 'http://nominatim.openstreetmaps.org/reverse?format=json&';
     const urlFinish = '&zoom=16&addressdetails=1&polygon_geojson=1';
 
     window.$.ajax({
@@ -392,6 +400,8 @@ export default class WorldMap {
     const pollutants = dataPoint.pollutants;
     const id = dataPoint.id;
     const type = dataPoint.type;
+
+    console.log(id, aqi, aqiColor);
 
     pollutants.push({'name': 'aqi', 'value': dataPoint.value});
 
@@ -644,7 +654,7 @@ function showHealthConcerns(providedPollutants, risk, color, meaning) {
 function calculateAQI(aqi) {
   let aqiIndex;
   AQI.range.forEach((value, index) => {
-    if (aqi > value && aqi <= AQI.range[index + 1]) {
+    if (aqi >= value) {
       aqiIndex = index;
     }
   });

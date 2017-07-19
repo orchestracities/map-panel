@@ -169,7 +169,8 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
   }
 
   setZoom() {
-    this.map.setZoom(this.panel.initialZoom || 1);
+    console.log(this.panel.initialZoom);
+    this.map.setZoom(this.panel.initialZoom);
   }
 
   toggleLegend() {

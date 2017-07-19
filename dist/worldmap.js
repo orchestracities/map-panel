@@ -110,7 +110,7 @@ System.register(['lodash', './libs/highstock', './libs/leaflet'], function (_exp
   function calculateAQI(aqi) {
     var aqiIndex = void 0;
     AQI.range.forEach(function (value, index) {
-      if (aqi > value && aqi <= AQI.range[index + 1]) {
+      if (aqi >= value) {
         aqiIndex = index;
       }
     });
@@ -528,16 +528,20 @@ System.register(['lodash', './libs/highstock', './libs/leaflet'], function (_exp
         _createClass(WorldMap, [{
           key: 'createMap',
           value: function createMap() {
+
             var mapCenter = window.L.latLng(parseFloat(this.ctrl.panel.mapCenterLatitude), parseFloat(this.ctrl.panel.mapCenterLongitude));
-            mapControl = this.map = window.L.map(this.mapContainer, { worldCopyJump: true, center: mapCenter, zoomControl: false, attributionControl: false }).fitWorld().zoomIn(parseInt(this.ctrl.panel.initialZoom, 5));
+            mapControl = this.map = window.L.map(this.mapContainer, { worldCopyJump: true, center: mapCenter, zoomControl: false, attributionControl: false }).fitWorld();
+            // .zoomIn(parseInt(this.ctrl.panel.initialZoom, 5));
+            this.map.setZoom(this.ctrl.panel.initialZoom);
+            this.map._initPathRoot();
+            this.map._updatePathViewport();
+
             this.map.panTo(mapCenter);
             window.L.control.zoom({ position: 'topright' }).addTo(this.map);
 
             this.map.on('zoomstart', function (e) {
               mapZoom = mapControl.getZoom();
             });
-
-            providedPollutants = JSON.parse(this.ctrl.panel.pollutants);
 
             this.map.on('click', function (e) {
               document.getElementById('measuresTable').style.display = 'none';
@@ -621,6 +625,13 @@ System.register(['lodash', './libs/highstock', './libs/leaflet'], function (_exp
         }, {
           key: 'drawPoints',
           value: function drawPoints() {
+
+            try {
+              providedPollutants = JSON.parse(this.ctrl.panel.pollutants);
+            } catch (error) {
+              throw new Error('Please insert a valid JSON in the Available Pollutants field');
+            }
+
             this.hideAllTables();
 
             var data = this.filterEmptyAndZeroValues(this.ctrl.data);
@@ -681,8 +692,6 @@ System.register(['lodash', './libs/highstock', './libs/leaflet'], function (_exp
               var chartLastDisplayedTime = chartSeries.data[chartSeries.data.length - 1].x;
               var chartLastDisplayedId = chartSeries.name.split(' ');
               chartLastDisplayedId = parseInt(chartLastDisplayedId[chartLastDisplayedId.length - 1]);
-
-              console.log(chartLastDisplayedId, targetId);
 
               if (!(lastTime === chartLastDisplayedTime && lastMeasure === chartLastDisplayedValue && targetId === chartLastDisplayedId)) {
                 chartSeries.addPoint([Date.UTC(year, month, day, hour, minutes, seconds, milliseconds), lastMeasure], true, true);
@@ -779,8 +788,8 @@ System.register(['lodash', './libs/highstock', './libs/leaflet'], function (_exp
 
             var colorIndex = void 0;
             carsCount.range.forEach(function (_value, index) {
-              if (value >= _value) {
-                colorIndex = index - 1;
+              if (value > _value) {
+                colorIndex = index;
               }
             });
 
@@ -812,7 +821,7 @@ System.register(['lodash', './libs/highstock', './libs/leaflet'], function (_exp
           value: function nominatim(latitude, longitude, value, id, type) {
             var _this3 = this;
 
-            var urlStart = 'http://nominatim.ubiwhere.com/reverse?format=json&';
+            var urlStart = 'http://nominatim.openstreetmaps.org/reverse?format=json&';
             var urlFinish = '&zoom=16&addressdetails=1&polygon_geojson=1';
 
             window.$.ajax({
@@ -886,6 +895,8 @@ System.register(['lodash', './libs/highstock', './libs/leaflet'], function (_exp
             var pollutants = dataPoint.pollutants;
             var id = dataPoint.id;
             var type = dataPoint.type;
+
+            console.log(id, aqi, aqiColor);
 
             pollutants.push({ 'name': 'aqi', 'value': dataPoint.value });
 
