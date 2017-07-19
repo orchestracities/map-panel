@@ -330,7 +330,7 @@ export default class WorldMap {
   }
 
   nominatim(latitude, longitude, value, id, type) {
-    const urlStart = 'http://nominatim.openstreetmaps.org/reverse?format=json&';
+    const urlStart = 'http://130.206.118.134:8282/reverse?format=json&';
     const urlFinish = '&zoom=16&addressdetails=1&polygon_geojson=1';
 
     window.$.ajax({

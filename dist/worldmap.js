@@ -821,7 +821,7 @@ System.register(['lodash', './libs/highstock', './libs/leaflet'], function (_exp
           value: function nominatim(latitude, longitude, value, id, type) {
             var _this3 = this;
 
-            var urlStart = 'http://nominatim.openstreetmaps.org/reverse?format=json&';
+            var urlStart = 'http://130.206.118.134:8282/reverse?format=json&';
             var urlFinish = '&zoom=16&addressdetails=1&polygon_geojson=1';
 
             window.$.ajax({
