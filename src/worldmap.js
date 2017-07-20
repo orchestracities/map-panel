@@ -585,12 +585,15 @@ function showPollutants(providedPollutants, allPollutants, id, aqi) {
 
   const pollutantsToShow = {};
   for (const key in allPollutants) {
+    
     allPollutants[key].forEach((_value) => {
       if (_value.id === id) {
-        if (!(pollutantsToShow[key])){
-          pollutantsToShow[key] = 0;
+        if (_value.value) {
+          if (!(pollutantsToShow[key])){
+            pollutantsToShow[key] = 0;
+          }
+          pollutantsToShow[key] = _value.value;
         }
-        pollutantsToShow[key] = _value.value;
       }
     });
   }

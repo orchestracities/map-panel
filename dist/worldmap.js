@@ -38,12 +38,16 @@ System.register(['lodash', './libs/highstock', './libs/leaflet'], function (_exp
     var pollutantsToShow = {};
 
     var _loop = function _loop(key) {
+
       allPollutants[key].forEach(function (_value) {
         if (_value.id === id) {
-          if (!pollutantsToShow[key]) {
-            pollutantsToShow[key] = 0;
+          console.log(_value.value);
+          if (_value.value) {
+            if (!pollutantsToShow[key]) {
+              pollutantsToShow[key] = 0;
+            }
+            pollutantsToShow[key] = _value.value;
           }
-          pollutantsToShow[key] = _value.value;
         }
       });
     };
