@@ -10,7 +10,7 @@ import L from './libs/leaflet';
 const AQI = {
   'range': [0, 50, 100, 150, 200, 300, 500],
   'meaning': ['Good', 'Moderate', 'Unhealthy for Sensitive Groups', 'Unhealthy', 'Very Unhealthy', 'Hazardous'],
-  'color': ['#009966', '#ffde33', '#ff9933', '#cc0033', '#660099', '#7e0023'],
+  'color': ['#00e400', '#ffff00', '#ff7e00', '#ff0000', '#8f3f97', '#7e0023'],
   'risks': ['Air quality is considered satisfactory, and air pollution poses little or no risk.', 'Air quality is acceptable; however, for some pollutants there may be a moderate health concern for a very small number of people who are unusually sensitive to air pollution.', 'Members of sensitive groups may experience health effects. The general public is not likely to be affected.', 'Everyone may begin to experience health effects; members of sensitive groups may experience more serious health effects.', 'Health alert: everyone may experience more serious health effects.', 'Health warnings of emergency conditions. The entire population is more likely to be affected.']
 };
 
@@ -208,6 +208,7 @@ export default class WorldMap {
       const seconds = time.getSeconds();
       const milliseconds = time.getMilliseconds();
 
+      console.log(chartSeries.data);
       const chartLastDisplayedValue = chartSeries.data[chartSeries.data.length - 1].y;
       const chartLastDisplayedTime = chartSeries.data[chartSeries.data.length - 1].x;
       let chartLastDisplayedId = chartSeries.name.split(' ');

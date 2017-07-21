@@ -41,7 +41,6 @@ System.register(['lodash', './libs/highstock', './libs/leaflet'], function (_exp
 
       allPollutants[key].forEach(function (_value) {
         if (_value.id === id) {
-          console.log(_value.value);
           if (_value.value) {
             if (!pollutantsToShow[key]) {
               pollutantsToShow[key] = 0;
@@ -692,6 +691,7 @@ System.register(['lodash', './libs/highstock', './libs/leaflet'], function (_exp
               var seconds = time.getSeconds();
               var milliseconds = time.getMilliseconds();
 
+              console.log(chartSeries.data);
               var chartLastDisplayedValue = chartSeries.data[chartSeries.data.length - 1].y;
               var chartLastDisplayedTime = chartSeries.data[chartSeries.data.length - 1].x;
               var chartLastDisplayedId = chartSeries.name.split(' ');
