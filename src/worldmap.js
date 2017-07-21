@@ -16,7 +16,7 @@ const AQI = {
 
 const carsCount = {
   'range': [0, 15, 30, 45, 70, 85, 100],
-  'color': ['#009966', '#ffde33', '#ff9933', '#cc0033', '#660099', '#7e0023']
+  'color': ['#00e400', '#ffff00', '#ff7e00', '#ff0000', '#8f3f97', '#7e0023']
 };
 
 let providedPollutants;
@@ -624,11 +624,12 @@ function showPollutants(providedPollutants, allPollutants, id, aqi) {
     newPollutant.value = pollutant.toUpperCase();
 
     newPollutant.innerHTML = providedPollutants[pollutant].name;
- 
+
     document.getElementById('airParametersDropdown').appendChild(newPollutant);
 
     // ----
-  };
+  }
+
   const mapDivHeight = document.getElementsByClassName('mapcontainer')[0].offsetHeight;
   const mapDivWidth = document.getElementsByClassName('mapcontainer')[0].offsetWidth;
 
@@ -698,6 +699,7 @@ function drawChart(providedPollutants, e, redrawChart) {
     document.getElementById('measuresTable').style.display = 'none';
 
   }
+
   // ------
 
   if (redrawChart) {
