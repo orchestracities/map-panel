@@ -32,6 +32,9 @@ let globalCircles = [];
 let globalMarkers = [];
 let globalPolylines = [];
 
+let circlesLayer;
+let polylinesLayer;
+
 let currentTargetForChart = null;
 let currentParameterForChart = 'aqi';
 
@@ -56,9 +59,11 @@ export default class WorldMap {
   }
 
   createMap() {
+    circlesLayer = window.L.layerGroup();
+    polylinesLayer = window.L.layerGroup();
 
     const mapCenter = window.L.latLng(parseFloat(this.ctrl.panel.mapCenterLatitude), parseFloat(this.ctrl.panel.mapCenterLongitude));
-    mapControl = this.map = window.L.map(this.mapContainer, {worldCopyJump: true, center: mapCenter, zoomControl: false, attributionControl: false})
+    mapControl = this.map = window.L.map(this.mapContainer, {worldCopyJump: true, center: mapCenter, zoomControl: false, attributionControl: false, layers: [polylinesLayer, circlesLayer]})
       .fitWorld()
       // .zoomIn(parseInt(this.ctrl.panel.initialZoom, 5));
     this.map.setZoom(this.ctrl.panel.initialZoom);
@@ -67,6 +72,19 @@ export default class WorldMap {
 
     this.map.panTo(mapCenter);
     window.L.control.zoom({position: 'topright'}).addTo(this.map);
+
+    circlesLayer.addTo(mapControl);
+    polylinesLayer.addTo(mapControl);
+
+    var baseMaps = {
+    };
+
+    var overlayMaps = {
+      "Environment Data": circlesLayer,
+      "Traffic Data": polylinesLayer
+    };
+
+    window.L.control.layers(baseMaps, overlayMaps).addTo(mapControl);
 
     this.map.on('zoomstart', (e) => {
       mapZoom = mapControl.getZoom();
@@ -103,11 +121,12 @@ export default class WorldMap {
   }
 
   clearCircles() {
-    if (this.circlesLayer) {
-      this.circlesLayer.clearLayers();
-      this.removeCircles(this.circlesLayer);
-      globalCircles = [];
-    }
+    circlesLayer.clearLayers();
+    // if (circlesLayer) {
+    //   circlesLayer.clearLayers();
+    //   this.removeCircles(circlesLayer);
+    //   globalCircles = [];
+    // }
   }
   clearMarkers() {
     if (this.markersLayer) {
@@ -118,11 +137,15 @@ export default class WorldMap {
   }
 
   clearPolylines() {
-    if (this.polylinesLayer) {
-      this.polylinesLayer.clearLayers();
-      this.removePolylines(this.polylinesLayer);
-      globalPolylines = [];
-    }
+    polylinesLayer.clearLayers();
+    // polylinesLayer.layers.forEach((layer) => {
+    //   console.log(layer);
+    // });
+    // if (polylinesLayer) {
+    //   polylinesLayer.clearLayers();
+    //   this.removePolylines(polylinesLayer);
+    //   globalPolylines = [];
+    // }
   }
 
   dataTreatment(data) {
@@ -156,7 +179,7 @@ export default class WorldMap {
 
     const data = this.filterEmptyAndZeroValues(this.ctrl.data);
     this.clearCircles();
-    this.clearMarkers();
+    // this.clearMarkers();
     this.clearPolylines();
 
     timeSeries = {};
@@ -208,7 +231,6 @@ export default class WorldMap {
       const seconds = time.getSeconds();
       const milliseconds = time.getMilliseconds();
 
-      console.log(chartSeries.data);
       if (chartSeries.data.length !== 0){
         const chartLastDisplayedValue = chartSeries.data[chartSeries.data.length - 1].y;
         const chartLastDisplayedTime = chartSeries.data[chartSeries.data.length - 1].x;
@@ -277,8 +299,9 @@ export default class WorldMap {
       const value = data[key][data[key].length - 1 ]; // Use the last data for each sensor to create on map -> avoid repeated markers on map and use just the last measurement (the one needed to show on marker)
       if (value.type === 'environment') {
         const newCircle = this.createCircle(value);
-        globalCircles.push(newCircle);
-        this.circlesLayer = this.addCircles(globalCircles);
+        circlesLayer.addLayer(newCircle);
+        // globalCircles.push(newCircle);
+        // circlesLayer = this.addCircles(globalCircles);
       } else if (value.type === 'traffic') {
         this.createMarker(value);
         // const newMarker = this.createMarker(dataPoint);
@@ -288,6 +311,11 @@ export default class WorldMap {
         console.log('Map point type ' + value.type + ' invalid. Must be environment or traffic');
       }
     });
+    // mapControl.removeLayer(circlesLayer);
+
+    // setTimeout(function(){
+    //     mapControl.addLayer(circlesLayer);
+    // }, 5000);
   }
 
   createMarker(dataPoint) {
@@ -322,8 +350,10 @@ export default class WorldMap {
       drawChart(providedPollutants, e, 1);
     }).on('click', this.setTarget).on('click', this.removePollDropdown);
 
-    globalPolylines.push(polygon);
-    this.polylinesLayer = this.addPolylines(globalPolylines);
+    // globalPolylines.push(polygon);
+    // polylinesLayer = this.addPolylines(globalPolylines);
+
+    polylinesLayer.addLayer(polygon);
 
     this.createPopupPolyline(polygon, value);
   }
@@ -404,8 +434,6 @@ export default class WorldMap {
     const pollutants = dataPoint.pollutants;
     const id = dataPoint.id;
     const type = dataPoint.type;
-
-    console.log(id, aqi, aqiColor);
 
     pollutants.push({'name': 'aqi', 'value': dataPoint.value});
 
@@ -534,9 +562,9 @@ export default class WorldMap {
     this.legend = null;
   }
 
-  addCircles(circles) {
-    return window.L.layerGroup(circles).addTo(this.map);
-  }
+  // addCircles(circles) {
+  //   return window.L.layerGroup(circles).addTo(this.map);
+  // }
   addMarkers(markers) {
     return window.L.layerGroup(markers).addTo(this.map);
   }
@@ -546,7 +574,7 @@ export default class WorldMap {
   }
 
   removeCircles() {
-    this.map.removeLayer(this.circlesLayer);
+    this.map.removeLayer(circlesLayer);
   }
 
   removeMarkers() {
@@ -554,7 +582,7 @@ export default class WorldMap {
   }
 
   removePolylines() {
-    this.map.removeLayer(this.polylinesLayer);
+    this.map.removeLayer(polylinesLayer);
   }
 
   setZoom(zoomFactor) {
