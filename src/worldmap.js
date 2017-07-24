@@ -209,13 +209,16 @@ export default class WorldMap {
       const milliseconds = time.getMilliseconds();
 
       console.log(chartSeries.data);
-      const chartLastDisplayedValue = chartSeries.data[chartSeries.data.length - 1].y;
-      const chartLastDisplayedTime = chartSeries.data[chartSeries.data.length - 1].x;
-      let chartLastDisplayedId = chartSeries.name.split(' ');
-      chartLastDisplayedId = parseInt(chartLastDisplayedId[chartLastDisplayedId.length - 1]);
+      if (chartSeries.data.length !== 0){
+        const chartLastDisplayedValue = chartSeries.data[chartSeries.data.length - 1].y;
+        const chartLastDisplayedTime = chartSeries.data[chartSeries.data.length - 1].x;
+        let chartLastDisplayedId = chartSeries.name.split(' ');
+        chartLastDisplayedId = parseInt(chartLastDisplayedId[chartLastDisplayedId.length - 1]);
+      
 
-      if (!(lastTime === chartLastDisplayedTime && lastMeasure === chartLastDisplayedValue && targetId === chartLastDisplayedId)){
-        chartSeries.addPoint([Date.UTC(year, month, day, hour, minutes, seconds, milliseconds), lastMeasure], true, true);
+        if (!(lastTime === chartLastDisplayedTime && lastMeasure === chartLastDisplayedValue && targetId === chartLastDisplayedId)){
+          chartSeries.addPoint([Date.UTC(year, month, day, hour, minutes, seconds, milliseconds), lastMeasure], true, true);
+        }
       }
     }
   }
@@ -497,7 +500,7 @@ export default class WorldMap {
   }
 
   createPopupPolyline(polyline, value) {
-    const label = ('Number of cars: ' + value).trim();
+    const label = ('Cars Intensity: ' + value).trim();
     polyline.bindPopup(label, {'offset': window.L.point(0, -2), 'className': 'worldmap-popup', 'closeButton': this.ctrl.panel.stickyLabels});
 
     polyline.on('mouseover', function onMouseOver(evt) {
@@ -707,7 +710,7 @@ function drawChart(providedPollutants, e, redrawChart) {
 
     parameterUnit = providedPollutants[currentParameter].unit;
 
-    title = providedPollutants[currentParameter].name + ' - Sensor ' + id;
+    title = providedPollutants[currentParameter].name + ' - Device ' + id;
 
     if (type === 'environment' && currentParameter !== 'aqi') {
 
@@ -732,7 +735,7 @@ function drawChart(providedPollutants, e, redrawChart) {
     if ((type === 'environment' && currentParameter === 'aqi')  || type === 'traffic') {
 
       if(type === 'traffic') {
-        title = 'Cars Count - Sensor ' + id;
+        title = 'Cars Intensity - Device ' + id;
         parameterUnit = 'Cars'
       }
 

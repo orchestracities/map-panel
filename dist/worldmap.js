@@ -162,7 +162,7 @@ System.register(['lodash', './libs/highstock', './libs/leaflet'], function (_exp
 
       parameterUnit = providedPollutants[currentParameter].unit;
 
-      title = providedPollutants[currentParameter].name + ' - Sensor ' + id;
+      title = providedPollutants[currentParameter].name + ' - Device ' + id;
 
       if (type === 'environment' && currentParameter !== 'aqi') {
 
@@ -187,7 +187,7 @@ System.register(['lodash', './libs/highstock', './libs/leaflet'], function (_exp
       if (type === 'environment' && currentParameter === 'aqi' || type === 'traffic') {
 
         if (type === 'traffic') {
-          title = 'Cars Count - Sensor ' + id;
+          title = 'Cars Intensity - Device ' + id;
           parameterUnit = 'Cars';
         }
 
@@ -694,13 +694,15 @@ System.register(['lodash', './libs/highstock', './libs/leaflet'], function (_exp
               var milliseconds = time.getMilliseconds();
 
               console.log(chartSeries.data);
-              var chartLastDisplayedValue = chartSeries.data[chartSeries.data.length - 1].y;
-              var chartLastDisplayedTime = chartSeries.data[chartSeries.data.length - 1].x;
-              var chartLastDisplayedId = chartSeries.name.split(' ');
-              chartLastDisplayedId = parseInt(chartLastDisplayedId[chartLastDisplayedId.length - 1]);
+              if (chartSeries.data.length !== 0) {
+                var chartLastDisplayedValue = chartSeries.data[chartSeries.data.length - 1].y;
+                var chartLastDisplayedTime = chartSeries.data[chartSeries.data.length - 1].x;
+                var chartLastDisplayedId = chartSeries.name.split(' ');
+                chartLastDisplayedId = parseInt(chartLastDisplayedId[chartLastDisplayedId.length - 1]);
 
-              if (!(lastTime === chartLastDisplayedTime && lastMeasure === chartLastDisplayedValue && targetId === chartLastDisplayedId)) {
-                chartSeries.addPoint([Date.UTC(year, month, day, hour, minutes, seconds, milliseconds), lastMeasure], true, true);
+                if (!(lastTime === chartLastDisplayedTime && lastMeasure === chartLastDisplayedValue && targetId === chartLastDisplayedId)) {
+                  chartSeries.addPoint([Date.UTC(year, month, day, hour, minutes, seconds, milliseconds), lastMeasure], true, true);
+                }
               }
             }
           }
@@ -1001,7 +1003,7 @@ System.register(['lodash', './libs/highstock', './libs/leaflet'], function (_exp
         }, {
           key: 'createPopupPolyline',
           value: function createPopupPolyline(polyline, value) {
-            var label = ('Number of cars: ' + value).trim();
+            var label = ('Cars Intensity: ' + value).trim();
             polyline.bindPopup(label, { 'offset': window.L.point(0, -2), 'className': 'worldmap-popup', 'closeButton': this.ctrl.panel.stickyLabels });
 
             polyline.on('mouseover', function onMouseOver(evt) {
