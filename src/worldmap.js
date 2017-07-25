@@ -325,7 +325,7 @@ export default class WorldMap {
     // return marker;
   }
 
-  createPolyline(way, value, id, type) {
+  createPolyline(way, value, id, type, street_name) {
     const polyline = [];
     // way.forEach((point) => {
     //   polyline.push([point[1], point[0]]);
@@ -355,7 +355,7 @@ export default class WorldMap {
 
     polylinesLayer.addLayer(polygon);
 
-    this.createPopupPolyline(polygon, value);
+    this.createPopupPolyline(polygon, value, street_name);
   }
 
   calculatePointPolyline(latitude, longitude, value, id, type) {
@@ -373,8 +373,26 @@ export default class WorldMap {
       dataType: 'json',
       cache: false,
       success: (data) => {
-        // console.log(data);
-        this.osm(data.osm_id, value, id, type);
+        let street_name = ''
+
+        if(data.address.road) {
+          street_name += data.address.road
+        }
+
+        if(data.address.city) {
+          if (data.address.road) {
+            street_name += ', '
+          }
+          street_name += data.address.city
+        }
+
+        if(data.address.country) {
+          if (data.address.city || data.address.road) {
+            street_name += ', '
+          }
+          street_name += data.address.country
+        }
+        this.osm(data.osm_id, value, id, type, street_name);
         // this.createPolyline(data.geojson.coordinates, value, id, type);
       },
       error: (error) => {
@@ -385,7 +403,7 @@ export default class WorldMap {
     });
   }
 
-  osm(osm_id, value, id, type) {
+  osm(osm_id, value, id, type, street_name) {
     const url = 'http://api.openstreetmap.org/api/0.6/way/' + osm_id + '/full';
     const wayCoordinates = [];
     const nodesAux = {}
@@ -417,7 +435,7 @@ export default class WorldMap {
 
           wayCoordinates.push([nodesAux[nd].lat, nodesAux[nd].lng]);
         }
-        this.createPolyline(wayCoordinates, value, id, type);
+        this.createPolyline(wayCoordinates, value, id, type, street_name);
       },
       error: (error) => {
         console.log('OSM Error');
@@ -527,8 +545,15 @@ export default class WorldMap {
     }
   }
 
-  createPopupPolyline(polyline, value) {
-    const label = ('Cars Intensity: ' + value).trim();
+  createPopupPolyline(polyline, value, street_name) {
+    let label;
+
+    if (street_name !== '') {
+      label = ('Street: ' + street_name + '</br>Cars Intensity: ' + value).trim();
+    }else{
+      label = ('Cars Intensity: ' + value).trim();
+    }
+    
     polyline.bindPopup(label, {'offset': window.L.point(0, -2), 'className': 'worldmap-popup', 'closeButton': this.ctrl.panel.stickyLabels});
 
     polyline.on('mouseover', function onMouseOver(evt) {

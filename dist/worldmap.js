@@ -814,7 +814,7 @@ System.register(['lodash', './libs/highstock', './libs/leaflet'], function (_exp
           }
         }, {
           key: 'createPolyline',
-          value: function createPolyline(way, value, id, type) {
+          value: function createPolyline(way, value, id, type, street_name) {
             var polyline = [];
             // way.forEach((point) => {
             //   polyline.push([point[1], point[0]]);
@@ -844,7 +844,7 @@ System.register(['lodash', './libs/highstock', './libs/leaflet'], function (_exp
 
             polylinesLayer.addLayer(polygon);
 
-            this.createPopupPolyline(polygon, value);
+            this.createPopupPolyline(polygon, value, street_name);
           }
         }, {
           key: 'calculatePointPolyline',
@@ -866,8 +866,26 @@ System.register(['lodash', './libs/highstock', './libs/leaflet'], function (_exp
               dataType: 'json',
               cache: false,
               success: function success(data) {
-                // console.log(data);
-                _this3.osm(data.osm_id, value, id, type);
+                var street_name = '';
+
+                if (data.address.road) {
+                  street_name += data.address.road;
+                }
+
+                if (data.address.city) {
+                  if (data.address.road) {
+                    street_name += ', ';
+                  }
+                  street_name += data.address.city;
+                }
+
+                if (data.address.country) {
+                  if (data.address.city || data.address.road) {
+                    street_name += ', ';
+                  }
+                  street_name += data.address.country;
+                }
+                _this3.osm(data.osm_id, value, id, type, street_name);
                 // this.createPolyline(data.geojson.coordinates, value, id, type);
               },
               error: function error(_error) {
@@ -879,7 +897,7 @@ System.register(['lodash', './libs/highstock', './libs/leaflet'], function (_exp
           }
         }, {
           key: 'osm',
-          value: function osm(osm_id, value, id, type) {
+          value: function osm(osm_id, value, id, type, street_name) {
             var _this4 = this;
 
             var url = 'http://api.openstreetmap.org/api/0.6/way/' + osm_id + '/full';
@@ -913,7 +931,7 @@ System.register(['lodash', './libs/highstock', './libs/leaflet'], function (_exp
 
                   wayCoordinates.push([nodesAux[nd].lat, nodesAux[nd].lng]);
                 }
-                _this4.createPolyline(wayCoordinates, value, id, type);
+                _this4.createPolyline(wayCoordinates, value, id, type, street_name);
               },
               error: function error(_error2) {
                 console.log('OSM Error');
@@ -1028,8 +1046,15 @@ System.register(['lodash', './libs/highstock', './libs/leaflet'], function (_exp
           }
         }, {
           key: 'createPopupPolyline',
-          value: function createPopupPolyline(polyline, value) {
-            var label = ('Cars Intensity: ' + value).trim();
+          value: function createPopupPolyline(polyline, value, street_name) {
+            var label = void 0;
+
+            if (street_name !== '') {
+              label = ('Street: ' + street_name + '</br>Cars Intensity: ' + value).trim();
+            } else {
+              label = ('Cars Intensity: ' + value).trim();
+            }
+
             polyline.bindPopup(label, { 'offset': window.L.point(0, -2), 'className': 'worldmap-popup', 'closeButton': this.ctrl.panel.stickyLabels });
 
             polyline.on('mouseover', function onMouseOver(evt) {
