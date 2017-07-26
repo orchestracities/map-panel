@@ -231,7 +231,7 @@ export default class WorldMap {
       const seconds = time.getSeconds();
       const milliseconds = time.getMilliseconds();
 
-      if (chartSeries.data.length !== 0){
+      if (chartSeries.data){
         const chartLastDisplayedValue = chartSeries.data[chartSeries.data.length - 1].y;
         const chartLastDisplayedTime = chartSeries.data[chartSeries.data.length - 1].x;
         let chartLastDisplayedId = chartSeries.name.split(' ');
