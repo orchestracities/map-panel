@@ -392,7 +392,12 @@ export default class WorldMap {
           }
           street_name += data.address.country
         }
-        this.osm(data.osm_id, value, id, type, street_name);
+        if (data.osm_id) {
+          this.osm(data.osm_id, value, id, type, street_name);
+        }
+        else {
+          console.log("OSM ID not found for: " + latitude + ";" + longitude);
+        }
         // this.createPolyline(data.geojson.coordinates, value, id, type);
       },
       error: (error) => {

@@ -714,7 +714,7 @@ System.register(['lodash', './libs/highstock', './libs/leaflet'], function (_exp
               var seconds = time.getSeconds();
               var milliseconds = time.getMilliseconds();
 
-              if (chartSeries.data.length !== 0) {
+              if (chartSeries.data) {
                 var chartLastDisplayedValue = chartSeries.data[chartSeries.data.length - 1].y;
                 var chartLastDisplayedTime = chartSeries.data[chartSeries.data.length - 1].x;
                 var chartLastDisplayedId = chartSeries.name.split(' ');
@@ -885,7 +885,11 @@ System.register(['lodash', './libs/highstock', './libs/leaflet'], function (_exp
                   }
                   street_name += data.address.country;
                 }
-                _this3.osm(data.osm_id, value, id, type, street_name);
+                if (data.osm_id) {
+                  _this3.osm(data.osm_id, value, id, type, street_name);
+                } else {
+                  console.log("OSM ID not found for: " + latitude + ";" + longitude);
+                }
                 // this.createPolyline(data.geojson.coordinates, value, id, type);
               },
               error: function error(_error) {
