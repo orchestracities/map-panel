@@ -231,7 +231,7 @@ export default class WorldMap {
       const seconds = time.getSeconds();
       const milliseconds = time.getMilliseconds();
 
-      if (chartSeries.data){
+      try{
         const chartLastDisplayedValue = chartSeries.data[chartSeries.data.length - 1].y;
         const chartLastDisplayedTime = chartSeries.data[chartSeries.data.length - 1].x;
         let chartLastDisplayedId = chartSeries.name.split(' ');
@@ -241,6 +241,9 @@ export default class WorldMap {
         if (!(lastTime === chartLastDisplayedTime && lastMeasure === chartLastDisplayedValue && targetId === chartLastDisplayedId)){
           chartSeries.addPoint([Date.UTC(year, month, day, hour, minutes, seconds, milliseconds), lastMeasure], true, true);
         }
+      }catch(error){
+        console.log("Whoaa! Something went wrong... Probably there is no recent data for the selected device. Here you have the error:");
+        console.log(error);
       }
     }
   }

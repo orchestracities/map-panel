@@ -714,7 +714,7 @@ System.register(['lodash', './libs/highstock', './libs/leaflet'], function (_exp
               var seconds = time.getSeconds();
               var milliseconds = time.getMilliseconds();
 
-              if (chartSeries.data) {
+              try {
                 var chartLastDisplayedValue = chartSeries.data[chartSeries.data.length - 1].y;
                 var chartLastDisplayedTime = chartSeries.data[chartSeries.data.length - 1].x;
                 var chartLastDisplayedId = chartSeries.name.split(' ');
@@ -723,6 +723,9 @@ System.register(['lodash', './libs/highstock', './libs/leaflet'], function (_exp
                 if (!(lastTime === chartLastDisplayedTime && lastMeasure === chartLastDisplayedValue && targetId === chartLastDisplayedId)) {
                   chartSeries.addPoint([Date.UTC(year, month, day, hour, minutes, seconds, milliseconds), lastMeasure], true, true);
                 }
+              } catch (error) {
+                console.log("Whoaa! Something went wrong... Probably there is no recent data for the selected device. Here you have the the error:");
+                console.log(error);
               }
             }
           }
