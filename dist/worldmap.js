@@ -134,25 +134,30 @@ System.register(['lodash', './libs/highstock', './libs/leaflet'], function (_exp
     var title = '';
     var parameterUnit = '';
 
-    var lastValueMeasure = values[values.length - 1].value; //values array is the one for the AQI values
+    try {
+      var lastValueMeasure = values[values.length - 1].value; //values array is the one for the AQI values
 
-    var aqiIndex = calculateAQI(lastValueMeasure);
+      var aqiIndex = calculateAQI(lastValueMeasure);
 
-    // Show Pollutants Legend (MAP)
-    if (type === 'environment') {
-      var allPollutants = timeSeries.pollutants;
-      showPollutants(providedPollutants, allPollutants, id, lastValueMeasure);
-      showHealthConcerns(providedPollutants, AQI.risks[aqiIndex], AQI.color[aqiIndex], AQI.meaning[aqiIndex]);
-    } else {
-      // Hide legend
-      var mapDivHeight = document.getElementsByClassName('mapcontainer')[0].offsetHeight;
-      var mapDivWidth = document.getElementsByClassName('mapcontainer')[0].offsetWidth;
+      // Show Pollutants Legend (MAP)
+      if (type === 'environment') {
+        var allPollutants = timeSeries.pollutants;
+        showPollutants(providedPollutants, allPollutants, id, lastValueMeasure);
+        showHealthConcerns(providedPollutants, AQI.risks[aqiIndex], AQI.color[aqiIndex], AQI.meaning[aqiIndex]);
+      } else {
+        // Hide legend
+        var mapDivHeight = document.getElementsByClassName('mapcontainer')[0].offsetHeight;
+        var mapDivWidth = document.getElementsByClassName('mapcontainer')[0].offsetWidth;
 
-      if (mapDivHeight >= 405 && mapDivWidth >= 860) {
-        document.getElementById('trafficTable').style.display = 'block';
+        if (mapDivHeight >= 405 && mapDivWidth >= 860) {
+          document.getElementById('trafficTable').style.display = 'block';
+        }
+        document.getElementById('healthConcernsWrapper').style.display = 'none';
+        document.getElementById('measuresTable').style.display = 'none';
       }
-      document.getElementById('healthConcernsWrapper').style.display = 'none';
-      document.getElementById('measuresTable').style.display = 'none';
+    } catch (error) {
+      console.log("Woaa! Something went wrong... Probably there is no recent data for the selected device. Here you have the error:");
+      console.log(error);
     }
 
     // ------
@@ -570,6 +575,7 @@ System.register(['lodash', './libs/highstock', './libs/leaflet'], function (_exp
               document.getElementById('dataChart').style.display = 'none';
               document.getElementById('environmentTable').style.display = 'none';
               document.getElementById('trafficTable').style.display = 'none';
+              currentTargetForChart = null;
             });
 
             var selectedTileServer = tileServers[this.ctrl.tileServer];
@@ -682,39 +688,40 @@ System.register(['lodash', './libs/highstock', './libs/leaflet'], function (_exp
               var lastMeasure = void 0;
               var lastTime = void 0;
 
-              if (targetType === 'environment') {
-                var timeEnvironment = void 0;
-                if (currentParameter !== 'aqi') {
-                  timeEnvironment = timeSeries.pollutants[currentParameter];
-                  timeEnvironment.forEach(function (val) {
-                    if (val.id === targetId) {
-                      lastTime = val.time;
-                      lastMeasure = val.value;
-                    }
-                  });
-                } else {
-                  timeEnvironment = timeSeries.values[targetId];
-                  lastMeasure = timeEnvironment[timeEnvironment.length - 1].value;
-                  lastTime = timeEnvironment[timeEnvironment.length - 1].time;
-                }
-              }
-              if (targetType === 'traffic') {
-                var timeTraffic = timeSeries.values[targetId];
-                lastMeasure = timeTraffic[timeTraffic.length - 1].value;
-                lastTime = timeTraffic[timeTraffic.length - 1].time;
-              }
-
-              var time = new Date(lastTime);
-
-              var day = time.getDate();
-              var month = time.getMonth();
-              var year = time.getFullYear();
-              var hour = time.getHours() - 1;
-              var minutes = time.getMinutes();
-              var seconds = time.getSeconds();
-              var milliseconds = time.getMilliseconds();
-
               try {
+
+                if (targetType === 'environment') {
+                  var timeEnvironment = void 0;
+                  if (currentParameter !== 'aqi') {
+                    timeEnvironment = timeSeries.pollutants[currentParameter];
+                    timeEnvironment.forEach(function (val) {
+                      if (val.id === targetId) {
+                        lastTime = val.time;
+                        lastMeasure = val.value;
+                      }
+                    });
+                  } else {
+                    timeEnvironment = timeSeries.values[targetId];
+                    lastMeasure = timeEnvironment[timeEnvironment.length - 1].value;
+                    lastTime = timeEnvironment[timeEnvironment.length - 1].time;
+                  }
+                }
+                if (targetType === 'traffic') {
+                  var timeTraffic = timeSeries.values[targetId];
+                  lastMeasure = timeTraffic[timeTraffic.length - 1].value;
+                  lastTime = timeTraffic[timeTraffic.length - 1].time;
+                }
+
+                var time = new Date(lastTime);
+
+                var day = time.getDate();
+                var month = time.getMonth();
+                var year = time.getFullYear();
+                var hour = time.getHours() - 1;
+                var minutes = time.getMinutes();
+                var seconds = time.getSeconds();
+                var milliseconds = time.getMilliseconds();
+
                 var chartLastDisplayedValue = chartSeries.data[chartSeries.data.length - 1].y;
                 var chartLastDisplayedTime = chartSeries.data[chartSeries.data.length - 1].x;
                 var chartLastDisplayedId = chartSeries.name.split(' ');
@@ -724,7 +731,7 @@ System.register(['lodash', './libs/highstock', './libs/leaflet'], function (_exp
                   chartSeries.addPoint([Date.UTC(year, month, day, hour, minutes, seconds, milliseconds), lastMeasure], true, true);
                 }
               } catch (error) {
-                console.log("Whoaa! Something went wrong... Probably there is no recent data for the selected device. Here you have the the error:");
+                console.log("Woaa! Something went wrong... Probably there is no recent data for the selected device. Here you have the error:");
                 console.log(error);
               }
             }

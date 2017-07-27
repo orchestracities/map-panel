@@ -96,6 +96,7 @@ export default class WorldMap {
       document.getElementById('dataChart').style.display = 'none';
       document.getElementById('environmentTable').style.display = 'none';
       document.getElementById('trafficTable').style.display = 'none';
+      currentTargetForChart = null;
     });
 
     const selectedTileServer = tileServers[this.ctrl.tileServer];
@@ -190,7 +191,7 @@ export default class WorldMap {
     this.createPoints(treatedData);
 
     // Id sensor selected and new data arrives the chart will be updated (no redraw)
-    if (currentTargetForChart !== null){
+    if (currentTargetForChart !== null) {
       drawChart(providedPollutants, currentTargetForChart, 0); // call drawChart but redraw the chart just update information related
 
       const targetType = currentTargetForChart.target.options.type;
@@ -199,39 +200,41 @@ export default class WorldMap {
       let lastMeasure;
       let lastTime;
 
-      if (targetType === 'environment') {
-        let timeEnvironment;
-        if (currentParameter !== 'aqi'){
-          timeEnvironment = timeSeries.pollutants[currentParameter];
-          timeEnvironment.forEach((val) => {
-            if (val.id === targetId){
-              lastTime = val.time;
-              lastMeasure = val.value;
-            } 
-          });
-        }else {
-          timeEnvironment = timeSeries.values[targetId];
-          lastMeasure = timeEnvironment[timeEnvironment.length - 1].value;
-          lastTime = timeEnvironment[timeEnvironment.length - 1].time
-        }
-      }
-      if (targetType === 'traffic') {
-        const timeTraffic = timeSeries.values[targetId];
-        lastMeasure = timeTraffic[timeTraffic.length - 1].value;
-        lastTime = timeTraffic[timeTraffic.length - 1].time
-      }
-
-      const time = new Date(lastTime);
-
-      const day = time.getDate();
-      const month = time.getMonth();
-      const year = time.getFullYear();
-      const hour = time.getHours() - 1;
-      const minutes = time.getMinutes();
-      const seconds = time.getSeconds();
-      const milliseconds = time.getMilliseconds();
-
       try{
+
+        if (targetType === 'environment') {
+          let timeEnvironment;
+          if (currentParameter !== 'aqi'){
+            timeEnvironment = timeSeries.pollutants[currentParameter];
+            timeEnvironment.forEach((val) => {
+              if (val.id === targetId){
+                lastTime = val.time;
+                lastMeasure = val.value;
+              } 
+            });
+          }else {
+            timeEnvironment = timeSeries.values[targetId];
+            lastMeasure = timeEnvironment[timeEnvironment.length - 1].value;
+            lastTime = timeEnvironment[timeEnvironment.length - 1].time
+          }
+        }
+        if (targetType === 'traffic') {
+          const timeTraffic = timeSeries.values[targetId];
+          lastMeasure = timeTraffic[timeTraffic.length - 1].value;
+          lastTime = timeTraffic[timeTraffic.length - 1].time
+        }
+
+        const time = new Date(lastTime);
+
+        const day = time.getDate();
+        const month = time.getMonth();
+        const year = time.getFullYear();
+        const hour = time.getHours() - 1;
+        const minutes = time.getMinutes();
+        const seconds = time.getSeconds();
+        const milliseconds = time.getMilliseconds();
+
+      
         const chartLastDisplayedValue = chartSeries.data[chartSeries.data.length - 1].y;
         const chartLastDisplayedTime = chartSeries.data[chartSeries.data.length - 1].x;
         let chartLastDisplayedId = chartSeries.name.split(' ');
@@ -242,7 +245,7 @@ export default class WorldMap {
           chartSeries.addPoint([Date.UTC(year, month, day, hour, minutes, seconds, milliseconds), lastMeasure], true, true);
         }
       }catch(error){
-        console.log("Whoaa! Something went wrong... Probably there is no recent data for the selected device. Here you have the error:");
+        console.log("Woaa! Something went wrong... Probably there is no recent data for the selected device. Here you have the error:");
         console.log(error);
       }
     }
@@ -743,25 +746,29 @@ function drawChart(providedPollutants, e, redrawChart) {
   let title = '';
   let parameterUnit = '';
 
-  const lastValueMeasure = values[values.length - 1].value; //values array is the one for the AQI values
+  try {
+    const lastValueMeasure = values[values.length - 1].value; //values array is the one for the AQI values
 
-  const aqiIndex = calculateAQI(lastValueMeasure);
+    const aqiIndex = calculateAQI(lastValueMeasure);
 
-  // Show Pollutants Legend (MAP)
-  if (type === 'environment') {
-    const allPollutants = timeSeries.pollutants;
-    showPollutants(providedPollutants, allPollutants, id, lastValueMeasure);
-    showHealthConcerns(providedPollutants, AQI.risks[aqiIndex], AQI.color[aqiIndex], AQI.meaning[aqiIndex]);
-  } else { // Hide legend
-    const mapDivHeight = document.getElementsByClassName('mapcontainer')[0].offsetHeight;
-    const mapDivWidth = document.getElementsByClassName('mapcontainer')[0].offsetWidth;
+    // Show Pollutants Legend (MAP)
+    if (type === 'environment') {
+      const allPollutants = timeSeries.pollutants;
+      showPollutants(providedPollutants, allPollutants, id, lastValueMeasure);
+      showHealthConcerns(providedPollutants, AQI.risks[aqiIndex], AQI.color[aqiIndex], AQI.meaning[aqiIndex]);
+    } else { // Hide legend
+      const mapDivHeight = document.getElementsByClassName('mapcontainer')[0].offsetHeight;
+      const mapDivWidth = document.getElementsByClassName('mapcontainer')[0].offsetWidth;
 
-    if (mapDivHeight >= 405 && mapDivWidth >= 860) {
-      document.getElementById('trafficTable').style.display = 'block';
+      if (mapDivHeight >= 405 && mapDivWidth >= 860) {
+        document.getElementById('trafficTable').style.display = 'block';
+      }
+      document.getElementById('healthConcernsWrapper').style.display = 'none';
+      document.getElementById('measuresTable').style.display = 'none';
     }
-    document.getElementById('healthConcernsWrapper').style.display = 'none';
-    document.getElementById('measuresTable').style.display = 'none';
-
+  } catch(error) {
+      console.log("Woaa! Something went wrong... Probably there is no recent data for the selected device. Here you have the error:");
+      console.log(error);
   }
 
   // ------
