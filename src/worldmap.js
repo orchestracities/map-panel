@@ -246,7 +246,7 @@ export default class WorldMap {
       
 
         if (!(lastTime === chartLastDisplayedTime && lastMeasure === chartLastDisplayedValue && targetId === chartLastDisplayedId)){
-          chartSeries.addPoint([Date.UTC(year, month, day, hour, minutes, seconds, milliseconds), lastMeasure], true, true);
+          chartSeries.addPoint([Date.UTC(year, month, day, hour+1, minutes, seconds, milliseconds), lastMeasure], true, true);
         }
       }catch(error){
         console.log("Woaa! Something went wrong... Probably there is no recent data for the selected device. Here you have the error:");
@@ -801,7 +801,7 @@ function drawChart(providedPollutants, e, redrawChart) {
           const seconds = time.getSeconds();
           const milliseconds = time.getMilliseconds();
 
-          chartData.push([Date.UTC(year, month, day, hour, minutes, seconds, milliseconds), sensor.value]);
+          chartData.push([Date.UTC(year, month, day, hour+1, minutes, seconds, milliseconds), sensor.value]);
         }
       });
     }
@@ -823,7 +823,7 @@ function drawChart(providedPollutants, e, redrawChart) {
         const seconds = time.getSeconds();
         const milliseconds = time.getMilliseconds();
 
-        chartData.push([Date.UTC(year, month, day, hour, minutes, seconds, milliseconds), value.value]);
+        chartData.push([Date.UTC(year, month, day, hour+1, minutes, seconds, milliseconds), value.value]);
       });
     }
 
