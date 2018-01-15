@@ -179,6 +179,10 @@ export default class WorldMap {
     this.hideAllTables();
 
     const data = this.filterEmptyAndZeroValues(this.ctrl.data);
+
+    console.log("----");
+    console.log(data);
+    console.log("----");
     this.clearCircles();
     // this.clearMarkers();
     this.clearPolylines();
@@ -370,7 +374,7 @@ export default class WorldMap {
   }
 
   nominatim(latitude, longitude, value, id, type) {
-    const urlStart = 'http://130.206.118.134:8282/reverse?format=json&';
+    const urlStart = 'https://nominatim-antwerp-x.s.orchestracities.com/reverse?format=json&';
     const urlFinish = '&zoom=16&addressdetails=1&polygon_geojson=1';
 
     window.$.ajax({
@@ -381,23 +385,22 @@ export default class WorldMap {
       success: (data) => {
         let street_name = ''
 
-        if(data.address.road) {
-          street_name += data.address.road
-        }
-
-        if(data.address.city) {
+        if(data.address) {
           if (data.address.road) {
-            street_name += ', '
+            street_name += 'data.address.road, ';
           }
-          street_name += data.address.city
-        }
+          if(data.address.city) {
+            street_name += data.address.city;
+          }
 
-        if(data.address.country) {
-          if (data.address.city || data.address.road) {
-            street_name += ', '
+          if(data.address.country) {
+            if (data.address.city || data.address.road) {
+              street_name += ', ';
+            }
+            street_name += data.address.country;
           }
-          street_name += data.address.country
         }
+        
         if (data.osm_id) {
           this.osm(data.osm_id, value, id, type, street_name);
         }
@@ -446,6 +449,8 @@ export default class WorldMap {
 
           wayCoordinates.push([nodesAux[nd].lat, nodesAux[nd].lng]);
         }
+
+        console.log(wayCoordinates);
         this.createPolyline(wayCoordinates, value, id, type, street_name);
       },
       error: (error) => {
