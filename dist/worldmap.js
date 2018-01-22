@@ -645,7 +645,7 @@ System.register(['lodash', './libs/highstock', './libs/leaflet'], function (_exp
               if (!finalData[value.id]) {
                 finalData[value.id] = [];
               }
-              if (value.type === 'environment') {
+              if (value.type === 'AirQualityObserved') {
                 finalData[value.id].push({ 'id': value.id, 'locationLatitude': value.locationLatitude, 'locationLongitude': value.locationLongitude, 'time': value.time, 'type': value.type, 'value': value.value, 'pollutants': value.pollutants });
               } else {
                 finalData[value.id].push({ 'id': value.id, 'locationLatitude': value.locationLatitude, 'locationLongitude': value.locationLongitude, 'time': value.time, 'type': value.type, 'value': value.value });

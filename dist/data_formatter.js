@@ -32,7 +32,7 @@ System.register([], function (_export, _context) {
         };
       }();
 
-      allowedTypes = ['traffic', 'environment'];
+      allowedTypes = ['TrafficFlowObserved', 'AirQualityObserved'];
 
       DataFormatter = function () {
         function DataFormatter(ctrl, kbn) {
@@ -64,7 +64,7 @@ System.register([], function (_export, _context) {
                 serieType = serie.id.split(':')[0];
 
                 if (allowedTypes.indexOf(serieType) === -1) {
-                  throw new Error('Please make sure you group series by type (environment or traffic)');
+                  throw new Error('Please make sure you group series by type (AirQualityObserved or TrafficFlowObserved)');
                 }
                 var serieName = serie.alias.split(': ')[1];
 
@@ -117,7 +117,7 @@ System.register([], function (_export, _context) {
               latitudes.forEach(function (value, index) {
                 var dataValue = void 0;
 
-                if (value.type === 'environment') {
+                if (value.type === 'AirQualityObserved') {
                   var thisPollutants = [];
                   pollutantsAux.forEach(function (pollAux) {
                     thisPollutants.push({ 'name': pollAux.name, 'value': pollAux.value[index].value });
@@ -131,7 +131,7 @@ System.register([], function (_export, _context) {
                     id: ids[index].value,
                     time: times[index].value
                   };
-                } else if (value.type === 'traffic') {
+                } else if (value.type === 'TrafficFlowObserved') {
                   dataValue = {
                     locationLatitude: value.value,
                     locationLongitude: longitudes[index].value,

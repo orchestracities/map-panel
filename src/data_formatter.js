@@ -1,6 +1,6 @@
 // import _ from 'lodash';
 // import decodeGeoHash from './geohash';
-const allowedTypes = ['traffic', 'environment'];
+const allowedTypes = ['TrafficFlowObserved', 'AirQualityObserved'];
 
 export default class DataFormatter {
   constructor(ctrl, kbn) {
@@ -27,7 +27,7 @@ export default class DataFormatter {
         serieType = serie.id.split(':')[0];
 
         if (allowedTypes.indexOf(serieType) === -1) {
-          throw new Error('Please make sure you group series by type (environment or traffic)');
+          throw new Error('Please make sure you group series by type (AirQualityObserved or TrafficFlowObserved)');
         }
         const serieName = serie.alias.split(': ')[1];
 
@@ -80,7 +80,7 @@ export default class DataFormatter {
       latitudes.forEach((value, index) => {
         let dataValue;
 
-        if (value.type === 'environment') {
+        if (value.type === 'AirQualityObserved') {
           const thisPollutants = [];
           pollutantsAux.forEach((pollAux) => {
             thisPollutants.push({'name': pollAux.name, 'value': pollAux.value[index].value});
@@ -94,7 +94,7 @@ export default class DataFormatter {
             id: ids[index].value,
             time: times[index].value
           };
-        } else if (value.type === 'traffic') {
+        } else if (value.type === 'TrafficFlowObserved') {
           dataValue = {
             locationLatitude: value.value,
             locationLongitude: longitudes[index].value,
