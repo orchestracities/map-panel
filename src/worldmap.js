@@ -206,7 +206,7 @@ export default class WorldMap {
 
       try{
 
-        if (targetType === 'environment') {
+        if (targetType === 'AirQualityObserved') {
           let timeEnvironment;
           if (currentParameter !== 'aqi'){
             timeEnvironment = timeSeries.pollutants[currentParameter];
@@ -222,7 +222,7 @@ export default class WorldMap {
             lastTime = timeEnvironment[timeEnvironment.length - 1].time
           }
         }
-        if (targetType === 'traffic') {
+        if (targetType === 'TrafficFlowObserved') {
           const timeTraffic = timeSeries.values[targetId];
           lastMeasure = timeTraffic[timeTraffic.length - 1].value;
           lastTime = timeTraffic[timeTraffic.length - 1].time
@@ -280,11 +280,11 @@ export default class WorldMap {
         const time = point.time;
         let pollutants = '';
 
-        if (point.type === 'environment') {
+        if (point.type === 'AirQualityObserved') {
           pollutants = point.pollutants;
         }
         const value = point.value;
-        if (point.type === 'environment') {
+        if (point.type === 'TrafficFlowObserved') {
           const pollutantsTemp = {};
 
           pollutants.forEach((pollutant) => {
@@ -307,12 +307,12 @@ export default class WorldMap {
   createPoints(data) {
     Object.keys(data).forEach((key) => {
       const value = data[key][data[key].length - 1 ]; // Use the last data for each sensor to create on map -> avoid repeated markers on map and use just the last measurement (the one needed to show on marker)
-      if (value.type === 'environment') {
+      if (value.type === 'AirQualityObserved') {
         const newCircle = this.createCircle(value);
         circlesLayer.addLayer(newCircle);
         // globalCircles.push(newCircle);
         // circlesLayer = this.addCircles(globalCircles);
-      } else if (value.type === 'traffic') {
+      } else if (value.type === 'TrafficFlowObserved') {
         this.createMarker(value);
         // const newMarker = this.createMarker(dataPoint);
         // globalMarkers.push(newMarker);
@@ -757,7 +757,7 @@ function drawChart(providedPollutants, e, redrawChart) {
     const aqiIndex = calculateAQI(lastValueMeasure);
 
     // Show Pollutants Legend (MAP)
-    if (type === 'environment') {
+    if (type === 'AirQualityObserved') {
       const allPollutants = timeSeries.pollutants;
       showPollutants(providedPollutants, allPollutants, id, lastValueMeasure);
       showHealthConcerns(providedPollutants, AQI.risks[aqiIndex], AQI.color[aqiIndex], AQI.meaning[aqiIndex]);
@@ -785,7 +785,7 @@ function drawChart(providedPollutants, e, redrawChart) {
 
     title = providedPollutants[currentParameter].name + ' - Device ' + id;
 
-    if (type === 'environment' && currentParameter !== 'aqi') {
+    if (type === 'AirQualityObserved' && currentParameter !== 'aqi') {
 
       const parameterChoice = timeSeries.pollutants[currentParameter];
       
@@ -805,9 +805,9 @@ function drawChart(providedPollutants, e, redrawChart) {
         }
       });
     }
-    if ((type === 'environment' && currentParameter === 'aqi')  || type === 'traffic') {
+    if ((type === 'AirQualityObserved' && currentParameter === 'aqi')  || type === 'TrafficFlowObserved') {
 
-      if(type === 'traffic') {
+      if(type === 'TrafficFlowObserved') {
         title = 'Cars Intensity - Device ' + id;
         parameterUnit = 'Cars'
       }

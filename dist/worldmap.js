@@ -140,7 +140,7 @@ System.register(['lodash', './libs/highstock', './libs/leaflet'], function (_exp
       var aqiIndex = calculateAQI(lastValueMeasure);
 
       // Show Pollutants Legend (MAP)
-      if (type === 'environment') {
+      if (type === 'AirQualityObserved') {
         var allPollutants = timeSeries.pollutants;
         showPollutants(providedPollutants, allPollutants, id, lastValueMeasure);
         showHealthConcerns(providedPollutants, AQI.risks[aqiIndex], AQI.color[aqiIndex], AQI.meaning[aqiIndex]);
@@ -169,7 +169,7 @@ System.register(['lodash', './libs/highstock', './libs/leaflet'], function (_exp
 
       title = providedPollutants[currentParameter].name + ' - Device ' + id;
 
-      if (type === 'environment' && currentParameter !== 'aqi') {
+      if (type === 'AirQualityObserved' && currentParameter !== 'aqi') {
 
         var parameterChoice = timeSeries.pollutants[currentParameter];
 
@@ -189,9 +189,9 @@ System.register(['lodash', './libs/highstock', './libs/leaflet'], function (_exp
           }
         });
       }
-      if (type === 'environment' && currentParameter === 'aqi' || type === 'traffic') {
+      if (type === 'AirQualityObserved' && currentParameter === 'aqi' || type === 'TrafficFlowObserved') {
 
-        if (type === 'traffic') {
+        if (type === 'TrafficFlowObserved') {
           title = 'Cars Intensity - Device ' + id;
           parameterUnit = 'Cars';
         }
@@ -694,7 +694,7 @@ System.register(['lodash', './libs/highstock', './libs/leaflet'], function (_exp
 
               try {
 
-                if (targetType === 'environment') {
+                if (targetType === 'AirQualityObserved') {
                   var timeEnvironment = void 0;
                   if (currentParameter !== 'aqi') {
                     timeEnvironment = timeSeries.pollutants[currentParameter];
@@ -710,7 +710,7 @@ System.register(['lodash', './libs/highstock', './libs/leaflet'], function (_exp
                     lastTime = timeEnvironment[timeEnvironment.length - 1].time;
                   }
                 }
-                if (targetType === 'traffic') {
+                if (targetType === 'TrafficFlowObserved') {
                   var timeTraffic = timeSeries.values[targetId];
                   lastMeasure = timeTraffic[timeTraffic.length - 1].value;
                   lastTime = timeTraffic[timeTraffic.length - 1].time;
@@ -768,11 +768,11 @@ System.register(['lodash', './libs/highstock', './libs/leaflet'], function (_exp
                 var time = point.time;
                 var pollutants = '';
 
-                if (point.type === 'environment') {
+                if (point.type === 'AirQualityObserved') {
                   pollutants = point.pollutants;
                 }
                 var value = point.value;
-                if (point.type === 'environment') {
+                if (point.type === 'TrafficFlowObserved') {
                   var pollutantsTemp = {};
 
                   pollutants.forEach(function (pollutant) {
@@ -798,12 +798,12 @@ System.register(['lodash', './libs/highstock', './libs/leaflet'], function (_exp
 
             Object.keys(data).forEach(function (key) {
               var value = data[key][data[key].length - 1]; // Use the last data for each sensor to create on map -> avoid repeated markers on map and use just the last measurement (the one needed to show on marker)
-              if (value.type === 'environment') {
+              if (value.type === 'AirQualityObserved') {
                 var newCircle = _this2.createCircle(value);
                 circlesLayer.addLayer(newCircle);
                 // globalCircles.push(newCircle);
                 // circlesLayer = this.addCircles(globalCircles);
-              } else if (value.type === 'traffic') {
+              } else if (value.type === 'TrafficFlowObserved') {
                 _this2.createMarker(value);
                 // const newMarker = this.createMarker(dataPoint);
                 // globalMarkers.push(newMarker);
