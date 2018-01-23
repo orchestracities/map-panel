@@ -416,7 +416,7 @@ export default class WorldMap {
   }
 
   osm(osm_id, value, id, type, street_name) {
-    const url = 'http://api.openstreetmap.org/api/0.6/way/' + osm_id + '/full';
+    const url = 'https://api.openstreetmap.org/api/0.6/way/' + osm_id + '/full';
     const wayCoordinates = [];
     const nodesAux = {}
 

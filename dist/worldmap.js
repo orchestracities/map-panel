@@ -915,7 +915,7 @@ System.register(['lodash', './libs/highstock', './libs/leaflet'], function (_exp
           value: function osm(osm_id, value, id, type, street_name) {
             var _this4 = this;
 
-            var url = 'http://api.openstreetmap.org/api/0.6/way/' + osm_id + '/full';
+            var url = 'https://api.openstreetmap.org/api/0.6/way/' + osm_id + '/full';
             var wayCoordinates = [];
             var nodesAux = {};
 
