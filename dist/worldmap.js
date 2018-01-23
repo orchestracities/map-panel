@@ -768,11 +768,9 @@ System.register(['lodash', './libs/highstock', './libs/leaflet'], function (_exp
                 var time = point.time;
                 var pollutants = '';
 
+                var value = point.value;
                 if (point.type === 'AirQualityObserved') {
                   pollutants = point.pollutants;
-                }
-                var value = point.value;
-                if (point.type === 'TrafficFlowObserved') {
                   var pollutantsTemp = {};
 
                   pollutants.forEach(function (pollutant) {
@@ -809,7 +807,7 @@ System.register(['lodash', './libs/highstock', './libs/leaflet'], function (_exp
                 // globalMarkers.push(newMarker);
                 // this.markersLayer = this.addMarkers(globalMarkers);
               } else {
-                console.log('Map point type ' + value.type + ' invalid. Must be environment or traffic');
+                console.log('Map point type ' + value.type + ' invalid. Must be AirQualityObserved or TrafficFlowObserved');
               }
             });
             // mapControl.removeLayer(circlesLayer);

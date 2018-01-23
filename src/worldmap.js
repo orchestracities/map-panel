@@ -280,11 +280,9 @@ export default class WorldMap {
         const time = point.time;
         let pollutants = '';
 
+        const value = point.value;
         if (point.type === 'AirQualityObserved') {
           pollutants = point.pollutants;
-        }
-        const value = point.value;
-        if (point.type === 'TrafficFlowObserved') {
           const pollutantsTemp = {};
 
           pollutants.forEach((pollutant) => {
@@ -318,7 +316,7 @@ export default class WorldMap {
         // globalMarkers.push(newMarker);
         // this.markersLayer = this.addMarkers(globalMarkers);
       } else {
-        console.log('Map point type ' + value.type + ' invalid. Must be environment or traffic');
+        console.log('Map point type ' + value.type + ' invalid. Must be AirQualityObserved or TrafficFlowObserved');
       }
     });
     // mapControl.removeLayer(circlesLayer);
