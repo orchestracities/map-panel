@@ -83,7 +83,9 @@ export default class DataFormatter {
         if (value.type === 'AirQualityObserved') {
           const thisPollutants = [];
           pollutantsAux.forEach((pollAux) => {
-            thisPollutants.push({'name': pollAux.name, 'value': pollAux.value[index].value});
+            if (pollAux.name && pollAux.value[index]){
+              thisPollutants.push({'name': pollAux.name, 'value': pollAux.value[index].value});
+            }
           });
           dataValue = {
             locationLatitude: value.value,

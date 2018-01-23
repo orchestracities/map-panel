@@ -120,7 +120,9 @@ System.register([], function (_export, _context) {
                 if (value.type === 'AirQualityObserved') {
                   var thisPollutants = [];
                   pollutantsAux.forEach(function (pollAux) {
-                    thisPollutants.push({ 'name': pollAux.name, 'value': pollAux.value[index].value });
+                    if (pollAux.name && pollAux.value[index]) {
+                      thisPollutants.push({ 'name': pollAux.name, 'value': pollAux.value[index].value });
+                    }
                   });
                   dataValue = {
                     locationLatitude: value.value,
