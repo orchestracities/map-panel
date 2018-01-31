@@ -180,9 +180,6 @@ export default class WorldMap {
 
     const data = this.filterEmptyAndZeroValues(this.ctrl.data);
 
-    console.log("----");
-    console.log(data);
-    console.log("----");
     this.clearCircles();
     // this.clearMarkers();
     this.clearPolylines();
@@ -447,8 +444,6 @@ export default class WorldMap {
 
           wayCoordinates.push([nodesAux[nd].lat, nodesAux[nd].lng]);
         }
-
-        console.log(wayCoordinates);
         this.createPolyline(wayCoordinates, value, id, type, street_name);
       },
       error: (error) => {

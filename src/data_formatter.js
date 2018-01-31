@@ -36,13 +36,12 @@ export default class DataFormatter {
           setSeries[serieName] = [];
         }
 
-        serie.datapoints.forEach((datapoint) => {
+        serie.datapoints.forEach((datapoint, index) => {
           const datapointValue = parseFloat(datapoint[0]);
-          const valueAndType = {'value': datapointValue, 'type': serieType};
+          const valueAndType = {'value': datapointValue, 'type': serieType, 'id': index};
           setSeries[serieName].push(valueAndType);
         });
       });
-
       const latitudes = setSeries.latitude;
       const longitudes = setSeries.longitude;
       const values = setSeries.value;
@@ -54,7 +53,7 @@ export default class DataFormatter {
       }
 
       setSeries.pollutants = [];
-      pollutantsAux = [];
+      pollutantsAux = {};
 
       // console.log(this.validateJSON(this.ctrl.panel.pollutants));
       if (!(this.validateJSON(this.ctrl.panel.pollutants))) {
@@ -62,31 +61,51 @@ export default class DataFormatter {
       } else {
         const polls = JSON.parse(this.ctrl.panel.pollutants);
 
-        Object.keys(polls).forEach(key => {
+        Object.keys(polls).forEach((key) => {
           const currentPoll = polls[key];
 
           if (setSeries[key]) {
-            const receivedPoll = [];
+            // const receivedPoll = [];
             setSeries[key].forEach((poll) => {
-              receivedPoll.push(poll);
+     
+              const keyString = key.toString();
+              const keyId = poll.id.toString();
+              const newKey = keyString + keyId;
+              if (!(pollutantsAux[newKey])) {
+                pollutantsAux[newKey] = {
+                  'value': poll.value
+                };
+              }
+ 
+              // receivedPoll.push(poll);
             });
 
-            pollutantsAux.push({'name': key, 'value': receivedPoll});
+            // pollutantsAux.push( {'name': key, 'value': receivedPoll});
             delete setSeries[currentPoll.name];
           }
         });
       }
-
+      console.log("-------")
+      console.log(pollutantsAux)
       latitudes.forEach((value, index) => {
         let dataValue;
-
         if (value.type === 'AirQualityObserved') {
           const thisPollutants = [];
-          pollutantsAux.forEach((pollAux) => {
-            if (pollAux.name && pollAux.value[index]){
-              thisPollutants.push({'name': pollAux.name, 'value': pollAux.value[index].value});
+          
+          const polls = JSON.parse(this.ctrl.panel.pollutants);
+          Object.keys(polls).forEach((key) => {
+            const getPollutant = key.toString() + value.id.toString();
+  
+            if (pollutantsAux[getPollutant]) {
+              console.log(getPollutant, pollutantsAux[getPollutant].value, value.id);
+              thisPollutants.push({'name': key, 'value': pollutantsAux[getPollutant].value});
             }
           });
+          // pollutantsAux.forEach((pollAux) => {
+            // if (pollAux.name && pollAux.value[index]){
+
+            // }
+          // });
           dataValue = {
             locationLatitude: value.value,
             locationLongitude: longitudes[index].value,

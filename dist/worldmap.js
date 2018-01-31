@@ -668,9 +668,6 @@ System.register(['lodash', './libs/highstock', './libs/leaflet'], function (_exp
 
             var data = this.filterEmptyAndZeroValues(this.ctrl.data);
 
-            console.log("----");
-            console.log(data);
-            console.log("----");
             this.clearCircles();
             // this.clearMarkers();
             this.clearPolylines();
@@ -946,8 +943,6 @@ System.register(['lodash', './libs/highstock', './libs/leaflet'], function (_exp
 
                   wayCoordinates.push([nodesAux[nd].lat, nodesAux[nd].lng]);
                 }
-
-                console.log(wayCoordinates);
                 _this4.createPolyline(wayCoordinates, value, id, type, street_name);
               },
               error: function error(_error2) {

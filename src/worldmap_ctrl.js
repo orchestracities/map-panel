@@ -169,7 +169,6 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
   }
 
   setZoom() {
-    console.log(this.panel.initialZoom);
     this.map.setZoom(this.panel.initialZoom);
   }
 

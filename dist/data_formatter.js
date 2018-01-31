@@ -55,6 +55,8 @@ System.register([], function (_export, _context) {
         }, {
           key: 'setValues',
           value: function setValues(data) {
+            var _this = this;
+
             var setSeries = {};
             var serieType = void 0;
             var pollutantsAux = void 0;
@@ -73,13 +75,12 @@ System.register([], function (_export, _context) {
                   setSeries[serieName] = [];
                 }
 
-                serie.datapoints.forEach(function (datapoint) {
+                serie.datapoints.forEach(function (datapoint, index) {
                   var datapointValue = parseFloat(datapoint[0]);
-                  var valueAndType = { 'value': datapointValue, 'type': serieType };
+                  var valueAndType = { 'value': datapointValue, 'type': serieType, 'id': index };
                   setSeries[serieName].push(valueAndType);
                 });
               });
-
               var latitudes = setSeries.latitude;
               var longitudes = setSeries.longitude;
               var values = setSeries.value;
@@ -91,7 +92,7 @@ System.register([], function (_export, _context) {
               }
 
               setSeries.pollutants = [];
-              pollutantsAux = [];
+              pollutantsAux = {};
 
               // console.log(this.validateJSON(this.ctrl.panel.pollutants));
               if (!this.validateJSON(this.ctrl.panel.pollutants)) {
@@ -103,27 +104,47 @@ System.register([], function (_export, _context) {
                   var currentPoll = polls[key];
 
                   if (setSeries[key]) {
-                    var receivedPoll = [];
+                    // const receivedPoll = [];
                     setSeries[key].forEach(function (poll) {
-                      receivedPoll.push(poll);
+
+                      var keyString = key.toString();
+                      var keyId = poll.id.toString();
+                      var newKey = keyString + keyId;
+                      if (!pollutantsAux[newKey]) {
+                        pollutantsAux[newKey] = {
+                          'value': poll.value
+                        };
+                      }
+
+                      // receivedPoll.push(poll);
                     });
 
-                    pollutantsAux.push({ 'name': key, 'value': receivedPoll });
+                    // pollutantsAux.push( {'name': key, 'value': receivedPoll});
                     delete setSeries[currentPoll.name];
                   }
                 });
               }
-
+              console.log("-------");
+              console.log(pollutantsAux);
               latitudes.forEach(function (value, index) {
                 var dataValue = void 0;
-
                 if (value.type === 'AirQualityObserved') {
                   var thisPollutants = [];
-                  pollutantsAux.forEach(function (pollAux) {
-                    if (pollAux.name && pollAux.value[index]) {
-                      thisPollutants.push({ 'name': pollAux.name, 'value': pollAux.value[index].value });
+
+                  var _polls = JSON.parse(_this.ctrl.panel.pollutants);
+                  Object.keys(_polls).forEach(function (key) {
+                    var getPollutant = key.toString() + value.id.toString();
+
+                    if (pollutantsAux[getPollutant]) {
+                      console.log(getPollutant, pollutantsAux[getPollutant].value, value.id);
+                      thisPollutants.push({ 'name': key, 'value': pollutantsAux[getPollutant].value });
                     }
                   });
+                  // pollutantsAux.forEach((pollAux) => {
+                  // if (pollAux.name && pollAux.value[index]){
+
+                  // }
+                  // });
                   dataValue = {
                     locationLatitude: value.value,
                     locationLongitude: longitudes[index].value,

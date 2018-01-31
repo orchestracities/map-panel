@@ -200,7 +200,6 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
         }, {
           key: 'setZoom',
           value: function setZoom() {
-            console.log(this.panel.initialZoom);
             this.map.setZoom(this.panel.initialZoom);
           }
         }, {
