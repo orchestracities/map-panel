@@ -76,17 +76,11 @@ export default class DataFormatter {
                   'value': poll.value
                 };
               }
- 
-              // receivedPoll.push(poll);
             });
-
-            // pollutantsAux.push( {'name': key, 'value': receivedPoll});
             delete setSeries[currentPoll.name];
           }
         });
       }
-      console.log("-------")
-      console.log(pollutantsAux)
       latitudes.forEach((value, index) => {
         let dataValue;
         if (value.type === 'AirQualityObserved') {
@@ -97,7 +91,6 @@ export default class DataFormatter {
             const getPollutant = key.toString() + value.id.toString();
   
             if (pollutantsAux[getPollutant]) {
-              console.log(getPollutant, pollutantsAux[getPollutant].value, value.id);
               thisPollutants.push({'name': key, 'value': pollutantsAux[getPollutant].value});
             }
           });
