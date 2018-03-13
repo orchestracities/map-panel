@@ -409,6 +409,7 @@ System.register(['lodash', './libs/highstock', './libs/leaflet'], function (_exp
 
       window.Highcharts.stockChart('graphContainer', {
         chart: {
+          height: 200,
           zoomType: 'x',
           backgroundColor: '#1f1d1d',
           events: {
@@ -572,9 +573,9 @@ System.register(['lodash', './libs/highstock', './libs/leaflet'], function (_exp
             this.map.on('click', function (e) {
               document.getElementById('measuresTable').style.display = 'none';
               document.getElementById('healthConcernsWrapper').style.display = 'none';
-              document.getElementById('dataChart').style.display = 'none';
               document.getElementById('environmentTable').style.display = 'none';
               document.getElementById('trafficTable').style.display = 'none';
+
               currentTargetForChart = null;
             });
 
@@ -997,7 +998,7 @@ System.register(['lodash', './libs/highstock', './libs/leaflet'], function (_exp
             var mapDivWidth = document.getElementsByClassName('mapcontainer')[0].offsetWidth;
 
             // Only show the map secundary data (tables) when the map div is not too small
-            if (mapDivHeight >= 405 && mapDivHeight >= 860) {
+            if (mapDivHeight >= 405 && mapDivWidth >= 860) {
               // Add environment colors table
               document.getElementById('environmentTable').style.display = 'block';
             }
@@ -1015,7 +1016,7 @@ System.register(['lodash', './libs/highstock', './libs/leaflet'], function (_exp
             var mapDivWidth = document.getElementsByClassName('mapcontainer')[0].offsetWidth;
 
             // Only show the map secundary data (tables) when the map div is not too small
-            if (mapDivHeight >= 405 && mapDivHeight >= 860) {
+            if (mapDivHeight >= 405 && mapDivWidth >= 860) {
               // Add traffic colors table
               document.getElementById('trafficTable').style.display = 'block';
             }

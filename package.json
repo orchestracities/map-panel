@@ -1,6 +1,6 @@
 {
   "name": "environment-traffic-panel",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Map panel for grafana using traffic and environment data",
   "main": "src/module.js",
   "scripts": {

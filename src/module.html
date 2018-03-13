@@ -1,6 +1,6 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.css">
 
-<div id="mapid_{{ctrl.panel.id}}" class="mapcontainer {{ctrl.saturationClass}}" ng-style="{height: ctrl.height}">
+<div id="mapid_{{ctrl.panel.id}}" class="mapcontainer {{ctrl.saturationClass}}" style="height: 500px">
     <div id="aqiLegend">
         <table id="environmentTable">
             <tr>
@@ -55,19 +55,22 @@
             </tr>
         </table>
     </div>
-        <div id="measuresTable">
-            <label style="text-align:center; color:black">Air Parameters</label>
-            <table id="measures-table">
-        </table>
+
+
+    <div id="measuresTable">
+        <label style="text-align:center; color:black">Air Parameters</label>
+        <table id="measures-table">
+    </table>
+    </div>
+    <div id="healthConcernsWrapper">
+        <div id="healthConcerns">
+            <label style="text-align:center; color:black">Health Concerns</label>
+            <label id="healthRisk"></label>
         </div>
-        <div id="healthConcernsWrapper">
-            <div id="healthConcerns">
-                <label style="text-align:center; color:black">Health Concerns</label>
-                <label id="healthRisk"></label>
-            </div>
-        </div>
+    </div>
 </div>
-<div id="dataChart">
+
+<div id="dataChart" style="z-index: 100; width: {{ctrl.width}}; position: relative;">
     <div id="dataDetails">
         <select id="airParametersDropdown">
             <!--<option id="pollutantOption" value="0" selected="selected">Select an Air Paramater</option>-->
@@ -75,5 +78,5 @@
     <br/>
     <!--<button onClick="GetSelectedItem('select1');">Get Selected Item</button>-->
     </div>
-    <div id="graphContainer" style="width:100%; height:300px;"></div>
+    <div id="graphContainer"></div>
 </div>
