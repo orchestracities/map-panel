@@ -11,15 +11,14 @@
     },
     "keywords": ["map", "panel", "traffic", "environment"],
     "logos": {
-      "small": "src/images/icon.svg",
-      "large": "src/images/icon.svg"
+      "small": "images/icon.svg",
+      "large": "images/icon.svg"
     },
     "links": [
       {"name": "Project site", "url": ""},
       {"name": "MIT License", "url": ""}
     ],
-    "version": "0.1.0",
-    "updated": "2017-07-10"
+    "version": "0.2.0"
   },
 
   "dependencies": {

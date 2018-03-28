@@ -7,6 +7,8 @@ import _ from 'lodash';
 import mapRenderer from './map_renderer';
 import DataFormatter from './data_formatter';
 import './css/worldmap-panel.css!';
+import './vendor/leaflet/leaflet.css!';
+
 
 const panelDefaults = {
   maxDataPoints: 1,

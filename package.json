@@ -2,6 +2,10 @@
   "name": "environment-traffic-panel",
   "version": "0.1.0",
   "description": "Map panel for grafana using traffic and environment data",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/city-of-data/dashboard/map-plugin.git"
+  },
   "main": "src/module.js",
   "scripts": {
     "clean": "rm -r dist/*",
@@ -53,7 +57,9 @@
     "element-resize-event": "^2.0.9",
     "es6-module-loader": "^0.17.11",
     "grafana-sdk-test": "^1.0.0",
-    "highcharts": "^5.0.12",
+
+    "highcharts": "^5.0.14",
+    "leaflet": "^0.7.7",
     "lodash": "~4.16.2"
   }
 }

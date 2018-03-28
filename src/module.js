@@ -1,5 +1,5 @@
 /* eslint import/no-extraneous-dependencies: 0 */
-import {loadPluginCss} from 'app/plugins/sdk';
+import { loadPluginCss } from 'app/plugins/sdk';
 import WorldmapCtrl from './worldmap_ctrl';
 
 loadPluginCss({

@@ -1,11 +1,10 @@
+/* eslint-disable id-length, no-unused-vars */
 import _ from 'lodash';
-
-// import Highcharts from './libs/highcharts';
-import Highcharts from './libs/highstock';
-
-/* eslint-disable id-length, no-unused-vars */
-import L from './libs/leaflet';
-/* eslint-disable id-length, no-unused-vars */
+import Highcharts from './vendor/highcharts/highstock';
+//import './vendor/highcharts/themes/grid-light';
+//import './vendor/highcharts/themes/dark-unica';
+import L from './vendor/leaflet/leaflet';
+import { showPollutants, showHealthConcerns, calculateAQI } from './utils';
 
 const AQI = {
   'range': [0, 50, 100, 150, 200, 300, 500],
@@ -43,14 +42,12 @@ const tileServers = {
   'CartoDB Dark': {url: 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png', attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>', subdomains: 'abcd'}
 };
 const carMarker = window.L.icon({
-  iconUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Map_marker.svg/2000px-Map_marker.svg.png',
-
-  iconSize: [25, 40], // size of the icon
-  // iconAnchor: [15, 82], // point of the icon which will correspond to marker's location
-  // popupAnchor: [-3, -76] // point from which the popup should open relative to the iconAnchor
+  iconUrl: 'images/map_marker.png',
+  iconSize: [25, 40]
 });
 
 export default class WorldMap {
+
   constructor(ctrl, mapContainer) {
     this.ctrl = ctrl;
     this.mapContainer = mapContainer;
@@ -625,113 +622,6 @@ export default class WorldMap {
 
 }
 
-function showPollutants(providedPollutants, allPollutants, id, aqi) {
-
-  const measuresTable = document.getElementById('measures-table');
-
-  while (measuresTable.rows[0]) measuresTable.deleteRow(0);
-
-  // Remove air paramters from dropdown
-  var el = document.getElementById('airParametersDropdown');
-  while ( el.firstChild ) {
-    el.removeChild( el.firstChild )
-  }
-
-  // ---
-
-  // Add default pollutant option to dropdown
-  const defaultPollutantOption = document.createElement('option');
-  const html = '<option value="0" selected="selected">Air Parameter</option>';
-
-  defaultPollutantOption.innerHTML = html;
-  document.getElementById('airParametersDropdown').appendChild(defaultPollutantOption);
-
-  // -----
-
-
-  const pollutantsToShow = {};
-  for (const key in allPollutants) {
-    
-    allPollutants[key].forEach((_value) => {
-      if (_value.id === id) {
-        if (_value.value) {
-          if (!(pollutantsToShow[key])){
-            pollutantsToShow[key] = 0;
-          }
-          pollutantsToShow[key] = _value.value;
-        }
-      }
-    });
-  }
-
-  pollutantsToShow['aqi'] = aqi;
-
-  for (const pollutant in pollutantsToShow){
-    const row = measuresTable.insertRow(0);
-    row.className = 'measure';
-
-    const innerCell0 = providedPollutants[pollutant].name;
-    const innerCell1 = pollutantsToShow[pollutant] + ' ' + providedPollutants[pollutant].unit;
-
-    const cell0 = row.insertCell(0);
-    const cell1 = row.insertCell(1);
-
-
-    cell0.innerHTML = innerCell0;
-    cell1.innerHTML = innerCell1;
-    cell0.className = 'cell';
-    cell1.className = 'cell';
-
-    // Add Pollutants to Chart Dropdown
-    const newPollutant = document.createElement('option');
-
-    newPollutant.id = 'pollutantOption';
-    newPollutant.value = pollutant.toUpperCase();
-
-    newPollutant.innerHTML = providedPollutants[pollutant].name;
-
-    document.getElementById('airParametersDropdown').appendChild(newPollutant);
-
-    // ----
-  }
-
-  const mapDivHeight = document.getElementsByClassName('mapcontainer')[0].offsetHeight;
-  const mapDivWidth = document.getElementsByClassName('mapcontainer')[0].offsetWidth;
-
-  // Only show the map secundary data (tables) when the map div is not too small
-  if (mapDivHeight >= 405 && mapDivWidth >= 860) {
-    document.getElementById('environmentTable').style.display = 'block';
-    document.getElementById('measuresTable').style.display = 'block';
-  }
-}
-
-function showHealthConcerns(providedPollutants, risk, color, meaning) {
-  const healthConcernsWrapper = document.getElementById('healthConcernsWrapper');
-  const healthConcerns = document.getElementById('healthConcerns');
-  const healthRisk = document.getElementById('healthRisk');
-
-  const mapDivHeight = document.getElementsByClassName('mapcontainer')[0].offsetHeight;
-  const mapDivWidth = document.getElementsByClassName('mapcontainer')[0].offsetWidth;
-
-  // Only show the map secundary data (tables) when the map div is not too small
-  if (mapDivHeight >= 405 && mapDivWidth >= 860) {
-    healthConcernsWrapper.style.display = 'block';
-    healthConcerns.style.backgroundColor = color;
-    healthRisk.innerHTML = risk;
-  }
-}
-
-
-function calculateAQI(aqi) {
-  let aqiIndex;
-  AQI.range.forEach((value, index) => {
-    if (aqi >= value) {
-      aqiIndex = index;
-    }
-  });
-  return aqiIndex;
-}
-
 function drawChart(providedPollutants, e, redrawChart) {
   const currentParameter = currentParameterForChart.toLowerCase();
 
@@ -821,221 +711,14 @@ function drawChart(providedPollutants, e, redrawChart) {
       });
     }
 
-    window.Highcharts.theme = {
-      colors: ['#2b908f', '#90ee7e', '#f45b5b', '#7798BF', '#aaeeee', '#ff0066', '#eeaaee',
-          '#55BF3B', '#DF5353', '#7798BF', '#aaeeee'],
-      chart: {
-          backgroundColor: {
-            linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
-            stops: [
-                [0, '#2a2a2b'],
-                [1, '#3e3e40']
-            ]
-          },
-          style: {
-            fontFamily: '\'Unica One\', sans-serif'
-          },
-          plotBorderColor: '#606063'
-      },
-      title: {
-          style: {
-            color: '#E0E0E3',
-            // textTransform: 'uppercase',
-            fontSize: '20px'
-          }
-      },
-      subtitle: {
-          style: {
-            color: '#E0E0E3',
-            textTransform: 'uppercase'
-          }
-      },
-      xAxis: {
-          gridLineColor: '#707073',
-          labels: {
-            style: {
-                color: '#E0E0E3'
-            }
-          },
-          lineColor: '#707073',
-          minorGridLineColor: '#505053',
-          tickColor: '#707073',
-          title: {
-            style: {
-                color: '#A0A0A3'
-
-            }
-          }
-      },
-      yAxis: {
-          gridLineColor: '#707073',
-          labels: {
-            style: {
-                color: '#E0E0E3'
-            }
-          },
-          lineColor: '#707073',
-          minorGridLineColor: '#505053',
-          tickColor: '#707073',
-          tickWidth: 1,
-          title: {
-            style: {
-                color: '#A0A0A3'
-            }
-          }
-      },
-      tooltip: {
-          backgroundColor: 'rgba(0, 0, 0, 0.85)',
-          style: {
-            color: '#F0F0F0'
-          }
-      },
-      plotOptions: {
-          series: {
-            dataLabels: {
-                color: '#B0B0B3'
-            },
-            marker: {
-                lineColor: '#333'
-            }
-          },
-          boxplot: {
-            fillColor: '#505053'
-          },
-          candlestick: {
-            lineColor: 'white'
-          },
-          errorbar: {
-            color: 'white'
-          }
-      },
-      legend: {
-          itemStyle: {
-            color: '#E0E0E3'
-          },
-          itemHoverStyle: {
-            color: '#FFF'
-          },
-          itemHiddenStyle: {
-            color: '#606063'
-          }
-      },
-      credits: {
-          style: {
-            color: '#666'
-          }
-      },
-      labels: {
-          style: {
-            color: '#707073'
-          }
-      },
-
-      drilldown: {
-          activeAxisLabelStyle: {
-            color: '#F0F0F3'
-          },
-          activeDataLabelStyle: {
-            color: '#F0F0F3'
-          }
-      },
-
-      navigation: {
-          buttonOptions: {
-            symbolStroke: '#DDDDDD',
-            theme: {
-                fill: '#505053'
-            }
-          }
-      },
-
-      // scroll charts
-      rangeSelector: {
-          buttonTheme: {
-            fill: '#505053',
-            stroke: '#000000',
-            style: {
-                color: '#CCC'
-            },
-            states: {
-                hover: {
-                  fill: '#707073',
-                  stroke: '#000000',
-                  style: {
-                      color: 'white'
-                  }
-                },
-                select: {
-                  fill: '#000003',
-                  stroke: '#000000',
-                  style: {
-                      color: 'white'
-                  }
-                }
-            }
-          },
-          inputBoxBorderColor: '#505053',
-          inputStyle: {
-            backgroundColor: '#333',
-            color: 'silver'
-          },
-          labelStyle: {
-            color: 'silver'
-          }
-      },
-
-      navigator: {
-          handles: {
-            backgroundColor: '#666',
-            borderColor: '#AAA'
-          },
-          outlineColor: '#CCC',
-          maskFill: 'rgba(255,255,255,0.1)',
-          series: {
-            color: '#7798BF',
-            lineColor: '#A6C7ED'
-          },
-          xAxis: {
-            gridLineColor: '#505053'
-          }
-      },
-
-      scrollbar: {
-          barBackgroundColor: '#808083',
-          barBorderColor: '#808083',
-          buttonArrowColor: '#CCC',
-          buttonBackgroundColor: '#606063',
-          buttonBorderColor: '#606063',
-          rifleColor: '#FFF',
-          trackBackgroundColor: '#404043',
-          trackBorderColor: '#404043'
-      },
-
-      // special colors for some of the
-      legendBackgroundColor: 'rgba(0, 0, 0, 0.5)',
-      background2: '#505053',
-      dataLabelsColor: '#B0B0B3',
-      textColor: '#C0C0C0',
-      contrastTextColor: '#F0F0F3',
-      maskColor: 'rgba(255,255,255,0.3)'
-    };
-    window.Highcharts.setOptions(window.Highcharts.theme);
-
     window.Highcharts.stockChart('graphContainer', {
         chart: {
           height: 200,
           zoomType: 'x',
-          backgroundColor: '#1f1d1d',
           events: {
             load: function () {
               // set up the updating of the chart each second
               chartSeries = this.series[0];
-              // setInterval(function () {
-              //     const x = chartData[chartData.length - 1][0];
-              //     const y = chartData[chartData.length - 1][1];
-              //     series.addPoint([x, y], true, true);
-              //     //console.log(chartData[chartData.length - 1]);
-              // }, 1000);
             }
           }
         },
