@@ -1,0 +1,28 @@
+{
+  "type": "panel",
+  "name": "Environment and Traffic Panel",
+  "id": "grafana-traffic-env-panel",
+
+  "info": {
+    "description": "Map panel for grafana using traffic and environment data",
+    "author": {
+      "name": "Ubiwhere",
+      "url": ""
+    },
+    "keywords": ["map", "panel", "traffic", "environment"],
+    "logos": {
+      "small": "images/icon.svg",
+      "large": "images/icon.svg"
+    },
+    "links": [
+      {"name": "Project site", "url": ""},
+      {"name": "MIT License", "url": ""}
+    ],
+    "version": "0.2.0"
+  },
+
+  "dependencies": {
+    "grafanaVersion": "3.x.x",
+    "plugins": [ ]
+  }
+}
