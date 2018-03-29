@@ -1,9 +1,9 @@
 'use strict';
 
-System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/leaflet', './utils'], function (_export, _context) {
+System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/leaflet', './utils', 'app/core/config'], function (_export, _context) {
   "use strict";
 
-  var _, Highcharts, L, showPollutants, showHealthConcerns, calculateAQI, _createClass, AQI, carsCount, providedPollutants, timeSeries, chartData, chartSeries, mapControl, mapZoom, globalCircles, globalMarkers, globalPolylines, circlesLayer, polylinesLayer, currentTargetForChart, currentParameterForChart, tileServers, carMarker, WorldMap;
+  var _, Highcharts, L, showPollutants, showHealthConcerns, calculateAQI, HIGHCHARTS_THEME_DARK, config, _createClass, AQI, carsCount, providedPollutants, timeSeries, chartData, chartSeries, mapControl, mapZoom, globalCircles, globalMarkers, globalPolylines, circlesLayer, polylinesLayer, currentTargetForChart, currentParameterForChart, tileServers, carMarker, WorldMap;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -27,7 +27,7 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
     try {
       var lastValueMeasure = values[values.length - 1].value; //values array is the one for the AQI values
 
-      var aqiIndex = calculateAQI(lastValueMeasure);
+      var aqiIndex = calculateAQI(AQI, lastValueMeasure);
 
       // Show Pollutants Legend (MAP)
       if (type === 'AirQualityObserved') {
@@ -101,6 +101,8 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
         });
       }
 
+      if (!config.bootData.user.lightTheme) window.Highcharts.setOptions(HIGHCHARTS_THEME_DARK);
+
       window.Highcharts.stockChart('graphContainer', {
         chart: {
           height: 200,
@@ -164,6 +166,9 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
       showPollutants = _utils.showPollutants;
       showHealthConcerns = _utils.showHealthConcerns;
       calculateAQI = _utils.calculateAQI;
+      HIGHCHARTS_THEME_DARK = _utils.HIGHCHARTS_THEME_DARK;
+    }, function (_appCoreConfig) {
+      config = _appCoreConfig.default;
     }],
     execute: function () {
       _createClass = function () {
@@ -643,7 +648,7 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
         }, {
           key: 'createCircle',
           value: function createCircle(dataPoint) {
-            var aqi = calculateAQI(dataPoint.value);
+            var aqi = calculateAQI(AQI, dataPoint.value);
             var aqiColor = AQI.color[aqi];
             var aqiMeaning = AQI.meaning[aqi];
             var aqiRisk = AQI.risks[aqi];

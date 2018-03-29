@@ -1,10 +1,10 @@
 /* eslint-disable id-length, no-unused-vars */
 import _ from 'lodash';
 import Highcharts from './vendor/highcharts/highstock';
-//import './vendor/highcharts/themes/grid-light';
-//import './vendor/highcharts/themes/dark-unica';
+
 import L from './vendor/leaflet/leaflet';
-import { showPollutants, showHealthConcerns, calculateAQI } from './utils';
+import { showPollutants, showHealthConcerns, calculateAQI, HIGHCHARTS_THEME_DARK } from './utils';
+import config from 'app/core/config';
 
 const AQI = {
   'range': [0, 50, 100, 150, 200, 300, 500],
@@ -451,7 +451,7 @@ export default class WorldMap {
   }
 
   createCircle(dataPoint) {
-    const aqi = calculateAQI(dataPoint.value);
+    const aqi = calculateAQI(AQI, dataPoint.value);
     const aqiColor = AQI.color[aqi];
     const aqiMeaning = AQI.meaning[aqi];
     const aqiRisk = AQI.risks[aqi];
@@ -638,7 +638,7 @@ function drawChart(providedPollutants, e, redrawChart) {
   try {
     const lastValueMeasure = values[values.length - 1].value; //values array is the one for the AQI values
 
-    const aqiIndex = calculateAQI(lastValueMeasure);
+    const aqiIndex = calculateAQI(AQI, lastValueMeasure);
 
     // Show Pollutants Legend (MAP)
     if (type === 'AirQualityObserved') {
@@ -710,6 +710,9 @@ function drawChart(providedPollutants, e, redrawChart) {
         chartData.push([Date.UTC(year, month, day, hour+1, minutes, seconds, milliseconds), value.value]);
       });
     }
+
+    if(!config.bootData.user.lightTheme)
+      window.Highcharts.setOptions(HIGHCHARTS_THEME_DARK);
 
     window.Highcharts.stockChart('graphContainer', {
         chart: {

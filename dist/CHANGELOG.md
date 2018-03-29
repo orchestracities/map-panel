@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.1.0
+
+- Project structure improvements. Leaflet and highstock went out from project src and are now a dependency.
+- Support for light and dark themes.
+
 ## v0.0.2
 
 - Fixes bug where time series with a country code not found in the country data crashes the panel.

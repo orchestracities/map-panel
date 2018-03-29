@@ -36,7 +36,7 @@ module.exports = (grunt) => {
         dest: 'dist/vendor/leaflet'
       },
       
-      highcharts: { 
+      highchartsCss: { 
         cwd: 'node_modules/highcharts/css/',
         expand: true,
         src: ['highcharts.css'], 
@@ -62,7 +62,7 @@ module.exports = (grunt) => {
           { 
             cwd: 'node_modules/highcharts/',
             expand: true,
-            src: ['highstock.js', 'themes/*'],
+            src: ['highstock.js'],
             dest: 'dist/vendor/highcharts'
           }
         ]
@@ -71,5 +71,5 @@ module.exports = (grunt) => {
 
   });
 
-  grunt.registerTask('default', ['copy:src_to_dist', 'copy:pluginDef', 'copy:img_to_dist', 'copy:leaflet', 'copy:highcharts', 'babel']);
+  grunt.registerTask('default', ['copy:src_to_dist', 'copy:pluginDef', 'copy:img_to_dist', 'copy:leaflet', 'copy:highchartsCss', 'babel']);
 };
