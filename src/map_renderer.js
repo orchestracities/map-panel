@@ -1,7 +1,7 @@
 import WorldMap from './worldmap';
 
 export default function link(scope, elem, attrs, ctrl) {
-  const mapContainer = elem.find('.mapcontainer');
+  const mapContainer = elem.find('.map-container');
 
   ctrl.events.on('render', () => {
     render();

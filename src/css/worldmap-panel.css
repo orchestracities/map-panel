@@ -29,7 +29,7 @@
 
 /*---------------------------ADDED-------------------------------------*/
 
-#aqiLegend {
+#aqi_legend {
     z-index: 100;
     right: 10px;
     bottom: 10px;
@@ -40,15 +40,12 @@
     border-radius: 2px;
 }
 
-#environmentTable {
+/*do not show at start*/
+#environment_table, #traffic_table, #dataDetails, #measures_table, #health_concerns_wrapper {
   display: none;
 }
 
-#trafficTable {
-  display: none;
-}
-
-#measuresTable {
+#measures_table {
   z-index: 100;
   width: 200px;
   height: auto;
@@ -61,10 +58,8 @@
   overflow-y: auto;
   padding: 2px;
   border-radius: 2px;
-  font-weight: bold;
-  display: none;
 }
-#healthConcernsWrapper {
+#health_concerns_wrapper {
   padding: 2px;
   background-color: white;
   border-radius: 2px;
@@ -75,9 +70,8 @@
   position: absolute;
   top: 10px;
   left: 10px;
-  display: none;
 }
-#healthConcerns {
+#health_concerns_wrapper > div.body {
   z-index: 100;
   width: 100%;
   height: 100%;
@@ -85,54 +79,86 @@
   overflow-y: auto;
   padding: 2px;
   border-radius: 2px;
-  font-weight: bold;
   text-align: justify;
   padding: 5px;
 }
 
-#healthRisk {
+#health_risk {
   color: black;
   padding-top: 3px;
   font-size: 100%;
 }
 
-#measures-table {
-  z-index: 100;
-  height: 100%;
-  width: 100%;
-  background-color:#6b6f75;
-}
-
 table {
-    font-family: arial, sans-serif;
-    border-collapse: collapse;
-    width: 100%;
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
 }
 
 td, th {
-    text-align: left;
-    padding: 8px;
-}
-
-tr.measure {
-  background-color: #abafb5;
+  text-align: left;
+  padding: 8px;
   color: black;
-}
-
-tr.measure:nth-child(even) {
-    background-color: #dddddd;
-    color: black;
 }
 
 #dataChart {
   width: 100%;
   height: 360px;
-/*  background-color: rgb(31, 29, 29);*/
   margin-top: 1%;
-/*  display: none;*/
 }
 
 #dataDetails {
   margin-bottom: 5px;
-  display: none;
+}
+
+.map-container {
+  height: 500px;
+}
+
+.map-container .info-container>.header {
+  text-align: center; 
+  color: black;
+  font-weight: bold;
+  padding: 6px;
+}
+.map-container .info-container>.header-left {
+  text-align: left !important; 
+}
+.map-container .info-container>.header>span {
+  float: right;
+}
+.map-container .info-container>.header>span>span.color {  
+  padding: 3px;
+}
+
+
+.map-container table.stripes tbody tr:nth-child(odd) {
+  background-color: #e6e6e6;
+  color: black;
+}
+.map-container table.intensity-scale tr > td {
+  padding: 6px 8px;
+}
+.map-container table.intensity-scale tr > td > span {
+  padding: 8px 3px;
+}
+
+/*levels of intensity*/
+.map-container table.intensity-scale tr.level-0 > td:nth-child(2) > span:nth-child(1) {
+  background-color: #00e400;
+}
+.map-container table.intensity-scale tr.level-1 > td:nth-child(2) > span:nth-child(1) {
+  background-color: #ffff00;
+}
+.map-container table.intensity-scale tr.level-2 > td:nth-child(2) > span:nth-child(1) {
+  background-color: #ff7e00;
+}
+.map-container table.intensity-scale tr.level-3 > td:nth-child(2) > span:nth-child(1) {
+  background-color: #ff0000;
+}
+.map-container table.intensity-scale tr.level-4 > td:nth-child(2) > span:nth-child(1) {
+  background-color: #8f3f97;
+}
+.map-container table.intensity-scale tr.level-5 > td:nth-child(2) > span:nth-child(1) {
+  background-color: #7e0023;
 }

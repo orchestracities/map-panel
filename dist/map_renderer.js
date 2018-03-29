@@ -5,7 +5,7 @@ System.register(['./worldmap'], function (_export, _context) {
 
   var WorldMap;
   function link(scope, elem, attrs, ctrl) {
-    var mapContainer = elem.find('.mapcontainer');
+    var mapContainer = elem.find('.map-container');
 
     ctrl.events.on('render', function () {
       render();
