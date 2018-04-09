@@ -8,7 +8,7 @@ module.exports = (grunt) => {
 
 
   grunt.initConfig({
-
+    clean: ["dist"],
     copy: {
       src_to_dist: {
         cwd: 'src',
@@ -71,5 +71,5 @@ module.exports = (grunt) => {
 
   });
 
-  grunt.registerTask('default', ['copy:src_to_dist', 'copy:pluginDef', 'copy:img_to_dist', 'copy:leaflet', 'copy:highchartsCss', 'babel']);
+  grunt.registerTask('default', ['clean', 'copy:src_to_dist', 'copy:pluginDef', 'copy:img_to_dist', 'copy:leaflet', 'copy:highchartsCss', 'babel']);
 };
