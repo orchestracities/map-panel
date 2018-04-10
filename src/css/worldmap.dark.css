@@ -12,10 +12,10 @@
 }
 
 .map-container table.stripes tbody > tr:nth-child(odd) {
-  background-color: grey;
+  background-color: #181819;
 }
 .map-container table.stripes tbody > tr:nth-child(even) {
-  background-color: black;
+  background-color: #212124;
 }
 
 .info-container, #aqi_legend, .traffic_table {
@@ -23,12 +23,10 @@
 }
 
 thead > tr, .info-container {
-  background-color: black;
+  background-color: #212124;
 }
 
 .info-container .header {
-
 }
 .info-container .body {
-
 }
