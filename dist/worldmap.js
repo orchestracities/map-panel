@@ -32,7 +32,7 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
       // Show Pollutants Legend (MAP)
       if (type === 'AirQualityObserved') {
         var allPollutants = timeSeries.pollutants;
-        showPollutants(providedPollutants, allPollutants, id, lastValueMeasure);
+        showPollutants(providedPollutants, allPollutants, id, lastValueMeasure, currentParameterForChart);
         showHealthConcerns(providedPollutants, AQI.risks[aqiIndex], AQI.color[aqiIndex], AQI.meaning[aqiIndex]);
       } else {
         // Hide legend

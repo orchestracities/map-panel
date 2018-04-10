@@ -197,7 +197,7 @@ const HIGHCHARTS_THEME_DARK = {
 };
 
 
-function showPollutants(providedPollutants, allPollutants, id, aqi) {
+function showPollutants(providedPollutants, allPollutants, id, aqi, currentParameterForChart) {
 
   const measuresTable = document.querySelector('#measures_table > table > tbody');
 
@@ -213,13 +213,11 @@ function showPollutants(providedPollutants, allPollutants, id, aqi) {
 
   // Add default pollutant option to dropdown
   const defaultPollutantOption = document.createElement('option');
-  const html = '<option value="0" selected="selected">Air Parameter</option>';
+  const html = '<option value="0">Air Parameter</option>';
 
   defaultPollutantOption.innerHTML = html;
   document.getElementById('airParametersDropdown').appendChild(defaultPollutantOption);
-
   // -----
-
 
   const pollutantsToShow = {};
   for (const key in allPollutants) {
@@ -251,8 +249,6 @@ function showPollutants(providedPollutants, allPollutants, id, aqi) {
 
     cell0.innerHTML = innerCell0;
     cell1.innerHTML = innerCell1;
-/*    cell0.className = 'cell';
-    cell1.className = 'cell';*/
 
     // Add Pollutants to Chart Dropdown
     const newPollutant = document.createElement('option');
@@ -260,10 +256,12 @@ function showPollutants(providedPollutants, allPollutants, id, aqi) {
     newPollutant.id = 'pollutantOption';
     newPollutant.value = pollutant.toUpperCase();
 
+    if(currentParameterForChart===newPollutant.value)
+      newPollutant.selected = 'selected';
+    
     newPollutant.innerHTML = providedPollutants[pollutant].name;
 
     document.getElementById('airParametersDropdown').appendChild(newPollutant);
-
     // ----
   }
 

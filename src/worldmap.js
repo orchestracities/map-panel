@@ -642,7 +642,7 @@ function drawChart(providedPollutants, e, redrawChart) {
     // Show Pollutants Legend (MAP)
     if (type === 'AirQualityObserved') {
       const allPollutants = timeSeries.pollutants;
-      showPollutants(providedPollutants, allPollutants, id, lastValueMeasure);
+      showPollutants(providedPollutants, allPollutants, id, lastValueMeasure, currentParameterForChart);
       showHealthConcerns(providedPollutants, AQI.risks[aqiIndex], AQI.color[aqiIndex], AQI.meaning[aqiIndex]);
     } else { // Hide legend
       const mapDivHeight = document.getElementsByClassName('map-container')[0].offsetHeight;
