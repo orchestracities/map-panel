@@ -13,11 +13,11 @@ function showPollutants(providedPollutants, allPollutants, id, aqi, currentParam
   // ---
 
   // Add default pollutant option to dropdown
-  const defaultPollutantOption = document.createElement('option');
+/*  const defaultPollutantOption = document.createElement('option');
   const html = '<option value="0">Air Parameter</option>';
 
   defaultPollutantOption.innerHTML = html;
-  document.getElementById('airParametersDropdown').appendChild(defaultPollutantOption);
+  document.getElementById('airParametersDropdown').appendChild(defaultPollutantOption);*/
   // -----
 
   const pollutantsToShow = {};

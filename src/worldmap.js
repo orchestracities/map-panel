@@ -27,7 +27,7 @@ let circlesLayer;
 let polylinesLayer;
 
 let currentTargetForChart = null;
-let currentParameterForChart = 'aqi';
+let currentParameterForChart = 'AQI';
 
 export default class WorldMap {
 

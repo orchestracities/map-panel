@@ -206,7 +206,7 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
       circlesLayer = void 0;
       polylinesLayer = void 0;
       currentTargetForChart = null;
-      currentParameterForChart = 'aqi';
+      currentParameterForChart = 'AQI';
 
       WorldMap = function () {
         function WorldMap(ctrl, mapContainer) {

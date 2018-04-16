@@ -18,11 +18,11 @@ System.register([], function (_export, _context) {
     // ---
 
     // Add default pollutant option to dropdown
-    var defaultPollutantOption = document.createElement('option');
-    var html = '<option value="0">Air Parameter</option>';
-
-    defaultPollutantOption.innerHTML = html;
-    document.getElementById('airParametersDropdown').appendChild(defaultPollutantOption);
+    /*  const defaultPollutantOption = document.createElement('option');
+      const html = '<option value="0">Air Parameter</option>';
+    
+      defaultPollutantOption.innerHTML = html;
+      document.getElementById('airParametersDropdown').appendChild(defaultPollutantOption);*/
     // -----
 
     var pollutantsToShow = {};
