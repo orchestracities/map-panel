@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.0.0
+
+- Minor improvements based on grafana development guide best practices
+
 ## v0.1.0
 
 - Project structure improvements. Leaflet and highstock went out from project src and are now a dependency.

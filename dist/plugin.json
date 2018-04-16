@@ -11,8 +11,8 @@
     },
     "keywords": ["map", "panel", "traffic", "environment"],
     "logos": {
-      "small": "images/icon.svg",
-      "large": "images/icon.svg"
+      "small": "img/icon.svg",
+      "large": "img/icon.svg"
     },
     "links": [
       {"name": "Project site", "url": ""},

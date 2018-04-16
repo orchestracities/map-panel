@@ -1,9 +1,9 @@
 'use strict';
 
-System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/leaflet', './utils', 'app/core/config'], function (_export, _context) {
+System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/leaflet', 'app/core/config', './utils', './definitions'], function (_export, _context) {
   "use strict";
 
-  var _, Highcharts, L, showPollutants, showHealthConcerns, calculateAQI, HIGHCHARTS_THEME_DARK, config, _createClass, AQI, carsCount, providedPollutants, timeSeries, chartData, chartSeries, mapControl, mapZoom, globalCircles, globalMarkers, globalPolylines, circlesLayer, polylinesLayer, currentTargetForChart, currentParameterForChart, tileServers, carMarker, WorldMap;
+  var _, Highcharts, L, config, showPollutants, showHealthConcerns, calculateAQI, AQI, carsCount, HIGHCHARTS_THEME_DARK, tileServers, carMarker, _createClass, providedPollutants, timeSeries, chartData, chartSeries, mapControl, mapZoom, globalCircles, globalMarkers, globalPolylines, circlesLayer, polylinesLayer, currentTargetForChart, currentParameterForChart, WorldMap;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -118,7 +118,7 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
           text: title
         },
         subtitle: {
-          text: document.ontouchstart === undefined ? '' : ''
+          text: ''
         },
         xAxis: {
           type: 'datetime'
@@ -162,13 +162,18 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
       Highcharts = _vendorHighchartsHighstock.default;
     }, function (_vendorLeafletLeaflet) {
       L = _vendorLeafletLeaflet.default;
+    }, function (_appCoreConfig) {
+      config = _appCoreConfig.default;
     }, function (_utils) {
       showPollutants = _utils.showPollutants;
       showHealthConcerns = _utils.showHealthConcerns;
       calculateAQI = _utils.calculateAQI;
-      HIGHCHARTS_THEME_DARK = _utils.HIGHCHARTS_THEME_DARK;
-    }, function (_appCoreConfig) {
-      config = _appCoreConfig.default;
+    }, function (_definitions) {
+      AQI = _definitions.AQI;
+      carsCount = _definitions.carsCount;
+      HIGHCHARTS_THEME_DARK = _definitions.HIGHCHARTS_THEME_DARK;
+      tileServers = _definitions.tileServers;
+      carMarker = _definitions.carMarker;
     }],
     execute: function () {
       _createClass = function () {
@@ -189,16 +194,6 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
         };
       }();
 
-      AQI = {
-        'range': [0, 50, 100, 150, 200, 300, 500],
-        'meaning': ['Good', 'Moderate', 'Unhealthy for Sensitive Groups', 'Unhealthy', 'Very Unhealthy', 'Hazardous'],
-        'color': ['#00e400', '#ffff00', '#ff7e00', '#ff0000', '#8f3f97', '#7e0023'],
-        'risks': ['Air quality is considered satisfactory, and air pollution poses little or no risk.', 'Air quality is acceptable; however, for some pollutants there may be a moderate health concern for a very small number of people who are unusually sensitive to air pollution.', 'Members of sensitive groups may experience health effects. The general public is not likely to be affected.', 'Everyone may begin to experience health effects; members of sensitive groups may experience more serious health effects.', 'Health alert: everyone may experience more serious health effects.', 'Health warnings of emergency conditions. The entire population is more likely to be affected.']
-      };
-      carsCount = {
-        'range': [0, 15, 30, 45, 70, 85, 100],
-        'color': ['#00e400', '#ffff00', '#ff7e00', '#ff0000', '#8f3f97', '#7e0023']
-      };
       providedPollutants = void 0;
       timeSeries = {};
       chartData = [];
@@ -212,14 +207,6 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
       polylinesLayer = void 0;
       currentTargetForChart = null;
       currentParameterForChart = 'aqi';
-      tileServers = {
-        'CartoDB Positron': { url: 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>', subdomains: 'abcd' },
-        'CartoDB Dark': { url: 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png', attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>', subdomains: 'abcd' }
-      };
-      carMarker = window.L.icon({
-        iconUrl: 'images/map_marker.png',
-        iconSize: [25, 40]
-      });
 
       WorldMap = function () {
         function WorldMap(ctrl, mapContainer) {
@@ -301,11 +288,6 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
           key: 'clearCircles',
           value: function clearCircles() {
             circlesLayer.clearLayers();
-            // if (circlesLayer) {
-            //   circlesLayer.clearLayers();
-            //   this.removeCircles(circlesLayer);
-            //   globalCircles = [];
-            // }
           }
         }, {
           key: 'clearMarkers',
@@ -320,14 +302,6 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
           key: 'clearPolylines',
           value: function clearPolylines() {
             polylinesLayer.clearLayers();
-            // polylinesLayer.layers.forEach((layer) => {
-            //   console.log(layer);
-            // });
-            // if (polylinesLayer) {
-            //   polylinesLayer.clearLayers();
-            //   this.removePolylines(polylinesLayer);
-            //   globalPolylines = [];
-            // }
           }
         }, {
           key: 'dataTreatment',

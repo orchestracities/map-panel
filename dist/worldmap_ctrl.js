@@ -1,9 +1,9 @@
 'use strict';
 
-System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn', 'lodash', './map_renderer', './data_formatter', './css/worldmap-panel.css!', './vendor/leaflet/leaflet.css!'], function (_export, _context) {
+System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn', 'lodash', './definitions', './map_renderer', './data_formatter', './css/worldmap-panel.css!', './vendor/leaflet/leaflet.css!'], function (_export, _context) {
   "use strict";
 
-  var MetricsPanelCtrl, TimeSeries, kbn, _, mapRenderer, DataFormatter, _createClass, panelDefaults, mapCenters, WorldmapCtrl;
+  var MetricsPanelCtrl, TimeSeries, kbn, _, panelDefaults, mapCenters, mapRenderer, DataFormatter, _createClass, WorldmapCtrl;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -44,6 +44,9 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
       kbn = _appCoreUtilsKbn.default;
     }, function (_lodash) {
       _ = _lodash.default;
+    }, function (_definitions) {
+      panelDefaults = _definitions.panelDefaults;
+      mapCenters = _definitions.mapCenters;
     }, function (_map_renderer) {
       mapRenderer = _map_renderer.default;
     }, function (_data_formatter) {
@@ -67,43 +70,6 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
           return Constructor;
         };
       }();
-
-      panelDefaults = {
-        maxDataPoints: 1,
-        mapCenter: '(0°, 0°)',
-        mapCenterLatitude: 0,
-        mapCenterLongitude: 0,
-        initialZoom: 1,
-        valueName: 'total',
-        circleMinSize: 2,
-        circleMaxSize: 30,
-        thresholds: '0,10',
-        colors: ['rgba(245, 54, 54, 0.9)', 'rgba(237, 129, 40, 0.89)', 'rgba(50, 172, 45, 0.97)'],
-        unitSingle: '',
-        unitPlural: '',
-        showLegend: true,
-        esMetric: 'Count',
-        decimals: 0,
-        hideEmpty: false,
-        hideZero: false,
-        stickyLabels: false,
-        pollutants: {
-          'h': { 'name': 'Hydrogen', 'unit': '' },
-          'no2': { 'name': 'Nitrogen Dioxide', 'unit': 'µg/m3' },
-          'p': { 'name': 'Pressure', 'unit': 'hPa' },
-          'pm10': { 'name': 'PM10', 'unit': 'ug/m3' },
-          'pm25': { 'name': 'PM25', 'unit': 'ug/m3' },
-          't': { 'name': 'Temperature', 'unit': 'ºC' },
-          'aqi': { 'name': 'Air Quality Index', 'unit': '' }
-        }
-      };
-      mapCenters = {
-        '(0°, 0°)': { mapCenterLatitude: 0.0, mapCenterLongitude: 0.0 },
-        'North America': { mapCenterLatitude: 40, mapCenterLongitude: -100 },
-        'Europe': { mapCenterLatitude: 46, mapCenterLongitude: 14 },
-        'West Asia': { mapCenterLatitude: 26, mapCenterLongitude: 53 },
-        'SE Asia': { mapCenterLatitude: 10, mapCenterLongitude: 106 }
-      };
 
       WorldmapCtrl = function (_MetricsPanelCtrl) {
         _inherits(WorldmapCtrl, _MetricsPanelCtrl);
@@ -136,11 +102,7 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
         }, {
           key: 'setMapSaturationClass',
           value: function setMapSaturationClass() {
-            if (this.tileServer === 'CartoDB Dark') {
-              this.saturationClass = 'map-darken';
-            } else {
-              this.saturationClass = '';
-            }
+            this.saturationClass = this.tileServer === 'CartoDB Dark' ? 'map-darken' : '';
           }
         }, {
           key: 'onPanelTeardown',
@@ -162,13 +124,9 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
             }
 
             var data = [];
-
             this.series = dataList.map(this.seriesHandler.bind(this));
-
             this.dataFormatter.setValues(data);
-
             this.data = data;
-
             this.render();
           }
         }, {
@@ -240,7 +198,7 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
 
       _export('default', WorldmapCtrl);
 
-      WorldmapCtrl.templateUrl = 'module.html';
+      WorldmapCtrl.templateUrl = 'partials/module.html';
     }
   };
 });

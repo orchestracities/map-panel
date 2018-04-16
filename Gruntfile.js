@@ -6,26 +6,25 @@ module.exports = (grunt) => {
   grunt.loadNpmTasks('grunt-execute');
   grunt.loadNpmTasks('grunt-contrib-clean');
 
-
   grunt.initConfig({
     clean: ["dist"],
     copy: {
-      src_to_dist: {
+      srcToDist: {
         cwd: 'src',
         expand: true,
-        src: ['**/*.html', '!**/*.js', '**/*.css'],
+        src: ['plugin.json', '**/*.html', '!**/*.js', '**/*.css'],
         dest: 'dist'
       },
       pluginDef: {
         expand: true,
-        src: [ 'plugin.json', 'README.md', 'CHANGELOG.md' ],
+        src: [ 'LICENSE', 'README.md', 'CHANGELOG.md' ],
         dest: 'dist',
       },
 
-      img_to_dist: {
+      imgToDist: {
         cwd: 'src',
         expand: true,
-        src: ['images/*'],
+        src: ['img/*'],
         dest: 'dist/'
       },
       
@@ -71,5 +70,5 @@ module.exports = (grunt) => {
 
   });
 
-  grunt.registerTask('default', ['clean', 'copy:src_to_dist', 'copy:pluginDef', 'copy:img_to_dist', 'copy:leaflet', 'copy:highchartsCss', 'babel']);
+  grunt.registerTask('default', ['clean', 'copy:srcToDist', 'copy:pluginDef', 'copy:imgToDist', 'copy:leaflet', 'copy:highchartsCss', 'babel']);
 };

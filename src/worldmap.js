@@ -1,21 +1,14 @@
 /* eslint-disable id-length, no-unused-vars */
+
+/* Vendor specific */
 import _ from 'lodash';
 import Highcharts from './vendor/highcharts/highstock';
 import L from './vendor/leaflet/leaflet';
-import { showPollutants, showHealthConcerns, calculateAQI, HIGHCHARTS_THEME_DARK } from './utils';
+/* Grafana Specific */
 import config from 'app/core/config';
-
-const AQI = {
-  'range': [0, 50, 100, 150, 200, 300, 500],
-  'meaning': ['Good', 'Moderate', 'Unhealthy for Sensitive Groups', 'Unhealthy', 'Very Unhealthy', 'Hazardous'],
-  'color': ['#00e400', '#ffff00', '#ff7e00', '#ff0000', '#8f3f97', '#7e0023'],
-  'risks': ['Air quality is considered satisfactory, and air pollution poses little or no risk.', 'Air quality is acceptable; however, for some pollutants there may be a moderate health concern for a very small number of people who are unusually sensitive to air pollution.', 'Members of sensitive groups may experience health effects. The general public is not likely to be affected.', 'Everyone may begin to experience health effects; members of sensitive groups may experience more serious health effects.', 'Health alert: everyone may experience more serious health effects.', 'Health warnings of emergency conditions. The entire population is more likely to be affected.']
-};
-
-const carsCount = {
-  'range': [0, 15, 30, 45, 70, 85, 100],
-  'color': ['#00e400', '#ffff00', '#ff7e00', '#ff0000', '#8f3f97', '#7e0023']
-};
+/* App Specific */
+import { showPollutants, showHealthConcerns, calculateAQI } from './utils';
+import { AQI, carsCount, HIGHCHARTS_THEME_DARK, tileServers, carMarker } from './definitions';
 
 let providedPollutants;
 
@@ -35,15 +28,6 @@ let polylinesLayer;
 
 let currentTargetForChart = null;
 let currentParameterForChart = 'aqi';
-
-const tileServers = {
-  'CartoDB Positron': { url: 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>', subdomains: 'abcd'},
-  'CartoDB Dark': {url: 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png', attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>', subdomains: 'abcd'}
-};
-const carMarker = window.L.icon({
-  iconUrl: 'images/map_marker.png',
-  iconSize: [25, 40]
-});
 
 export default class WorldMap {
 
@@ -119,11 +103,6 @@ export default class WorldMap {
 
   clearCircles() {
     circlesLayer.clearLayers();
-    // if (circlesLayer) {
-    //   circlesLayer.clearLayers();
-    //   this.removeCircles(circlesLayer);
-    //   globalCircles = [];
-    // }
   }
   clearMarkers() {
     if (this.markersLayer) {
@@ -135,14 +114,6 @@ export default class WorldMap {
 
   clearPolylines() {
     polylinesLayer.clearLayers();
-    // polylinesLayer.layers.forEach((layer) => {
-    //   console.log(layer);
-    // });
-    // if (polylinesLayer) {
-    //   polylinesLayer.clearLayers();
-    //   this.removePolylines(polylinesLayer);
-    //   globalPolylines = [];
-    // }
   }
 
   dataTreatment(data) {
@@ -235,8 +206,7 @@ export default class WorldMap {
         const chartLastDisplayedValue = chartSeries.data[chartSeries.data.length - 1].y;
         const chartLastDisplayedTime = chartSeries.data[chartSeries.data.length - 1].x;
         let chartLastDisplayedId = chartSeries.name.split(' ');
-        chartLastDisplayedId = parseInt(chartLastDisplayedId[chartLastDisplayedId.length - 1]);
-      
+        chartLastDisplayedId = parseInt(chartLastDisplayedId[chartLastDisplayedId.length - 1]);      
 
         if (!(lastTime === chartLastDisplayedTime && lastMeasure === chartLastDisplayedValue && targetId === chartLastDisplayedId)){
           chartSeries.addPoint([Date.UTC(year, month, day, hour+1, minutes, seconds, milliseconds), lastMeasure], true, true);
@@ -618,7 +588,6 @@ export default class WorldMap {
   setZoom(zoomFactor) {
     this.map.setZoom(parseInt(zoomFactor, 10));
   }
-
 }
 
 function drawChart(providedPollutants, e, redrawChart) {
@@ -728,7 +697,7 @@ function drawChart(providedPollutants, e, redrawChart) {
             text: title
         },
         subtitle: {
-            text: document.ontouchstart === undefined ? '' : ''
+            text: ''
         },
         xAxis: {
             type: 'datetime'
