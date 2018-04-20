@@ -1,9 +1,21 @@
 'use strict';
 
-System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn', 'lodash', './definitions', './map_renderer', './data_formatter', './css/worldmap-panel.css!', './vendor/leaflet/leaflet.css!'], function (_export, _context) {
+System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn', 'lodash', './definitions', './utils/datasource', './map_renderer', './utils/data_formatter', './css/worldmap-panel.css!', './vendor/leaflet/leaflet.css!'], function (_export, _context) {
   "use strict";
 
-  var MetricsPanelCtrl, TimeSeries, kbn, _, panelDefaults, mapCenters, mapRenderer, DataFormatter, _createClass, WorldmapCtrl;
+  var MetricsPanelCtrl, TimeSeries, kbn, _, PLUGIN_PATH, panelDefaults, mapCenters, getDatasources, getValidDatasources, mapRenderer, DataFormatter, _createClass, dataFormatter, WorldmapCtrl;
+
+  function _toConsumableArray(arr) {
+    if (Array.isArray(arr)) {
+      for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) {
+        arr2[i] = arr[i];
+      }
+
+      return arr2;
+    } else {
+      return Array.from(arr);
+    }
+  }
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -45,12 +57,16 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
     }, function (_lodash) {
       _ = _lodash.default;
     }, function (_definitions) {
+      PLUGIN_PATH = _definitions.PLUGIN_PATH;
       panelDefaults = _definitions.panelDefaults;
       mapCenters = _definitions.mapCenters;
+    }, function (_utilsDatasource) {
+      getDatasources = _utilsDatasource.getDatasources;
+      getValidDatasources = _utilsDatasource.getValidDatasources;
     }, function (_map_renderer) {
       mapRenderer = _map_renderer.default;
-    }, function (_data_formatter) {
-      DataFormatter = _data_formatter.default;
+    }, function (_utilsData_formatter) {
+      DataFormatter = _utilsData_formatter.default;
     }, function (_cssWorldmapPanelCss) {}, function (_vendorLeafletLeafletCss) {}],
     execute: function () {
       _createClass = function () {
@@ -71,6 +87,8 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
         };
       }();
 
+      dataFormatter = new DataFormatter(kbn);
+
       WorldmapCtrl = function (_MetricsPanelCtrl) {
         _inherits(WorldmapCtrl, _MetricsPanelCtrl);
 
@@ -80,53 +98,39 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
           var _this = _possibleConstructorReturn(this, (WorldmapCtrl.__proto__ || Object.getPrototypeOf(WorldmapCtrl)).call(this, $scope, $injector));
 
           _this.setMapProvider(contextSrv);
-          _.defaults(_this.panel, panelDefaults);
-
-          _this.dataFormatter = new DataFormatter(_this, kbn);
+          _.defaultsDeep(_this.panel, panelDefaults);
 
           _this.events.on('init-edit-mode', _this.onInitEditMode.bind(_this));
-          _this.events.on('data-received', _this.onDataReceived.bind(_this));
-          // this.events.on('panel-teardown', this.onPanelTeardown.bind(this));
-          // this.events.on('data-snapshot-load', this.onDataSnapshotLoad.bind(this));
+          _this.events.on('data-received', _this.onDataReceived.bind(_this)); //process resultset as a result of the execution of all queries
 
-          // this.loadLocationDataFromFile();
+          _this.handleDatasourceParamsChange = _this.applyDatasourceParamsChange.bind(_this);
           return _this;
         }
 
         _createClass(WorldmapCtrl, [{
-          key: 'setMapProvider',
-          value: function setMapProvider(contextSrv) {
-            this.tileServer = contextSrv.user.lightTheme ? 'CartoDB Positron' : 'CartoDB Dark';
-            this.setMapSaturationClass();
-          }
-        }, {
-          key: 'setMapSaturationClass',
-          value: function setMapSaturationClass() {
-            this.saturationClass = this.tileServer === 'CartoDB Dark' ? 'map-darken' : '';
-          }
-        }, {
-          key: 'onPanelTeardown',
-          value: function onPanelTeardown() {
-            if (this.map) this.map.remove();
-          }
-        }, {
           key: 'onInitEditMode',
           value: function onInitEditMode() {
-            this.addEditorTab('Worldmap', 'public/plugins/grafana-traffic-env-panel/partials/editor.html', 2);
+            this.addEditorTab('Worldmap', PLUGIN_PATH + 'partials/editor.html', 2);
           }
         }, {
           key: 'onDataReceived',
           value: function onDataReceived(dataList) {
-            if (!dataList) return;
-
+            if (!dataList) return; //no result sets
             if (this.dashboard.snapshot && this.locations) {
               this.panel.snapshotLocationData = this.locations;
             }
 
-            var data = [];
+            console.log('dataList');
+            console.log(dataList);
+            this.layerNames = [].concat(_toConsumableArray(new Set(dataList.map(function (elem) {
+              return elem.target.split(':')[0];
+            }))));
             this.series = dataList.map(this.seriesHandler.bind(this));
-            this.dataFormatter.setValues(data);
-            this.data = data;
+            this.data = dataFormatter.getValues(this.series, this.panel.pollutants);
+
+            console.log('this.data');
+            console.log(this.data);
+
             this.render();
           }
         }, {
@@ -144,6 +148,30 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
 
             series.flotpairs = series.getFlotPairs(this.panel.nullPointMode);
             return series;
+          }
+        }, {
+          key: 'applyDatasourceParamsChange',
+          value: function applyDatasourceParamsChange(datasource) {
+            console.log('datasource');
+            console.log(datasource);
+            /*this.panel.pollutants=datasource.pollutants*/
+            this.render();
+          }
+        }, {
+          key: 'onPanelTeardown',
+          value: function onPanelTeardown() {
+            if (this.map) this.map.remove();
+          }
+        }, {
+          key: 'setMapProvider',
+          value: function setMapProvider(contextSrv) {
+            this.tileServer = contextSrv.user.lightTheme ? 'CartoDB Positron' : 'CartoDB Dark';
+            this.setMapSaturationClass();
+          }
+        }, {
+          key: 'setMapSaturationClass',
+          value: function setMapSaturationClass() {
+            this.saturationClass = this.tileServer === 'CartoDB Dark' ? 'map-darken' : '';
           }
         }, {
           key: 'setNewMapCenter',
@@ -180,11 +208,6 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
             this.updateThresholdData();
             this.map.legend.update();
             this.render();
-          }
-        }, {
-          key: 'setPollutants',
-          value: function setPollutants() {
-            console.log("SET POLL");
           }
         }, {
           key: 'link',

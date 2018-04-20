@@ -1,9 +1,9 @@
 'use strict';
 
-System.register(['./worldmap'], function (_export, _context) {
+System.register(['./worldmap', './utils/map_utils'], function (_export, _context) {
   "use strict";
 
-  var WorldMap;
+  var WorldMap, hideAllByMapSize;
   function link(scope, elem, attrs, ctrl) {
     var mapContainer = elem.find('.map-container');
 
@@ -25,8 +25,18 @@ System.register(['./worldmap'], function (_export, _context) {
 
       // if (!ctrl.map.legend && ctrl.panel.showLegend) ctrl.map.createLegend();
 
+      hideAllByMapSize();
+
+      ctrl.map.clearCircles();
+
+      //for each target drawpoints  
+      // ctrl.panel.targets.forEach((target)=>{
+      //   console.log('processing target '+target.datasource)
+      ctrl.map.setPollutants();
+      //   ctrl.map.drawPoints(target);
+      // })
+      console.log('map_render will drawPoints');
       ctrl.map.drawPoints();
-      // ctrl.map.drawMarkers();
     }
   }
 
@@ -35,6 +45,8 @@ System.register(['./worldmap'], function (_export, _context) {
   return {
     setters: [function (_worldmap) {
       WorldMap = _worldmap.default;
+    }, function (_utilsMap_utils) {
+      hideAllByMapSize = _utilsMap_utils.hideAllByMapSize;
     }],
     execute: function () {}
   };

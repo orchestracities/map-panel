@@ -3,10 +3,12 @@
 System.register([], function (_export, _context) {
   "use strict";
 
-  var AQI, carsCount, HIGHCHARTS_THEME_DARK, tileServers, carMarker, panelDefaults, mapCenters;
+  var PLUGIN_PATH, AQI, carsCount, HIGHCHARTS_THEME_DARK, tileServers, carMarker, panelDefaults, mapCenters, MIN_WIDTH_TO_SHOW_MAP_POPUPS, MIN_HEIGHT_TO_SHOW_MAP_POPUPS;
   return {
     setters: [],
     execute: function () {
+      _export('PLUGIN_PATH', PLUGIN_PATH = 'public/plugins/grafana-traffic-env-panel/');
+
       _export('AQI', AQI = {
         'range': [0, 50, 100, 150, 200, 300, 500],
         'meaning': ['Good', 'Moderate', 'Unhealthy for Sensitive Groups', 'Unhealthy', 'Very Unhealthy', 'Hazardous'],
@@ -243,15 +245,7 @@ System.register([], function (_export, _context) {
         hideEmpty: false,
         hideZero: false,
         stickyLabels: false,
-        pollutants: {
-          'h': { 'name': 'Hydrogen', 'unit': '' },
-          'no2': { 'name': 'Nitrogen Dioxide', 'unit': 'µg/m3' },
-          'p': { 'name': 'Pressure', 'unit': 'hPa' },
-          'pm10': { 'name': 'PM10', 'unit': 'ug/m3' },
-          'pm25': { 'name': 'PM25', 'unit': 'ug/m3' },
-          't': { 'name': 'Temperature', 'unit': 'ºC' },
-          'aqi': { 'name': 'Air Quality Index', 'unit': '' }
-        }
+        pollutants: '{"aqi": {"name": "Air Quality Index", "unit": ""},"h": {"name": "Hydrogen", "unit": ""},"no2": {"name": "Nitrogen Dioxide", "unit": "µg/m3"},"p": {"name": "Pressure", "unit": "hPa"},"pm10": {"name": "PM10", "unit": "ug/m3"},"pm25": {"name": "PM25", "unit": "ug/m3"},"t": {"name": "Temperature", "unit": "ºC"}}'
       });
 
       _export('mapCenters', mapCenters = {
@@ -261,6 +255,12 @@ System.register([], function (_export, _context) {
         'West Asia': { mapCenterLatitude: 26, mapCenterLongitude: 53 },
         'SE Asia': { mapCenterLatitude: 10, mapCenterLongitude: 106 }
       });
+
+      _export('MIN_WIDTH_TO_SHOW_MAP_POPUPS', MIN_WIDTH_TO_SHOW_MAP_POPUPS = 840);
+
+      _export('MIN_HEIGHT_TO_SHOW_MAP_POPUPS', MIN_HEIGHT_TO_SHOW_MAP_POPUPS = 480);
+
+      _export('PLUGIN_PATH', PLUGIN_PATH);
 
       _export('AQI', AQI);
 
@@ -275,6 +275,10 @@ System.register([], function (_export, _context) {
       _export('panelDefaults', panelDefaults);
 
       _export('mapCenters', mapCenters);
+
+      _export('MIN_WIDTH_TO_SHOW_MAP_POPUPS', MIN_WIDTH_TO_SHOW_MAP_POPUPS);
+
+      _export('MIN_HEIGHT_TO_SHOW_MAP_POPUPS', MIN_HEIGHT_TO_SHOW_MAP_POPUPS);
     }
   };
 });

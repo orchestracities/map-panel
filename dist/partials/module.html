@@ -1,93 +1,83 @@
 <div id="mapid_{{ctrl.panel.id}}" class="map-container {{ctrl.saturationClass}}">
+  <div id="aqi_legend">
+    <table id="environment_table" class="intensity-scale stripes">
+      <thead>
+        <tr>
+          <th>AQI Interval</th><th>Meaning</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="level-0">
+          <td>[0, 50]</td>
+          <td>
+            <span></span><span>Good</span>
+          </td>
+        </tr>
+        <tr class="level-1">
+          <td>[51, 100]</td>
+          <td>
+            <span></span><span>Moderate</span>
+          </td>
+        </tr>
+        <tr class="level-2">
+          <td>[101, 150]</td>
+          <td>
+            <span></span><span>Unhealthy (sensitive groups)</span>
+          </td>
+        </tr>
+        <tr class="level-3">
+          <td>[151, 200]</td>
+          <td>
+            <span></span><span>Unhealthy</span>
+          </td>
+        </tr>
+        <tr class="level-4">
+          <td>[201, 300]</td>
+          <td>
+            <span></span><span>Very Unhealthy</span>
+          </td>
+        </tr>
+        <tr class="level-5">
+          <td>[301, 400]</td>
+          <td>
+            <span></span><span>Hazardous</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
 
-    <div id="aqi_legend">
+    <table id="traffic_table" class="intensity-scale stripes">
+      <thead>
+        <tr>
+          <th>Traffic Intensity</th><th>Meaning</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="level-0"><td>[0, 15]</td><td><span></span><span>Good<span></td></tr>
+        <tr class="level-1"><td>[15, 30]</td><td><span></span><span>Moderate<span></td></tr>
+        <tr class="level-2"><td>[30, 45]</td><td><span></span><span>Some congestion<span></td></tr>
+        <tr class="level-3"><td>[45, 50]</td><td><span></span><span>Congested<span></td></tr>            
+      </tbody>
+    </table>
+  </div>
 
-        <table id="environment_table" class="intensity-scale stripes">
-            <thead>
-                <tr>
-                    <th>AQI Interval</th><th>Meaning</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr class="level-0">
-                    <td>[0, 50]</td>
-                    <td>
-                        <span></span><span>Good</span>
-                    </td>
-                </tr>
-                <tr class="level-1">
-                    <td>[51, 100]</td>
-                    <td>
-                        <span></span><span>Moderate</span>
-                    </td>
-                </tr>
-                <tr class="level-2">
-                    <td>[101, 150]</td>
-                    <td>
-                        <span></span><span>Unhealthy (sensitive groups)</span>
-                    </td>
-                </tr>
-                <tr class="level-3">
-                    <td>[151, 200]</td>
-                    <td>
-                        <span></span><span>Unhealthy</span>
-                    </td>
-                </tr>
-                <tr class="level-4">
-                    <td>[201, 300]</td>
-                    <td>
-                        <span></span><span>Very Unhealthy</span>
-                    </td>
-                </tr>
-                <tr class="level-5">
-                    <td>[301, 400]</td>
-                    <td>
-                        <span></span><span>Hazardous</span>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+  <div id="measures_table" class="info-container">
+    <div class="header">Air Parameters</div>
+    <table class="stripes">
+      <tbody></tbody>
+    </table>
+  </div>
 
-        <table id="traffic_table" class="intensity-scale stripes">
-            <thead>
-                <tr>
-                    <th>Traffic Intensity</th><th>Meaning</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr class="level-0">
-                    <td>[0, 15]</td><td><span></span><span>Good<span></td>
-                </tr>
-                <tr class="level-1">
-                    <td>[15, 30]</td><td><span></span><span>Moderate<span></td>
-                </tr>
-                <tr class="level-2">
-                    <td>[30, 45]</td><td><span></span><span>Some congestion<span></td>
-                </tr>
-                <tr class="level-3">
-                    <td>[45, 50]</td><td><span></span><span>Congested<span></td>
-                </tr>            
-            </tbody>
-        </table>   
-    </div>
-
-    <div id="measures_table" class="info-container">
-        <div class="header">Air Parameters</div>
-        <table class="stripes">
-            <tbody></tbody>
-        </table>
-    </div>
-
-    <div id="health_concerns_wrapper" class="info-container">
-        <div class="header header-left">Health Concerns <span><span class="color"/><span class="risk"></span></span></div>
-        <div class="body" id="health_risk"></div>
-    </div>
+  <div id="health_concerns_wrapper" class="info-container">
+    <div class="header header-left">Health Concerns <span><span class="color"/><span class="risk"></span></span></div>
+    <div class="body" id="health_risk"></div>
+  </div>
 </div>
 
-<div id="dataChart" style="z-index: 100; width: {{ctrl.width}}; position: relative;">
-    <div id="dataDetails">
-        <select id="airParametersDropdown"></select>
+<div id="data_chart" style="z-index: 100; width: {{ctrl.width}}; position: relative;">
+  <div id="data_details">
+    <select id="air_parameters_dropdown"></select>
     <br/>
-    </div>
-    <div id="graphContainer"></div>
+  </div>
+  <div id="graph_container"></div>
 </div>

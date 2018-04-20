@@ -1,3 +1,5 @@
+const PLUGIN_PATH = 'public/plugins/grafana-traffic-env-panel/'
+
 const AQI = {
   'range': [0, 50, 100, 150, 200, 300, 500],
   'meaning': ['Good', 'Moderate', 'Unhealthy for Sensitive Groups', 'Unhealthy', 'Very Unhealthy', 'Hazardous'],
@@ -237,15 +239,7 @@ const panelDefaults = {
   hideEmpty: false,
   hideZero: false,
   stickyLabels: false,
-  pollutants: {
-    'h': {'name': 'Hydrogen', 'unit': ''},
-    'no2': {'name': 'Nitrogen Dioxide', 'unit': 'µg/m3'},
-    'p': {'name': 'Pressure', 'unit': 'hPa'},
-    'pm10': {'name': 'PM10', 'unit': 'ug/m3'},
-    'pm25': {'name': 'PM25', 'unit': 'ug/m3'},
-    't': {'name': 'Temperature', 'unit': 'ºC'},
-    'aqi': {'name': 'Air Quality Index', 'unit': ''}
-  }
+  pollutants: '{"aqi": {"name": "Air Quality Index", "unit": ""},"h": {"name": "Hydrogen", "unit": ""},"no2": {"name": "Nitrogen Dioxide", "unit": "µg/m3"},"p": {"name": "Pressure", "unit": "hPa"},"pm10": {"name": "PM10", "unit": "ug/m3"},"pm25": {"name": "PM25", "unit": "ug/m3"},"t": {"name": "Temperature", "unit": "ºC"}}'
 };
 
 const mapCenters = {
@@ -256,5 +250,12 @@ const mapCenters = {
   'SE Asia': {mapCenterLatitude: 10, mapCenterLongitude: 106}
 };
 
+const MIN_WIDTH_TO_SHOW_MAP_POPUPS = 840;
+const MIN_HEIGHT_TO_SHOW_MAP_POPUPS = 480;
 
-export {AQI, carsCount, HIGHCHARTS_THEME_DARK, tileServers, carMarker, panelDefaults, mapCenters }
+
+export {
+  PLUGIN_PATH, 
+  AQI, carsCount, HIGHCHARTS_THEME_DARK, tileServers, carMarker, panelDefaults, mapCenters, 
+  MIN_WIDTH_TO_SHOW_MAP_POPUPS, MIN_HEIGHT_TO_SHOW_MAP_POPUPS 
+}

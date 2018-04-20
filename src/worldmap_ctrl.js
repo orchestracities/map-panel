@@ -1,64 +1,62 @@
 /* eslint import/no-extraneous-dependencies: 0 */
 
-/* GRafana Specific */
+/* Grafana Specific */
 import {MetricsPanelCtrl} from 'app/plugins/sdk';
 import TimeSeries from 'app/core/time_series2';
 import kbn from 'app/core/utils/kbn';
 /* Vendor specific */
 import _ from 'lodash';
 /* App specific */
-import { panelDefaults, mapCenters } from './definitions'
+import { PLUGIN_PATH, panelDefaults, mapCenters } from './definitions'
+import { getDatasources, getValidDatasources } from './utils/datasource';
 import mapRenderer from './map_renderer';
-import DataFormatter from './data_formatter';
+import DataFormatter from './utils/data_formatter';
+
 import './css/worldmap-panel.css!';
 import './vendor/leaflet/leaflet.css!';
+
+let dataFormatter = new DataFormatter(kbn);
 
 export default class WorldmapCtrl extends MetricsPanelCtrl {
 
   constructor($scope, $injector, contextSrv) {
     super($scope, $injector);
-
     this.setMapProvider(contextSrv);
-    _.defaults(this.panel, panelDefaults);
-
-    this.dataFormatter = new DataFormatter(this, kbn);
+    _.defaultsDeep(this.panel, panelDefaults);
 
     this.events.on('init-edit-mode', this.onInitEditMode.bind(this));
-    this.events.on('data-received', this.onDataReceived.bind(this));
-    // this.events.on('panel-teardown', this.onPanelTeardown.bind(this));
-    // this.events.on('data-snapshot-load', this.onDataSnapshotLoad.bind(this));
+    this.events.on('data-received', this.onDataReceived.bind(this));  //process resultset as a result of the execution of all queries
 
-    // this.loadLocationDataFromFile();
+    this.handleDatasourceParamsChange = this.applyDatasourceParamsChange.bind(this)
   }
 
-  setMapProvider(contextSrv) {
-    this.tileServer = contextSrv.user.lightTheme ? 'CartoDB Positron' : 'CartoDB Dark';
-    this.setMapSaturationClass();
-  }
 
-  setMapSaturationClass() {
-    this.saturationClass = this.tileServer === 'CartoDB Dark' ? 'map-darken' : '';    
-  }
-
-  onPanelTeardown() {
-    if (this.map) this.map.remove();
-  }
 
   onInitEditMode() {
-    this.addEditorTab('Worldmap', 'public/plugins/grafana-traffic-env-panel/partials/editor.html', 2);
+    this.addEditorTab('Worldmap', `${PLUGIN_PATH}partials/editor.html`, 2);
   }
 
+  /* 
+  * Process the resultset
+  * @dataList: The resultset from the executed query 
+  */
   onDataReceived(dataList) {
-    if (!dataList) return;
-
+    if (!dataList) return;    //no result sets
     if (this.dashboard.snapshot && this.locations) {
       this.panel.snapshotLocationData = this.locations;
     }
 
-    const data = [];
+console.log('dataList')
+console.log(dataList)
+    this.layerNames = [...new Set(dataList.map((elem)=>elem.target.split(':')[0]))]
     this.series = dataList.map(this.seriesHandler.bind(this));
-    this.dataFormatter.setValues(data);
-    this.data = data;
+    this.data = dataFormatter.getValues(this.series, this.panel.pollutants);
+
+
+
+console.log('this.data')
+console.log(this.data)
+
     this.render();
   }
 
@@ -74,6 +72,26 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
 
     series.flotpairs = series.getFlotPairs(this.panel.nullPointMode);
     return series;
+  }
+
+  applyDatasourceParamsChange(datasource) {
+    console.log('datasource')
+    console.log(datasource)
+    /*this.panel.pollutants=datasource.pollutants*/
+    this.render()
+  }
+
+  onPanelTeardown() {
+    if (this.map) this.map.remove();
+  }
+
+  setMapProvider(contextSrv) {
+    this.tileServer = contextSrv.user.lightTheme ? 'CartoDB Positron' : 'CartoDB Dark';
+    this.setMapSaturationClass();
+  }
+
+  setMapSaturationClass() {
+    this.saturationClass = this.tileServer === 'CartoDB Dark' ? 'map-darken' : '';    
   }
 
   setNewMapCenter() {
@@ -105,10 +123,6 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
     this.updateThresholdData();
     this.map.legend.update();
     this.render();
-  }
-
-  setPollutants() {
-    console.log("SET POLL");
   }
 
   // eslint class-methods-use-this: 0
