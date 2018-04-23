@@ -112,9 +112,8 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
 
           this.createMap(); //only called once
 
-          getCityCoordinates('Lisbon').then(function (coordinates) {
-            return console.log(coordinates);
-          });
+          //getCityCoordinates('Lisbon')
+          //  .then(coordinates => console.log(coordinates))
         }
 
         _createClass(WorldMap, [{

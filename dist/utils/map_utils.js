@@ -3,7 +3,7 @@
 System.register(['app/core/config', '../definitions'], function (_export, _context) {
   "use strict";
 
-  var config, AQI, HIGHCHARTS_THEME_DARK, MIN_WIDTH_TO_SHOW_MAP_POPUPS, MIN_HEIGHT_TO_SHOW_MAP_POPUPS;
+  var config, AQI, HIGHCHARTS_THEME_DARK, nominatim_address;
   // draw components in the map
 
   /* Grafana Specific */
@@ -350,11 +350,14 @@ System.register(['app/core/config', '../definitions'], function (_export, _conte
         data: chartData
       }]
     });
-  }function getCityCoordinates(city_name) {
-    var url = 'https://nominatim.openstreetmap.org/search/' + city_name + '?format=json&addressdetails=1&limit=1&polygon_svg=1';
+  }
+
+  // gives the coordinates from a city center based on nominatin url server
+  function getCityCoordinates(city_name) {
+    var url = nominatim_address.replace('<city_name>', city_name);
     console.log(url);
 
-    return fetch(url, { headers: { 'content-type': 'application/json' } }).then(function (response) {
+    return fetch(url).then(function (response) {
       return response.json();
     }).then(function (data) {
       return { latitude: data[0].lat, longitude: data[0].lon };
@@ -369,8 +372,7 @@ System.register(['app/core/config', '../definitions'], function (_export, _conte
     }, function (_definitions) {
       AQI = _definitions.AQI;
       HIGHCHARTS_THEME_DARK = _definitions.HIGHCHARTS_THEME_DARK;
-      MIN_WIDTH_TO_SHOW_MAP_POPUPS = _definitions.MIN_WIDTH_TO_SHOW_MAP_POPUPS;
-      MIN_HEIGHT_TO_SHOW_MAP_POPUPS = _definitions.MIN_HEIGHT_TO_SHOW_MAP_POPUPS;
+      nominatim_address = _definitions.nominatim_address;
     }],
     execute: function () {
       _export('calculateAQI', calculateAQI);

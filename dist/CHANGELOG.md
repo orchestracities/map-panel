@@ -5,7 +5,7 @@
 - Improvements based on grafana development guide best practices.
 - New project structure.
 - Updated packages. Leaflet version update from 0.7 to 1.3
-- Fix Leaflet bugs introduced
+- Fix Leaflet bugs introduced by the update.
 
 ## v0.1.0
 

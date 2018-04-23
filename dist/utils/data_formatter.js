@@ -70,10 +70,10 @@ System.register(['lodash'], function (_export, _context) {
               serieType = serie.id.split(':')[0];
 
               // if (allowedTypes.indexOf(serieType) === -1) {
-              //   throw new Error('Please make sure you group series by type (AirQualityObserved or TrafficFlowObserved)');
+              //    console.log('Please make sure you group by your query');
               // }
               var serieName = serie.alias.split(': ')[1];
-              console.log('serieType => ' + serieType + ', serieName => ' + serieName);
+              //      console.log('serieType => '+serieType+', serieName => '+serieName)
               // VERIFY HERE ALL TYPES RECEIVED
               if (!setSeries[serieName]) {
                 setSeries[serieName] = [];
