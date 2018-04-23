@@ -1,9 +1,9 @@
 'use strict';
 
-System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/leaflet', './utils/map_utils', './utils/data_formatter', './definitions'], function (_export, _context) {
+System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/leaflet', './definitions', './utils/map_utils', './utils/data_formatter'], function (_export, _context) {
   "use strict";
 
-  var _, Highcharts, L, drawPopups, calculateAQI, getTimeSeries, dataTreatment, getUpdatedChartSeries, hideAll, addPollDropdown, processData, renderChart, filterEmptyAndZeroValues, AQI, carsCount, tileServers, carMarker, _slicedToArray, _createClass, mapZoom, circlesLayer, currentTargetForChart, currentParameterForChart, DRAW_CHART, REDRAW_CHART, WorldMap;
+  var _, Highcharts, L, AQI, carsCount, tileServers, carMarker, drawPopups, calculateAQI, getTimeSeries, dataTreatment, getUpdatedChartSeries, hideAll, processData, renderChart, getCityCoordinates, filterEmptyAndZeroValues, _slicedToArray, _createClass, currentTargetForChart, currentParameterForChart, DRAW_CHART, REDRAW_CHART, WorldMap;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -18,6 +18,11 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
       Highcharts = _vendorHighchartsHighstock.default;
     }, function (_vendorLeafletLeaflet) {
       L = _vendorLeafletLeaflet.default;
+    }, function (_definitions) {
+      AQI = _definitions.AQI;
+      carsCount = _definitions.carsCount;
+      tileServers = _definitions.tileServers;
+      carMarker = _definitions.carMarker;
     }, function (_utilsMap_utils) {
       drawPopups = _utilsMap_utils.drawPopups;
       calculateAQI = _utilsMap_utils.calculateAQI;
@@ -25,16 +30,11 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
       dataTreatment = _utilsMap_utils.dataTreatment;
       getUpdatedChartSeries = _utilsMap_utils.getUpdatedChartSeries;
       hideAll = _utilsMap_utils.hideAll;
-      addPollDropdown = _utilsMap_utils.addPollDropdown;
       processData = _utilsMap_utils.processData;
       renderChart = _utilsMap_utils.renderChart;
+      getCityCoordinates = _utilsMap_utils.getCityCoordinates;
     }, function (_utilsData_formatter) {
       filterEmptyAndZeroValues = _utilsData_formatter.filterEmptyAndZeroValues;
-    }, function (_definitions) {
-      AQI = _definitions.AQI;
-      carsCount = _definitions.carsCount;
-      tileServers = _definitions.tileServers;
-      carMarker = _definitions.carMarker;
     }],
     execute: function () {
       _slicedToArray = function () {
@@ -93,8 +93,6 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
         };
       }();
 
-      mapZoom = void 0;
-      circlesLayer = void 0;
       currentTargetForChart = null;
       currentParameterForChart = 'AQI';
       DRAW_CHART = false;
@@ -113,13 +111,17 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
           this.chartData = [];
 
           this.createMap(); //only called once
+
+          getCityCoordinates('Lisbon').then(function (coordinates) {
+            return console.log(coordinates);
+          });
         }
 
         _createClass(WorldMap, [{
           key: 'getLayers',
           value: function getLayers() {
             return this.ctrl.layerNames.map(function (elem) {
-              return window.L.layerGroup();
+              return L.layerGroup();
             });
           }
         }, {
@@ -127,11 +129,11 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
           value: function createMap() {
             var _this = this;
 
-            var mapCenter = window.L.latLng(parseFloat(this.ctrl.panel.mapCenterLatitude), parseFloat(this.ctrl.panel.mapCenterLongitude));
+            var mapCenter = L.latLng(parseFloat(this.ctrl.panel.mapCenterLatitude), parseFloat(this.ctrl.panel.mapCenterLongitude));
 
             this.layers = this.getLayers();
 
-            this.map = window.L.map(this.mapContainer, {
+            this.map = L.map(this.mapContainer, {
               worldCopyJump: true,
               center: mapCenter,
               zoomControl: false,
@@ -140,19 +142,11 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
             }).fitWorld();
 
             this.map.setZoom(this.ctrl.panel.initialZoom);
-            this.map._initPathRoot();
-            this.map._updatePathViewport();
-
             this.map.panTo(mapCenter);
             L.control.zoom({ position: 'topright' }).addTo(this.map);
-
-            //    this.layers.forEach((layer)=>layer.addTo(this.map))
-
             this.addLayersToMap();
 
-            this.map.on('zoomstart', function (e) {
-              mapZoom = _this.map.getZoom();
-            });
+            // this.map.on('zoomstart', (e) => { mapZoom = this.map.getZoom() });
             this.map.on('click', function (e) {
               hideAll();
               currentTargetForChart = null;
@@ -167,12 +161,8 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
               attribution: selectedTileServer.attribution
             }).addTo(this.map, true);
 
-            var self_ = this;
             document.querySelector('#air_parameters_dropdown').addEventListener('change', function (event) {
               currentParameterForChart = event.currentTarget.value;
-              //console.log('event: '); console.log(event)
-              //console.log('parameter: '+currentParameterForChart)
-              //console.log('this.timeSeries: '+this.timeSeries)
               _this.drawChart(REDRAW_CHART);
             });
           }
@@ -195,9 +185,6 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
           key: 'setPollutants',
           value: function setPollutants() {
             try {
-              //console.log('validating and setting pollutants')
-              //console.log(this.ctrl.panel.pollutants)
-
               this.validated_pollutants = JSON.parse(this.ctrl.panel.pollutants);
             } catch (error) {
               console.log(error);
@@ -238,52 +225,60 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
           value: function createCircle(dataPoint) {
             var _this3 = this;
 
-            //console.log('createCircle');
-            var aqi = calculateAQI(dataPoint.value);
-            var aqiColor = AQI.color[aqi];
-            var aqiMeaning = AQI.meaning[aqi];
-            var aqiRisk = AQI.risks[aqi];
             var id = dataPoint.id;
             var type = dataPoint.type;
+            var stickyPopupInfo = '';
 
-            var pollutants = dataPoint.pollutants;
-            if (pollutants) pollutants.push({ 'name': 'aqi', 'value': dataPoint.value });
-
-            var circle = L.circle([dataPoint.locationLatitude, dataPoint.locationLongitude], 200, {
+            var values = {
               id: id,
               type: type,
               latitude: dataPoint.locationLatitude,
-              longitude: dataPoint.locationLongitude,
+              longitude: dataPoint.locationLongitude
+            };
 
-              color: aqiColor,
-              fillColor: aqiColor,
-              fillOpacity: 0.5,
-              aqiColor: aqiColor,
-              aqiMeaning: aqiMeaning,
-              aqiRisk: aqiRisk,
-              pollutants: pollutants,
-              aqi: dataPoint.value
-            }).on('click', this.setTarget).on('click', function () {
+            if (type === 'AirQualityObserved') {
+              //console.log('create aqi circle');
+              var aqi = calculateAQI(dataPoint.value);
+              var aqiColor = AQI.color[aqi];
+              var aqiMeaning = AQI.meaning[aqi];
+              var aqiRisk = AQI.risks[aqi];
+
+              var pollutants = dataPoint.pollutants;
+              if (pollutants) pollutants.push({ 'name': 'aqi', 'value': dataPoint.value });
+
+              _.defaults(values, {
+                color: aqiColor,
+                fillColor: aqiColor,
+                fillOpacity: 0.5,
+                aqiColor: aqiColor,
+                aqiMeaning: aqiMeaning,
+                aqiRisk: aqiRisk,
+                pollutants: pollutants,
+                aqi: dataPoint.value
+              });
+              stickyPopupInfo = ('AQI: ' + dataPoint.value + ' (' + aqiMeaning + ')').trim();
+            } else stickyPopupInfo = 'Value: ' + dataPoint.value;
+
+            var circle = L.circle([dataPoint.locationLatitude, dataPoint.locationLongitude], 200, values).on('click', this.setTarget).on('click', function () {
               return _this3.drawChart(REDRAW_CHART);
             });
-            //.on('click', addPollDropdown);
 
-            this.createPopupCircle(circle, dataPoint.value, aqiMeaning);
+            this.createPopupCircle(circle, stickyPopupInfo);
+
             return circle;
           }
         }, {
           key: 'createPopupCircle',
-          value: function createPopupCircle(circle, aqi, aqiMeaning) {
-            var label = ('AQI: ' + aqi + ' (' + aqiMeaning + ')').trim();
-            circle.bindPopup(label, { 'offset': window.L.point(0, -2), 'className': 'worldmap-popup', 'closeButton': this.ctrl.panel.stickyLabels });
+          value: function createPopupCircle(circle, stickyPopupInfo) {
+            circle.bindPopup(stickyPopupInfo, { 'offset': window.L.point(0, -2), 'className': 'worldmap-popup', 'closeButton': this.ctrl.panel.stickyLabels });
 
-            circle.on('mouseover', function onMouseOver(event) {
+            circle.on('mouseover', function () {
               this.openPopup();
             });
 
             if (!this.ctrl.panel.stickyLabels) {
-              circle.on('mouseout', function onMouseOut() {
-                circle.closePopup();
+              circle.on('mouseout', function () {
+                this.closePopup();
               });
             }
           }
@@ -308,11 +303,6 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
           value: function removeLegend() {
             this.legend.removeFrom(this.map);
             this.legend = null;
-          }
-        }, {
-          key: 'removeCircles',
-          value: function removeCircles() {
-            this.map.removeLayer(circlesLayer);
           }
         }, {
           key: 'setZoom',

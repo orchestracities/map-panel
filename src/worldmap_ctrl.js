@@ -30,8 +30,6 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
     this.handleDatasourceParamsChange = this.applyDatasourceParamsChange.bind(this)
   }
 
-
-
   onInitEditMode() {
     this.addEditorTab('Worldmap', `${PLUGIN_PATH}partials/editor.html`, 2);
   }
@@ -45,18 +43,9 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
     if (this.dashboard.snapshot && this.locations) {
       this.panel.snapshotLocationData = this.locations;
     }
-
-console.log('dataList')
-console.log(dataList)
     this.layerNames = [...new Set(dataList.map((elem)=>elem.target.split(':')[0]))]
     this.series = dataList.map(this.seriesHandler.bind(this));
     this.data = dataFormatter.getValues(this.series, this.panel.pollutants);
-
-
-
-console.log('this.data')
-console.log(this.data)
-
     this.render();
   }
 
@@ -82,7 +71,7 @@ console.log(this.data)
   }
 
   onPanelTeardown() {
-    if (this.map) this.map.remove();
+    if (this.worldMap) this.worldMap.remove();
   }
 
   setMapProvider(contextSrv) {
@@ -104,24 +93,24 @@ console.log(this.data)
   }
 
   setZoom() {
-    this.map.setZoom(this.panel.initialZoom);
+    this.worldMap.setZoom(this.panel.initialZoom);
   }
 
   toggleLegend() {
     if (!this.panel.showLegend) {
-      this.map.removeLegend();
+      this.worldMap.removeLegend();
     }
     this.render();
   }
 
   toggleStickyLabels() {
-    this.map.clearCircles();
+    this.worldMap.clearCircles();
     this.render();
   }
 
   changeThresholds() {
     this.updateThresholdData();
-    this.map.legend.update();
+    this.worldMap.legend.update();
     this.render();
   }
 

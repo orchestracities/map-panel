@@ -31,14 +31,14 @@
 
 /*---------------------------ADDED-------------------------------------*/
 
+.map-container-popups > div {
+  z-index: 1000;
+}
+
 #aqi_legend {
-  z-index: 100;
   right: 10px;
   bottom: 10px;
   position: absolute;
-  /*    color: black;*/
-  /*    background-color: white;
-  padding: 2px;*/
   border-radius: 2px;
 }
 
@@ -48,24 +48,17 @@
 }
 
 #measures_table {
-  z-index: 100;
   width: 200px;
   height: auto;
   max-height: 350px;
-/*  background-color: white;*/
   position: absolute;
-  z-index: 100;
   bottom: 10px;
   left: 10px;
   overflow-y: auto;
-/*  padding: 2px;*/
   border-radius: 2px;
 }
 #health_concerns_wrapper {
-/*  padding: 2px;*/
-/*  background-color: white;*/
   border-radius: 2px;
-  z-index: 100;
   width: 400px;
   max-height: 110px;
   height: auto;
@@ -74,10 +67,8 @@
   left: 10px;
 }
 #health_concerns_wrapper > div.body {
-  z-index: 100;
   width: 100%;
   height: 100%;
-  z-index: 100;
   overflow-y: auto;
   padding: 2px;
   border-radius: 2px;
@@ -86,7 +77,6 @@
 }
 
 #health_risk {
-/*  color: black;*/
   padding-top: 3px;
   font-size: 100%;
 }
@@ -107,6 +97,8 @@ td, th {
   width: 100%;
   height: 360px;
   margin-top: 1%;
+  z-index: 100; 
+  position: relative;
 }
 
 #data_details {
@@ -117,45 +109,45 @@ td, th {
   height: 500px;
 }
 
-.map-container .info-container>.header {
+.map-container-popups .info-container>.header {
   text-align: center; 
   /*color: black;*/
   font-weight: bold;
   padding: 6px;
 }
-.map-container .info-container>.header-left {
+.map-container-popups .info-container>.header-left {
   text-align: left !important; 
 }
-.map-container .info-container>.header>span {
+.map-container-popups .info-container>.header>span {
   float: right;
 }
-.map-container .info-container>.header>span>span.color {  
+.map-container-popups .info-container>.header>span>span.color {  
   padding: 3px;
 }
 
-.map-container table.intensity-scale tr > td {
+.map-container-popups table.intensity-scale tr > td {
   padding: 6px 8px;
 }
-.map-container table.intensity-scale tr > td > span {
+.map-container-popups table.intensity-scale tr > td > span {
   padding: 8px 3px;
 }
 
 /*levels of intensity*/
-.map-container table.intensity-scale tr.level-0 > td:nth-child(2) > span:nth-child(1) {
+.map-container-popups table.intensity-scale tr.level-0 > td:nth-child(2) > span:nth-child(1) {
   background-color: #00e400;
 }
-.map-container table.intensity-scale tr.level-1 > td:nth-child(2) > span:nth-child(1) {
+.map-container-popups table.intensity-scale tr.level-1 > td:nth-child(2) > span:nth-child(1) {
   background-color: #ffff00;
 }
-.map-container table.intensity-scale tr.level-2 > td:nth-child(2) > span:nth-child(1) {
+.map-container-popups table.intensity-scale tr.level-2 > td:nth-child(2) > span:nth-child(1) {
   background-color: #ff7e00;
 }
-.map-container table.intensity-scale tr.level-3 > td:nth-child(2) > span:nth-child(1) {
+.map-container-popups table.intensity-scale tr.level-3 > td:nth-child(2) > span:nth-child(1) {
   background-color: #ff0000;
 }
-.map-container table.intensity-scale tr.level-4 > td:nth-child(2) > span:nth-child(1) {
+.map-container-popups table.intensity-scale tr.level-4 > td:nth-child(2) > span:nth-child(1) {
   background-color: #8f3f97;
 }
-.map-container table.intensity-scale tr.level-5 > td:nth-child(2) > span:nth-child(1) {
+.map-container-popups table.intensity-scale tr.level-5 > td:nth-child(2) > span:nth-child(1) {
   background-color: #7e0023;
 }

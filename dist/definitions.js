@@ -1,11 +1,13 @@
 'use strict';
 
-System.register([], function (_export, _context) {
+System.register(['./vendor/leaflet/leaflet'], function (_export, _context) {
   "use strict";
 
-  var PLUGIN_PATH, AQI, carsCount, HIGHCHARTS_THEME_DARK, tileServers, carMarker, panelDefaults, mapCenters, MIN_WIDTH_TO_SHOW_MAP_POPUPS, MIN_HEIGHT_TO_SHOW_MAP_POPUPS;
+  var L, PLUGIN_PATH, AQI, carsCount, HIGHCHARTS_THEME_DARK, tileServers, carMarker, panelDefaults, mapCenters, MIN_WIDTH_TO_SHOW_MAP_POPUPS, MIN_HEIGHT_TO_SHOW_MAP_POPUPS;
   return {
-    setters: [],
+    setters: [function (_vendorLeafletLeaflet) {
+      L = _vendorLeafletLeaflet.default;
+    }],
     execute: function () {
       _export('PLUGIN_PATH', PLUGIN_PATH = 'public/plugins/grafana-traffic-env-panel/');
 

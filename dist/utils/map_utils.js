@@ -3,8 +3,10 @@
 System.register(['app/core/config', '../definitions'], function (_export, _context) {
   "use strict";
 
-  var config, AQI, HIGHCHARTS_THEME_DARK, MIN_WIDTH_TO_SHOW_MAP_POPUPS, MIN_HEIGHT_TO_SHOW_MAP_POPUPS, _slicedToArray;
+  var config, AQI, HIGHCHARTS_THEME_DARK, MIN_WIDTH_TO_SHOW_MAP_POPUPS, MIN_HEIGHT_TO_SHOW_MAP_POPUPS;
+  // draw components in the map
 
+  /* Grafana Specific */
   function drawPollutantsPopup(providedPollutants, allPollutants, id, aqi, currentParameterForChart) {
     var measuresTable = document.querySelector('#measures_table > table > tbody');
     while (measuresTable.rows[0]) {
@@ -59,49 +61,21 @@ System.register(['app/core/config', '../definitions'], function (_export, _conte
       // ----
     }
 
-    var _getMapSize = getMapSize(),
-        _getMapSize2 = _slicedToArray(_getMapSize, 2),
-        mapDivWidth = _getMapSize2[0],
-        mapDivHeight = _getMapSize2[1];
-
-    // Only show the map secundary data (tables) when the map div is not too small
-    if (mapDivHeight >= MIN_HEIGHT_TO_SHOW_MAP_POPUPS && mapDivWidth >= MIN_WIDTH_TO_SHOW_MAP_POPUPS) {
-      document.getElementById('environment_table').style.display = 'block';
-      document.getElementById('measures_table').style.display = 'block';
-    }
+    document.getElementById('environment_table').style.display = 'block';
+    document.getElementById('measures_table').style.display = 'block';
   }
 
-  function drawHealthConcernsPopup(providedPollutants, risk, color, meaning) {
+  function drawHealthConcernsPopup(providedPollutants, risk, color, meaning, map_size) {
     var healthConcernsWrapper = document.getElementById('health_concerns_wrapper');
     var healthConcerns = document.querySelector('#health_concerns_wrapper>div');
     var healthConcernsColor = document.querySelector('#health_concerns_wrapper>div>span>span.color');
     var healthRisk = document.getElementById('health_risk');
 
-    var _getMapSize3 = getMapSize(),
-        _getMapSize4 = _slicedToArray(_getMapSize3, 2),
-        mapDivWidth = _getMapSize4[0],
-        mapDivHeight = _getMapSize4[1];
-
-    // Only show the map secundary data (tables) when the map div is not too small
-    if (mapDivHeight >= MIN_HEIGHT_TO_SHOW_MAP_POPUPS && mapDivWidth >= MIN_WIDTH_TO_SHOW_MAP_POPUPS) {
-      healthConcernsWrapper.style.display = 'block';
-      healthConcernsColor.style.backgroundColor = color;
-      healthRisk.innerHTML = risk;
-    }
-  }
-
-  function drawDefaultPopups() {
-    console.log('drawDefaultPopups');
-    hideAll();
-
-    var _getMapSize5 = getMapSize(),
-        _getMapSize6 = _slicedToArray(_getMapSize5, 2),
-        mapDivWidth = _getMapSize6[0],
-        mapDivHeight = _getMapSize6[1];
-
-    if (mapDivHeight >= MIN_HEIGHT_TO_SHOW_MAP_POPUPS && mapDivWidth >= MIN_WIDTH_TO_SHOW_MAP_POPUPS) {
-      document.getElementById('traffic_table').style.display = 'block';
-    }
+    healthConcernsWrapper.style.display = 'block';
+    healthConcernsColor.style.backgroundColor = color;
+    healthRisk.innerHTML = risk;
+  }function drawDefaultPopups() {
+    document.getElementById('traffic_table').style.display = 'block';
   }
 
   function drawPopups(timeSeries, validated_pollutants, currentParameterForChart, currentTargetForChart) {
@@ -111,6 +85,8 @@ System.register(['app/core/config', '../definitions'], function (_export, _conte
     var values = timeSeries.values[id];
 
     document.getElementById('data_chart').style.display = 'block';
+
+    hideAll();
 
     //render popups
     try {
@@ -139,9 +115,7 @@ System.register(['app/core/config', '../definitions'], function (_export, _conte
       console.log("values are:");
       console.log(values);
     }
-  }
-
-  function calculateAQI(aqi) {
+  }function calculateAQI(aqi) {
     var aqiIndex = void 0;
     AQI.range.forEach(function (value, index) {
       if (aqi >= value) {
@@ -272,66 +246,11 @@ System.register(['app/core/config', '../definitions'], function (_export, _conte
     }
 
     return chartSeries;
-  }
-
-  function getMapSize() {
-    //return [ document.getElementsByClassName('map-container')[0].offsetHeight, document.getElementsByClassName('map-container')[0].offsetWidth];
-    var map_svg = document.querySelector('.map-container svg');
-    return [map_svg.width.baseVal.value, map_svg.height.baseVal.value];
-  }
-
-  function hideAllByMapSize() {
-    var _getMapSize7 = getMapSize(),
-        _getMapSize8 = _slicedToArray(_getMapSize7, 2),
-        mapDivWidth = _getMapSize8[0],
-        mapDivHeight = _getMapSize8[1];
-
-    // Remove the map secundary data (tables) when the map div is too small
-    if (mapDivHeight <= MIN_HEIGHT_TO_SHOW_MAP_POPUPS || mapDivHeight <= MIN_WIDTH_TO_SHOW_MAP_POPUPS) {
-      hideAll();
-    }
-  }
-
-  function hideAll() {
+  }function hideAll() {
     document.getElementById('measures_table').style.display = 'none';
     document.getElementById('health_concerns_wrapper').style.display = 'none';
     document.getElementById('environment_table').style.display = 'none';
     document.getElementById('traffic_table').style.display = 'none';
-  }
-
-  function addPollDropdown() {
-    // Add pollutants chart dropdown 
-    document.getElementById('data_details').style.display = 'block';
-    // Remove traffic colors table
-    document.getElementById('traffic_table').style.display = 'none';
-
-    var _getMapSize9 = getMapSize(),
-        _getMapSize10 = _slicedToArray(_getMapSize9, 2),
-        mapDivWidth = _getMapSize10[0],
-        mapDivHeight = _getMapSize10[1];
-
-    // Only show the map secundary data (tables) when the map div is not too small
-    if (mapDivHeight >= MIN_HEIGHT_TO_SHOW_MAP_POPUPS && mapDivWidth >= MIN_WIDTH_TO_SHOW_MAP_POPUPS) {
-      // Add environment colors table
-      document.getElementById('environment_table').style.display = 'block';
-    }
-  }
-
-  //Not used
-  function removePollDropdown() {
-    document.getElementById('data_details').style.display = 'none'; // Remove pollutants chart dropdown  
-    document.getElementById('environment_table').style.display = 'none'; // Remove environmentcolors table
-
-    var _getMapSize11 = getMapSize(),
-        _getMapSize12 = _slicedToArray(_getMapSize11, 2),
-        mapDivWidth = _getMapSize12[0],
-        mapDivHeight = _getMapSize12[1];
-
-    // Only show the map secundary data (tables) when the map div is not too small
-    if (mapDivHeight >= MIN_HEIGHT_TO_SHOW_MAP_POPUPS && mapDivWidth >= MIN_WIDTH_TO_SHOW_MAP_POPUPS) {
-      // Add traffic colors table
-      document.getElementById('traffic_table').style.display = 'block';
-    }
   }
 
   function processData(chartSeries, timeSeries, validated_pollutants, currentParameterForChart, currentTargetForChart) {
@@ -366,9 +285,7 @@ System.register(['app/core/config', '../definitions'], function (_export, _conte
     }
 
     return [chartData, parameterUnit, title];
-  }
-
-  function createLine(value) {
+  }function createLine(value) {
     var time = new Date(value.time);
     var day = time.getDate();
     var month = time.getMonth();
@@ -433,6 +350,17 @@ System.register(['app/core/config', '../definitions'], function (_export, _conte
         data: chartData
       }]
     });
+  }function getCityCoordinates(city_name) {
+    var url = 'https://nominatim.openstreetmap.org/search/' + city_name + '?format=json&addressdetails=1&limit=1&polygon_svg=1';
+    console.log(url);
+
+    return fetch(url, { headers: { 'content-type': 'application/json' } }).then(function (response) {
+      return response.json();
+    }).then(function (data) {
+      return { latitude: data[0].lat, longitude: data[0].lon };
+    }).catch(function (error) {
+      return console.error(error);
+    });
   }
 
   return {
@@ -445,47 +373,9 @@ System.register(['app/core/config', '../definitions'], function (_export, _conte
       MIN_HEIGHT_TO_SHOW_MAP_POPUPS = _definitions.MIN_HEIGHT_TO_SHOW_MAP_POPUPS;
     }],
     execute: function () {
-      _slicedToArray = function () {
-        function sliceIterator(arr, i) {
-          var _arr = [];
-          var _n = true;
-          var _d = false;
-          var _e = undefined;
-
-          try {
-            for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
-              _arr.push(_s.value);
-
-              if (i && _arr.length === i) break;
-            }
-          } catch (err) {
-            _d = true;
-            _e = err;
-          } finally {
-            try {
-              if (!_n && _i["return"]) _i["return"]();
-            } finally {
-              if (_d) throw _e;
-            }
-          }
-
-          return _arr;
-        }
-
-        return function (arr, i) {
-          if (Array.isArray(arr)) {
-            return arr;
-          } else if (Symbol.iterator in Object(arr)) {
-            return sliceIterator(arr, i);
-          } else {
-            throw new TypeError("Invalid attempt to destructure non-iterable instance");
-          }
-        };
-      }();
-
-      _export('drawPopups', drawPopups);
-
       _export('calculateAQI', calculateAQI);
+
+      _export('processData', processData);
 
       _export('getTimeSeries', getTimeSeries);
 
@@ -493,17 +383,13 @@ System.register(['app/core/config', '../definitions'], function (_export, _conte
 
       _export('getUpdatedChartSeries', getUpdatedChartSeries);
 
-      _export('hideAllByMapSize', hideAllByMapSize);
-
       _export('hideAll', hideAll);
 
-      _export('addPollDropdown', addPollDropdown);
-
-      _export('removePollDropdown', removePollDropdown);
-
-      _export('processData', processData);
+      _export('drawPopups', drawPopups);
 
       _export('renderChart', renderChart);
+
+      _export('getCityCoordinates', getCityCoordinates);
     }
   };
 });

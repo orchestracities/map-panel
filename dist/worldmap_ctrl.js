@@ -119,18 +119,11 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
             if (this.dashboard.snapshot && this.locations) {
               this.panel.snapshotLocationData = this.locations;
             }
-
-            console.log('dataList');
-            console.log(dataList);
             this.layerNames = [].concat(_toConsumableArray(new Set(dataList.map(function (elem) {
               return elem.target.split(':')[0];
             }))));
             this.series = dataList.map(this.seriesHandler.bind(this));
             this.data = dataFormatter.getValues(this.series, this.panel.pollutants);
-
-            console.log('this.data');
-            console.log(this.data);
-
             this.render();
           }
         }, {
@@ -160,7 +153,7 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
         }, {
           key: 'onPanelTeardown',
           value: function onPanelTeardown() {
-            if (this.map) this.map.remove();
+            if (this.worldMap) this.worldMap.remove();
           }
         }, {
           key: 'setMapProvider',
@@ -186,27 +179,27 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
         }, {
           key: 'setZoom',
           value: function setZoom() {
-            this.map.setZoom(this.panel.initialZoom);
+            this.worldMap.setZoom(this.panel.initialZoom);
           }
         }, {
           key: 'toggleLegend',
           value: function toggleLegend() {
             if (!this.panel.showLegend) {
-              this.map.removeLegend();
+              this.worldMap.removeLegend();
             }
             this.render();
           }
         }, {
           key: 'toggleStickyLabels',
           value: function toggleStickyLabels() {
-            this.map.clearCircles();
+            this.worldMap.clearCircles();
             this.render();
           }
         }, {
           key: 'changeThresholds',
           value: function changeThresholds() {
             this.updateThresholdData();
-            this.map.legend.update();
+            this.worldMap.legend.update();
             this.render();
           }
         }, {

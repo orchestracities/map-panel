@@ -249,10 +249,6 @@ async@^1.5.0, async@^1.5.2, async@~1.5.2:
   version "1.5.2"
   resolved "https://registry.yarnpkg.com/async/-/async-1.5.2.tgz#ec6a61ae56480c0c3cb241c95618e20892f9672a"
 
-async@~0.2.6:
-  version "0.2.10"
-  resolved "https://registry.yarnpkg.com/async/-/async-0.2.10.tgz#b6bbe0b0674b9d719708ca38de8c237cb526c3d1"
-
 asynckit@^0.4.0:
   version "0.4.0"
   resolved "https://registry.yarnpkg.com/asynckit/-/asynckit-0.4.0.tgz#c79ed97f7f34cb8f2ba1bc9790bcc366474b4b79"
@@ -277,7 +273,7 @@ babel-code-frame@^6.16.0, babel-code-frame@^6.26.0:
     esutils "^2.0.2"
     js-tokens "^3.0.2"
 
-babel-core@^6.0.0, babel-core@^6.0.12, babel-core@^6.26.0, babel-core@^6.9.0:
+babel-core@^6.0.0, babel-core@^6.24.1, babel-core@^6.26.0:
   version "6.26.0"
   resolved "https://registry.yarnpkg.com/babel-core/-/babel-core-6.26.0.tgz#af32f78b31a6fcef119c87b0fd8d9753f03a0bb8"
   dependencies:
@@ -442,6 +438,10 @@ babel-plugin-syntax-async-functions@^6.8.0:
   version "6.13.0"
   resolved "https://registry.yarnpkg.com/babel-plugin-syntax-async-functions/-/babel-plugin-syntax-async-functions-6.13.0.tgz#cad9cad1191b5ad634bf30ae0872391e0647be95"
 
+babel-plugin-syntax-dynamic-import@^6.18.0:
+  version "6.18.0"
+  resolved "https://registry.yarnpkg.com/babel-plugin-syntax-dynamic-import/-/babel-plugin-syntax-dynamic-import-6.18.0.tgz#8d6a26229c83745a9982a441051572caa179b1da"
+
 babel-plugin-syntax-exponentiation-operator@^6.8.0:
   version "6.13.0"
   resolved "https://registry.yarnpkg.com/babel-plugin-syntax-exponentiation-operator/-/babel-plugin-syntax-exponentiation-operator-6.13.0.tgz#9ee7e8337290da95288201a6a57f4170317830de"
@@ -449,6 +449,12 @@ babel-plugin-syntax-exponentiation-operator@^6.8.0:
 babel-plugin-syntax-trailing-function-commas@^6.22.0:
   version "6.22.0"
   resolved "https://registry.yarnpkg.com/babel-plugin-syntax-trailing-function-commas/-/babel-plugin-syntax-trailing-function-commas-6.22.0.tgz#ba0360937f8d06e40180a43fe0d5616fff532cf3"
+
+babel-plugin-transform-amd-system-wrapper@^0.3.7:
+  version "0.3.7"
+  resolved "https://registry.yarnpkg.com/babel-plugin-transform-amd-system-wrapper/-/babel-plugin-transform-amd-system-wrapper-0.3.7.tgz#521c782d35644491c979ea683e8a5e1caff0ba42"
+  dependencies:
+    babel-template "^6.9.0"
 
 babel-plugin-transform-async-to-generator@^6.22.0:
   version "6.24.1"
@@ -458,9 +464,9 @@ babel-plugin-transform-async-to-generator@^6.22.0:
     babel-plugin-syntax-async-functions "^6.8.0"
     babel-runtime "^6.22.0"
 
-babel-plugin-transform-cjs-system-wrapper@^0.3.0:
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/babel-plugin-transform-cjs-system-wrapper/-/babel-plugin-transform-cjs-system-wrapper-0.3.0.tgz#f5759f29becd356faab7af52c99cde8e7bad0b21"
+babel-plugin-transform-cjs-system-wrapper@^0.6.2:
+  version "0.6.2"
+  resolved "https://registry.yarnpkg.com/babel-plugin-transform-cjs-system-wrapper/-/babel-plugin-transform-cjs-system-wrapper-0.6.2.tgz#bd7494775289424ff493b6ed455de495bd71ba1d"
   dependencies:
     babel-template "^6.9.0"
 
@@ -640,9 +646,9 @@ babel-plugin-transform-exponentiation-operator@^6.22.0:
     babel-plugin-syntax-exponentiation-operator "^6.8.0"
     babel-runtime "^6.22.0"
 
-babel-plugin-transform-global-system-wrapper@0.0.1:
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/babel-plugin-transform-global-system-wrapper/-/babel-plugin-transform-global-system-wrapper-0.0.1.tgz#afb469cec0e04689b9fe7e8b1fd280fc94a6d8f2"
+babel-plugin-transform-global-system-wrapper@^0.3.4:
+  version "0.3.4"
+  resolved "https://registry.yarnpkg.com/babel-plugin-transform-global-system-wrapper/-/babel-plugin-transform-global-system-wrapper-0.3.4.tgz#948dd7d29fc21447e39bd3447f2debc7f2f73aac"
   dependencies:
     babel-template "^6.9.0"
 
@@ -659,7 +665,7 @@ babel-plugin-transform-strict-mode@^6.24.1:
     babel-runtime "^6.22.0"
     babel-types "^6.24.1"
 
-babel-plugin-transform-system-register@0.0.1:
+babel-plugin-transform-system-register@^0.0.1:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/babel-plugin-transform-system-register/-/babel-plugin-transform-system-register-0.0.1.tgz#9dff40390c2763ac518f0b2ad7c5ea4f65a5be25"
 
@@ -1060,6 +1066,10 @@ commander@2.9.x:
   resolved "https://registry.yarnpkg.com/commander/-/commander-2.9.0.tgz#9c99094176e12240cb22d6c5146098400fe0f7d4"
   dependencies:
     graceful-readlink ">= 1.0.0"
+
+commander@~2.15.0:
+  version "2.15.1"
+  resolved "https://registry.yarnpkg.com/commander/-/commander-2.15.1.tgz#df46e867d0fc2aec66a34662b406a9ccafff5b0f"
 
 component-bind@1.0.0:
   version "1.0.0"
@@ -1970,11 +1980,9 @@ growl@1.10.3:
   version "1.10.3"
   resolved "https://registry.yarnpkg.com/growl/-/growl-1.10.3.tgz#1926ba90cf3edfe2adb4927f5880bc22c66c790f"
 
-grunt-babel@~6.0.0:
-  version "6.0.0"
-  resolved "https://registry.yarnpkg.com/grunt-babel/-/grunt-babel-6.0.0.tgz#378189b487de1168c4c4a9fc88dd6005b35df960"
-  dependencies:
-    babel-core "^6.0.12"
+grunt-babel@^7.0.0:
+  version "7.0.0"
+  resolved "https://registry.yarnpkg.com/grunt-babel/-/grunt-babel-7.0.0.tgz#13c90c01f154dec214e0eeb5d66ac7c70cedf2d3"
 
 grunt-cli@~1.2.0:
   version "1.2.0"
@@ -1985,28 +1993,27 @@ grunt-cli@~1.2.0:
     nopt "~3.0.6"
     resolve "~1.1.0"
 
-grunt-contrib-clean@~1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/grunt-contrib-clean/-/grunt-contrib-clean-1.0.0.tgz#6b2ed94117e2c7ffe32ee04578c96fe4625a9b6d"
+grunt-contrib-clean@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/grunt-contrib-clean/-/grunt-contrib-clean-1.1.0.tgz#564abf2d0378a983a15b9e3f30ee75b738c40638"
   dependencies:
     async "^1.5.2"
     rimraf "^2.5.1"
 
-grunt-contrib-copy@~1.0.0:
+grunt-contrib-copy@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/grunt-contrib-copy/-/grunt-contrib-copy-1.0.0.tgz#7060c6581e904b8ab0d00f076e0a8f6e3e7c3573"
   dependencies:
     chalk "^1.1.1"
     file-sync-cmp "^0.1.0"
 
-grunt-contrib-uglify@~2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/grunt-contrib-uglify/-/grunt-contrib-uglify-2.0.0.tgz#8c9970d690936cde6d25aa1193549bd929016930"
+grunt-contrib-uglify@^3.3.0:
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/grunt-contrib-uglify/-/grunt-contrib-uglify-3.3.0.tgz#dcc29bee1dd4768698930e46fb8bff8e8d37fb08"
   dependencies:
     chalk "^1.0.0"
-    lodash.assign "^4.0.9"
     maxmin "^1.1.0"
-    uglify-js "~2.7.0"
+    uglify-js "~3.3.0"
     uri-path "^1.0.0"
 
 grunt-contrib-watch@^1.0.0:
@@ -2018,7 +2025,7 @@ grunt-contrib-watch@^1.0.0:
     lodash "^3.10.1"
     tiny-lr "^0.2.1"
 
-grunt-execute@~0.2.2:
+grunt-execute@^0.2.2:
   version "0.2.2"
   resolved "https://registry.yarnpkg.com/grunt-execute/-/grunt-execute-0.2.2.tgz#4e945fe57959cc0de7799083b6b42aed9616350a"
 
@@ -2055,11 +2062,11 @@ grunt-legacy-util@~1.0.0:
     underscore.string "~3.2.3"
     which "~1.2.1"
 
-grunt-systemjs-builder@^0.2.5:
-  version "0.2.7"
-  resolved "https://registry.yarnpkg.com/grunt-systemjs-builder/-/grunt-systemjs-builder-0.2.7.tgz#e1ba74ec95dd03f7706ae2e22cf4ef0e1bd29cc9"
+grunt-systemjs-builder@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/grunt-systemjs-builder/-/grunt-systemjs-builder-1.0.0.tgz#5d8e7cbeca5b35e2b7b6bd002e9a9d7e03d7decd"
   dependencies:
-    systemjs-builder "0.14.11 - 0.15.x"
+    systemjs-builder "0.14.11 - 0.16.x"
 
 grunt@~1.0.2:
   version "1.0.2"
@@ -2174,7 +2181,7 @@ he@1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/he/-/he-1.1.1.tgz#93410fd21b009735151f8868c2f271f3427e23fd"
 
-highcharts@^5.0.14:
+highcharts@^5.0.15:
   version "5.0.15"
   resolved "https://registry.yarnpkg.com/highcharts/-/highcharts-5.0.15.tgz#a9af11538a85b85f300e66f7a0e048a7ef8ab381"
 
@@ -2668,9 +2675,9 @@ lazy-cache@^1.0.3:
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/lazy-cache/-/lazy-cache-1.0.4.tgz#a1d78fc3a50474cb80845d3b3b6e1da49a446e8e"
 
-leaflet@^0.7.7:
-  version "0.7.7"
-  resolved "https://registry.yarnpkg.com/leaflet/-/leaflet-0.7.7.tgz#1e352ba54e63d076451fa363c900890cb2cf75ee"
+leaflet@^1.3.1:
+  version "1.3.1"
+  resolved "https://registry.yarnpkg.com/leaflet/-/leaflet-1.3.1.tgz#86f336d2fb0e2d0ff446677049a5dc34cf0ea60e"
 
 levn@^0.3.0, levn@~0.3.0:
   version "0.3.0"
@@ -2717,10 +2724,6 @@ locate-path@^2.0.0:
   dependencies:
     p-locate "^2.0.0"
     path-exists "^3.0.0"
-
-lodash.assign@^4.0.9:
-  version "4.2.0"
-  resolved "https://registry.yarnpkg.com/lodash.assign/-/lodash.assign-4.2.0.tgz#0d99f3ccd7a6d261d19bdaeb9245005d285808e7"
 
 lodash@^3.10.1, lodash@^3.8.0:
   version "3.10.1"
@@ -3725,6 +3728,10 @@ source-map@^0.5.0, source-map@^0.5.3, source-map@^0.5.6, source-map@^0.5.7, sour
   version "0.5.7"
   resolved "https://registry.yarnpkg.com/source-map/-/source-map-0.5.7.tgz#8a039d2d1021d22d1ea14c80d8ea468ba2ef3fcc"
 
+source-map@~0.6.1:
+  version "0.6.1"
+  resolved "https://registry.yarnpkg.com/source-map/-/source-map-0.6.1.tgz#74722af32e9614e9c287a8d0bbde48b5e2f1a263"
+
 spdx-correct@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/spdx-correct/-/spdx-correct-3.0.0.tgz#05a5b4d7153a195bc92c3c425b69f3b2a9524c82"
@@ -3854,15 +3861,17 @@ supports-color@^5.3.0:
   dependencies:
     has-flag "^3.0.0"
 
-"systemjs-builder@0.14.11 - 0.15.x":
-  version "0.15.36"
-  resolved "https://registry.yarnpkg.com/systemjs-builder/-/systemjs-builder-0.15.36.tgz#30b02372d4227cf37880f580fe67cb4edb7f1420"
+"systemjs-builder@0.14.11 - 0.16.x":
+  version "0.16.12"
+  resolved "https://registry.yarnpkg.com/systemjs-builder/-/systemjs-builder-0.16.12.tgz#0ceee27504d7903b09e047c660563d9ff2c0007b"
   dependencies:
-    babel-core "^6.9.0"
-    babel-plugin-transform-cjs-system-wrapper "^0.3.0"
+    babel-core "^6.24.1"
+    babel-plugin-syntax-dynamic-import "^6.18.0"
+    babel-plugin-transform-amd-system-wrapper "^0.3.7"
+    babel-plugin-transform-cjs-system-wrapper "^0.6.2"
     babel-plugin-transform-es2015-modules-systemjs "^6.6.5"
-    babel-plugin-transform-global-system-wrapper "0.0.1"
-    babel-plugin-transform-system-register "0.0.1"
+    babel-plugin-transform-global-system-wrapper "^0.3.4"
+    babel-plugin-transform-system-register "^0.0.1"
     bluebird "^3.3.4"
     data-uri-to-buffer "0.0.4"
     es6-template-strings "^2.0.0"
@@ -3870,11 +3879,11 @@ supports-color@^5.3.0:
     mkdirp "^0.5.1"
     rollup "^0.36.3"
     source-map "^0.5.3"
-    systemjs "^0.19.43"
+    systemjs "^0.19.46"
     traceur "0.0.105"
-    uglify-js "~2.7.5"
+    uglify-js "^2.6.1"
 
-systemjs@^0.19.43:
+systemjs@^0.19.46:
   version "0.19.47"
   resolved "https://registry.yarnpkg.com/systemjs/-/systemjs-0.19.47.tgz#c8c93937180f3f5481c769cd2720763fb4a31c6f"
   dependencies:
@@ -4014,14 +4023,21 @@ typedarray@^0.0.6:
   version "0.0.6"
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
 
-uglify-js@~2.7.0, uglify-js@~2.7.5:
-  version "2.7.5"
-  resolved "https://registry.yarnpkg.com/uglify-js/-/uglify-js-2.7.5.tgz#4612c0c7baaee2ba7c487de4904ae122079f2ca8"
+uglify-js@^2.6.1:
+  version "2.8.29"
+  resolved "https://registry.yarnpkg.com/uglify-js/-/uglify-js-2.8.29.tgz#29c5733148057bb4e1f75df35b7a9cb72e6a59dd"
   dependencies:
-    async "~0.2.6"
     source-map "~0.5.1"
-    uglify-to-browserify "~1.0.0"
     yargs "~3.10.0"
+  optionalDependencies:
+    uglify-to-browserify "~1.0.0"
+
+uglify-js@~3.3.0:
+  version "3.3.22"
+  resolved "https://registry.yarnpkg.com/uglify-js/-/uglify-js-3.3.22.tgz#e5f0e50ddd386b7e35b728b51600bf7a7ad0b0dc"
+  dependencies:
+    commander "~2.15.0"
+    source-map "~0.6.1"
 
 uglify-to-browserify@~1.0.0:
   version "1.0.2"

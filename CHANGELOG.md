@@ -1,8 +1,11 @@
 # Changelog
 
 ## v1.0.0
-
-- Minor improvements based on grafana development guide best practices
+- Changed the plugin's working process. Any datasource query with a group by clause will result in layers.
+- Improvements based on grafana development guide best practices.
+- New project structure.
+- Updated packages. Leaflet version update from 0.7 to 1.3
+- Fix Leaflet bugs introduced by the update.
 
 ## v0.1.0
 

@@ -25,11 +25,11 @@ export default class DataFormatter {
     series.forEach((serie) => {
       serieType = serie.id.split(':')[0];
       
-      // if (allowedTypes.indexOf(serieType) === -1) {
-      //   throw new Error('Please make sure you group series by type (AirQualityObserved or TrafficFlowObserved)');
-      // }
+      if (allowedTypes.indexOf(serieType) === -1) {
+         console.log('Please make sure you group by your query');
+      }
       const serieName = serie.alias.split(': ')[1];
-      console.log('serieType => '+serieType+', serieName => '+serieName)
+//      console.log('serieType => '+serieType+', serieName => '+serieName)
       // VERIFY HERE ALL TYPES RECEIVED
       if (!(setSeries[serieName])) {
         setSeries[serieName] = [];

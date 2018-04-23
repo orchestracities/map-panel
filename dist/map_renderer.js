@@ -3,7 +3,7 @@
 System.register(['./worldmap', './utils/map_utils'], function (_export, _context) {
   "use strict";
 
-  var WorldMap, hideAllByMapSize;
+  var WorldMap, hideAll;
   function link(scope, elem, attrs, ctrl) {
     var mapContainer = elem.find('.map-container');
 
@@ -15,28 +15,26 @@ System.register(['./worldmap', './utils/map_utils'], function (_export, _context
     function render() {
       if (!ctrl.data) return;
 
-      if (!ctrl.map) {
-        ctrl.map = new WorldMap(ctrl, mapContainer[0]);
+      if (!ctrl.worldMap) {
+        ctrl.worldMap = new WorldMap(ctrl, mapContainer[0]);
       }
 
-      ctrl.map.resize();
+      hideAll();
 
-      if (ctrl.mapCenterMoved) ctrl.map.panToMapCenter();
+      ctrl.worldMap.resize();
 
-      // if (!ctrl.map.legend && ctrl.panel.showLegend) ctrl.map.createLegend();
+      if (ctrl.mapCenterMoved) ctrl.worldMap.panToMapCenter();
 
-      hideAllByMapSize();
-
-      ctrl.map.clearCircles();
+      ctrl.worldMap.clearCircles();
 
       //for each target drawpoints  
       // ctrl.panel.targets.forEach((target)=>{
       //   console.log('processing target '+target.datasource)
-      ctrl.map.setPollutants();
-      //   ctrl.map.drawPoints(target);
+      ctrl.worldMap.setPollutants();
+      //   ctrl.worldMap.drawPoints(target);
       // })
-      console.log('map_render will drawPoints');
-      ctrl.map.drawPoints();
+
+      ctrl.worldMap.drawPoints();
     }
   }
 
@@ -46,7 +44,7 @@ System.register(['./worldmap', './utils/map_utils'], function (_export, _context
     setters: [function (_worldmap) {
       WorldMap = _worldmap.default;
     }, function (_utilsMap_utils) {
-      hideAllByMapSize = _utilsMap_utils.hideAllByMapSize;
+      hideAll = _utilsMap_utils.hideAll;
     }],
     execute: function () {}
   };

@@ -2,7 +2,8 @@
 
 /* Grafana Specific */
 import config from 'app/core/config';
-import { AQI, HIGHCHARTS_THEME_DARK, MIN_WIDTH_TO_SHOW_MAP_POPUPS, MIN_HEIGHT_TO_SHOW_MAP_POPUPS } from '../definitions';
+
+import { AQI, HIGHCHARTS_THEME_DARK, nominatim_address } from '../definitions';
 
 function drawPollutantsPopup(providedPollutants, allPollutants, id, aqi, currentParameterForChart) {
   const measuresTable = document.querySelector('#measures_table > table > tbody');
@@ -54,39 +55,23 @@ function drawPollutantsPopup(providedPollutants, allPollutants, id, aqi, current
     // ----
   }
 
-  const [mapDivWidth, mapDivHeight] = getMapSize();
-
-  // Only show the map secundary data (tables) when the map div is not too small
-  if (mapDivHeight >= MIN_HEIGHT_TO_SHOW_MAP_POPUPS && mapDivWidth >= MIN_WIDTH_TO_SHOW_MAP_POPUPS) {
-    document.getElementById('environment_table').style.display = 'block';
-    document.getElementById('measures_table').style.display = 'block';
-  }
+  document.getElementById('environment_table').style.display = 'block';
+  document.getElementById('measures_table').style.display = 'block';
 }
 
-function drawHealthConcernsPopup(providedPollutants, risk, color, meaning) {
+function drawHealthConcernsPopup(providedPollutants, risk, color, meaning, map_size) {
   const healthConcernsWrapper = document.getElementById('health_concerns_wrapper');
   const healthConcerns = document.querySelector('#health_concerns_wrapper>div');
   const healthConcernsColor = document.querySelector('#health_concerns_wrapper>div>span>span.color');
   const healthRisk = document.getElementById('health_risk');
 
-  const [mapDivWidth, mapDivHeight] = getMapSize();
-  // Only show the map secundary data (tables) when the map div is not too small
-  if (mapDivHeight >= MIN_HEIGHT_TO_SHOW_MAP_POPUPS && mapDivWidth >= MIN_WIDTH_TO_SHOW_MAP_POPUPS) {
-    healthConcernsWrapper.style.display = 'block';
-    healthConcernsColor.style.backgroundColor = color;
-    healthRisk.innerHTML = risk;
-  }
+  healthConcernsWrapper.style.display = 'block';
+  healthConcernsColor.style.backgroundColor = color;
+  healthRisk.innerHTML = risk;
 }
 
 function drawDefaultPopups() {
-  console.log('drawDefaultPopups');
-  hideAll()
-
-  const [mapDivWidth, mapDivHeight] = getMapSize();
-  if (mapDivHeight >= MIN_HEIGHT_TO_SHOW_MAP_POPUPS && mapDivWidth >= MIN_WIDTH_TO_SHOW_MAP_POPUPS) {
-    document.getElementById('traffic_table').style.display = 'block';
-  }
-
+  document.getElementById('traffic_table').style.display = 'block';
 }
 
 function drawPopups(timeSeries, validated_pollutants, currentParameterForChart, currentTargetForChart) {
@@ -96,6 +81,8 @@ function drawPopups(timeSeries, validated_pollutants, currentParameterForChart, 
   const values = timeSeries.values[id];
 
   document.getElementById('data_chart').style.display = 'block';
+
+  hideAll()
 
   //render popups
   try {
@@ -260,52 +247,11 @@ function getUpdatedChartSeries(chartSeries, timeSeries, currentTargetForChart, c
   return chartSeries;
 }
 
-function getMapSize() {
-  //return [ document.getElementsByClassName('map-container')[0].offsetHeight, document.getElementsByClassName('map-container')[0].offsetWidth];
-  let map_svg = document.querySelector('.map-container svg');
-  return [map_svg.width.baseVal.value, map_svg.height.baseVal.value]
-}
-
-function hideAllByMapSize() {
-  const [mapDivWidth, mapDivHeight] = getMapSize();
-  // Remove the map secundary data (tables) when the map div is too small
-  if (mapDivHeight <= MIN_HEIGHT_TO_SHOW_MAP_POPUPS || mapDivHeight <= MIN_WIDTH_TO_SHOW_MAP_POPUPS) {
-    hideAll()
-  }
-}
-
 function hideAll() {
   document.getElementById('measures_table').style.display = 'none';
   document.getElementById('health_concerns_wrapper').style.display = 'none';
   document.getElementById('environment_table').style.display = 'none';
   document.getElementById('traffic_table').style.display = 'none';
-}
-
-function addPollDropdown() {
-  // Add pollutants chart dropdown 
-  document.getElementById('data_details').style.display = 'block';
-  // Remove traffic colors table
-  document.getElementById('traffic_table').style.display = 'none';
-
-  const [mapDivWidth, mapDivHeight] = getMapSize();
-  // Only show the map secundary data (tables) when the map div is not too small
-  if (mapDivHeight >= MIN_HEIGHT_TO_SHOW_MAP_POPUPS && mapDivWidth >= MIN_WIDTH_TO_SHOW_MAP_POPUPS) {
-    // Add environment colors table
-    document.getElementById('environment_table').style.display = 'block';
-  }
-} 
-
-//Not used
-function removePollDropdown() {  
-  document.getElementById('data_details').style.display = 'none'; // Remove pollutants chart dropdown  
-  document.getElementById('environment_table').style.display = 'none'; // Remove environmentcolors table
-
-  const [mapDivWidth, mapDivHeight] = getMapSize();
-  // Only show the map secundary data (tables) when the map div is not too small
-  if (mapDivHeight >= MIN_HEIGHT_TO_SHOW_MAP_POPUPS && mapDivWidth >= MIN_WIDTH_TO_SHOW_MAP_POPUPS) {
-    // Add traffic colors table
-    document.getElementById('traffic_table').style.display = 'block';
-  }
 }
 
 function processData(chartSeries, timeSeries, validated_pollutants, currentParameterForChart, currentTargetForChart) {
@@ -354,7 +300,6 @@ function createLine(value) {
   const milliseconds = time.getMilliseconds();
   return [Date.UTC(year, month, day, hour+1, minutes, seconds, milliseconds), value.value]
 }
-
 
 function renderChart(chartSeries, chartData, parameterUnit, title) {
   //config highchart acording with grafana theme
@@ -414,16 +359,27 @@ function renderChart(chartSeries, chartData, parameterUnit, title) {
   );
 }
 
+// gives the coordinates from a city center based on nominatin url server
+function getCityCoordinates(city_name) {
+  let url = nominatim_address.replace('<city_name>', city_name)
+  console.log(url)
+  
+  return fetch(url)
+    .then(response => response.json())
+    .then(data => { return { latitude: data[0].lat, longitude: data[0].lon } })
+    .catch(error => console.error(error))
+}
+
 export {
-  drawPopups,
   calculateAQI, 
+  processData,
   getTimeSeries, 
   dataTreatment, 
   getUpdatedChartSeries, 
-  hideAllByMapSize, 
+
   hideAll, 
-  addPollDropdown, 
-  removePollDropdown,
-  processData,
-  renderChart
+  drawPopups,
+  renderChart,
+
+  getCityCoordinates
 }
