@@ -11,6 +11,10 @@ System.register(['lodash'], function (_export, _context) {
     }
   }
 
+  /*
+  * Discard elements with value 0 or null
+  * and hidden elements
+  */
   function filterEmptyAndZeroValues(data, hideEmpty, hideZero) {
     return _.filter(data, function (o) {
       return !(hideEmpty && _.isNil(o.value)) && !(hideZero && o.value === 0);
@@ -41,10 +45,8 @@ System.register(['lodash'], function (_export, _context) {
       }();
 
       DataFormatter = function () {
-        function DataFormatter(kbn) {
+        function DataFormatter() {
           _classCallCheck(this, DataFormatter);
-
-          this.kbn = kbn;
         }
 
         _createClass(DataFormatter, [{
@@ -53,7 +55,7 @@ System.register(['lodash'], function (_export, _context) {
             if (!series || series.length == 0) return [];
 
             var s_ = this.getSeries(series, pollutants);
-            console.log(s_);
+            //    console.log(s_)
 
             //processing only latitudes  
             return this.getDataValues();
@@ -73,7 +75,7 @@ System.register(['lodash'], function (_export, _context) {
               //    console.log('Please make sure you group by your query');
               // }
               var serieName = serie.alias.split(': ')[1];
-              //      console.log('serieType => '+serieType+', serieName => '+serieName)
+              //console.log('serieType => '+serieType+', serieName => '+serieName)
               // VERIFY HERE ALL TYPES RECEIVED
               if (!setSeries[serieName]) {
                 setSeries[serieName] = [];
@@ -94,7 +96,7 @@ System.register(['lodash'], function (_export, _context) {
             this.pollutantsAux = {};
 
             if (!(this.latitudes && this.longitudes && this.values && this.ids && this.times)) {
-              throw new Error("Please make sure you selected Raw Data for latitude, longitude, value, id and created_at series");
+              throw new Error("Please make sure you selected Raw Data for latitude, longitude, value, id, created_at series and a group by expression");
             }
 
             setSeries.pollutants = [];

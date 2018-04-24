@@ -9,6 +9,9 @@ import _ from 'lodash';
 /* App specific */
 import { PLUGIN_PATH, panelDefaults, mapCenters } from './definitions'
 import { getDatasources, getValidDatasources } from './utils/datasource';
+
+import { getCityCoordinates, getSelectedCity } from './utils/map_utils';
+
 import mapRenderer from './map_renderer';
 import DataFormatter from './utils/data_formatter';
 
@@ -23,7 +26,6 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
     super($scope, $injector);
     this.setMapProvider(contextSrv);
     _.defaultsDeep(this.panel, panelDefaults);
-
     this.events.on('init-edit-mode', this.onInitEditMode.bind(this));
     this.events.on('data-received', this.onDataReceived.bind(this));  //process resultset as a result of the execution of all queries
 
@@ -83,13 +85,37 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
     this.saturationClass = this.tileServer === 'CartoDB Dark' ? 'map-darken' : '';    
   }
 
-  setNewMapCenter() {
+  setNewMapCenter() {    
+    if (this.panel.mapCenter === 'cityenv') {// && this.isADiferentCity()
+      this.setNewCoords()
+        .then(()=>this.render())
+        .catch(error => console.log(error))
+
+      return ;
+    }
+
     if (this.panel.mapCenter !== 'custom') {
       this.panel.mapCenterLatitude = mapCenters[this.panel.mapCenter].mapCenterLatitude;
       this.panel.mapCenterLongitude = mapCenters[this.panel.mapCenter].mapCenterLongitude;
     }
+
     this.mapCenterMoved = true;
     this.render();
+  }
+
+  isADiferentCity() {
+    return getSelectedCity(this.templateSrv.variables) !==this.panel.city
+  }
+
+  setNewCoords() {
+    let city = getSelectedCity(this.templateSrv.variables)
+    
+    return getCityCoordinates(city)
+      .then(coordinates => {
+        this.panel.city = city;
+        this.panel.mapCenterLatitude = coordinates.latitude;
+        this.panel.mapCenterLongitude = coordinates.longitude;
+      })
   }
 
   setZoom() {

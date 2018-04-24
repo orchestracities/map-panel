@@ -1,9 +1,9 @@
 'use strict';
 
-System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn', 'lodash', './definitions', './utils/datasource', './map_renderer', './utils/data_formatter', './css/worldmap-panel.css!', './vendor/leaflet/leaflet.css!'], function (_export, _context) {
+System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn', 'lodash', './definitions', './utils/datasource', './utils/map_utils', './map_renderer', './utils/data_formatter', './css/worldmap-panel.css!', './vendor/leaflet/leaflet.css!'], function (_export, _context) {
   "use strict";
 
-  var MetricsPanelCtrl, TimeSeries, kbn, _, PLUGIN_PATH, panelDefaults, mapCenters, getDatasources, getValidDatasources, mapRenderer, DataFormatter, _createClass, dataFormatter, WorldmapCtrl;
+  var MetricsPanelCtrl, TimeSeries, kbn, _, PLUGIN_PATH, panelDefaults, mapCenters, getDatasources, getValidDatasources, getCityCoordinates, getSelectedCity, mapRenderer, DataFormatter, _createClass, dataFormatter, WorldmapCtrl;
 
   function _toConsumableArray(arr) {
     if (Array.isArray(arr)) {
@@ -63,6 +63,9 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
     }, function (_utilsDatasource) {
       getDatasources = _utilsDatasource.getDatasources;
       getValidDatasources = _utilsDatasource.getValidDatasources;
+    }, function (_utilsMap_utils) {
+      getCityCoordinates = _utilsMap_utils.getCityCoordinates;
+      getSelectedCity = _utilsMap_utils.getSelectedCity;
     }, function (_map_renderer) {
       mapRenderer = _map_renderer.default;
     }, function (_utilsData_formatter) {
@@ -99,7 +102,6 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
 
           _this.setMapProvider(contextSrv);
           _.defaultsDeep(_this.panel, panelDefaults);
-
           _this.events.on('init-edit-mode', _this.onInitEditMode.bind(_this));
           _this.events.on('data-received', _this.onDataReceived.bind(_this)); //process resultset as a result of the execution of all queries
 
@@ -169,12 +171,44 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
         }, {
           key: 'setNewMapCenter',
           value: function setNewMapCenter() {
+            var _this2 = this;
+
+            if (this.panel.mapCenter === 'cityenv') {
+              // && this.isADiferentCity()
+              this.setNewCoords().then(function () {
+                return _this2.render();
+              }).catch(function (error) {
+                return console.log(error);
+              });
+
+              return;
+            }
+
             if (this.panel.mapCenter !== 'custom') {
               this.panel.mapCenterLatitude = mapCenters[this.panel.mapCenter].mapCenterLatitude;
               this.panel.mapCenterLongitude = mapCenters[this.panel.mapCenter].mapCenterLongitude;
             }
+
             this.mapCenterMoved = true;
             this.render();
+          }
+        }, {
+          key: 'isADiferentCity',
+          value: function isADiferentCity() {
+            return getSelectedCity(this.templateSrv.variables) !== this.panel.city;
+          }
+        }, {
+          key: 'setNewCoords',
+          value: function setNewCoords() {
+            var _this3 = this;
+
+            var city = getSelectedCity(this.templateSrv.variables);
+
+            return getCityCoordinates(city).then(function (coordinates) {
+              _this3.panel.city = city;
+              _this3.panel.mapCenterLatitude = coordinates.latitude;
+              _this3.panel.mapCenterLongitude = coordinates.longitude;
+            });
           }
         }, {
           key: 'setZoom',

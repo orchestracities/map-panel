@@ -20,10 +20,10 @@ System.register(['./worldmap', './utils/map_utils'], function (_export, _context
       }
 
       hideAll();
-
       ctrl.worldMap.resize();
 
-      if (ctrl.mapCenterMoved) ctrl.worldMap.panToMapCenter();
+      //if (ctrl.mapCenterMoved) 
+      ctrl.worldMap.panToMapCenter();
 
       ctrl.worldMap.clearCircles();
 

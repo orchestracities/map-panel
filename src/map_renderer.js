@@ -17,12 +17,11 @@ export default function link(scope, elem, attrs, ctrl) {
     }
 
     hideAll();
-
-
     ctrl.worldMap.resize();
 
-    if (ctrl.mapCenterMoved) ctrl.worldMap.panToMapCenter();
-   
+    //if (ctrl.mapCenterMoved) 
+    ctrl.worldMap.panToMapCenter();
+
     ctrl.worldMap.clearCircles();
 
     //for each target drawpoints  

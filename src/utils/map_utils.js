@@ -1,4 +1,6 @@
 // draw components in the map
+/* Vendor specific */
+import _ from 'lodash';
 
 /* Grafana Specific */
 import config from 'app/core/config';
@@ -70,7 +72,9 @@ function drawHealthConcernsPopup(providedPollutants, risk, color, meaning, map_s
   healthRisk.innerHTML = risk;
 }
 
-function drawDefaultPopups() {
+function drawDefaultPopups() {  
+}
+function drawTrafficFlowPopup() {
   document.getElementById('traffic_table').style.display = 'block';
 }
 
@@ -90,25 +94,27 @@ function drawPopups(timeSeries, validated_pollutants, currentParameterForChart, 
     const aqiIndex = calculateAQI(lastValueMeasure);
 
     // Show Pollutants Legend (MAP)
-    if (type === 'AirQualityObserved') {
-      const allPollutants = timeSeries.pollutants;
 
-      if(validated_pollutants) {
-        drawPollutantsPopup(validated_pollutants, allPollutants, id, lastValueMeasure, currentParameterForChart);
-        drawHealthConcernsPopup(validated_pollutants, AQI.risks[aqiIndex], AQI.color[aqiIndex], AQI.meaning[aqiIndex]);
-      }
-    } else { // Hide legend
-      drawDefaultPopups();
+    switch(type) {
+      case 'AirQualityObserved':
+        const allPollutants = timeSeries.pollutants;
+
+        if(validated_pollutants) {
+          drawPollutantsPopup(validated_pollutants, allPollutants, id, lastValueMeasure, currentParameterForChart);
+          drawHealthConcernsPopup(validated_pollutants, AQI.risks[aqiIndex], AQI.color[aqiIndex], AQI.meaning[aqiIndex]);
+        }
+        break;
+      case 'TrafficFlowObserved':
+        drawTrafficFlowPopup();
+        break;
+      default:
+        drawDefaultPopups();
     }
+    
   } catch(error) {
     console.log("Exception:");
     console.log(error);
-    console.log("id:")
-    console.log(id);
-    console.log("type:")
-    console.log(type);
-    console.log("values are:")
-    console.log(values)
+    console.log("id: " + id + ", type: " + type + ", values: " + values)
   }
 }
 
@@ -160,36 +166,26 @@ function getTimeSeries(data) {
 */
 function dataTreatment(data) {
   const finalData = {};
-  let auxData = {};
+  let auxData;
 
   data.forEach((value) => {
     if (!(finalData[value.id])) {
       finalData[value.id] = [];
     }
 
-    //if (value.type === 'AirQualityObserved'){
-        finalData[value.id].push(
-          {
-            'id': value.id, 
-            'locationLatitude': value.locationLatitude, 
-            'locationLongitude': value.locationLongitude, 
-            'time': value.time, 
-            'type': value.type, 
-            'value': value.value,
-            'pollutants': value.pollutants
-          });
-    // }
-    // else {
-    //     finalData[value.id].push(
-    //       {
-    //         'id': value.id, 
-    //         'locationLatitude': value.locationLatitude, 
-    //         'locationLongitude': value.locationLongitude, 
-    //         'time': value.time, 
-    //         'type': value.type, 
-    //         'value': value.value
-    //       });
-    // }
+    auxData = {
+        'id': value.id, 
+        'locationLatitude': value.locationLatitude, 
+        'locationLongitude': value.locationLongitude, 
+        'time': value.time, 
+        'type': value.type, 
+        'value': value.value
+      }
+
+    if (value.type === 'AirQualityObserved')
+      auxData.pollutants = value.pollutants;
+
+    finalData[value.id].push( auxData );
   });
 
   return finalData;
@@ -261,10 +257,13 @@ function processData(chartSeries, timeSeries, validated_pollutants, currentParam
   const type = currentTargetForChart.target.options.type;
   const values = timeSeries.values[id];
 
-  let parameterUnit = validated_pollutants[currentParameter].unit;
-  let title = validated_pollutants[currentParameter].name + ' - Device ' + id;
+  let parameterUnit = '';
+  let title = '';
 
   if (type === 'AirQualityObserved' && currentParameter !== 'aqi') {
+    parameterUnit = validated_pollutants[currentParameter].unit;
+    title = validated_pollutants[currentParameter].name + ' - Device ' + id;
+
     const parameterChoice = timeSeries.pollutants[currentParameter];      
     parameterChoice.forEach((sensor) => {
       if (sensor.id === id) {
@@ -284,7 +283,6 @@ function processData(chartSeries, timeSeries, validated_pollutants, currentParam
       chartData.push(createLine(value));
     });
   }
-
 
   return [chartData, parameterUnit, title]
 }
@@ -370,6 +368,63 @@ function getCityCoordinates(city_name) {
     .catch(error => console.error(error))
 }
 
+function getStickyInfo(dataPoint) {
+  let stickyPopupInfo = '';
+  const values = {
+    id: dataPoint.id,
+    type: dataPoint.type,
+    latitude: dataPoint.locationLatitude,
+    longitude: dataPoint.locationLongitude
+  }
+
+  if(dataPoint.type==='AirQualityObserved') {
+    const aqi = calculateAQI(dataPoint.value);
+    const aqiColor = AQI.color[aqi];
+    const aqiMeaning = AQI.meaning[aqi];
+    const aqiRisk = AQI.risks[aqi];
+
+    const pollutants = dataPoint.pollutants;
+    if(pollutants)
+      pollutants.push({'name': 'aqi', 'value': dataPoint.value});
+
+    _.defaults(values, {
+      color: aqiColor,
+      fillColor: aqiColor,
+      fillOpacity: 0.5,
+      aqiColor: aqiColor,
+      aqiMeaning: aqiMeaning,
+      aqiRisk: aqiRisk,
+      pollutants: pollutants,
+      aqi: dataPoint.value
+    })
+    stickyPopupInfo = ('AQI: ' + dataPoint.value + ' (' + aqiMeaning + ')').trim();
+  } else {
+    _.defaults(values, {fillOpacity: 0.5})
+
+    if(dataPoint.type==='TrafficFlowObserved') {
+      stickyPopupInfo = 'Cars Intensity - Device: ' + dataPoint.id;
+    } else
+      stickyPopupInfo = dataPoint.type + ' - Device: ' + dataPoint.id +', Value: '+dataPoint.value;
+  }
+
+  return [values, stickyPopupInfo];
+}
+
+
+function getSelectedCity(vars) {
+  console.log('cityenv')
+  console.log('vars')
+  console.log(vars)
+
+  let cityenv_ = vars.filter(elem => elem.name==="cityenv")
+  let city = null;
+  if(cityenv_ && cityenv_.length === 1)
+    city = cityenv_[0].current.value
+
+  return city;
+}
+
+
 export {
   calculateAQI, 
   processData,
@@ -381,5 +436,9 @@ export {
   drawPopups,
   renderChart,
 
-  getCityCoordinates
+  getCityCoordinates,
+
+  getStickyInfo,
+
+  getSelectedCity
 }

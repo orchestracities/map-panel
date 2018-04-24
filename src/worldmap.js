@@ -8,9 +8,9 @@ import L from './vendor/leaflet/leaflet';
 /* App Specific */
 import { AQI, carsCount, tileServers, carMarker } from './definitions';
 import { 
-  drawPopups,
-  calculateAQI, getTimeSeries, dataTreatment, getUpdatedChartSeries, 
-  hideAll, processData, renderChart, getCityCoordinates
+  drawPopups, renderChart, hideAll, getStickyInfo, 
+  calculateAQI, dataTreatment, processData, 
+  getTimeSeries, getUpdatedChartSeries
 } from './utils/map_utils';
 import { filterEmptyAndZeroValues } from './utils/data_formatter';
 
@@ -32,9 +32,6 @@ export default class WorldMap {
     this.chartData = []
 
     this.createMap();   //only called once
-
-    //getCityCoordinates('Lisbon')
-    //  .then(coordinates => console.log(coordinates))
   }
 
   getLayers() {
@@ -133,41 +130,7 @@ export default class WorldMap {
   }
 
   createCircle(dataPoint) {
-    const id = dataPoint.id;
-    const type = dataPoint.type;
-    let stickyPopupInfo=''
-
-    const values = {
-      id: id,
-      type: type,
-      latitude: dataPoint.locationLatitude,
-      longitude: dataPoint.locationLongitude
-    }
-
-    if(type==='AirQualityObserved') {
-      //console.log('create aqi circle');
-      const aqi = calculateAQI(dataPoint.value);
-      const aqiColor = AQI.color[aqi];
-      const aqiMeaning = AQI.meaning[aqi];
-      const aqiRisk = AQI.risks[aqi];
-
-      const pollutants = dataPoint.pollutants;
-      if(pollutants)
-        pollutants.push({'name': 'aqi', 'value': dataPoint.value});
-
-      _.defaults(values, {
-        color: aqiColor,
-        fillColor: aqiColor,
-        fillOpacity: 0.5,
-        aqiColor: aqiColor,
-        aqiMeaning: aqiMeaning,
-        aqiRisk: aqiRisk,
-        pollutants: pollutants,
-        aqi: dataPoint.value
-      })
-      stickyPopupInfo = ('AQI: ' + dataPoint.value + ' (' + aqiMeaning + ')').trim();
-    } else 
-      stickyPopupInfo = 'Value: '+dataPoint.value;    
+    let [values, stickyPopupInfo] = getStickyInfo(dataPoint);
 
     const circle = L.circle([dataPoint.locationLatitude, dataPoint.locationLongitude], 200, values)
       .on('click', this.setTarget)
@@ -197,6 +160,13 @@ export default class WorldMap {
   }
 
   panToMapCenter() {
+    if (this.ctrl.panel.mapCenter === 'cityenv' && this.ctrl.isADiferentCity()) {
+      this.ctrl.setNewCoords()
+        .then(() => this.map.flyTo([parseFloat(this.ctrl.panel.mapCenterLatitude), parseFloat(this.ctrl.panel.mapCenterLongitude)]))
+        .catch(error => console.log(error))
+      return ;
+    }
+    
     this.map.panTo([parseFloat(this.ctrl.panel.mapCenterLatitude), parseFloat(this.ctrl.panel.mapCenterLongitude)]);
     this.ctrl.mapCenterMoved = false;
   }
@@ -211,7 +181,6 @@ export default class WorldMap {
   }
 
   drawChart(redrawChart) {
-    //console.log('drawChart')
     if(currentTargetForChart==null || this.timeSeries==null ) {
       console.log("unnable to show")
       console.log(currentTargetForChart)

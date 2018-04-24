@@ -3,16 +3,13 @@ import _ from 'lodash';
 //const allowedTypes = ['TrafficFlowObserved', 'AirQualityObserved'];
 
 export default class DataFormatter {
-  constructor(kbn) {
-    this.kbn = kbn;
-  }
 
   getValues(series, pollutants) {
     if (!series || series.length ==0)
       return []
 
     let s_ = this.getSeries(series, pollutants)
-    console.log(s_)
+//    console.log(s_)
 
     //processing only latitudes  
     return this.getDataValues();
@@ -29,7 +26,7 @@ export default class DataFormatter {
       //    console.log('Please make sure you group by your query');
       // }
       const serieName = serie.alias.split(': ')[1];
-//      console.log('serieType => '+serieType+', serieName => '+serieName)
+      //console.log('serieType => '+serieType+', serieName => '+serieName)
       // VERIFY HERE ALL TYPES RECEIVED
       if (!(setSeries[serieName])) {
         setSeries[serieName] = [];
@@ -50,7 +47,7 @@ export default class DataFormatter {
     this.pollutantsAux = {};
 
     if ( !(this.latitudes && this.longitudes && this.values && this.ids && this.times) ) {
-      throw new Error("Please make sure you selected Raw Data for latitude, longitude, value, id and created_at series");
+      throw new Error("Please make sure you selected Raw Data for latitude, longitude, value, id, created_at series and a group by expression");
     }
 
     setSeries.pollutants = [];
@@ -121,13 +118,12 @@ export default class DataFormatter {
     return response;
   }
 
-  /*
-  * Discard elements with value 0 or null
-  * and hidden elements
-  */
-
 }
 
+/*
+* Discard elements with value 0 or null
+* and hidden elements
+*/
 function filterEmptyAndZeroValues(data, hideEmpty, hideZero) {
   return _.filter(data, (o) => { return !(hideEmpty && _.isNil(o.value)) && !(hideZero && o.value === 0) });
 }
