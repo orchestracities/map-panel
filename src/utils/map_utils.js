@@ -300,6 +300,8 @@ function createLine(value) {
 }
 
 function renderChart(chartSeries, chartData, parameterUnit, title) {
+  showDataDetailsSelect();
+
   //config highchart acording with grafana theme
   if(!config.bootData.user.lightTheme)
     window.Highcharts.setOptions(HIGHCHARTS_THEME_DARK);
@@ -357,10 +359,14 @@ function renderChart(chartSeries, chartData, parameterUnit, title) {
   );
 }
 
+function showDataDetailsSelect() {
+  document.querySelector('#data_details').style.display = 'block';
+}
+
 // gives the coordinates from a city center based on nominatin url server
 function getCityCoordinates(city_name) {
   let url = nominatim_address.replace('<city_name>', city_name)
-  console.log(url)
+//  console.log(url)
   
   return fetch(url)
     .then(response => response.json())
@@ -412,10 +418,6 @@ function getStickyInfo(dataPoint) {
 
 
 function getSelectedCity(vars) {
-  console.log('cityenv')
-  console.log('vars')
-  console.log(vars)
-
   let cityenv_ = vars.filter(elem => elem.name==="cityenv")
   let city = null;
   if(cityenv_ && cityenv_.length === 1)

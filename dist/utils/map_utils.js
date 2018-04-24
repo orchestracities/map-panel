@@ -280,6 +280,8 @@ System.register(['lodash', 'app/core/config', '../definitions'], function (_expo
     var milliseconds = time.getMilliseconds();
     return [Date.UTC(year, month, day, hour + 1, minutes, seconds, milliseconds), value.value];
   }function renderChart(chartSeries, chartData, parameterUnit, title) {
+    showDataDetailsSelect();
+
     //config highchart acording with grafana theme
     if (!config.bootData.user.lightTheme) window.Highcharts.setOptions(HIGHCHARTS_THEME_DARK);
 
@@ -332,12 +334,14 @@ System.register(['lodash', 'app/core/config', '../definitions'], function (_expo
         data: chartData
       }]
     });
+  }function showDataDetailsSelect() {
+    document.querySelector('#data_details').style.display = 'block';
   }
 
   // gives the coordinates from a city center based on nominatin url server
   function getCityCoordinates(city_name) {
     var url = nominatim_address.replace('<city_name>', city_name);
-    console.log(url);
+    //  console.log(url)
 
     return fetch(url).then(function (response) {
       return response.json();
@@ -385,10 +389,6 @@ System.register(['lodash', 'app/core/config', '../definitions'], function (_expo
 
     return [values, stickyPopupInfo];
   }function getSelectedCity(vars) {
-    console.log('cityenv');
-    console.log('vars');
-    console.log(vars);
-
     var cityenv_ = vars.filter(function (elem) {
       return elem.name === "cityenv";
     });

@@ -184,7 +184,7 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
               this.validated_pollutants = JSON.parse(this.ctrl.panel.pollutants);
             } catch (error) {
               console.log(error);
-              throw new Error('Please insert a valid JSON in the Available Pollutants ');
+              throw new Error('Please insert a valid JSON in the Available Pollutants');
             }
           }
         }, {

@@ -101,7 +101,7 @@ export default class WorldMap {
       this.validated_pollutants = JSON.parse(this.ctrl.panel.pollutants);
     } catch(error) {
       console.log(error)
-      throw new Error('Please insert a valid JSON in the Available Pollutants ');
+      throw new Error('Please insert a valid JSON in the Available Pollutants');
     }
   }
 
@@ -196,7 +196,7 @@ export default class WorldMap {
     if (redrawChart) {
       [this.chartData, parameterUnit, title] = processData(this.chartSeries, this.timeSeries, this.validated_pollutants, currentParameterForChart, currentTargetForChart )
     }
-
+    
     renderChart(this.chartSeries, this.chartData, parameterUnit, title)
   }
 }
