@@ -380,8 +380,11 @@ function getStickyInfo(dataPoint) {
     id: dataPoint.id,
     type: dataPoint.type,
     latitude: dataPoint.locationLatitude,
-    longitude: dataPoint.locationLongitude
+    longitude: dataPoint.locationLongitude,
+    fillOpacity: 0.5
   }
+
+  stickyPopupInfo = '<div class="stycky-popup-info">'
 
   if(dataPoint.type==='AirQualityObserved') {
     const aqi = calculateAQI(dataPoint.value);
@@ -395,23 +398,29 @@ function getStickyInfo(dataPoint) {
 
     _.defaults(values, {
       color: aqiColor,
-      fillColor: aqiColor,
-      fillOpacity: 0.5,
+      fillColor: aqiColor,      
       aqiColor: aqiColor,
       aqiMeaning: aqiMeaning,
       aqiRisk: aqiRisk,
       pollutants: pollutants,
       aqi: dataPoint.value
     })
-    stickyPopupInfo = ('AQI: ' + dataPoint.value + ' (' + aqiMeaning + ')').trim();
-  } else {
-    _.defaults(values, {fillOpacity: 0.5})
 
+    stickyPopupInfo += '<div>Air Quality</div>' +
+      '<div>Device: ' + dataPoint.id + '</div>' +
+      '<div>AQI: ' + dataPoint.value + ' (' + aqiMeaning + ')</div>';
+  } else {
     if(dataPoint.type==='TrafficFlowObserved') {
-      stickyPopupInfo = 'Cars Intensity - Device: ' + dataPoint.id;
+      stickyPopupInfo += '<div>Cars Intensity</div>'
     } else
-      stickyPopupInfo = dataPoint.type + ' - Device: ' + dataPoint.id +', Value: '+dataPoint.value;
+      stickyPopupInfo += '<div>'+dataPoint.type + '</div>'
+
+    stickyPopupInfo += '<div>Device: ' + dataPoint.id + '</div>' +
+        '<div>Value: '+dataPoint.value + '</div>'
   }
+
+
+  stickyPopupInfo += '</div>'
 
   return [values, stickyPopupInfo];
 }
@@ -425,7 +434,6 @@ function getSelectedCity(vars) {
 
   return city;
 }
-
 
 export {
   calculateAQI, 
