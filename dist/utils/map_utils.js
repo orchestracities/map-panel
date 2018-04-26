@@ -3,7 +3,7 @@
 System.register(['lodash', 'app/core/config', '../definitions'], function (_export, _context) {
   "use strict";
 
-  var _, config, AQI, HIGHCHARTS_THEME_DARK, nominatim_address;
+  var _, config, AQI, CARS_COUNT, HIGHCHARTS_THEME_DARK, nominatim_address;
 
   /**
   * Primary functions
@@ -25,6 +25,16 @@ System.register(['lodash', 'app/core/config', '../definitions'], function (_expo
   /* App specific */
   // draw components in the map
   /* Vendor specific */
+  function calculateCarsIntensityIndex(value) {
+    CARS_COUNT.range.forEach(function (elem, index) {
+      if (value >= elem) {
+        return index;
+      }
+    });
+    return 0;
+  }
+
+  //helper to create series for chart display
   function getTimeSeries(data) {
     var valueValues = {};
     var values = [];
@@ -288,6 +298,13 @@ System.register(['lodash', 'app/core/config', '../definitions'], function (_expo
       stickyPopupInfo += '<div>Air Quality</div>' + '<div>Device: ' + dataPoint.id + '</div>' + '<div>AQI: ' + dataPoint.value + ' (' + aqiMeaning + ')</div>';
     } else {
       if (dataPoint.type === 'TrafficFlowObserved') {
+        console.log('aqui');
+        var color_index = calculateCarsIntensityIndex(dataPoint.value);
+        _.defaults(values, {
+          color: CARS_COUNT.color[color_index],
+          fillColor: CARS_COUNT[color_index]
+        });
+
         stickyPopupInfo += '<div>Cars Intensity</div>';
       } else stickyPopupInfo += '<div>' + dataPoint.type + '</div>';
 
@@ -435,6 +452,7 @@ System.register(['lodash', 'app/core/config', '../definitions'], function (_expo
       config = _appCoreConfig.default;
     }, function (_definitions) {
       AQI = _definitions.AQI;
+      CARS_COUNT = _definitions.CARS_COUNT;
       HIGHCHARTS_THEME_DARK = _definitions.HIGHCHARTS_THEME_DARK;
       nominatim_address = _definitions.nominatim_address;
     }],

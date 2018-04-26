@@ -6,7 +6,7 @@ import _ from 'lodash';
 import config from 'app/core/config';
 
 /* App specific */
-import { AQI, HIGHCHARTS_THEME_DARK, nominatim_address } from '../definitions';
+import { AQI, CARS_COUNT, HIGHCHARTS_THEME_DARK, nominatim_address } from '../definitions';
 
 /**
 * Primary functions
@@ -21,39 +21,48 @@ function calculateAQI(aqi) {
   });
   return aqiIndex;
 }
+function calculateCarsIntensityIndex(value) {
+  CARS_COUNT.range.forEach((elem, index) => {
+    if (value >= elem) {
+      return index;
+    }
+  });
+  return 0;
+}
 
+//helper to create series for chart display
 function getTimeSeries(data) {
-    const valueValues = {};
-    const values = [];
-    const pollutantsValues = [];
+  const valueValues = {};
+  const values = [];
+  const pollutantsValues = [];
 
-    Object.keys(data).forEach((key) => {
-      data[key].forEach((point) => {
-        const id = point.id;
-        const time = point.time;
-        let pollutants = '';
+  Object.keys(data).forEach((key) => {
+    data[key].forEach((point) => {
+      const id = point.id;
+      const time = point.time;
+      let pollutants = '';
 
-        const value = point.value;
-        if (point.type === 'AirQualityObserved') {
-          pollutants = point.pollutants;
-          const pollutantsTemp = {};
+      const value = point.value;
+      if (point.type === 'AirQualityObserved') {
+        pollutants = point.pollutants;
+        const pollutantsTemp = {};
 
-          pollutants.forEach((pollutant) => {
-            if (!(pollutantsValues[pollutant.name])) {
-              pollutantsValues[pollutant.name] = [];
-            }
-            pollutantsValues[pollutant.name].push({'time': time, 'value': pollutant.value, 'id': id});
-          });
-        }
+        pollutants.forEach((pollutant) => {
+          if (!(pollutantsValues[pollutant.name])) {
+            pollutantsValues[pollutant.name] = [];
+          }
+          pollutantsValues[pollutant.name].push({'time': time, 'value': pollutant.value, 'id': id});
+        });
+      }
 
-        if (!(valueValues[point.id])) {
-          valueValues[point.id] = [];
-        }
-        valueValues[point.id].push({'time': time, 'value': value, 'id': id});
-      });
+      if (!(valueValues[point.id])) {
+        valueValues[point.id] = [];
+      }
+      valueValues[point.id].push({'time': time, 'value': value, 'id': id});
     });
+  });
 
-    return {'values': valueValues, 'pollutants': pollutantsValues};
+  return {'values': valueValues, 'pollutants': pollutantsValues};
 }
 
 // Agregate data by id
@@ -286,7 +295,7 @@ function getStickyInfo(dataPoint) {
 
     _.defaults(values, {
       color: aqiColor,
-      fillColor: aqiColor,      
+      fillColor: aqiColor,
       aqiColor: aqiColor,
       aqiMeaning: aqiMeaning,
       aqiRisk: aqiRisk,
@@ -299,6 +308,13 @@ function getStickyInfo(dataPoint) {
       '<div>AQI: ' + dataPoint.value + ' (' + aqiMeaning + ')</div>';
   } else {
     if(dataPoint.type==='TrafficFlowObserved') {
+      console.log('aqui')
+      let color_index = calculateCarsIntensityIndex(dataPoint.value)
+      _.defaults(values, {
+        color: CARS_COUNT.color[color_index],
+        fillColor: CARS_COUNT[color_index]
+      })
+
       stickyPopupInfo += '<div>Cars Intensity</div>'
     } else
       stickyPopupInfo += '<div>'+dataPoint.type + '</div>'

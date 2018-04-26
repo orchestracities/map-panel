@@ -6,10 +6,10 @@ import Highcharts from './vendor/highcharts/highstock';
 import L from './vendor/leaflet/leaflet';
 
 /* App Specific */
-import { AQI, carsCount, tileServers, carMarker } from './definitions';
+import { tileServers } from './definitions';
 import { 
   drawPopups, renderChart, hideAllGraphPopups, getStickyInfo, 
-  calculateAQI, dataTreatment, processData, 
+  dataTreatment, processData, 
   getTimeSeries, getUpdatedChartSeries
 } from './utils/map_utils';
 import { filterEmptyAndZeroValues } from './utils/data_formatter';
@@ -112,12 +112,14 @@ export default class WorldMap {
                 )
 
     this.addPointsToMap();
-    this.timeSeries = getTimeSeries(this.data);
+  }
 
-    if (currentTargetForChart === null) 
-      return ;
+  // Prepare series to show in chart
+  prepareSeries() {    
+    this.timeSeries = getTimeSeries(this.data);
+      if (currentTargetForChart === null) 
+    return ;
     this.chartSeries = getUpdatedChartSeries(this.chartSeries, this.timeSeries, currentTargetForChart, currentParameterForChart);
-    this.drawChart(DRAW_CHART); // call drawChart but redraw the chart just update information related
   }
 
   addPointsToMap() {
@@ -182,13 +184,10 @@ export default class WorldMap {
 
   drawChart(redrawChart) {
     if(currentTargetForChart==null || this.timeSeries==null ) {
-      console.log("unnable to show")
+      console.log("unnable to drawChart")
       console.log(currentTargetForChart)
       return;
     }
-
-
-
     
     drawPopups(this.timeSeries, this.validated_pollutants, currentParameterForChart, currentTargetForChart)
 

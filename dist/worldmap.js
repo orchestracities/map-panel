@@ -3,7 +3,7 @@
 System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/leaflet', './definitions', './utils/map_utils', './utils/data_formatter'], function (_export, _context) {
   "use strict";
 
-  var _, Highcharts, L, AQI, carsCount, tileServers, carMarker, drawPopups, renderChart, hideAllGraphPopups, getStickyInfo, calculateAQI, dataTreatment, processData, getTimeSeries, getUpdatedChartSeries, filterEmptyAndZeroValues, _slicedToArray, _createClass, currentTargetForChart, currentParameterForChart, DRAW_CHART, REDRAW_CHART, WorldMap;
+  var _, Highcharts, L, tileServers, drawPopups, renderChart, hideAllGraphPopups, getStickyInfo, dataTreatment, processData, getTimeSeries, getUpdatedChartSeries, filterEmptyAndZeroValues, _slicedToArray, _createClass, currentTargetForChart, currentParameterForChart, DRAW_CHART, REDRAW_CHART, WorldMap;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -19,16 +19,12 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
     }, function (_vendorLeafletLeaflet) {
       L = _vendorLeafletLeaflet.default;
     }, function (_definitions) {
-      AQI = _definitions.AQI;
-      carsCount = _definitions.carsCount;
       tileServers = _definitions.tileServers;
-      carMarker = _definitions.carMarker;
     }, function (_utilsMap_utils) {
       drawPopups = _utilsMap_utils.drawPopups;
       renderChart = _utilsMap_utils.renderChart;
       hideAllGraphPopups = _utilsMap_utils.hideAllGraphPopups;
       getStickyInfo = _utilsMap_utils.getStickyInfo;
-      calculateAQI = _utilsMap_utils.calculateAQI;
       dataTreatment = _utilsMap_utils.dataTreatment;
       processData = _utilsMap_utils.processData;
       getTimeSeries = _utilsMap_utils.getTimeSeries;
@@ -194,11 +190,13 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
             this.data = dataTreatment(filterEmptyAndZeroValues(this.ctrl.data, this.ctrl.panel.hideEmpty, this.ctrl.panel.hideZero));
 
             this.addPointsToMap();
+          }
+        }, {
+          key: 'prepareSeries',
+          value: function prepareSeries() {
             this.timeSeries = getTimeSeries(this.data);
-
             if (currentTargetForChart === null) return;
             this.chartSeries = getUpdatedChartSeries(this.chartSeries, this.timeSeries, currentTargetForChart, currentParameterForChart);
-            this.drawChart(DRAW_CHART); // call drawChart but redraw the chart just update information related
           }
         }, {
           key: 'addPointsToMap',
@@ -291,7 +289,7 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
           key: 'drawChart',
           value: function drawChart(redrawChart) {
             if (currentTargetForChart == null || this.timeSeries == null) {
-              console.log("unnable to show");
+              console.log("unnable to drawChart");
               console.log(currentTargetForChart);
               return;
             }
