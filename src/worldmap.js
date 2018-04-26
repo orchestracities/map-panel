@@ -8,7 +8,7 @@ import L from './vendor/leaflet/leaflet';
 /* App Specific */
 import { AQI, carsCount, tileServers, carMarker } from './definitions';
 import { 
-  drawPopups, renderChart, hideAll, getStickyInfo, 
+  drawPopups, renderChart, hideAllGraphPopups, getStickyInfo, 
   calculateAQI, dataTreatment, processData, 
   getTimeSeries, getUpdatedChartSeries
 } from './utils/map_utils';
@@ -63,7 +63,7 @@ export default class WorldMap {
 
     // this.map.on('zoomstart', (e) => { mapZoom = this.map.getZoom() });
     this.map.on('click', (e) => {
-      hideAll();
+      hideAllGraphPopups();
       currentTargetForChart = null;
     });
 
@@ -186,6 +186,9 @@ export default class WorldMap {
       console.log(currentTargetForChart)
       return;
     }
+
+
+
     
     drawPopups(this.timeSeries, this.validated_pollutants, currentParameterForChart, currentTargetForChart)
 

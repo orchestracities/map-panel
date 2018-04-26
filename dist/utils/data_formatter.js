@@ -55,7 +55,6 @@ System.register(['lodash'], function (_export, _context) {
             if (!series || series.length == 0) return [];
 
             var s_ = this.getSeries(series, pollutants);
-            //    console.log(s_)
 
             //processing only latitudes  
             return this.getDataValues();
@@ -93,16 +92,18 @@ System.register(['lodash'], function (_export, _context) {
             this.values = setSeries.value;
             this.ids = setSeries.id;
             this.times = setSeries.created_at;
-            this.pollutantsAux = {};
 
             if (!(this.latitudes && this.longitudes && this.values && this.ids && this.times)) {
-              throw new Error("Please make sure you selected Raw Data for latitude, longitude, value, id, created_at series and a group by expression");
+              throw new Error("Please make sure you selected 'Raw' in the aggregation type for the mandatory fields 'latitude', 'longitude', 'value', 'id', 'created_at'. You must also group by expression in order to create map layers.");
             }
 
-            setSeries.pollutants = [];
+            //Try to process pollutants
+            if (pollutants) {
+              this.pollutantsAux = {};
+              setSeries.pollutants = [];
+              this.pollutants = JSON.parse(pollutants);
 
-            this.pollutants = JSON.parse(pollutants);
-            if (this.pollutants) {
+              // if (this.pollutants) {
               Object.keys(this.pollutants).forEach(function (key) {
                 var currentPoll = _this.pollutants[key];
 
@@ -119,8 +120,10 @@ System.register(['lodash'], function (_export, _context) {
                   delete setSeries[currentPoll.name];
                 }
               });
-            } else {
-              throw new Error("For each datasource target, please insert a valid JSON in the Available Pollutants field");
+
+              //} else {
+              //  throw new Error("For each datasource target, please insert a valid JSON in the Available Pollutants field");
+              //}
             }
 
             return setSeries;
@@ -143,7 +146,7 @@ System.register(['lodash'], function (_export, _context) {
                   time: _this2.times[index].value
                 };
 
-                // if AQI process add also info about pollutants
+                // if AQI, add also info about pollutants
                 if (value.type === 'AirQualityObserved') {
                   var thisPollutants = [];
 
@@ -160,9 +163,11 @@ System.register(['lodash'], function (_export, _context) {
 
                 response.push(_dataValue);
               } catch (error) {
-                console.log(dataValue);
+                console.log("Error:");
                 console.log(error);
-                throw new Error("Error parsing a data value");
+                console.log("Parsing a data value:");
+                console.log(dataValue);
+                /*        throw new Error("Error parsing a data value");*/
               }
             });
             return response;

@@ -3,7 +3,7 @@
 System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/leaflet', './definitions', './utils/map_utils', './utils/data_formatter'], function (_export, _context) {
   "use strict";
 
-  var _, Highcharts, L, AQI, carsCount, tileServers, carMarker, drawPopups, renderChart, hideAll, getStickyInfo, calculateAQI, dataTreatment, processData, getTimeSeries, getUpdatedChartSeries, filterEmptyAndZeroValues, _slicedToArray, _createClass, currentTargetForChart, currentParameterForChart, DRAW_CHART, REDRAW_CHART, WorldMap;
+  var _, Highcharts, L, AQI, carsCount, tileServers, carMarker, drawPopups, renderChart, hideAllGraphPopups, getStickyInfo, calculateAQI, dataTreatment, processData, getTimeSeries, getUpdatedChartSeries, filterEmptyAndZeroValues, _slicedToArray, _createClass, currentTargetForChart, currentParameterForChart, DRAW_CHART, REDRAW_CHART, WorldMap;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -26,7 +26,7 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
     }, function (_utilsMap_utils) {
       drawPopups = _utilsMap_utils.drawPopups;
       renderChart = _utilsMap_utils.renderChart;
-      hideAll = _utilsMap_utils.hideAll;
+      hideAllGraphPopups = _utilsMap_utils.hideAllGraphPopups;
       getStickyInfo = _utilsMap_utils.getStickyInfo;
       calculateAQI = _utilsMap_utils.calculateAQI;
       dataTreatment = _utilsMap_utils.dataTreatment;
@@ -144,7 +144,7 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
 
             // this.map.on('zoomstart', (e) => { mapZoom = this.map.getZoom() });
             this.map.on('click', function (e) {
-              hideAll();
+              hideAllGraphPopups();
               currentTargetForChart = null;
             });
 

@@ -1,5 +1,5 @@
 import WorldMap from './worldmap';
-import { hideAll } from './utils/map_utils';
+import { hideAllGraphPopups } from './utils/map_utils';
 
 export default function link(scope, elem, attrs, ctrl) {
   const mapContainer = elem.find('.map-container');
@@ -10,13 +10,15 @@ export default function link(scope, elem, attrs, ctrl) {
   });
 
   function render() {
+console.log('rendering....')
+
     if (!ctrl.data) return;
 
     if (!ctrl.worldMap) {
       ctrl.worldMap = new WorldMap(ctrl, mapContainer[0]);
     }
 
-    hideAll();
+    hideAllGraphPopups();
     ctrl.worldMap.resize();
 
     //if (ctrl.mapCenterMoved) 

@@ -242,7 +242,12 @@ const panelDefaults = {
   hideEmpty: false,
   hideZero: false,
   stickyLabels: false,
-  pollutants: '{"aqi": {"name": "Air Quality Index", "unit": ""},"h": {"name": "Hydrogen", "unit": ""},"no2": {"name": "Nitrogen Dioxide", "unit": "µg/m3"},"p": {"name": "Pressure", "unit": "hPa"},"pm10": {"name": "PM10", "unit": "ug/m3"},"pm25": {"name": "PM25", "unit": "ug/m3"},"t": {"name": "Temperature", "unit": "ºC"}}'
+
+  resources: {
+    airQualityObserved: {
+      pollutants: '{}'
+    }
+  }  
 };
 
 const mapCenters = {
@@ -257,7 +262,7 @@ const MIN_WIDTH_TO_SHOW_MAP_POPUPS = 840;
 const MIN_HEIGHT_TO_SHOW_MAP_POPUPS = 480;
 
 
-let nominatim_address = 'https://nominatim.openstreetmap.org/search/<city_name>?format=json&addressdetails=1&limit=1&polygon_svg=1'
+const nominatim_address = 'https://nominatim.openstreetmap.org/search/<city_name>?format=json&addressdetails=1&limit=1&polygon_svg=1'
 
 export {
   PLUGIN_PATH, 

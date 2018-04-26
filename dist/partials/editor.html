@@ -47,14 +47,25 @@
 
 
 <!-- Pollutants -->
+
+<h5>Datasources</h5>
+
+<div class="section-heading">AirQualityObserved</div>
+  <div class="section gf-form-group">
+    <div class="gf-form">
+      <label class="gf-form-label width-10">Pollutants</label>
+      <textarea 
+        class="gf-form-input width-30"
+        ng-model="ctrl.panel.resources.airQualityObserved.pollutants"
+        ng-change="ctrl.render()"
+        rows="10" required ng-model-onblur
+        >
+      </textarea>        
+    </div>
+  </div>
+</div>
+
 <!-- 
-
-<input type="textarea" 
-        class="input-small gf-form-textarea width-12" 
-        ng-model="ctrl.panel.datasource.pollutants" 
-        ng-change="ctrl.setPollutants()" 
-        ng-model-onblur />
-
 <h5>Datasources</h5>
 
 <div ng-repeat="target in ctrl.panel.targets">

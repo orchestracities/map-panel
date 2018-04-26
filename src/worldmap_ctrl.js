@@ -18,7 +18,7 @@ import DataFormatter from './utils/data_formatter';
 import './css/worldmap-panel.css!';
 import './vendor/leaflet/leaflet.css!';
 
-let dataFormatter = new DataFormatter(kbn);
+let dataFormatter = new DataFormatter();
 
 export default class WorldmapCtrl extends MetricsPanelCtrl {
 
@@ -26,9 +26,11 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
     super($scope, $injector);
     this.setMapProvider(contextSrv);
     _.defaultsDeep(this.panel, panelDefaults);
-    this.events.on('init-edit-mode', this.onInitEditMode.bind(this));
-    this.events.on('data-received', this.onDataReceived.bind(this));  //process resultset as a result of the execution of all queries
 
+    this.events.on('init-edit-mode', this.onInitEditMode.bind(this));
+    this.events.on('data-error', this.onDataError.bind(this));
+    this.events.on('data-received', this.onDataReceived.bind(this));  //process resultset as a result of the execution of all queries
+    this.events.on('data-snapshot-load', this.onDataReceived.bind(this));
     this.handleDatasourceParamsChange = this.applyDatasourceParamsChange.bind(this)
   }
 
@@ -47,13 +49,19 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
     }
     this.layerNames = [...new Set(dataList.map((elem)=>elem.target.split(':')[0]))]
     this.series = dataList.map(this.seriesHandler.bind(this));
-    this.data = dataFormatter.getValues(this.series, this.panel.pollutants);
+    this.data = dataFormatter.getValues(this.series, this.panel.resources.airQualityObserved.pollutants);
     this.render();
   }
 
-  onDataSnapshotLoad(snapshotData) {
-    this.onDataReceived(snapshotData);
+  onDataError(error) {
+    console.log('Error: ')
+    console.log(error.data.error.message)
+    this.onDataReceived([]);
   }
+
+  // onDataSnapshotLoad(snapshotData) {
+  //   this.onDataReceived(snapshotData);
+  // }
 
   seriesHandler(seriesData) {
     const series = new TimeSeries({
@@ -104,7 +112,7 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
   }
 
   isADiferentCity() {
-    return getSelectedCity(this.templateSrv.variables) !==this.panel.city
+    return getSelectedCity(this.templateSrv.variables) !== this.panel.city
   }
 
   setNewCoords() {

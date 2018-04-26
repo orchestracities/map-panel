@@ -1,6 +1,4 @@
 import _ from 'lodash';
-// import decodeGeoHash from './geohash';
-//const allowedTypes = ['TrafficFlowObserved', 'AirQualityObserved'];
 
 export default class DataFormatter {
 
@@ -9,7 +7,6 @@ export default class DataFormatter {
       return []
 
     let s_ = this.getSeries(series, pollutants)
-//    console.log(s_)
 
     //processing only latitudes  
     return this.getDataValues();
@@ -44,37 +41,41 @@ export default class DataFormatter {
     this.values = setSeries.value;
     this.ids = setSeries.id;
     this.times = setSeries.created_at;
-    this.pollutantsAux = {};
+
 
     if ( !(this.latitudes && this.longitudes && this.values && this.ids && this.times) ) {
-      throw new Error("Please make sure you selected Raw Data for latitude, longitude, value, id, created_at series and a group by expression");
+      throw new Error("Please make sure you selected 'Raw' in the aggregation type for the mandatory fields 'latitude', 'longitude', 'value', 'id', 'created_at'. You must also group by expression in order to create map layers.");
     }
 
-    setSeries.pollutants = [];
+    //Try to process pollutants
+    if(pollutants) {
+      this.pollutantsAux = {};
+      setSeries.pollutants = [];
+      this.pollutants = JSON.parse(pollutants)
 
+      // if (this.pollutants) {
+        Object.keys(this.pollutants).forEach((key) => {
+          const currentPoll = this.pollutants[key];
 
-    this.pollutants = JSON.parse(pollutants)
-    if (this.pollutants) {
-      Object.keys(this.pollutants).forEach((key) => {
-        const currentPoll = this.pollutants[key];
+          if (setSeries[key]) {
+            // const receivedPoll = [];
+            setSeries[key].forEach((poll) => {     
+              const keyString = key.toString();
+              const keyId = poll.id.toString();
+              const newKey = keyString + keyId;
+              if (!(this.pollutantsAux[newKey])) {
+                this.pollutantsAux[newKey] = { 'value': poll.value };
+              }
+            });
+            delete setSeries[currentPoll.name];
+          }
+        });
 
-        if (setSeries[key]) {
-          // const receivedPoll = [];
-          setSeries[key].forEach((poll) => {     
-            const keyString = key.toString();
-            const keyId = poll.id.toString();
-            const newKey = keyString + keyId;
-            if (!(this.pollutantsAux[newKey])) {
-              this.pollutantsAux[newKey] = { 'value': poll.value };
-            }
-          });
-          delete setSeries[currentPoll.name];
-        }
-      });
-    } else {
-      throw new Error("For each datasource target, please insert a valid JSON in the Available Pollutants field");
+      //} else {
+      //  throw new Error("For each datasource target, please insert a valid JSON in the Available Pollutants field");
+      //}
     }
-
+    
     return setSeries;
   }
 
@@ -83,7 +84,7 @@ export default class DataFormatter {
 
     this.latitudes.forEach((value, index) => {
       try {
-        let dataValue  = {
+        let dataValue = {
               locationLatitude: value.value,
               locationLongitude: this.longitudes[index].value,
               value: this.values[index].value,
@@ -92,7 +93,7 @@ export default class DataFormatter {
               time: this.times[index].value
             };
 
-        // if AQI process add also info about pollutants
+        // if AQI, add also info about pollutants
         if (value.type === 'AirQualityObserved') {
           const thisPollutants = [];        
 
@@ -105,14 +106,16 @@ export default class DataFormatter {
           });
 
           dataValue.pollutants = thisPollutants
-        } 
+        }
 
         response.push(dataValue);
 
       } catch (error) {
-        console.log(dataValue)
+        console.log("Error:")
         console.log(error)
-        throw new Error("Error parsing a data value");
+        console.log("Parsing a data value:")
+        console.log(dataValue)
+/*        throw new Error("Error parsing a data value");*/
       }
     });
     return response;

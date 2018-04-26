@@ -3,7 +3,7 @@
 System.register(['./worldmap', './utils/map_utils'], function (_export, _context) {
   "use strict";
 
-  var WorldMap, hideAll;
+  var WorldMap, hideAllGraphPopups;
   function link(scope, elem, attrs, ctrl) {
     var mapContainer = elem.find('.map-container');
 
@@ -13,13 +13,15 @@ System.register(['./worldmap', './utils/map_utils'], function (_export, _context
     });
 
     function render() {
+      console.log('rendering....');
+
       if (!ctrl.data) return;
 
       if (!ctrl.worldMap) {
         ctrl.worldMap = new WorldMap(ctrl, mapContainer[0]);
       }
 
-      hideAll();
+      hideAllGraphPopups();
       ctrl.worldMap.resize();
 
       //if (ctrl.mapCenterMoved) 
@@ -44,7 +46,7 @@ System.register(['./worldmap', './utils/map_utils'], function (_export, _context
     setters: [function (_worldmap) {
       WorldMap = _worldmap.default;
     }, function (_utilsMap_utils) {
-      hideAll = _utilsMap_utils.hideAll;
+      hideAllGraphPopups = _utilsMap_utils.hideAllGraphPopups;
     }],
     execute: function () {}
   };

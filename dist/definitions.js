@@ -247,7 +247,12 @@ System.register(['./vendor/leaflet/leaflet'], function (_export, _context) {
         hideEmpty: false,
         hideZero: false,
         stickyLabels: false,
-        pollutants: '{"aqi": {"name": "Air Quality Index", "unit": ""},"h": {"name": "Hydrogen", "unit": ""},"no2": {"name": "Nitrogen Dioxide", "unit": "µg/m3"},"p": {"name": "Pressure", "unit": "hPa"},"pm10": {"name": "PM10", "unit": "ug/m3"},"pm25": {"name": "PM25", "unit": "ug/m3"},"t": {"name": "Temperature", "unit": "ºC"}}'
+
+        resources: {
+          airQualityObserved: {
+            pollutants: '{}'
+          }
+        }
       });
 
       _export('mapCenters', mapCenters = {

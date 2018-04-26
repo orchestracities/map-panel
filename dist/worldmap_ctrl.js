@@ -90,7 +90,7 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
         };
       }();
 
-      dataFormatter = new DataFormatter(kbn);
+      dataFormatter = new DataFormatter();
 
       WorldmapCtrl = function (_MetricsPanelCtrl) {
         _inherits(WorldmapCtrl, _MetricsPanelCtrl);
@@ -102,9 +102,11 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
 
           _this.setMapProvider(contextSrv);
           _.defaultsDeep(_this.panel, panelDefaults);
-          _this.events.on('init-edit-mode', _this.onInitEditMode.bind(_this));
-          _this.events.on('data-received', _this.onDataReceived.bind(_this)); //process resultset as a result of the execution of all queries
 
+          _this.events.on('init-edit-mode', _this.onInitEditMode.bind(_this));
+          _this.events.on('data-error', _this.onDataError.bind(_this));
+          _this.events.on('data-received', _this.onDataReceived.bind(_this)); //process resultset as a result of the execution of all queries
+          _this.events.on('data-snapshot-load', _this.onDataReceived.bind(_this));
           _this.handleDatasourceParamsChange = _this.applyDatasourceParamsChange.bind(_this);
           return _this;
         }
@@ -125,13 +127,15 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
               return elem.target.split(':')[0];
             }))));
             this.series = dataList.map(this.seriesHandler.bind(this));
-            this.data = dataFormatter.getValues(this.series, this.panel.pollutants);
+            this.data = dataFormatter.getValues(this.series, this.panel.resources.airQualityObserved.pollutants);
             this.render();
           }
         }, {
-          key: 'onDataSnapshotLoad',
-          value: function onDataSnapshotLoad(snapshotData) {
-            this.onDataReceived(snapshotData);
+          key: 'onDataError',
+          value: function onDataError(error) {
+            console.log('Error: ');
+            console.log(error.data.error.message);
+            this.onDataReceived([]);
           }
         }, {
           key: 'seriesHandler',
