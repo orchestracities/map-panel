@@ -3,38 +3,16 @@
 System.register(['lodash', 'app/core/config', '../definitions'], function (_export, _context) {
   "use strict";
 
-  var _, config, AQI, CARS_COUNT, HIGHCHARTS_THEME_DARK, nominatim_address;
+  var _, config, AQI, CARS_COUNT, HIGHCHARTS_THEME_DARK, NOMINATIN_ADDRESS;
 
   /**
   * Primary functions
   */
-  // gets the aqi index from the AQI var
+
+  //helper to create series for chart display
 
 
   /* Grafana Specific */
-  function calculateAQI(aqi) {
-    var aqiIndex = void 0;
-    AQI.range.forEach(function (value, index) {
-      if (aqi >= value) {
-        aqiIndex = index;
-      }
-    });
-    return aqiIndex;
-  }
-
-  /* App specific */
-  // draw components in the map
-  /* Vendor specific */
-  function calculateCarsIntensityIndex(value) {
-    CARS_COUNT.range.forEach(function (elem, index) {
-      if (value >= elem) {
-        return index;
-      }
-    });
-    return 0;
-  }
-
-  //helper to create series for chart display
   function getTimeSeries(data) {
     var valueValues = {};
     var values = [];
@@ -70,6 +48,11 @@ System.register(['lodash', 'app/core/config', '../definitions'], function (_expo
   }
 
   // Agregate data by id
+
+
+  /* App specific */
+  // draw components in the map
+  /* Vendor specific */
   function dataTreatment(data) {
     var finalData = {};
     var auxData = void 0;
@@ -198,7 +181,7 @@ System.register(['lodash', 'app/core/config', '../definitions'], function (_expo
 
   // Access remote api and gives the coordinates from a city center based on nominatin url server
   function getCityCoordinates(city_name) {
-    var url = nominatim_address.replace('<city_name>', city_name);
+    var url = NOMINATIN_ADDRESS.replace('<city_name>', city_name);
     return fetch(url).then(function (response) {
       return response.json();
     }).then(function (data) {
@@ -219,6 +202,26 @@ System.register(['lodash', 'app/core/config', '../definitions'], function (_expo
     return city;
   }
 
+  // gets the aqi index from the AQI var
+  function calculateAQIIndex(value) {
+    var aqiIndex = void 0;
+    AQI.range.forEach(function (elem, index) {
+      if (value >= elem) {
+        aqiIndex = index;
+      }
+    });
+    return aqiIndex;
+  }
+  // gets the index from the CARS_COUNT const var
+  function calculateCarsIntensityIndex(value) {
+    CARS_COUNT.range.forEach(function (elem, index) {
+      if (value >= elem) {
+        return index;
+      }
+    });
+    return 0;
+  }
+
   /*
   * View components controllers
   */
@@ -233,7 +236,7 @@ System.register(['lodash', 'app/core/config', '../definitions'], function (_expo
     //render popups
     try {
       var lastValueMeasure = values[values.length - 1].value; //values array is the one for the AQI values
-      var aqiIndex = calculateAQI(lastValueMeasure);
+      var aqiIndex = calculateAQIIndex(lastValueMeasure);
 
       // Show Pollutants Legend (MAP)
 
@@ -264,26 +267,27 @@ System.register(['lodash', 'app/core/config', '../definitions'], function (_expo
   */
   function showDataDetailsSelect() {
     document.querySelector('#data_details').style.display = 'block';
-  }function getStickyInfo(dataPoint) {
-    var stickyPopupInfo = '';
+  }function getDataPointValues(dataPoint) {
+
     var values = {
       id: dataPoint.id,
       type: dataPoint.type,
       latitude: dataPoint.locationLatitude,
       longitude: dataPoint.locationLongitude,
+      value: dataPoint.value,
       fillOpacity: 0.5
     };
 
-    stickyPopupInfo = '<div class="stycky-popup-info">';
-
     if (dataPoint.type === 'AirQualityObserved') {
-      var aqi = calculateAQI(dataPoint.value);
+      var aqi = calculateAQIIndex(dataPoint.value);
       var aqiColor = AQI.color[aqi];
       var aqiMeaning = AQI.meaning[aqi];
       var aqiRisk = AQI.risks[aqi];
 
       var pollutants = dataPoint.pollutants;
-      if (pollutants) pollutants.push({ 'name': 'aqi', 'value': dataPoint.value });
+      if (pollutants) {
+        pollutants.push({ 'name': 'aqi', 'value': dataPoint.value });
+      }
 
       _.defaults(values, {
         color: aqiColor,
@@ -294,26 +298,34 @@ System.register(['lodash', 'app/core/config', '../definitions'], function (_expo
         pollutants: pollutants,
         aqi: dataPoint.value
       });
-
-      stickyPopupInfo += '<div>Air Quality</div>' + '<div>Device: ' + dataPoint.id + '</div>' + '<div>AQI: ' + dataPoint.value + ' (' + aqiMeaning + ')</div>';
     } else {
       if (dataPoint.type === 'TrafficFlowObserved') {
-        console.log('aqui');
         var color_index = calculateCarsIntensityIndex(dataPoint.value);
         _.defaults(values, {
           color: CARS_COUNT.color[color_index],
           fillColor: CARS_COUNT[color_index]
         });
-
-        stickyPopupInfo += '<div>Cars Intensity</div>';
-      } else stickyPopupInfo += '<div>' + dataPoint.type + '</div>';
-
-      stickyPopupInfo += '<div>Device: ' + dataPoint.id + '</div>' + '<div>Value: ' + dataPoint.value + '</div>';
+      }
     }
 
-    stickyPopupInfo += '</div>';
+    return values;
+  }function getDataPointStickyInfo(data) {
+    var stickyInfo = '<div class="stycky-popup-info">';
 
-    return [values, stickyPopupInfo];
+    if (data.type === 'AirQualityObserved') {
+      stickyInfo += '<div class="head air-quality">Air Quality</div>' + '<div class="body">' + '<div>Device: ' + data.id + '</div>' + '<div>AQI: ' + data.value + ' (' + data.aqiMeaning + ')</div>' + '</div>';
+    } else {
+      if (data.type === 'TrafficFlowObserved') {
+        stickyInfo += '<div class="head traffic-flow">Cars Intensity</div>';
+      } else {
+        stickyInfo += '<div class="head">' + data.type + '</div>';
+      }
+
+      stickyInfo += '<div class="body">' + '<div>Device: ' + data.id + '</div>' + '<div>Value: ' + data.value + '</div>' + '</div>';
+    }
+    stickyInfo += '</div>';
+
+    return stickyInfo;
   }function renderChart(chartSeries, chartData, parameterUnit, title) {
 
     showDataDetailsSelect();
@@ -454,11 +466,9 @@ System.register(['lodash', 'app/core/config', '../definitions'], function (_expo
       AQI = _definitions.AQI;
       CARS_COUNT = _definitions.CARS_COUNT;
       HIGHCHARTS_THEME_DARK = _definitions.HIGHCHARTS_THEME_DARK;
-      nominatim_address = _definitions.nominatim_address;
+      NOMINATIN_ADDRESS = _definitions.NOMINATIN_ADDRESS;
     }],
     execute: function () {
-      _export('calculateAQI', calculateAQI);
-
       _export('processData', processData);
 
       _export('getTimeSeries', getTimeSeries);
@@ -475,7 +485,9 @@ System.register(['lodash', 'app/core/config', '../definitions'], function (_expo
 
       _export('getCityCoordinates', getCityCoordinates);
 
-      _export('getStickyInfo', getStickyInfo);
+      _export('getDataPointValues', getDataPointValues);
+
+      _export('getDataPointStickyInfo', getDataPointStickyInfo);
 
       _export('getSelectedCity', getSelectedCity);
     }

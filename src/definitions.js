@@ -261,11 +261,10 @@ const mapCenters = {
 const MIN_WIDTH_TO_SHOW_MAP_POPUPS = 840;
 const MIN_HEIGHT_TO_SHOW_MAP_POPUPS = 480;
 
-
-const nominatim_address = 'https://nominatim.openstreetmap.org/search/<city_name>?format=json&addressdetails=1&limit=1&polygon_svg=1'
+const NOMINATIM_ADDRESS = 'https://nominatim.openstreetmap.org/search/<city_name>?format=json&addressdetails=1&limit=1&polygon_svg=1'
 
 export {
   PLUGIN_PATH, 
   AQI, CARS_COUNT, HIGHCHARTS_THEME_DARK, tileServers, carMarker, panelDefaults, mapCenters, 
-  MIN_WIDTH_TO_SHOW_MAP_POPUPS, MIN_HEIGHT_TO_SHOW_MAP_POPUPS, nominatim_address
+  MIN_WIDTH_TO_SHOW_MAP_POPUPS, MIN_HEIGHT_TO_SHOW_MAP_POPUPS, NOMINATIM_ADDRESS
 }

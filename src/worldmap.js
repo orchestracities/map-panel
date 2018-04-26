@@ -8,9 +8,8 @@ import L from './vendor/leaflet/leaflet';
 /* App Specific */
 import { tileServers } from './definitions';
 import { 
-  drawPopups, renderChart, hideAllGraphPopups, getStickyInfo, 
-  dataTreatment, processData, 
-  getTimeSeries, getUpdatedChartSeries
+  dataTreatment, processData, getTimeSeries, getUpdatedChartSeries,
+  drawPopups, renderChart, hideAllGraphPopups, getDataPointValues, getDataPointStickyInfo
 } from './utils/map_utils';
 import { filterEmptyAndZeroValues } from './utils/data_formatter';
 
@@ -19,6 +18,9 @@ let currentParameterForChart = 'AQI';
 
 const DRAW_CHART = false
 const REDRAW_CHART = true
+
+const CIRCLE_RADIUS = 200
+const POLYGON_MAGNIFY_RATIO = 3
 
 export default class WorldMap {
 
@@ -126,30 +128,51 @@ export default class WorldMap {
     //console.log('addPointsToMap');
     Object.keys(this.data).forEach((key) => {
       const value = this.data[key][this.data[key].length - 1 ]; // Use the last data for each sensor to create on map -> avoid repeated markers on map and use just the last measurement (the one needed to show on marker)
-      const newCircle = this.createCircle(value);
-      try {this.overlayMaps[value.type].addLayer(newCircle);} catch(error) {console.log(value);console.log(error)}
+      const newShape = this.createShape(value);
+      try { this.overlayMaps[value.type].addLayer(newShape) } catch(error) { console.log(value); console.log(error) }
     });
   }
 
-  createCircle(dataPoint) {
-    let [values, stickyPopupInfo] = getStickyInfo(dataPoint);
+  createShape(dataPoint) {
+    let dataPointDetails = getDataPointValues(dataPoint);
+    let stickyPopupInfo = getDataPointStickyInfo(dataPointDetails);
+    let shape;
 
-    const circle = L.circle([dataPoint.locationLatitude, dataPoint.locationLongitude], 200, values)
+    switch(dataPoint.type) {
+      case 'AirQualityObserved':
+        shape = L.circle([dataPoint.locationLatitude, dataPoint.locationLongitude], CIRCLE_RADIUS, dataPointDetails)
+      break;
+      case 'TrafficFlowObserved':
+        shape = L.rectangle([
+            [dataPoint.locationLatitude-(0.001*POLYGON_MAGNIFY_RATIO), dataPoint.locationLongitude-(0.0015*POLYGON_MAGNIFY_RATIO)], 
+            [dataPoint.locationLatitude+(0.001*POLYGON_MAGNIFY_RATIO), dataPoint.locationLongitude+(0.0015*POLYGON_MAGNIFY_RATIO)]
+          ], dataPointDetails)
+        //shape = L.circle([dataPoint.locationLatitude, dataPoint.locationLongitude], CIRCLE_RADIUS, dataPointDetails)
+      break;
+      default:
+        dataPointDetails.color='green'  //default color
+        shape = L.polygon([
+          [dataPoint.locationLatitude-(0.001*POLYGON_MAGNIFY_RATIO), dataPoint.locationLongitude-(0.0015*POLYGON_MAGNIFY_RATIO)], 
+          [dataPoint.locationLatitude+(0.001*POLYGON_MAGNIFY_RATIO), dataPoint.locationLongitude],
+          [dataPoint.locationLatitude-(0.001*POLYGON_MAGNIFY_RATIO), dataPoint.locationLongitude+(0.0015*POLYGON_MAGNIFY_RATIO)],
+        ], dataPointDetails)
+    }
+
+    shape
       .on('click', this.setTarget)
       .on('click', () => this.drawChart(REDRAW_CHART))
 
-    this.createPopupCircle(circle, stickyPopupInfo);
+    this.createPopup(shape, stickyPopupInfo);
 
-    return circle;
+    return shape;
   }
 
-  createPopupCircle(circle, stickyPopupInfo) {
-    circle.bindPopup(stickyPopupInfo, {'offset': window.L.point(0, -2), 'className': 'worldmap-popup', 'closeButton': this.ctrl.panel.stickyLabels});
-
-    circle.on('mouseover', function () { this.openPopup() });
+  createPopup(shape, stickyPopupInfo) {
+    shape.bindPopup(stickyPopupInfo, {'offset': L.point(0, -2), 'className': 'worldmap-popup', 'closeButton': this.ctrl.panel.stickyLabels});
+    shape.on('mouseover', function () { this.openPopup() });
 
     if (!this.ctrl.panel.stickyLabels) { 
-      circle.on('mouseout', function () { this.closePopup() });
+      shape.on('mouseout', function () { this.closePopup() });
     }
   }
 

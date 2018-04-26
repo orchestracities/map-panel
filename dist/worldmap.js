@@ -3,7 +3,7 @@
 System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/leaflet', './definitions', './utils/map_utils', './utils/data_formatter'], function (_export, _context) {
   "use strict";
 
-  var _, Highcharts, L, tileServers, drawPopups, renderChart, hideAllGraphPopups, getStickyInfo, dataTreatment, processData, getTimeSeries, getUpdatedChartSeries, filterEmptyAndZeroValues, _slicedToArray, _createClass, currentTargetForChart, currentParameterForChart, DRAW_CHART, REDRAW_CHART, WorldMap;
+  var _, Highcharts, L, tileServers, dataTreatment, processData, getTimeSeries, getUpdatedChartSeries, drawPopups, renderChart, hideAllGraphPopups, getDataPointValues, getDataPointStickyInfo, filterEmptyAndZeroValues, _slicedToArray, _createClass, currentTargetForChart, currentParameterForChart, DRAW_CHART, REDRAW_CHART, CIRCLE_RADIUS, POLYGON_MAGNIFY_RATIO, WorldMap;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -21,14 +21,15 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
     }, function (_definitions) {
       tileServers = _definitions.tileServers;
     }, function (_utilsMap_utils) {
-      drawPopups = _utilsMap_utils.drawPopups;
-      renderChart = _utilsMap_utils.renderChart;
-      hideAllGraphPopups = _utilsMap_utils.hideAllGraphPopups;
-      getStickyInfo = _utilsMap_utils.getStickyInfo;
       dataTreatment = _utilsMap_utils.dataTreatment;
       processData = _utilsMap_utils.processData;
       getTimeSeries = _utilsMap_utils.getTimeSeries;
       getUpdatedChartSeries = _utilsMap_utils.getUpdatedChartSeries;
+      drawPopups = _utilsMap_utils.drawPopups;
+      renderChart = _utilsMap_utils.renderChart;
+      hideAllGraphPopups = _utilsMap_utils.hideAllGraphPopups;
+      getDataPointValues = _utilsMap_utils.getDataPointValues;
+      getDataPointStickyInfo = _utilsMap_utils.getDataPointStickyInfo;
     }, function (_utilsData_formatter) {
       filterEmptyAndZeroValues = _utilsData_formatter.filterEmptyAndZeroValues;
     }],
@@ -93,6 +94,8 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
       currentParameterForChart = 'AQI';
       DRAW_CHART = false;
       REDRAW_CHART = true;
+      CIRCLE_RADIUS = 200;
+      POLYGON_MAGNIFY_RATIO = 3;
 
       WorldMap = function () {
         function WorldMap(ctrl, mapContainer) {
@@ -206,43 +209,54 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
             //console.log('addPointsToMap');
             Object.keys(this.data).forEach(function (key) {
               var value = _this2.data[key][_this2.data[key].length - 1]; // Use the last data for each sensor to create on map -> avoid repeated markers on map and use just the last measurement (the one needed to show on marker)
-              var newCircle = _this2.createCircle(value);
+              var newShape = _this2.createShape(value);
               try {
-                _this2.overlayMaps[value.type].addLayer(newCircle);
+                _this2.overlayMaps[value.type].addLayer(newShape);
               } catch (error) {
                 console.log(value);console.log(error);
               }
             });
           }
         }, {
-          key: 'createCircle',
-          value: function createCircle(dataPoint) {
+          key: 'createShape',
+          value: function createShape(dataPoint) {
             var _this3 = this;
 
-            var _getStickyInfo = getStickyInfo(dataPoint),
-                _getStickyInfo2 = _slicedToArray(_getStickyInfo, 2),
-                values = _getStickyInfo2[0],
-                stickyPopupInfo = _getStickyInfo2[1];
+            var dataPointDetails = getDataPointValues(dataPoint);
+            var stickyPopupInfo = getDataPointStickyInfo(dataPointDetails);
+            var shape = void 0;
 
-            var circle = L.circle([dataPoint.locationLatitude, dataPoint.locationLongitude], 200, values).on('click', this.setTarget).on('click', function () {
+            switch (dataPoint.type) {
+              case 'AirQualityObserved':
+                shape = L.circle([dataPoint.locationLatitude, dataPoint.locationLongitude], CIRCLE_RADIUS, dataPointDetails);
+                break;
+              case 'TrafficFlowObserved':
+                shape = L.rectangle([[dataPoint.locationLatitude - 0.001 * POLYGON_MAGNIFY_RATIO, dataPoint.locationLongitude - 0.0015 * POLYGON_MAGNIFY_RATIO], [dataPoint.locationLatitude + 0.001 * POLYGON_MAGNIFY_RATIO, dataPoint.locationLongitude + 0.0015 * POLYGON_MAGNIFY_RATIO]], dataPointDetails);
+                //shape = L.circle([dataPoint.locationLatitude, dataPoint.locationLongitude], CIRCLE_RADIUS, dataPointDetails)
+                break;
+              default:
+                dataPointDetails.color = 'green'; //default color
+                shape = L.polygon([[dataPoint.locationLatitude - 0.001 * POLYGON_MAGNIFY_RATIO, dataPoint.locationLongitude - 0.0015 * POLYGON_MAGNIFY_RATIO], [dataPoint.locationLatitude + 0.001 * POLYGON_MAGNIFY_RATIO, dataPoint.locationLongitude], [dataPoint.locationLatitude - 0.001 * POLYGON_MAGNIFY_RATIO, dataPoint.locationLongitude + 0.0015 * POLYGON_MAGNIFY_RATIO]], dataPointDetails);
+            }
+
+            shape.on('click', this.setTarget).on('click', function () {
               return _this3.drawChart(REDRAW_CHART);
             });
 
-            this.createPopupCircle(circle, stickyPopupInfo);
+            this.createPopup(shape, stickyPopupInfo);
 
-            return circle;
+            return shape;
           }
         }, {
-          key: 'createPopupCircle',
-          value: function createPopupCircle(circle, stickyPopupInfo) {
-            circle.bindPopup(stickyPopupInfo, { 'offset': window.L.point(0, -2), 'className': 'worldmap-popup', 'closeButton': this.ctrl.panel.stickyLabels });
-
-            circle.on('mouseover', function () {
+          key: 'createPopup',
+          value: function createPopup(shape, stickyPopupInfo) {
+            shape.bindPopup(stickyPopupInfo, { 'offset': L.point(0, -2), 'className': 'worldmap-popup', 'closeButton': this.ctrl.panel.stickyLabels });
+            shape.on('mouseover', function () {
               this.openPopup();
             });
 
             if (!this.ctrl.panel.stickyLabels) {
-              circle.on('mouseout', function () {
+              shape.on('mouseout', function () {
                 this.closePopup();
               });
             }

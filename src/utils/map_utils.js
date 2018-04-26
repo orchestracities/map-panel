@@ -6,29 +6,11 @@ import _ from 'lodash';
 import config from 'app/core/config';
 
 /* App specific */
-import { AQI, CARS_COUNT, HIGHCHARTS_THEME_DARK, nominatim_address } from '../definitions';
+import { AQI, CARS_COUNT, HIGHCHARTS_THEME_DARK, NOMINATIM_ADDRESS } from '../definitions';
 
 /**
 * Primary functions
 */
-// gets the aqi index from the AQI var
-function calculateAQI(aqi) {
-  let aqiIndex;
-  AQI.range.forEach((value, index) => {
-    if (aqi >= value) {
-      aqiIndex = index;
-    }
-  });
-  return aqiIndex;
-}
-function calculateCarsIntensityIndex(value) {
-  CARS_COUNT.range.forEach((elem, index) => {
-    if (value >= elem) {
-      return index;
-    }
-  });
-  return 0;
-}
 
 //helper to create series for chart display
 function getTimeSeries(data) {
@@ -200,9 +182,9 @@ function createLine(value) {
   return [Date.UTC(year, month, day, hour+1, minutes, seconds, milliseconds), value.value]
 }
 
-// Access remote api and gives the coordinates from a city center based on nominatin url server
+// Access remote api and gives the coordinates from a city center based on NOMINATIM url server
 function getCityCoordinates(city_name) {
-  let url = nominatim_address.replace('<city_name>', city_name)
+  let url = NOMINATIM_ADDRESS.replace('<city_name>', city_name)
   return fetch(url)
     .then(response => response.json())
     .then(data => { return { latitude: data[0].lat, longitude: data[0].lon } })
@@ -219,7 +201,25 @@ function getSelectedCity(vars) {
   return city;
 }
 
-
+// gets the aqi index from the AQI var
+function calculateAQIIndex(value) {
+  let aqiIndex;
+  AQI.range.forEach((elem, index) => {
+    if (value >= elem) {
+      aqiIndex = index;
+    }
+  });
+  return aqiIndex;
+}
+// gets the index from the CARS_COUNT const var
+function calculateCarsIntensityIndex(value) {
+  CARS_COUNT.range.forEach((elem, index) => {
+    if (value >= elem) {
+      return index;
+    }
+  });
+  return 0;
+}
 
 
 /*
@@ -236,7 +236,7 @@ function drawPopups(timeSeries, validated_pollutants, currentParameterForChart, 
   //render popups
   try {
     const lastValueMeasure = values[values.length - 1].value; //values array is the one for the AQI values
-    const aqiIndex = calculateAQI(lastValueMeasure);
+    const aqiIndex = calculateAQIIndex(lastValueMeasure);
 
     // Show Pollutants Legend (MAP)
 
@@ -271,27 +271,28 @@ function drawPopups(timeSeries, validated_pollutants, currentParameterForChart, 
 function showDataDetailsSelect() {
   document.querySelector('#data_details').style.display = 'block';
 }
-function getStickyInfo(dataPoint) {
-  let stickyPopupInfo = '';
+
+function getDataPointValues(dataPoint) {
+
   const values = {
     id: dataPoint.id,
     type: dataPoint.type,
     latitude: dataPoint.locationLatitude,
     longitude: dataPoint.locationLongitude,
+    value: dataPoint.value,
     fillOpacity: 0.5
   }
 
-  stickyPopupInfo = '<div class="stycky-popup-info">'
-
   if(dataPoint.type==='AirQualityObserved') {
-    const aqi = calculateAQI(dataPoint.value);
+    const aqi = calculateAQIIndex(dataPoint.value);
     const aqiColor = AQI.color[aqi];
     const aqiMeaning = AQI.meaning[aqi];
     const aqiRisk = AQI.risks[aqi];
 
     const pollutants = dataPoint.pollutants;
-    if(pollutants)
+    if(pollutants) {
       pollutants.push({'name': 'aqi', 'value': dataPoint.value});
+    }
 
     _.defaults(values, {
       color: aqiColor,
@@ -301,33 +302,48 @@ function getStickyInfo(dataPoint) {
       aqiRisk: aqiRisk,
       pollutants: pollutants,
       aqi: dataPoint.value
-    })
-
-    stickyPopupInfo += '<div>Air Quality</div>' +
-      '<div>Device: ' + dataPoint.id + '</div>' +
-      '<div>AQI: ' + dataPoint.value + ' (' + aqiMeaning + ')</div>';
+    })    
   } else {
     if(dataPoint.type==='TrafficFlowObserved') {
-      console.log('aqui')
       let color_index = calculateCarsIntensityIndex(dataPoint.value)
       _.defaults(values, {
         color: CARS_COUNT.color[color_index],
         fillColor: CARS_COUNT[color_index]
       })
-
-      stickyPopupInfo += '<div>Cars Intensity</div>'
-    } else
-      stickyPopupInfo += '<div>'+dataPoint.type + '</div>'
-
-    stickyPopupInfo += '<div>Device: ' + dataPoint.id + '</div>' +
-        '<div>Value: '+dataPoint.value + '</div>'
+    }
   }
 
-
-  stickyPopupInfo += '</div>'
-
-  return [values, stickyPopupInfo];
+  return values;
 }
+
+function getDataPointStickyInfo(data) {
+  let stickyInfo = '<div class="stycky-popup-info">'
+
+  if(data.type==='AirQualityObserved') {
+    stickyInfo += '<div class="head air-quality">Air Quality</div>' +
+      '<div class="body">'+
+        '<div>Device: ' + data.id + '</div>' +
+        '<div>AQI: ' + data.value + ' (' + data.aqiMeaning + ')</div>'+
+      '</div>'
+
+  } else {
+    if(data.type==='TrafficFlowObserved') {
+      stickyInfo += '<div class="head traffic-flow">Cars Intensity</div>'
+    } else {
+      stickyInfo += '<div class="head">' + data.type + '</div>'
+    }
+
+    stickyInfo += '<div class="body">'+
+      '<div>Device: ' + data.id + '</div>' +
+      '<div>Value: '+data.value + '</div>' +
+    '</div>'
+  }
+  stickyInfo += '</div>'
+
+  return stickyInfo
+}
+
+
 function renderChart(chartSeries, chartData, parameterUnit, title) {
 
   showDataDetailsSelect();
@@ -468,7 +484,6 @@ function drawPollutantsPopup(providedPollutants, allPollutants, id, aqi, current
 }
 
 export {
-  calculateAQI, 
   processData,
   getTimeSeries, 
   dataTreatment, 
@@ -480,7 +495,8 @@ export {
 
   getCityCoordinates,
 
-  getStickyInfo,
+  getDataPointValues,
+  getDataPointStickyInfo,
 
   getSelectedCity
 }
