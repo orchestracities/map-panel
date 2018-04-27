@@ -1,16 +1,27 @@
 # Changelog
 
 ## v1.0.0
+
+### New features
 - Changed the plugin's working process. Any datasource query with a group by clause will result in layers.
+- Map rendering faster.
+- Removal of polylines for data point of type traffic flow observed.
+- Data points of type air quality, traffic flow and other have now distinct shapes (circle, square and triangle). 
+- Added missing snapshot functionality (Not tested).
+- New option on editor for cityenv variable support. If we choose this option the map centers on the selected city.
+
+### Develoment
 - Improvements based on grafana development guide best practices.
-- New project structure.
-- Updated packages. Leaflet version update from 0.7 to 1.3
-- Fix Leaflet bugs introduced by the update.
+- New project structure. Improved DRY.
+- Updated project packages. Leaflet version updated from 0.7 to 1.3.
+- Fix app bugs introduced by Leaflet update.
+- Gruntfile improvements
 
 ## v0.1.0
 
 - Project structure improvements. Leaflet and highstock went out from project src and are now a dependency.
 - Support for light and dark themes.
+- From now on this file contents are reverse ordered to get last features on top.
 
 ## v0.0.2
 

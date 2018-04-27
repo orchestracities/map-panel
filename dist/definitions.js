@@ -3,7 +3,7 @@
 System.register(['./vendor/leaflet/leaflet'], function (_export, _context) {
   "use strict";
 
-  var L, PLUGIN_PATH, AQI, CARS_COUNT, HIGHCHARTS_THEME_DARK, tileServers, carMarker, panelDefaults, mapCenters, MIN_WIDTH_TO_SHOW_MAP_POPUPS, MIN_HEIGHT_TO_SHOW_MAP_POPUPS, NOMINATIN_ADDRESS;
+  var L, PLUGIN_PATH, AQI, CARS_COUNT, HIGHCHARTS_THEME_DARK, tileServers, carMarker, panelDefaults, mapCenters, MIN_WIDTH_TO_SHOW_MAP_POPUPS, MIN_HEIGHT_TO_SHOW_MAP_POPUPS, NOMINATIM_ADDRESS;
   return {
     setters: [function (_vendorLeafletLeaflet) {
       L = _vendorLeafletLeaflet.default;
@@ -267,7 +267,7 @@ System.register(['./vendor/leaflet/leaflet'], function (_export, _context) {
 
       _export('MIN_HEIGHT_TO_SHOW_MAP_POPUPS', MIN_HEIGHT_TO_SHOW_MAP_POPUPS = 480);
 
-      _export('NOMINATIN_ADDRESS', NOMINATIN_ADDRESS = 'https://nominatim.openstreetmap.org/search/<city_name>?format=json&addressdetails=1&limit=1&polygon_svg=1');
+      _export('NOMINATIM_ADDRESS', NOMINATIM_ADDRESS = 'https://nominatim.openstreetmap.org/search/<city_name>?format=json&addressdetails=1&limit=1&polygon_svg=1');
 
       _export('PLUGIN_PATH', PLUGIN_PATH);
 
@@ -289,7 +289,7 @@ System.register(['./vendor/leaflet/leaflet'], function (_export, _context) {
 
       _export('MIN_HEIGHT_TO_SHOW_MAP_POPUPS', MIN_HEIGHT_TO_SHOW_MAP_POPUPS);
 
-      _export('NOMINATIN_ADDRESS', NOMINATIN_ADDRESS);
+      _export('NOMINATIM_ADDRESS', NOMINATIM_ADDRESS);
     }
   };
 });

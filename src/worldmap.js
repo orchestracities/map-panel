@@ -100,7 +100,7 @@ export default class WorldMap {
   /* Validate pollutants for a given target*/
   setPollutants() {
     try {
-      this.validated_pollutants = JSON.parse(this.ctrl.panel.pollutants);
+      this.validated_pollutants = JSON.parse(this.ctrl.panel.resources.airQualityObserved.pollutants);
     } catch(error) {
       console.log(error)
       throw new Error('Please insert a valid JSON in the Available Pollutants');

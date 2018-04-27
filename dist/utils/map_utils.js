@@ -3,7 +3,7 @@
 System.register(['lodash', 'app/core/config', '../definitions'], function (_export, _context) {
   "use strict";
 
-  var _, config, AQI, CARS_COUNT, HIGHCHARTS_THEME_DARK, NOMINATIN_ADDRESS;
+  var _, config, AQI, CARS_COUNT, HIGHCHARTS_THEME_DARK, NOMINATIM_ADDRESS;
 
   /**
   * Primary functions
@@ -179,9 +179,9 @@ System.register(['lodash', 'app/core/config', '../definitions'], function (_expo
     return [Date.UTC(year, month, day, hour + 1, minutes, seconds, milliseconds), value.value];
   }
 
-  // Access remote api and gives the coordinates from a city center based on nominatin url server
+  // Access remote api and gives the coordinates from a city center based on NOMINATIM url server
   function getCityCoordinates(city_name) {
-    var url = NOMINATIN_ADDRESS.replace('<city_name>', city_name);
+    var url = NOMINATIM_ADDRESS.replace('<city_name>', city_name);
     return fetch(url).then(function (response) {
       return response.json();
     }).then(function (data) {
@@ -466,7 +466,7 @@ System.register(['lodash', 'app/core/config', '../definitions'], function (_expo
       AQI = _definitions.AQI;
       CARS_COUNT = _definitions.CARS_COUNT;
       HIGHCHARTS_THEME_DARK = _definitions.HIGHCHARTS_THEME_DARK;
-      NOMINATIN_ADDRESS = _definitions.NOMINATIN_ADDRESS;
+      NOMINATIM_ADDRESS = _definitions.NOMINATIM_ADDRESS;
     }],
     execute: function () {
       _export('processData', processData);

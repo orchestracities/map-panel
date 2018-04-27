@@ -7,13 +7,6 @@ System.register([], function (_export, _context) {
     return targets.map(function (elem) {
       return { "name": elem.datasource };
     });
-
-    //, "pollutants": "{'t': {'name': 'Temperature', 'unit': 'ºC'} }"
-    /*    let datasources={}
-        for(let ds of targets.map(elem=>elem.datasource))
-          datasources[ds] = {}
-    
-        return datasources*/
   }
 
   function getValidDatasources(targets) {
