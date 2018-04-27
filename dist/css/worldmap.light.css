@@ -2,9 +2,8 @@
   background-color: #ECECEC;
 }
 
-
 .map-container table.stripes tbody tr:nth-child(odd) {
-  background-color: #e6e6e6;
+  background-color: #E6E6E6;
 }
 .map-container table.stripes tbody > tr:nth-child(even) {
   background-color: white;

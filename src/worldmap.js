@@ -103,7 +103,7 @@ export default class WorldMap {
       this.validated_pollutants = JSON.parse(this.ctrl.panel.resources.airQualityObserved.pollutants);
     } catch(error) {
       console.log(error)
-      throw new Error('Please insert a valid JSON in the Available Pollutants');
+      throw new Error('Please insert a valid JSON in the Pollutants field (Edit > Tab Worldmap > Section AirQualityObserved - Pollutents field)');
     }
   }
 
@@ -168,7 +168,13 @@ export default class WorldMap {
   }
 
   createPopup(shape, stickyPopupInfo) {
-    shape.bindPopup(stickyPopupInfo, {'offset': L.point(0, -2), 'className': 'worldmap-popup', 'closeButton': this.ctrl.panel.stickyLabels});
+    shape.bindPopup(stickyPopupInfo, 
+      {
+        'offset': L.point(0, -2), 
+        'className': 'worldmap-popup', 
+        'closeButton': this.ctrl.panel.stickyLabels
+      }
+    );
     shape.on('mouseover', function () { this.openPopup() });
 
     if (!this.ctrl.panel.stickyLabels) { 
