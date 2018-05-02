@@ -64,8 +64,8 @@ export default class WorldMap {
     this.addLayersToMap();
 
     // this.map.on('zoomstart', (e) => { mapZoom = this.map.getZoom() });
-    this.map.on('click', (e) => {
-      hideAllGraphPopups();
+    this.map.on('click', () => {
+      hideAllGraphPopups(this.ctrl.panel.id);
       currentTargetForChart = null;
     });
 
@@ -78,11 +78,11 @@ export default class WorldMap {
       attribution: selectedTileServer.attribution
     }).addTo(this.map, true);
 
-    document.querySelector('#air_parameters_dropdown')
+    document.querySelector('.air-parameters-dropdown')
       .addEventListener('change', (event) => {
         currentParameterForChart = event.currentTarget.value;
         this.drawChart(REDRAW_CHART);
-      });
+      }); //, {passive: true} <= to avoid blocking
   }
 
   addLayersToMap() {
@@ -214,11 +214,14 @@ export default class WorldMap {
   drawChart(redrawChart) {
     if(currentTargetForChart==null || this.timeSeries==null ) {
       console.log("unnable to drawChart")
+      console.log("currentTargetForChart")
       console.log(currentTargetForChart)
-      return;
+      console.log("this.timeSeries")
+      console.log(this.timeSeries)
+      return ;
     }
     
-    drawPopups(this.timeSeries, this.validated_pollutants, currentParameterForChart, currentTargetForChart)
+    drawPopups(this.ctrl.panel.id, this.timeSeries, this.validated_pollutants, currentParameterForChart, currentTargetForChart)
 
     // ------
     let parameterUnit = ''
@@ -228,6 +231,6 @@ export default class WorldMap {
       [this.chartData, parameterUnit, title] = processData(this.chartSeries, this.timeSeries, this.validated_pollutants, currentParameterForChart, currentTargetForChart )
     }
     
-    renderChart(this.chartSeries, this.chartData, parameterUnit, title)
+    renderChart(this.ctrl.panel.id, this.chartSeries, this.chartData, parameterUnit, title)
   }
 }

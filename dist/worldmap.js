@@ -142,8 +142,8 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
             this.addLayersToMap();
 
             // this.map.on('zoomstart', (e) => { mapZoom = this.map.getZoom() });
-            this.map.on('click', function (e) {
-              hideAllGraphPopups();
+            this.map.on('click', function () {
+              hideAllGraphPopups(_this.ctrl.panel.id);
               currentTargetForChart = null;
             });
 
@@ -156,10 +156,10 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
               attribution: selectedTileServer.attribution
             }).addTo(this.map, true);
 
-            document.querySelector('#air_parameters_dropdown').addEventListener('change', function (event) {
+            document.querySelector('.air-parameters-dropdown').addEventListener('change', function (event) {
               currentParameterForChart = event.currentTarget.value;
               _this.drawChart(REDRAW_CHART);
-            });
+            }); //, {passive: true} <= to avoid blocking
           }
         }, {
           key: 'addLayersToMap',
@@ -308,11 +308,14 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
           value: function drawChart(redrawChart) {
             if (currentTargetForChart == null || this.timeSeries == null) {
               console.log("unnable to drawChart");
+              console.log("currentTargetForChart");
               console.log(currentTargetForChart);
+              console.log("this.timeSeries");
+              console.log(this.timeSeries);
               return;
             }
 
-            drawPopups(this.timeSeries, this.validated_pollutants, currentParameterForChart, currentTargetForChart);
+            drawPopups(this.ctrl.panel.id, this.timeSeries, this.validated_pollutants, currentParameterForChart, currentTargetForChart);
 
             // ------
             var parameterUnit = '';
@@ -328,7 +331,7 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
               title = _processData2[2];
             }
 
-            renderChart(this.chartSeries, this.chartData, parameterUnit, title);
+            renderChart(this.ctrl.panel.id, this.chartSeries, this.chartData, parameterUnit, title);
           }
         }]);
 

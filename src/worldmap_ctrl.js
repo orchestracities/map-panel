@@ -55,7 +55,9 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
 
   onDataError(error) {
     console.log('Error: ')
-    console.log(error.data.error.message)
+    console.log(error)
+    if(error.data && error.data.error)
+      console.log(error.data.error.message)
     this.onDataReceived([]);
   }
 

@@ -11,15 +11,27 @@ export default function link(scope, elem, attrs, ctrl) {
 
     if (!ctrl.worldMap) {
       ctrl.worldMap = new WorldMap(ctrl, mapContainer[0]);
+
+
+      /**
+      * map display
+      */
+      hideAllGraphPopups(ctrl.panel.id);
+      ctrl.worldMap.resize();
+      //if (ctrl.mapCenterMoved) 
+      ctrl.worldMap.panToMapCenter();
+
     }
 
-    /**
-    * map display
-    */
-    hideAllGraphPopups();
-    ctrl.worldMap.resize();
-    //if (ctrl.mapCenterMoved) 
-    ctrl.worldMap.panToMapCenter();
+
+    if(ctrl.panel.mapCenter === 'cityenv' && ctrl.isADiferentCity())
+      ctrl.worldMap.panToMapCenter();
+    if(ctrl.mapCenterMoved) {
+      ctrl.worldMap.panToMapCenter();
+      ctrl.mapCenterMoved=false;
+    }
+
+
     ctrl.worldMap.clearCircles();
     //for each target drawpoints  
     // ctrl.panel.targets.forEach((target)=>{
