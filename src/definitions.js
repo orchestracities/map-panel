@@ -245,9 +245,36 @@ const panelDefaults = {
 
   resources: {
     airQualityObserved: {
-      pollutants: '{}'
+      pollutants: '{\n'+
+        '"aqi": {"name": "Air Quality Index", "unit": ""},\n'+
+        '"h": {"name": "Hydrogen", "unit": ""},\n'+
+        '"no2": {"name": "Nitrogen Dioxide", "unit": "µg/m3"},\n'+
+        '"p": {"name": "Pressure", "unit": "hPa"},\n'+
+        '"pm10": {"name": "PM10", "unit": "ug/m3"},\n'+
+        '"pm25": {"name": "PM25", "unit": "ug/m3"},\n'+
+        '"t": {"name": "Temperature", "unit": "ºC"}\n'+
+      '}'
     }
-  }  
+  },
+  targets: [{
+    refId: "A",
+    groupByAliases: ["type"],
+    groupByColumns: ["entity_type"],
+    whereClauses: [],
+    metricAggs: [
+      {alias: "id", column: "entity_id", type: "raw"},
+      {alias: "value", column: "aqi", type: "raw"}, 
+      {alias: "longitude", column: "longitude(location)", type: "raw"},
+      {alias: "latitude", column: "latitude(location)", type: "raw"},
+      {alias: "created_at", column: "time_index", type: "raw"}      
+//      {column: "h", type: "raw"},
+//      {column: "no2", type: "raw"},
+//      {column: "p", type: "raw"},
+//      {column: "pm10", type: "raw"},
+//      {column: "pm25", type: "raw"},
+//      {column: "t", type: "raw"}
+    ]
+  }]
 };
 
 const mapCenters = {

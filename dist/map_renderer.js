@@ -16,15 +16,16 @@ System.register(['./worldmap', './utils/map_utils'], function (_export, _context
 
       if (!ctrl.worldMap) {
         ctrl.worldMap = new WorldMap(ctrl, mapContainer[0]);
-
         /**
         * map display
         */
         hideAllGraphPopups(ctrl.panel.id);
-        ctrl.worldMap.resize();
+
         //if (ctrl.mapCenterMoved) 
         ctrl.worldMap.panToMapCenter();
       }
+
+      ctrl.worldMap.resize();
 
       if (ctrl.panel.mapCenter === 'cityenv' && ctrl.isADiferentCity()) ctrl.worldMap.panToMapCenter();
       if (ctrl.mapCenterMoved) {
@@ -46,7 +47,6 @@ System.register(['./worldmap', './utils/map_utils'], function (_export, _context
       */
       ctrl.worldMap.prepareSeries();
       ctrl.worldMap.drawChart(true); // call drawChart but redraw the chart just update information related
-
 
       ctrl.renderingCompleted();
     }
