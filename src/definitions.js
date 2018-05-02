@@ -274,7 +274,9 @@ const panelDefaults = {
 //      {column: "pm25", type: "raw"},
 //      {column: "t", type: "raw"}
     ]
-  }]
+  }],
+  currentParameterForChart: 'AQI'
+
 };
 
 const mapCenters = {

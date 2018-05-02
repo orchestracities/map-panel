@@ -13,9 +13,6 @@ import {
 } from './utils/map_utils';
 import { filterEmptyAndZeroValues } from './utils/data_formatter';
 
-let currentTargetForChart = null;
-let currentParameterForChart = 'AQI';
-
 const DRAW_CHART = false
 const REDRAW_CHART = true
 
@@ -28,10 +25,11 @@ export default class WorldMap {
     this.ctrl = ctrl;
     this.mapContainer = mapContainer;
     this.circles = [];
-    this.validated_pollutants = {}
-    this.timeSeries = {}
-    this.chartSeries = {}
-    this.chartData = []
+    this.validated_pollutants = {};
+    this.timeSeries = {};
+    this.chartSeries = {};
+    this.chartData = [];
+    this.currentTargetForChart = null;
 
     this.createMap();   //only called once
   }
@@ -66,7 +64,7 @@ export default class WorldMap {
     // this.map.on('zoomstart', (e) => { mapZoom = this.map.getZoom() });
     this.map.on('click', () => {
       hideAllGraphPopups(this.ctrl.panel.id);
-      currentTargetForChart = null;
+      this.currentTargetForChart = null;
     });
 
     const selectedTileServer = tileServers[this.ctrl.tileServer];
@@ -78,9 +76,9 @@ export default class WorldMap {
       attribution: selectedTileServer.attribution
     }).addTo(this.map, true);
 
-    document.querySelector('.air-parameters-dropdown')
+    document.querySelector('#air_parameters_dropdown_'+this.ctrl.panel.id)
       .addEventListener('change', (event) => {
-        currentParameterForChart = event.currentTarget.value;
+        this.ctrl.panel.currentParameterForChart = event.currentTarget.value;
         this.drawChart(REDRAW_CHART);
       }); //, {passive: true} <= to avoid blocking
   }
@@ -119,9 +117,9 @@ export default class WorldMap {
   // Prepare series to show in chart
   prepareSeries() {    
     this.timeSeries = getTimeSeries(this.data);
-      if (currentTargetForChart === null) 
-    return ;
-    this.chartSeries = getUpdatedChartSeries(this.chartSeries, this.timeSeries, currentTargetForChart, currentParameterForChart);
+    if (this.currentTargetForChart === null) 
+      return ;
+    this.chartSeries = getUpdatedChartSeries(this.chartSeries, this.timeSeries, this.currentTargetForChart, this.ctrl.panel.currentParameterForChart);
   }
 
   addPointsToMap() {
@@ -159,7 +157,7 @@ export default class WorldMap {
     }
 
     shape
-      .on('click', this.setTarget)
+      .on('click', (e) => {this.currentTargetForChart = e})
       .on('click', () => this.drawChart(REDRAW_CHART))
 
     this.createPopup(shape, stickyPopupInfo);
@@ -183,7 +181,7 @@ export default class WorldMap {
   }
 
   setTarget(event) {
-    currentTargetForChart = event;
+    this.currentTargetForChart = event;
   }
 
   resize() {
@@ -212,23 +210,23 @@ export default class WorldMap {
   }
 
   drawChart(redrawChart) {
-    if(currentTargetForChart==null || this.timeSeries==null ) {
-      console.log("unnable to drawChart")
+    if(this.currentTargetForChart==null || this.timeSeries==null ) {
+      console.log("unable to drawChart")
       console.log("currentTargetForChart")
-      console.log(currentTargetForChart)
+      console.log(this.currentTargetForChart)
       console.log("this.timeSeries")
       console.log(this.timeSeries)
       return ;
     }
     
-    drawPopups(this.ctrl.panel.id, this.timeSeries, this.validated_pollutants, currentParameterForChart, currentTargetForChart)
+    drawPopups(this.ctrl.panel.id, this.timeSeries, this.validated_pollutants, this.ctrl.panel.currentParameterForChart, this.currentTargetForChart)
 
     // ------
     let parameterUnit = ''
     let title = ''
 
     if (redrawChart) {
-      [this.chartData, parameterUnit, title] = processData(this.chartSeries, this.timeSeries, this.validated_pollutants, currentParameterForChart, currentTargetForChart )
+      [this.chartData, parameterUnit, title] = processData(this.chartSeries, this.timeSeries, this.validated_pollutants, this.ctrl.panel.currentParameterForChart, this.currentTargetForChart )
     }
     
     renderChart(this.ctrl.panel.id, this.chartSeries, this.chartData, parameterUnit, title)

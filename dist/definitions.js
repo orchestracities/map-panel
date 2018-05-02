@@ -266,7 +266,9 @@ System.register(['./vendor/leaflet/leaflet'], function (_export, _context) {
             //      {column: "pm25", type: "raw"},
             //      {column: "t", type: "raw"}
           }]
-        }]
+        }],
+        currentParameterForChart: 'AQI'
+
       });
 
       _export('mapCenters', mapCenters = {

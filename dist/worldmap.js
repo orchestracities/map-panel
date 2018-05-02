@@ -3,7 +3,7 @@
 System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/leaflet', './definitions', './utils/map_utils', './utils/data_formatter'], function (_export, _context) {
   "use strict";
 
-  var _, Highcharts, L, tileServers, dataTreatment, processData, getTimeSeries, getUpdatedChartSeries, drawPopups, renderChart, hideAllGraphPopups, getDataPointValues, getDataPointStickyInfo, filterEmptyAndZeroValues, _slicedToArray, _createClass, currentTargetForChart, currentParameterForChart, DRAW_CHART, REDRAW_CHART, CIRCLE_RADIUS, POLYGON_MAGNIFY_RATIO, WorldMap;
+  var _, Highcharts, L, tileServers, dataTreatment, processData, getTimeSeries, getUpdatedChartSeries, drawPopups, renderChart, hideAllGraphPopups, getDataPointValues, getDataPointStickyInfo, filterEmptyAndZeroValues, _slicedToArray, _createClass, DRAW_CHART, REDRAW_CHART, CIRCLE_RADIUS, POLYGON_MAGNIFY_RATIO, WorldMap;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -90,8 +90,6 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
         };
       }();
 
-      currentTargetForChart = null;
-      currentParameterForChart = 'AQI';
       DRAW_CHART = false;
       REDRAW_CHART = true;
       CIRCLE_RADIUS = 200;
@@ -108,6 +106,7 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
           this.timeSeries = {};
           this.chartSeries = {};
           this.chartData = [];
+          this.currentTargetForChart = null;
 
           this.createMap(); //only called once
         }
@@ -144,7 +143,7 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
             // this.map.on('zoomstart', (e) => { mapZoom = this.map.getZoom() });
             this.map.on('click', function () {
               hideAllGraphPopups(_this.ctrl.panel.id);
-              currentTargetForChart = null;
+              _this.currentTargetForChart = null;
             });
 
             var selectedTileServer = tileServers[this.ctrl.tileServer];
@@ -156,8 +155,8 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
               attribution: selectedTileServer.attribution
             }).addTo(this.map, true);
 
-            document.querySelector('.air-parameters-dropdown').addEventListener('change', function (event) {
-              currentParameterForChart = event.currentTarget.value;
+            document.querySelector('#air_parameters_dropdown_' + this.ctrl.panel.id).addEventListener('change', function (event) {
+              _this.ctrl.panel.currentParameterForChart = event.currentTarget.value;
               _this.drawChart(REDRAW_CHART);
             }); //, {passive: true} <= to avoid blocking
           }
@@ -198,8 +197,8 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
           key: 'prepareSeries',
           value: function prepareSeries() {
             this.timeSeries = getTimeSeries(this.data);
-            if (currentTargetForChart === null) return;
-            this.chartSeries = getUpdatedChartSeries(this.chartSeries, this.timeSeries, currentTargetForChart, currentParameterForChart);
+            if (this.currentTargetForChart === null) return;
+            this.chartSeries = getUpdatedChartSeries(this.chartSeries, this.timeSeries, this.currentTargetForChart, this.ctrl.panel.currentParameterForChart);
           }
         }, {
           key: 'addPointsToMap',
@@ -239,7 +238,9 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
                 shape = L.polygon([[dataPoint.locationLatitude - 0.001 * POLYGON_MAGNIFY_RATIO, dataPoint.locationLongitude - 0.0015 * POLYGON_MAGNIFY_RATIO], [dataPoint.locationLatitude + 0.001 * POLYGON_MAGNIFY_RATIO, dataPoint.locationLongitude], [dataPoint.locationLatitude - 0.001 * POLYGON_MAGNIFY_RATIO, dataPoint.locationLongitude + 0.0015 * POLYGON_MAGNIFY_RATIO]], dataPointDetails);
             }
 
-            shape.on('click', this.setTarget).on('click', function () {
+            shape.on('click', function (e) {
+              _this3.currentTargetForChart = e;
+            }).on('click', function () {
               return _this3.drawChart(REDRAW_CHART);
             });
 
@@ -268,7 +269,7 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
         }, {
           key: 'setTarget',
           value: function setTarget(event) {
-            currentTargetForChart = event;
+            this.currentTargetForChart = event;
           }
         }, {
           key: 'resize',
@@ -306,23 +307,23 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
         }, {
           key: 'drawChart',
           value: function drawChart(redrawChart) {
-            if (currentTargetForChart == null || this.timeSeries == null) {
-              console.log("unnable to drawChart");
+            if (this.currentTargetForChart == null || this.timeSeries == null) {
+              console.log("unable to drawChart");
               console.log("currentTargetForChart");
-              console.log(currentTargetForChart);
+              console.log(this.currentTargetForChart);
               console.log("this.timeSeries");
               console.log(this.timeSeries);
               return;
             }
 
-            drawPopups(this.ctrl.panel.id, this.timeSeries, this.validated_pollutants, currentParameterForChart, currentTargetForChart);
+            drawPopups(this.ctrl.panel.id, this.timeSeries, this.validated_pollutants, this.ctrl.panel.currentParameterForChart, this.currentTargetForChart);
 
             // ------
             var parameterUnit = '';
             var title = '';
 
             if (redrawChart) {
-              var _processData = processData(this.chartSeries, this.timeSeries, this.validated_pollutants, currentParameterForChart, currentTargetForChart);
+              var _processData = processData(this.chartSeries, this.timeSeries, this.validated_pollutants, this.ctrl.panel.currentParameterForChart, this.currentTargetForChart);
 
               var _processData2 = _slicedToArray(_processData, 3);
 
