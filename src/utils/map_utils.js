@@ -409,10 +409,13 @@ function renderChart(panel_id, chartSeries, chartData, parameterUnit, title) {
   );
 }
 function hideAllGraphPopups(panel_id) {
-  document.getElementById('measures_table_'+panel_id).style.display = 'none';
-  document.getElementById('health_concerns_wrapper_'+panel_id).style.display = 'none';
-  document.getElementById('environment_table_'+panel_id).style.display = 'none';
-  document.getElementById('traffic_table_'+panel_id).style.display = 'none';
+  let map_table_popups = ['measures_table', 'health_concerns_wrapper', 'environment_table', 'traffic_table'];
+
+  for(let map_table_popup of map_table_popups) {
+    let popup = document.getElementById(map_table_popup+'_'+panel_id)
+    if(popup)
+      popup.style.display = 'none';
+  }
 }
 function drawHealthConcernsPopup(panel_id, providedPollutants, risk, color, meaning, map_size) {
   const healthConcernsWrapper = document.getElementById('health_concerns_wrapper_'+panel_id);

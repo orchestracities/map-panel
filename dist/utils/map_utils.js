@@ -386,10 +386,33 @@ System.register(['lodash', 'app/core/config', '../definitions'], function (_expo
       }]
     });
   }function hideAllGraphPopups(panel_id) {
-    document.getElementById('measures_table_' + panel_id).style.display = 'none';
-    document.getElementById('health_concerns_wrapper_' + panel_id).style.display = 'none';
-    document.getElementById('environment_table_' + panel_id).style.display = 'none';
-    document.getElementById('traffic_table_' + panel_id).style.display = 'none';
+    var map_table_popups = ['measures_table', 'health_concerns_wrapper', 'environment_table', 'traffic_table'];
+
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+      for (var _iterator = map_table_popups[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+        var map_table_popup = _step.value;
+
+        var popup = document.getElementById(map_table_popup + '_' + panel_id);
+        if (popup) popup.style.display = 'none';
+      }
+    } catch (err) {
+      _didIteratorError = true;
+      _iteratorError = err;
+    } finally {
+      try {
+        if (!_iteratorNormalCompletion && _iterator.return) {
+          _iterator.return();
+        }
+      } finally {
+        if (_didIteratorError) {
+          throw _iteratorError;
+        }
+      }
+    }
   }function drawHealthConcernsPopup(panel_id, providedPollutants, risk, color, meaning, map_size) {
     var healthConcernsWrapper = document.getElementById('health_concerns_wrapper_' + panel_id);
     var healthConcerns = document.querySelector('#health_concerns_wrapper_' + panel_id + '>div');
