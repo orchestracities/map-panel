@@ -2,13 +2,14 @@
 
 ## v1.0.0
 
-### New features
+### New features / Fix
 - Changed the plugin's working process. Any datasource query with a group by clause will result in layers.
 - Map rendering faster.
 - Removal of polylines for data point of type traffic flow observed.
 - Data points of type air quality, traffic flow and other have now distinct shapes (circle, square and triangle). 
 - Added missing snapshot functionality (Not tested).
 - New option on editor for cityenv variable support. If we choose this option the map centers on the selected city.
+- Fix problem with multiple map panels in the same dashboard.
 
 ### Develoment
 - Improvements based on grafana development guide best practices.
