@@ -133,9 +133,10 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
         }, {
           key: 'onDataError',
           value: function onDataError(error) {
-            console.log('Error: ');
-            console.log(error);
-            if (error.data && error.data.error) console.log(error.data.error.message);
+            if (error && error.data && error.data.error) {
+              console.log('Error: ');
+              console.log(error.data.error.message);
+            }
             this.onDataReceived([]);
           }
         }, {

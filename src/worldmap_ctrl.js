@@ -53,11 +53,11 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
     this.render();
   }
 
-  onDataError(error) {
-    console.log('Error: ')
-    console.log(error)
-    if(error.data && error.data.error)
+  onDataError(error) {    
+    if(error && error.data && error.data.error) {
+      console.log('Error: ')
       console.log(error.data.error.message)
+    }
     this.onDataReceived([]);
   }
 
