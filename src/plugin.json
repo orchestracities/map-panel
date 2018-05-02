@@ -1,6 +1,6 @@
 {
   "type": "panel",
-  "name": "Environment and Traffic Panel",
+  "name": "Map Panel",
   "id": "grafana-traffic-env-panel",
 
   "info": {
@@ -18,11 +18,11 @@
       {"name": "Project site", "url": ""},
       {"name": "MIT License", "url": ""}
     ],
-    "version": "0.2.0"
+    "version": "1.0.0"
   },
 
   "dependencies": {
-    "grafanaVersion": "3.x.x",
+    "grafanaVersion": "5.x.x",
     "plugins": [ ]
   }
 }
