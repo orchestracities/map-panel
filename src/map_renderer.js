@@ -23,13 +23,11 @@ export default function link(scope, elem, attrs, ctrl) {
     
     ctrl.worldMap.resize();
 
-    if(ctrl.panel.mapCenter === 'cityenv' && ctrl.isADiferentCity())
+    if( (ctrl.panel.mapCenter === 'cityenv' && ctrl.isADiferentCity()) || ctrl.mapCenterMoved)
       ctrl.worldMap.panToMapCenter();
-    if(ctrl.mapCenterMoved) {
-      ctrl.worldMap.panToMapCenter();
-      ctrl.mapCenterMoved=false;
-    }
 
+    if(ctrl.mapCenterMoved)
+      ctrl.mapCenterMoved=false;
 
     ctrl.worldMap.clearCircles();
     //for each target drawpoints  

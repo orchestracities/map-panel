@@ -77,7 +77,7 @@ System.register(['lodash', 'app/core/config', '../definitions'], function (_expo
     });
 
     return finalData;
-  }function getUpdatedChartSeries(chartSeries, timeSeries, currentTargetForChart, currentParameterForChart) {
+  }function getUpdatedChartSeries(chartSeries, timeSeries, currentParameterForChart, currentTargetForChart) {
 
     if (Object.keys(chartSeries).length === 0) return chartSeries;
 
@@ -307,13 +307,22 @@ System.register(['lodash', 'app/core/config', '../definitions'], function (_expo
         var color_index = calculateCarsIntensityIndex(dataPoint.value);
         _.defaults(values, {
           color: CARS_COUNT.color[color_index],
-          fillColor: CARS_COUNT[color_index]
+          fillColor: CARS_COUNT.color[color_index]
         });
       }
     }
 
     return values;
-  }function getDataPointStickyInfo(data) {
+  }function getMapMarkerClassName(type, value) {
+    var resp = 'map-marker-';
+    if (type === 'AirQualityObserved') {
+      return resp + AQI.classColor[calculateAQIIndex(value)];
+    } else if (type === 'TrafficFlowObserved') return resp + CARS_COUNT.classColor[calculateCarsIntensityIndex(value)];
+    return resp + 'default';
+  }function getDataPointStickyInfo(dataPoint) {
+
+    var data = getDataPointValues(dataPoint);
+
     var stickyInfo = '<div class="stycky-popup-info">';
 
     if (data.type === 'AirQualityObserved') {
@@ -521,6 +530,8 @@ System.register(['lodash', 'app/core/config', '../definitions'], function (_expo
       _export('getDataPointStickyInfo', getDataPointStickyInfo);
 
       _export('getSelectedCity', getSelectedCity);
+
+      _export('getMapMarkerClassName', getMapMarkerClassName);
     }
   };
 });

@@ -27,11 +27,9 @@ System.register(['./worldmap', './utils/map_utils'], function (_export, _context
 
       ctrl.worldMap.resize();
 
-      if (ctrl.panel.mapCenter === 'cityenv' && ctrl.isADiferentCity()) ctrl.worldMap.panToMapCenter();
-      if (ctrl.mapCenterMoved) {
-        ctrl.worldMap.panToMapCenter();
-        ctrl.mapCenterMoved = false;
-      }
+      if (ctrl.panel.mapCenter === 'cityenv' && ctrl.isADiferentCity() || ctrl.mapCenterMoved) ctrl.worldMap.panToMapCenter();
+
+      if (ctrl.mapCenterMoved) ctrl.mapCenterMoved = false;
 
       ctrl.worldMap.clearCircles();
       //for each target drawpoints  

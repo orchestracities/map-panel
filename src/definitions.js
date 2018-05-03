@@ -7,12 +7,14 @@ const AQI = {
   'range': [0, 50, 100, 150, 200, 300, 500],
   'meaning': ['Good', 'Moderate', 'Unhealthy for Sensitive Groups', 'Unhealthy', 'Very Unhealthy', 'Hazardous'],
   'color': ['#00e400', '#ffff00', '#ff7e00', '#ff0000', '#8f3f97', '#7e0023'],
+  'classColor': ['level-0', 'level-1', 'level-2', 'level-3', 'level-4', 'level-5', 'level-6'],
   'risks': ['Air quality is considered satisfactory, and air pollution poses little or no risk.', 'Air quality is acceptable; however, for some pollutants there may be a moderate health concern for a very small number of people who are unusually sensitive to air pollution.', 'Members of sensitive groups may experience health effects. The general public is not likely to be affected.', 'Everyone may begin to experience health effects; members of sensitive groups may experience more serious health effects.', 'Health alert: everyone may experience more serious health effects.', 'Health warnings of emergency conditions. The entire population is more likely to be affected.']
 };
 
 const CARS_COUNT = {
   'range': [0, 15, 30, 45, 70, 85, 100],
-  'color': ['#00e400', '#ffff00', '#ff7e00', '#ff0000', '#8f3f97', '#7e0023']
+  'color': ['#00e400', '#ffff00', '#ff7e00', '#ff0000', '#8f3f97', '#7e0023'],
+  'classColor': ['level-0', 'level-1', 'level-2', 'level-3', 'level-4', 'level-5', 'level-6']
 };
 
 const HIGHCHARTS_THEME_DARK = {
@@ -217,11 +219,15 @@ const tileServers = {
   'CartoDB Positron': { url: 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>', subdomains: 'abcd'},
   'CartoDB Dark': {url: 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png', attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>', subdomains: 'abcd'}
 };
-const carMarker = window.L.icon({
+const DEFAULT_MAP_MARKER = L.icon({
   iconUrl: 'img/map_marker.png',
   iconSize: [25, 40]
 });
 
+const ICON_TYPES = [
+        'info-circle', 'question', 'clock-o', 'warning', 'car', 'bell', 'bell-slash', 'bicycle', 'bus', 'close', 
+        'ban', 'tree', 'trash', 'truck', 'umbrella', 'volume-up'
+       ]
 
 const panelDefaults = {
   maxDataPoints: 1,
@@ -275,7 +281,8 @@ const panelDefaults = {
 //      {column: "t", type: "raw"}
     ]
   }],
-  currentParameterForChart: 'AQI'
+  currentParameterForChart: 'AQI',
+  layersIcons: {}
 
 };
 
@@ -294,6 +301,6 @@ const NOMINATIM_ADDRESS = 'https://nominatim.openstreetmap.org/search/<city_name
 
 export {
   PLUGIN_PATH, 
-  AQI, CARS_COUNT, HIGHCHARTS_THEME_DARK, tileServers, carMarker, panelDefaults, mapCenters, 
-  MIN_WIDTH_TO_SHOW_MAP_POPUPS, MIN_HEIGHT_TO_SHOW_MAP_POPUPS, NOMINATIM_ADDRESS
+  AQI, CARS_COUNT, HIGHCHARTS_THEME_DARK, tileServers, DEFAULT_MAP_MARKER, panelDefaults, mapCenters, 
+  MIN_WIDTH_TO_SHOW_MAP_POPUPS, MIN_HEIGHT_TO_SHOW_MAP_POPUPS, NOMINATIM_ADDRESS, ICON_TYPES
 }

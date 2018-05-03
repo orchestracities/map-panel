@@ -3,7 +3,7 @@
 System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/leaflet', './definitions', './utils/map_utils', './utils/data_formatter'], function (_export, _context) {
   "use strict";
 
-  var _, Highcharts, L, tileServers, dataTreatment, processData, getTimeSeries, getUpdatedChartSeries, drawPopups, renderChart, hideAllGraphPopups, getDataPointValues, getDataPointStickyInfo, filterEmptyAndZeroValues, _slicedToArray, _createClass, DRAW_CHART, REDRAW_CHART, CIRCLE_RADIUS, POLYGON_MAGNIFY_RATIO, WorldMap;
+  var _, Highcharts, L, tileServers, PLUGIN_PATH, dataTreatment, processData, getTimeSeries, getUpdatedChartSeries, drawPopups, renderChart, hideAllGraphPopups, getDataPointValues, getDataPointStickyInfo, getMapMarkerClassName, filterEmptyAndZeroValues, _slicedToArray, _createClass, DRAW_CHART, REDRAW_CHART, CIRCLE_RADIUS, POLYGON_MAGNIFY_RATIO, WorldMap;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -20,6 +20,7 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
       L = _vendorLeafletLeaflet.default;
     }, function (_definitions) {
       tileServers = _definitions.tileServers;
+      PLUGIN_PATH = _definitions.PLUGIN_PATH;
     }, function (_utilsMap_utils) {
       dataTreatment = _utilsMap_utils.dataTreatment;
       processData = _utilsMap_utils.processData;
@@ -30,6 +31,7 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
       hideAllGraphPopups = _utilsMap_utils.hideAllGraphPopups;
       getDataPointValues = _utilsMap_utils.getDataPointValues;
       getDataPointStickyInfo = _utilsMap_utils.getDataPointStickyInfo;
+      getMapMarkerClassName = _utilsMap_utils.getMapMarkerClassName;
     }, function (_utilsData_formatter) {
       filterEmptyAndZeroValues = _utilsData_formatter.filterEmptyAndZeroValues;
     }],
@@ -198,7 +200,7 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
           value: function prepareSeries() {
             this.timeSeries = getTimeSeries(this.data);
             if (this.currentTargetForChart === null) return;
-            this.chartSeries = getUpdatedChartSeries(this.chartSeries, this.timeSeries, this.currentTargetForChart, this.ctrl.panel.currentParameterForChart);
+            this.chartSeries = getUpdatedChartSeries(this.chartSeries, this.timeSeries, this.ctrl.panel.currentParameterForChart, this.currentTargetForChart);
           }
         }, {
           key: 'addPointsToMap',
@@ -208,21 +210,34 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
             //console.log('addPointsToMap');
             Object.keys(this.data).forEach(function (key) {
               var value = _this2.data[key][_this2.data[key].length - 1]; // Use the last data for each sensor to create on map -> avoid repeated markers on map and use just the last measurement (the one needed to show on marker)
-              var newShape = _this2.createShape(value);
+              var newIcon = _this2.createIcon(value);
+
               try {
-                _this2.overlayMaps[value.type].addLayer(newShape);
+                if (newIcon) _this2.overlayMaps[value.type].addLayer(newIcon);
               } catch (error) {
                 console.log(value);console.log(error);
               }
             });
           }
         }, {
+          key: 'createIcon',
+          value: function createIcon(dataPoint) {
+            //console.log(this.ctrl.panel.layersIcons)
+            if (!dataPoint || !dataPoint.type) return null;
+
+            var styled_icon = this.ctrl.panel.layersIcons[dataPoint.type];
+            console.log(styled_icon ? styled_icon : 'type not found. going to use question marker!');
+
+            var icon = styled_icon ? this.createMarker(dataPoint, styled_icon ? styled_icon : 'question') : this.createShape(dataPoint);
+
+            this.createPopup(this.associateEvents(icon), getDataPointStickyInfo(dataPoint));
+
+            return icon;
+          }
+        }, {
           key: 'createShape',
           value: function createShape(dataPoint) {
-            var _this3 = this;
-
             var dataPointDetails = getDataPointValues(dataPoint);
-            var stickyPopupInfo = getDataPointStickyInfo(dataPointDetails);
             var shape = void 0;
 
             switch (dataPoint.type) {
@@ -238,15 +253,31 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
                 shape = L.polygon([[dataPoint.locationLatitude - 0.001 * POLYGON_MAGNIFY_RATIO, dataPoint.locationLongitude - 0.0015 * POLYGON_MAGNIFY_RATIO], [dataPoint.locationLatitude + 0.001 * POLYGON_MAGNIFY_RATIO, dataPoint.locationLongitude], [dataPoint.locationLatitude - 0.001 * POLYGON_MAGNIFY_RATIO, dataPoint.locationLongitude + 0.0015 * POLYGON_MAGNIFY_RATIO]], dataPointDetails);
             }
 
-            shape.on('click', function (e) {
-              _this3.currentTargetForChart = e;
+            return shape;
+          }
+        }, {
+          key: 'createMarker',
+          value: function createMarker(dataPoint, styled_icon) {
+            var dataPointDetails = getDataPointValues(dataPoint);
+            //console.log(dataPointDetails)
+            var myIcon = L.icon({
+              iconUrl: PLUGIN_PATH + 'img/fa/' + styled_icon + '.svg',
+              iconSize: [25, 25], // size of the icon
+              className: getMapMarkerClassName(dataPointDetails.value)
+            });
+
+            return L.marker([dataPointDetails.latitude, dataPointDetails.longitude], { icon: myIcon, id: dataPointDetails.id, type: dataPointDetails.type });
+          }
+        }, {
+          key: 'associateEvents',
+          value: function associateEvents(shape) {
+            var _this3 = this;
+
+            return shape.on('click', function (event) {
+              _this3.currentTargetForChart = event;
             }).on('click', function () {
               return _this3.drawChart(REDRAW_CHART);
             });
-
-            this.createPopup(shape, stickyPopupInfo);
-
-            return shape;
           }
         }, {
           key: 'createPopup',
@@ -308,11 +339,11 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
           key: 'drawChart',
           value: function drawChart(redrawChart) {
             if (this.currentTargetForChart == null || this.timeSeries == null) {
-              console.log("unable to drawChart");
-              console.log("currentTargetForChart");
-              console.log(this.currentTargetForChart);
-              console.log("this.timeSeries");
-              console.log(this.timeSeries);
+              //console.log("not going to drawChart")
+              //console.log("currentTargetForChart")
+              //console.log(this.currentTargetForChart)
+              //console.log("this.timeSeries")
+              //console.log(this.timeSeries)
               return;
             }
 

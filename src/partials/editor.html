@@ -65,13 +65,33 @@
   </div>
 </div>
 
-<div>
-  <p>Some considerations:</p>
-  <p>When adding this plugin to your dashboard a query will be added to it by default.</p>
-  <p>You must have a default datasource or select one from the availables</p>
+<h5>Map Layers</h5>
+<div ng-repeat="layerName in ctrl.layerNames">
+  <div class="section-heading">{{layerName}}</div>
+  <div class="section gf-form-group">
+    <div class="gf-form">
+      <label class="gf-form-label width-10">Icon</label>
+
+      <select class="gf-form-input"
+        ng-model="ctrl.panel.layersIcons[layerName]"
+        ng-options="iconType for iconType in ctrl.iconTypes"
+        ng-change="ctrl.render()"
+        >
+      </select>
+      
+    </div>
+  </div>
 </div>
-<!-- 
-<h5>Datasources</h5>
+
+
+<div>
+  <p>Info:</p>
+  <p>Adding this panel for the firt time to your dashboard will pre-fill Metrics tab fields.</p>
+  <p>You must have a default datasource or select one from the availables.</p>
+</div>
+
+
+<!-- <h5>Datasources</h5>
 
 <div ng-repeat="target in ctrl.panel.targets">
   <div class="section-heading">{{target.datasource}}</div>
@@ -87,5 +107,5 @@
       </textarea>        
     </div>
   </div>
-</div>
- -->
+</div> -->
+ 

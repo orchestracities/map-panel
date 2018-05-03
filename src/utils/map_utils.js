@@ -75,7 +75,7 @@ function dataTreatment(data) {
   return finalData;
 }
 
-function getUpdatedChartSeries(chartSeries, timeSeries, currentTargetForChart, currentParameterForChart) {
+function getUpdatedChartSeries(chartSeries, timeSeries, currentParameterForChart, currentTargetForChart) {
 
   if(Object.keys(chartSeries).length === 0)
     return chartSeries
@@ -223,7 +223,6 @@ function calculateCarsIntensityIndex(value) {
   return 0;
 }
 
-
 /*
 * View components controllers
 */
@@ -312,8 +311,8 @@ function getDataPointValues(dataPoint) {
     if(dataPoint.type==='TrafficFlowObserved') {
       let color_index = calculateCarsIntensityIndex(dataPoint.value)
       _.defaults(values, {
-        color: CARS_COUNT.color[color_index],
-        fillColor: CARS_COUNT[color_index]
+        color: CARS_COUNT.color[color_index], 
+        fillColor: CARS_COUNT.color[color_index]
       })
     }
   }
@@ -321,7 +320,19 @@ function getDataPointValues(dataPoint) {
   return values;
 }
 
-function getDataPointStickyInfo(data) {
+function getMapMarkerClassName(type, value) {
+  let resp = 'map-marker-';
+  if(type==='AirQualityObserved') {
+    return resp+AQI.classColor[calculateAQIIndex(value)];
+  } else if(type==='TrafficFlowObserved')
+    return resp+CARS_COUNT.classColor[calculateCarsIntensityIndex(value)];
+  return resp+'default';
+}
+
+function getDataPointStickyInfo(dataPoint) {
+
+  let data = getDataPointValues(dataPoint);
+  
   let stickyInfo = '<div class="stycky-popup-info">'
 
   if(data.type==='AirQualityObserved') {
@@ -511,5 +522,7 @@ export {
   getDataPointValues,
   getDataPointStickyInfo,
 
-  getSelectedCity
+  getSelectedCity,
+
+  getMapMarkerClassName
 }

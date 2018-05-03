@@ -7,7 +7,7 @@ import kbn from 'app/core/utils/kbn';
 /* Vendor specific */
 import _ from 'lodash';
 /* App specific */
-import { PLUGIN_PATH, panelDefaults, mapCenters } from './definitions'
+import { PLUGIN_PATH, panelDefaults, mapCenters, ICON_TYPES } from './definitions'
 import { getDatasources, getValidDatasources } from './utils/datasource';
 
 import { getCityCoordinates, getSelectedCity } from './utils/map_utils';
@@ -26,12 +26,13 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
     super($scope, $injector);
     this.setMapProvider(contextSrv);
     _.defaultsDeep(this.panel, panelDefaults);
-
+    this.iconTypes = ICON_TYPES;
     this.events.on('init-edit-mode', this.onInitEditMode.bind(this));
     this.events.on('data-error', this.onDataError.bind(this));
     this.events.on('data-received', this.onDataReceived.bind(this));  //process resultset as a result of the execution of all queries
     this.events.on('data-snapshot-load', this.onDataReceived.bind(this));
-    this.handleDatasourceParamsChange = this.applyDatasourceParamsChange.bind(this)
+    //this.handleDatasourceParamsChange = this.applyDatasourceParamsChange.bind(this)
+    //this.handleMapLayerIconsChange = this.changeMapLayerIcons.bind(this)
   }
 
   onInitEditMode() {
@@ -75,12 +76,17 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
     return series;
   }
 
-  applyDatasourceParamsChange(datasource) {
-    console.log('datasource')
-    console.log(datasource)
-    /*this.panel.pollutants=datasource.pollutants*/
+/*  changeMapLayerIcons(mapLayer) {
+    console.log('mapLayer')
+    console.log(mapLayer)
+    //this.panel.layersIcons[mapLayer]=mapLayer
+
+    console.log('panel')
+
+    console.log(this.panel.layersIcons)
+
     this.render()
-  }
+  }*/
 
   onPanelTeardown() {
     if (this.worldMap) this.worldMap.remove();

@@ -3,7 +3,7 @@
 System.register(['./vendor/leaflet/leaflet'], function (_export, _context) {
   "use strict";
 
-  var L, PLUGIN_PATH, AQI, CARS_COUNT, HIGHCHARTS_THEME_DARK, tileServers, carMarker, panelDefaults, mapCenters, MIN_WIDTH_TO_SHOW_MAP_POPUPS, MIN_HEIGHT_TO_SHOW_MAP_POPUPS, NOMINATIM_ADDRESS;
+  var L, PLUGIN_PATH, AQI, CARS_COUNT, HIGHCHARTS_THEME_DARK, tileServers, DEFAULT_MAP_MARKER, ICON_TYPES, panelDefaults, mapCenters, MIN_WIDTH_TO_SHOW_MAP_POPUPS, MIN_HEIGHT_TO_SHOW_MAP_POPUPS, NOMINATIM_ADDRESS;
   return {
     setters: [function (_vendorLeafletLeaflet) {
       L = _vendorLeafletLeaflet.default;
@@ -15,12 +15,14 @@ System.register(['./vendor/leaflet/leaflet'], function (_export, _context) {
         'range': [0, 50, 100, 150, 200, 300, 500],
         'meaning': ['Good', 'Moderate', 'Unhealthy for Sensitive Groups', 'Unhealthy', 'Very Unhealthy', 'Hazardous'],
         'color': ['#00e400', '#ffff00', '#ff7e00', '#ff0000', '#8f3f97', '#7e0023'],
+        'classColor': ['level-0', 'level-1', 'level-2', 'level-3', 'level-4', 'level-5', 'level-6'],
         'risks': ['Air quality is considered satisfactory, and air pollution poses little or no risk.', 'Air quality is acceptable; however, for some pollutants there may be a moderate health concern for a very small number of people who are unusually sensitive to air pollution.', 'Members of sensitive groups may experience health effects. The general public is not likely to be affected.', 'Everyone may begin to experience health effects; members of sensitive groups may experience more serious health effects.', 'Health alert: everyone may experience more serious health effects.', 'Health warnings of emergency conditions. The entire population is more likely to be affected.']
       });
 
       _export('CARS_COUNT', CARS_COUNT = {
         'range': [0, 15, 30, 45, 70, 85, 100],
-        'color': ['#00e400', '#ffff00', '#ff7e00', '#ff0000', '#8f3f97', '#7e0023']
+        'color': ['#00e400', '#ffff00', '#ff7e00', '#ff0000', '#8f3f97', '#7e0023'],
+        'classColor': ['level-0', 'level-1', 'level-2', 'level-3', 'level-4', 'level-5', 'level-6']
       });
 
       _export('HIGHCHARTS_THEME_DARK', HIGHCHARTS_THEME_DARK = {
@@ -223,10 +225,12 @@ System.register(['./vendor/leaflet/leaflet'], function (_export, _context) {
         'CartoDB Dark': { url: 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png', attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>', subdomains: 'abcd' }
       });
 
-      _export('carMarker', carMarker = window.L.icon({
+      _export('DEFAULT_MAP_MARKER', DEFAULT_MAP_MARKER = L.icon({
         iconUrl: 'img/map_marker.png',
         iconSize: [25, 40]
       }));
+
+      _export('ICON_TYPES', ICON_TYPES = ['info-circle', 'question', 'clock-o', 'warning', 'car', 'bell', 'bell-slash', 'bicycle', 'bus', 'close', 'ban', 'tree', 'trash', 'truck', 'umbrella', 'volume-up']);
 
       _export('panelDefaults', panelDefaults = {
         maxDataPoints: 1,
@@ -267,7 +271,8 @@ System.register(['./vendor/leaflet/leaflet'], function (_export, _context) {
             //      {column: "t", type: "raw"}
           }]
         }],
-        currentParameterForChart: 'AQI'
+        currentParameterForChart: 'AQI',
+        layersIcons: {}
 
       });
 
@@ -295,7 +300,7 @@ System.register(['./vendor/leaflet/leaflet'], function (_export, _context) {
 
       _export('tileServers', tileServers);
 
-      _export('carMarker', carMarker);
+      _export('DEFAULT_MAP_MARKER', DEFAULT_MAP_MARKER);
 
       _export('panelDefaults', panelDefaults);
 
@@ -306,6 +311,8 @@ System.register(['./vendor/leaflet/leaflet'], function (_export, _context) {
       _export('MIN_HEIGHT_TO_SHOW_MAP_POPUPS', MIN_HEIGHT_TO_SHOW_MAP_POPUPS);
 
       _export('NOMINATIM_ADDRESS', NOMINATIM_ADDRESS);
+
+      _export('ICON_TYPES', ICON_TYPES);
     }
   };
 });

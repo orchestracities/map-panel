@@ -6,10 +6,11 @@ import Highcharts from './vendor/highcharts/highstock';
 import L from './vendor/leaflet/leaflet';
 
 /* App Specific */
-import { tileServers } from './definitions';
+import { tileServers, PLUGIN_PATH } from './definitions';
 import { 
   dataTreatment, processData, getTimeSeries, getUpdatedChartSeries,
-  drawPopups, renderChart, hideAllGraphPopups, getDataPointValues, getDataPointStickyInfo
+  drawPopups, renderChart, hideAllGraphPopups, getDataPointValues, getDataPointStickyInfo,
+  getMapMarkerClassName
 } from './utils/map_utils';
 import { filterEmptyAndZeroValues } from './utils/data_formatter';
 
@@ -119,21 +120,42 @@ export default class WorldMap {
     this.timeSeries = getTimeSeries(this.data);
     if (this.currentTargetForChart === null) 
       return ;
-    this.chartSeries = getUpdatedChartSeries(this.chartSeries, this.timeSeries, this.currentTargetForChart, this.ctrl.panel.currentParameterForChart);
+    this.chartSeries = getUpdatedChartSeries(this.chartSeries, this.timeSeries, this.ctrl.panel.currentParameterForChart, this.currentTargetForChart);
   }
 
   addPointsToMap() {
     //console.log('addPointsToMap');
     Object.keys(this.data).forEach((key) => {
-      const value = this.data[key][this.data[key].length - 1 ]; // Use the last data for each sensor to create on map -> avoid repeated markers on map and use just the last measurement (the one needed to show on marker)
-      const newShape = this.createShape(value);
-      try { this.overlayMaps[value.type].addLayer(newShape) } catch(error) { console.log(value); console.log(error) }
+      const value = this.data[key][this.data[key].length - 1]; // Use the last data for each sensor to create on map -> avoid repeated markers on map and use just the last measurement (the one needed to show on marker)
+      const newIcon = this.createIcon(value);
+
+      try { 
+        if(newIcon)
+          this.overlayMaps[value.type].addLayer(newIcon)
+      } catch(error) { console.log(value); console.log(error) }
     });
+  }
+
+  createIcon(dataPoint) {
+    //console.log(this.ctrl.panel.layersIcons)
+    if(!dataPoint || !dataPoint.type)
+      return null;
+    
+    let styled_icon = this.ctrl.panel.layersIcons[dataPoint.type]
+    console.log(styled_icon ? styled_icon : 'type not found. going to use question marker!')
+
+    let icon = styled_icon ? this.createMarker(dataPoint, styled_icon ? styled_icon : 'question') : this.createShape(dataPoint);
+
+    this.createPopup(
+      this.associateEvents(icon), 
+      getDataPointStickyInfo(dataPoint)
+    );
+
+    return icon;
   }
 
   createShape(dataPoint) {
     let dataPointDetails = getDataPointValues(dataPoint);
-    let stickyPopupInfo = getDataPointStickyInfo(dataPointDetails);
     let shape;
 
     switch(dataPoint.type) {
@@ -156,13 +178,28 @@ export default class WorldMap {
         ], dataPointDetails)
     }
 
-    shape
-      .on('click', (e) => {this.currentTargetForChart = e})
-      .on('click', () => this.drawChart(REDRAW_CHART))
-
-    this.createPopup(shape, stickyPopupInfo);
-
     return shape;
+  }
+
+  createMarker(dataPoint, styled_icon) {
+    let dataPointDetails = getDataPointValues(dataPoint);
+    //console.log(dataPointDetails)
+    let myIcon = L.icon({
+      iconUrl: PLUGIN_PATH+'img/fa/'+styled_icon+'.svg',
+      iconSize:  [25, 25], // size of the icon
+      className: getMapMarkerClassName(dataPointDetails.value)
+    });
+
+    return L.marker(
+      [dataPointDetails.latitude, dataPointDetails.longitude], 
+      { icon: myIcon, id: dataPointDetails.id, type: dataPointDetails.type }
+    );
+  }
+
+  associateEvents(shape) {
+    return shape
+      .on('click', (event) => {this.currentTargetForChart = event})
+      .on('click', () => this.drawChart(REDRAW_CHART))
   }
 
   createPopup(shape, stickyPopupInfo) {
@@ -211,11 +248,11 @@ export default class WorldMap {
 
   drawChart(redrawChart) {
     if(this.currentTargetForChart==null || this.timeSeries==null ) {
-      console.log("unable to drawChart")
-      console.log("currentTargetForChart")
-      console.log(this.currentTargetForChart)
-      console.log("this.timeSeries")
-      console.log(this.timeSeries)
+      //console.log("not going to drawChart")
+      //console.log("currentTargetForChart")
+      //console.log(this.currentTargetForChart)
+      //console.log("this.timeSeries")
+      //console.log(this.timeSeries)
       return ;
     }
     

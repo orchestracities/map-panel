@@ -3,7 +3,7 @@
 System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn', 'lodash', './definitions', './utils/datasource', './utils/map_utils', './map_renderer', './utils/data_formatter', './css/worldmap-panel.css!', './vendor/leaflet/leaflet.css!'], function (_export, _context) {
   "use strict";
 
-  var MetricsPanelCtrl, TimeSeries, kbn, _, PLUGIN_PATH, panelDefaults, mapCenters, getDatasources, getValidDatasources, getCityCoordinates, getSelectedCity, mapRenderer, DataFormatter, _createClass, dataFormatter, WorldmapCtrl;
+  var MetricsPanelCtrl, TimeSeries, kbn, _, PLUGIN_PATH, panelDefaults, mapCenters, ICON_TYPES, getDatasources, getValidDatasources, getCityCoordinates, getSelectedCity, mapRenderer, DataFormatter, _createClass, dataFormatter, WorldmapCtrl;
 
   function _toConsumableArray(arr) {
     if (Array.isArray(arr)) {
@@ -60,6 +60,7 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
       PLUGIN_PATH = _definitions.PLUGIN_PATH;
       panelDefaults = _definitions.panelDefaults;
       mapCenters = _definitions.mapCenters;
+      ICON_TYPES = _definitions.ICON_TYPES;
     }, function (_utilsDatasource) {
       getDatasources = _utilsDatasource.getDatasources;
       getValidDatasources = _utilsDatasource.getValidDatasources;
@@ -102,12 +103,13 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
 
           _this.setMapProvider(contextSrv);
           _.defaultsDeep(_this.panel, panelDefaults);
-
+          _this.iconTypes = ICON_TYPES;
           _this.events.on('init-edit-mode', _this.onInitEditMode.bind(_this));
           _this.events.on('data-error', _this.onDataError.bind(_this));
           _this.events.on('data-received', _this.onDataReceived.bind(_this)); //process resultset as a result of the execution of all queries
           _this.events.on('data-snapshot-load', _this.onDataReceived.bind(_this));
-          _this.handleDatasourceParamsChange = _this.applyDatasourceParamsChange.bind(_this);
+          //this.handleDatasourceParamsChange = this.applyDatasourceParamsChange.bind(this)
+          //this.handleMapLayerIconsChange = this.changeMapLayerIcons.bind(this)
           return _this;
         }
 
@@ -149,14 +151,6 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
 
             series.flotpairs = series.getFlotPairs(this.panel.nullPointMode);
             return series;
-          }
-        }, {
-          key: 'applyDatasourceParamsChange',
-          value: function applyDatasourceParamsChange(datasource) {
-            console.log('datasource');
-            console.log(datasource);
-            /*this.panel.pollutants=datasource.pollutants*/
-            this.render();
           }
         }, {
           key: 'onPanelTeardown',

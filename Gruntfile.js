@@ -24,7 +24,7 @@ module.exports = (grunt) => {
       imgToDist: {
         cwd: 'src',
         expand: true,
-        src: ['img/*'],
+        src: ['img/**/*'],
         dest: 'dist/'
       },
       
