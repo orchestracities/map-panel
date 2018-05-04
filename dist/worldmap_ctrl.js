@@ -185,6 +185,7 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
             }
 
             if (this.panel.mapCenter !== 'custom') {
+              // center in continent or area
               this.panel.mapCenterLatitude = mapCenters[this.panel.mapCenter].mapCenterLatitude;
               this.panel.mapCenterLongitude = mapCenters[this.panel.mapCenter].mapCenterLongitude;
             }
@@ -226,7 +227,7 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
         }, {
           key: 'toggleStickyLabels',
           value: function toggleStickyLabels() {
-            this.worldMap.clearCircles();
+            this.worldMap.clearLayers();
             this.render();
           }
         }, {

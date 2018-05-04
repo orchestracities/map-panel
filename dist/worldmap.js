@@ -103,7 +103,6 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
 
           this.ctrl = ctrl;
           this.mapContainer = mapContainer;
-          this.circles = [];
           this.validated_pollutants = {};
           this.timeSeries = {};
           this.chartSeries = {};
@@ -171,8 +170,8 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
             }L.control.layers({}, this.overlayMaps).addTo(this.map);
           }
         }, {
-          key: 'clearCircles',
-          value: function clearCircles() {
+          key: 'clearLayers',
+          value: function clearLayers() {
             this.layers.forEach(function (layer) {
               return layer.clearLayers();
             });
@@ -226,7 +225,7 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
             if (!dataPoint || !dataPoint.type) return null;
 
             var styled_icon = this.ctrl.panel.layersIcons[dataPoint.type];
-            console.log(styled_icon ? styled_icon : 'type not found. going to use question marker!');
+            console.log(styled_icon ? styled_icon : 'styled_icon not found for datapoint type ' + dataPoint.type + '. going to use default shape!');
 
             var icon = styled_icon ? this.createMarker(dataPoint, styled_icon ? styled_icon : 'question') : this.createShape(dataPoint);
 
@@ -321,7 +320,7 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
               return;
             }
 
-            this.map.panTo([parseFloat(this.ctrl.panel.mapCenterLatitude), parseFloat(this.ctrl.panel.mapCenterLongitude)]);
+            this.map.flyTo([parseFloat(this.ctrl.panel.mapCenterLatitude), parseFloat(this.ctrl.panel.mapCenterLongitude)]);
             this.ctrl.mapCenterMoved = false;
           }
         }, {

@@ -110,7 +110,7 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
       return ;
     }
 
-    if (this.panel.mapCenter !== 'custom') {
+    if (this.panel.mapCenter !== 'custom') { // center in continent or area
       this.panel.mapCenterLatitude = mapCenters[this.panel.mapCenter].mapCenterLatitude;
       this.panel.mapCenterLongitude = mapCenters[this.panel.mapCenter].mapCenterLongitude;
     }
@@ -146,7 +146,7 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
   }
 
   toggleStickyLabels() {
-    this.worldMap.clearCircles();
+    this.worldMap.clearLayers();
     this.render();
   }
 

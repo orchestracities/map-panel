@@ -128,8 +128,8 @@ function getUpdatedChartSeries(chartSeries, timeSeries, currentParameterForChart
 }
 
 function processData(chartSeries, timeSeries, validated_pollutants, currentParameterForChart, currentTargetForChart) {
-  console.log(currentParameterForChart)
-  console.log(currentTargetForChart)
+//  console.log(currentParameterForChart)
+//  console.log(currentTargetForChart)
   let chartData = [];
   const currentParameter = currentParameterForChart.toLowerCase();
   const id = currentTargetForChart.target.options.id;

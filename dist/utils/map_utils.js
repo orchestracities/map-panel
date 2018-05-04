@@ -127,8 +127,8 @@ System.register(['lodash', 'app/core/config', '../definitions'], function (_expo
 
     return chartSeries;
   }function processData(chartSeries, timeSeries, validated_pollutants, currentParameterForChart, currentTargetForChart) {
-    console.log(currentParameterForChart);
-    console.log(currentTargetForChart);
+    //  console.log(currentParameterForChart)
+    //  console.log(currentTargetForChart)
     var chartData = [];
     var currentParameter = currentParameterForChart.toLowerCase();
     var id = currentTargetForChart.target.options.id;

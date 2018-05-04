@@ -25,7 +25,6 @@ export default class WorldMap {
   constructor(ctrl, mapContainer) {
     this.ctrl = ctrl;
     this.mapContainer = mapContainer;
-    this.circles = [];
     this.validated_pollutants = {};
     this.timeSeries = {};
     this.chartSeries = {};
@@ -52,7 +51,7 @@ export default class WorldMap {
         worldCopyJump: true, 
         center: mapCenter, 
         zoomControl: false, 
-        attributionControl: false, 
+        attributionControl: false,
         layers: this.layers
       })
       .fitWorld()
@@ -88,11 +87,10 @@ export default class WorldMap {
     this.overlayMaps = {};
     for (let i=0; i<this.ctrl.layerNames.length; i++)
       this.overlayMaps[this.ctrl.layerNames[i]]=this.layers[i]
-
     L.control.layers({}, this.overlayMaps).addTo(this.map);
   }
 
-  clearCircles() {
+  clearLayers() {
     this.layers.forEach((layer)=>layer.clearLayers())
   }
 
@@ -142,7 +140,7 @@ export default class WorldMap {
       return null;
     
     let styled_icon = this.ctrl.panel.layersIcons[dataPoint.type]
-    console.log(styled_icon ? styled_icon : 'type not found. going to use question marker!')
+    console.log(styled_icon ? styled_icon : 'styled_icon not found for datapoint type '+dataPoint.type+'. going to use default shape!')
 
     let icon = styled_icon ? this.createMarker(dataPoint, styled_icon ? styled_icon : 'question') : this.createShape(dataPoint);
 
@@ -233,7 +231,7 @@ export default class WorldMap {
       return ;
     }
     
-    this.map.panTo([parseFloat(this.ctrl.panel.mapCenterLatitude), parseFloat(this.ctrl.panel.mapCenterLongitude)]);
+    this.map.flyTo([parseFloat(this.ctrl.panel.mapCenterLatitude), parseFloat(this.ctrl.panel.mapCenterLongitude)]);
     this.ctrl.mapCenterMoved = false;
   }
 
