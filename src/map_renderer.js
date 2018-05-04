@@ -14,9 +14,11 @@ export default function link(scope, elem, attrs, ctrl) {
       ctrl.worldMap = new WorldMap(ctrl, mapContainer[0]);
     }
 
-    if(layersChanged())
-      throw Error('layers had changed! Please Refresh Page!');
-      //ctrl.worldMap.addLayersToMap();
+    if(layersChanged()){
+      console.log('layers had changed! Please Refresh Page!');
+      console.log(ctrl.layerNames);
+      console.log(Object.keys(ctrl.worldMap.overlayMaps));
+    }
     
     ctrl.worldMap.resize();
 
@@ -38,9 +40,6 @@ export default function link(scope, elem, attrs, ctrl) {
 
   // if users add new metrics we must verify if layers are the same or if we must recreate the map
   function layersChanged() {
-    console.log(ctrl.layerNames)
-    console.log(Object.keys(ctrl.worldMap.overlayMaps))
-
     return !_.isEqual(ctrl.layerNames, Object.keys(ctrl.worldMap.overlayMaps));
   }
 }
