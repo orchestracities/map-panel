@@ -39,7 +39,7 @@ System.register(['./vendor/leaflet/leaflet'], function (_export, _context) {
           // {
           //   linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
           //   stops: [
-          //     [0, '#262629'], [1, '#2a2a2b']
+          //     [0, '#3e3e40'], [1, '#2a2a2b']
           //   ]
           // },
           style: {
@@ -194,30 +194,11 @@ System.register(['./vendor/leaflet/leaflet'], function (_export, _context) {
         //   }
         // },
         rangeSelector: {
-          selected: 4,
-          inputEnabled: false,
-          buttonTheme: {
-            visibility: 'hidden'
-          },
-          labelStyle: {
-            visibility: 'hidden'
-          }
+          enabled: false
         },
 
         navigator: {
-          handles: {
-            backgroundColor: '#666',
-            borderColor: '#aaa'
-          },
-          outlineColor: '#ccc',
-          maskFill: 'rgba(255,255,255,0.1)',
-          series: {
-            color: '#7798BF',
-            lineColor: '#A6C7ED'
-          },
-          xAxis: {
-            gridLineColor: '#505053'
-          }
+          enabled: false
         },
 
         scrollbar: {

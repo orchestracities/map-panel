@@ -196,30 +196,11 @@ const HIGHCHARTS_THEME_DARK = {
   //   }
   // },
   rangeSelector: {
-    selected: 4,
-    inputEnabled: false,
-    buttonTheme: {
-      visibility: 'hidden'
-    },
-    labelStyle: {
-      visibility: 'hidden'
-    }
+    enabled: false
   },
 
   navigator: {
-    handles: {
-      backgroundColor: '#666',
-      borderColor: '#aaa'
-    },
-    outlineColor: '#ccc',
-    maskFill: 'rgba(255,255,255,0.1)',
-    series: {
-      color: '#7798BF',
-      lineColor: '#a6c7ed'
-    },
-    xAxis: {
-      gridLineColor: '#505053'
-    }
+    enabled: false
   },
 
   scrollbar: {
