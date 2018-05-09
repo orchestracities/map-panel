@@ -102,8 +102,11 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
           var _this = _possibleConstructorReturn(this, (WorldmapCtrl.__proto__ || Object.getPrototypeOf(WorldmapCtrl)).call(this, $scope, $injector));
 
           _this.setMapProvider(contextSrv);
+          console.info(_this.panel);
           _.defaultsDeep(_this.panel, panelDefaults);
           _this.iconTypes = ICON_TYPES;
+          //this.mapCenterMoved=true;
+
           _this.events.on('init-edit-mode', _this.onInitEditMode.bind(_this));
           _this.events.on('data-error', _this.onDataError.bind(_this));
           _this.events.on('data-received', _this.onDataReceived.bind(_this)); //process resultset as a result of the execution of all queries
@@ -136,8 +139,8 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
           key: 'onDataError',
           value: function onDataError(error) {
             if (error && error.data && error.data.error) {
-              console.log('Error: ');
-              console.log(error.data.error.message);
+              console.warn('Error: ');
+              console.warn(error.data.error.message);
             }
             this.onDataReceived([]);
           }
@@ -185,7 +188,8 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
             }
 
             if (this.panel.mapCenter !== 'custom') {
-              // center in continent or area
+              // center at continent or area
+              console.info('centering !== custom');
               this.panel.mapCenterLatitude = mapCenters[this.panel.mapCenter].mapCenterLatitude;
               this.panel.mapCenterLongitude = mapCenters[this.panel.mapCenter].mapCenterLongitude;
             }

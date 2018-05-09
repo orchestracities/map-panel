@@ -6,7 +6,7 @@ System.register(['lodash', './worldmap', './utils/map_utils'], function (_export
   var _, WorldMap, hideAllGraphPopups;
 
   function link(scope, elem, attrs, ctrl) {
-    var mapContainer = elem.find('.map-container');
+    var mapContainer = elem.find('.map-container')[0];
 
     ctrl.events.on('render', function () {
       return render();
@@ -15,8 +15,10 @@ System.register(['lodash', './worldmap', './utils/map_utils'], function (_export
     function render() {
       if (!ctrl.data) return;
 
+      //map is initializing
       if (!ctrl.worldMap) {
-        ctrl.worldMap = new WorldMap(ctrl, mapContainer[0]);
+        ctrl.worldMap = new WorldMap(ctrl, mapContainer);
+        console.debug('creating worldMap');
       }
 
       if (layersChanged()) {
@@ -27,7 +29,11 @@ System.register(['lodash', './worldmap', './utils/map_utils'], function (_export
 
       ctrl.worldMap.resize();
 
-      if (ctrl.panel.mapCenter === 'cityenv' && ctrl.isADiferentCity() || ctrl.mapCenterMoved) ctrl.worldMap.panToMapCenter();
+      if (ctrl.panel.mapCenter === 'cityenv' && ctrl.isADiferentCity() || ctrl.mapCenterMoved) {
+        console.debug('panToMapCenter');
+        console.debug(ctrl.panel.mapCenterLatitude + ' : ' + ctrl.panel.mapCenterLongitude);
+        ctrl.worldMap.panToMapCenter();
+      }
 
       ctrl.worldMap.clearLayers();
       ctrl.worldMap.setPollutants();

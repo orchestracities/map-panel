@@ -11,28 +11,31 @@
         >
       </select>
     </div>
-    
-    <div class="gf-form" ng-show="ctrl.panel.mapCenter === 'custom'">
-      <input type="text"
-        class="input-small gf-form-input width-10"
-        ng-model="ctrl.panel.mapCenterLatitude"
-        ng-change="ctrl.setNewMapCenter()"
-        ng-model-onblur />
-      <input type="text"
-        class="input-small gf-form-input width-10"
-        ng-model="ctrl.panel.mapCenterLongitude"
-        ng-change="ctrl.setNewMapCenter()"
-        ng-model-onblur />
-    </div>
-
   </div>
+
+  <div class="gf-form" ng-show="ctrl.panel.mapCenter === 'custom'">
+    <label class="gf-form-label width-10">Latitude</label>
+    <input type="text"
+      class="input-small gf-form-input width-10"
+      ng-model="ctrl.panel.mapCenterLatitude"
+      ng-change="ctrl.setNewMapCenter()"
+      ng-model-onblur />
+
+    <label class="gf-form-label width-10">Longitude</label>
+    <input type="text"
+      class="input-small gf-form-input width-10"
+      ng-model="ctrl.panel.mapCenterLongitude"
+      ng-change="ctrl.setNewMapCenter()"
+      ng-model-onblur />
+  </div>
+
   <div class="gf-form">
     <label class="gf-form-label width-10">Initial Zoom</label>
     <input type="text" 
       class="input-small gf-form-input width-10" 
       placeholder="1"
       ng-model="ctrl.panel.initialZoom" 
-      ng-change="ctrl.setZoom()" 
+      ng-change="ctrl.setZoom()"
       ng-model-onblur />
   </div>
 

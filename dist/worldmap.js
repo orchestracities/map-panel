@@ -1,6 +1,6 @@
 'use strict';
 
-System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/leaflet', './definitions', './utils/map_utils', './utils/data_formatter'], function (_export, _context) {
+System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet.awesome-markers/leaflet.awesome-markers.css!', './vendor/leaflet.awesome-markers/leaflet.awesome-markers', './vendor/leaflet/leaflet', './definitions', './utils/map_utils', './utils/data_formatter'], function (_export, _context) {
   "use strict";
 
   var _, Highcharts, L, tileServers, PLUGIN_PATH, dataTreatment, processData, getTimeSeries, getUpdatedChartSeries, drawPopups, renderChart, hideAllGraphPopups, getDataPointValues, getDataPointStickyInfo, getMapMarkerClassName, filterEmptyAndZeroValues, _slicedToArray, _createClass, DRAW_CHART, REDRAW_CHART, CIRCLE_RADIUS, POLYGON_MAGNIFY_RATIO, WorldMap;
@@ -16,7 +16,7 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
       _ = _lodash.default;
     }, function (_vendorHighchartsHighstock) {
       Highcharts = _vendorHighchartsHighstock.default;
-    }, function (_vendorLeafletLeaflet) {
+    }, function (_vendorLeafletAwesomeMarkersLeafletAwesomeMarkersCss) {}, function (_vendorLeafletAwesomeMarkersLeafletAwesomeMarkers) {}, function (_vendorLeafletLeaflet) {
       L = _vendorLeafletLeaflet.default;
     }, function (_definitions) {
       tileServers = _definitions.tileServers;
@@ -124,20 +124,21 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
           value: function createMap() {
             var _this = this;
 
-            var mapCenter = L.latLng(parseFloat(this.ctrl.panel.mapCenterLatitude), parseFloat(this.ctrl.panel.mapCenterLongitude));
+            var location = [parseFloat(this.ctrl.panel.mapCenterLatitude), parseFloat(this.ctrl.panel.mapCenterLongitude)];
 
             this.layers = this.getLayers();
 
             this.map = L.map(this.mapContainer, {
               worldCopyJump: true,
-              center: mapCenter,
+              center: location,
               zoomControl: false,
               attributionControl: false,
               layers: this.layers
-            }).fitWorld();
+            });
+            //.fitWorld()
 
             this.map.setZoom(this.ctrl.panel.initialZoom);
-            this.map.panTo(mapCenter);
+            this.map.panTo(location);
             L.control.zoom({ position: 'topright' }).addTo(this.map);
             this.addLayersToMap();
 
@@ -214,7 +215,7 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
               try {
                 if (newIcon) _this2.overlayMaps[value.type].addLayer(newIcon);
               } catch (error) {
-                console.log(value);console.log(error);
+                console.warn(value);console.warn(error);
               }
             });
           }
@@ -225,7 +226,7 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
             if (!dataPoint || !dataPoint.type) return null;
 
             var styled_icon = this.ctrl.panel.layersIcons[dataPoint.type];
-            console.log(styled_icon ? styled_icon : 'styled_icon not found for datapoint type ' + dataPoint.type + '. going to use default shape!');
+            console.debug(styled_icon ? styled_icon : 'styled_icon not found for datapoint type ' + dataPoint.type + '. going to use default shape!');
 
             var icon = styled_icon ? this.createMarker(dataPoint, styled_icon ? styled_icon : 'question') : this.createShape(dataPoint);
 
@@ -258,14 +259,30 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
           key: 'createMarker',
           value: function createMarker(dataPoint, styled_icon) {
             var dataPointDetails = getDataPointValues(dataPoint);
-            //console.log(dataPointDetails)
-            var myIcon = L.icon({
-              iconUrl: PLUGIN_PATH + 'img/fa/' + styled_icon + '.svg',
-              iconSize: [25, 25], // size of the icon
-              className: getMapMarkerClassName(dataPointDetails.value)
+            console.debug(dataPointDetails);
+            //let myIcon = L.icon({
+            //  iconUrl: PLUGIN_PATH+'img/fa/'+styled_icon+'.svg',
+            //  iconSize:  [25, 25], // size of the icon
+            //  className: getMapMarkerClassName(dataPointDetails.value)
+            //});
+
+            var location = [dataPointDetails.latitude, dataPointDetails.longitude];
+
+            return L.marker(location, {
+              icon: L.AwesomeMarkers.icon({
+                icon: styled_icon,
+                prefix: 'fa',
+                markerColor: dataPointDetails.markerColor
+                //spin: true,
+              }),
+              id: dataPointDetails.id,
+              type: dataPointDetails.type
             });
 
-            return L.marker([dataPointDetails.latitude, dataPointDetails.longitude], { icon: myIcon, id: dataPointDetails.id, type: dataPointDetails.type });
+            // return L.marker(
+            //   [dataPointDetails.latitude, dataPointDetails.longitude], 
+            //   { icon: myIcon, id: dataPointDetails.id, type: dataPointDetails.type }
+            // );
           }
         }, {
           key: 'associateEvents',
@@ -311,16 +328,18 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet/le
           value: function panToMapCenter() {
             var _this4 = this;
 
+            var location = [parseFloat(this.ctrl.panel.mapCenterLatitude), parseFloat(this.ctrl.panel.mapCenterLongitude)];
+            console.info(location);
             if (this.ctrl.panel.mapCenter === 'cityenv' && this.ctrl.isADiferentCity()) {
               this.ctrl.setNewCoords().then(function () {
-                return _this4.map.flyTo([parseFloat(_this4.ctrl.panel.mapCenterLatitude), parseFloat(_this4.ctrl.panel.mapCenterLongitude)]);
+                return _this4.map.flyTo(location);
               }).catch(function (error) {
-                return console.log(error);
+                return console.warn(error);
               });
               return;
             }
 
-            this.map.flyTo([parseFloat(this.ctrl.panel.mapCenterLatitude), parseFloat(this.ctrl.panel.mapCenterLongitude)]);
+            this.map.flyTo(location);
             this.ctrl.mapCenterMoved = false;
           }
         }, {

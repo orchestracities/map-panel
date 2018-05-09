@@ -3,15 +3,17 @@ import WorldMap from './worldmap';
 import { hideAllGraphPopups } from './utils/map_utils';
 
 export default function link(scope, elem, attrs, ctrl) {
-  const mapContainer = elem.find('.map-container');
+  const mapContainer = elem.find('.map-container')[0];
 
   ctrl.events.on('render', () => render());
 
   function render() {
     if (!ctrl.data) return;
 
+    //map is initializing
     if (!ctrl.worldMap) {
-      ctrl.worldMap = new WorldMap(ctrl, mapContainer[0]);
+      ctrl.worldMap = new WorldMap(ctrl, mapContainer);
+      console.debug('creating worldMap');
     }
 
     if(layersChanged()){
@@ -22,8 +24,11 @@ export default function link(scope, elem, attrs, ctrl) {
     
     ctrl.worldMap.resize();
 
-    if( (ctrl.panel.mapCenter === 'cityenv' && ctrl.isADiferentCity()) || ctrl.mapCenterMoved)
+    if( (ctrl.panel.mapCenter === 'cityenv' && ctrl.isADiferentCity()) || ctrl.mapCenterMoved) {
+      console.debug('panToMapCenter');
+      console.debug(`${ctrl.panel.mapCenterLatitude} : ${ctrl.panel.mapCenterLongitude}`)
       ctrl.worldMap.panToMapCenter();
+    }
 
     ctrl.worldMap.clearLayers();
     ctrl.worldMap.setPollutants()

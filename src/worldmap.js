@@ -3,6 +3,10 @@
 /* Vendor specific */
 import _ from 'lodash';
 import Highcharts from './vendor/highcharts/highstock';
+
+import './vendor/leaflet.awesome-markers/leaflet.awesome-markers.css!';
+import './vendor/leaflet.awesome-markers/leaflet.awesome-markers';
+
 import L from './vendor/leaflet/leaflet';
 
 /* App Specific */
@@ -39,25 +43,22 @@ export default class WorldMap {
   }
 
   createMap() {
-    const mapCenter = L.latLng(
-      parseFloat(this.ctrl.panel.mapCenterLatitude), 
-      parseFloat(this.ctrl.panel.mapCenterLongitude)
-      );
+    let location = [ parseFloat(this.ctrl.panel.mapCenterLatitude), parseFloat(this.ctrl.panel.mapCenterLongitude) ]
 
     this.layers = this.getLayers()
 
     this.map = L.map(this.mapContainer, 
       {
         worldCopyJump: true, 
-        center: mapCenter, 
+        center: location,
         zoomControl: false, 
         attributionControl: false,
         layers: this.layers
       })
-      .fitWorld()
+      //.fitWorld()
 
     this.map.setZoom(this.ctrl.panel.initialZoom);
-    this.map.panTo(mapCenter);
+    this.map.panTo(location);
     L.control.zoom({position: 'topright'}).addTo(this.map);
     this.addLayersToMap();
 
@@ -130,7 +131,7 @@ export default class WorldMap {
       try { 
         if(newIcon)
           this.overlayMaps[value.type].addLayer(newIcon)
-      } catch(error) { console.log(value); console.log(error) }
+      } catch(error) { console.warn(value); console.warn(error) }
     });
   }
 
@@ -140,7 +141,7 @@ export default class WorldMap {
       return null;
     
     let styled_icon = this.ctrl.panel.layersIcons[dataPoint.type]
-    console.log(styled_icon ? styled_icon : 'styled_icon not found for datapoint type '+dataPoint.type+'. going to use default shape!')
+    console.debug(styled_icon ? styled_icon : 'styled_icon not found for datapoint type '+dataPoint.type+'. going to use default shape!')
 
     let icon = styled_icon ? this.createMarker(dataPoint, styled_icon ? styled_icon : 'question') : this.createShape(dataPoint);
 
@@ -181,17 +182,33 @@ export default class WorldMap {
 
   createMarker(dataPoint, styled_icon) {
     let dataPointDetails = getDataPointValues(dataPoint);
-    //console.log(dataPointDetails)
-    let myIcon = L.icon({
-      iconUrl: PLUGIN_PATH+'img/fa/'+styled_icon+'.svg',
-      iconSize:  [25, 25], // size of the icon
-      className: getMapMarkerClassName(dataPointDetails.value)
+    console.debug(dataPointDetails)
+    //let myIcon = L.icon({
+    //  iconUrl: PLUGIN_PATH+'img/fa/'+styled_icon+'.svg',
+    //  iconSize:  [25, 25], // size of the icon
+    //  className: getMapMarkerClassName(dataPointDetails.value)
+    //});
+
+    let location = [dataPointDetails.latitude, dataPointDetails.longitude];
+
+    return L.marker(location, { 
+      icon: L.AwesomeMarkers.icon(
+        { 
+          icon: styled_icon,
+          prefix: 'fa',
+          markerColor: dataPointDetails.markerColor,
+          //spin: true,
+        }        
+      ),
+      id: dataPointDetails.id,
+      type: dataPointDetails.type
     });
 
-    return L.marker(
-      [dataPointDetails.latitude, dataPointDetails.longitude], 
-      { icon: myIcon, id: dataPointDetails.id, type: dataPointDetails.type }
-    );
+
+    // return L.marker(
+    //   [dataPointDetails.latitude, dataPointDetails.longitude], 
+    //   { icon: myIcon, id: dataPointDetails.id, type: dataPointDetails.type }
+    // );
   }
 
   associateEvents(shape) {
@@ -224,14 +241,16 @@ export default class WorldMap {
   }
 
   panToMapCenter() {
+    let location = [parseFloat(this.ctrl.panel.mapCenterLatitude), parseFloat(this.ctrl.panel.mapCenterLongitude)]
+    console.info(location)
     if (this.ctrl.panel.mapCenter === 'cityenv' && this.ctrl.isADiferentCity()) {
       this.ctrl.setNewCoords()
-        .then(() => this.map.flyTo([parseFloat(this.ctrl.panel.mapCenterLatitude), parseFloat(this.ctrl.panel.mapCenterLongitude)]))
-        .catch(error => console.log(error))
+        .then(() => this.map.flyTo(location))
+        .catch(error => console.warn(error))
       return ;
     }
     
-    this.map.flyTo([parseFloat(this.ctrl.panel.mapCenterLatitude), parseFloat(this.ctrl.panel.mapCenterLongitude)]);
+    this.map.flyTo(location);
     this.ctrl.mapCenterMoved = false;
   }
 

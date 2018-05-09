@@ -25,8 +25,11 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
   constructor($scope, $injector, contextSrv) {
     super($scope, $injector);
     this.setMapProvider(contextSrv);
+    console.info(this.panel)
     _.defaultsDeep(this.panel, panelDefaults);
     this.iconTypes = ICON_TYPES;
+    //this.mapCenterMoved=true;
+
     this.events.on('init-edit-mode', this.onInitEditMode.bind(this));
     this.events.on('data-error', this.onDataError.bind(this));
     this.events.on('data-received', this.onDataReceived.bind(this));  //process resultset as a result of the execution of all queries
@@ -56,8 +59,8 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
 
   onDataError(error) {    
     if(error && error.data && error.data.error) {
-      console.log('Error: ')
-      console.log(error.data.error.message)
+      console.warn('Error: ')
+      console.warn(error.data.error.message)
     }
     this.onDataReceived([]);
   }
@@ -110,7 +113,8 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
       return ;
     }
 
-    if (this.panel.mapCenter !== 'custom') { // center in continent or area
+    if (this.panel.mapCenter !== 'custom') { // center at continent or area
+      console.info('centering !== custom')
       this.panel.mapCenterLatitude = mapCenters[this.panel.mapCenter].mapCenterLatitude;
       this.panel.mapCenterLongitude = mapCenters[this.panel.mapCenter].mapCenterLongitude;
     }

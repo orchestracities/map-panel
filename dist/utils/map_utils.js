@@ -296,18 +296,24 @@ System.register(['lodash', 'app/core/config', '../definitions'], function (_expo
       _.defaults(values, {
         color: aqiColor,
         fillColor: aqiColor,
+
         aqiColor: aqiColor,
         aqiMeaning: aqiMeaning,
         aqiRisk: aqiRisk,
         pollutants: pollutants,
-        aqi: dataPoint.value
+        aqi: dataPoint.value,
+
+        markerColor: AQI.markerColor[aqi]
       });
     } else {
       if (dataPoint.type === 'TrafficFlowObserved') {
         var color_index = calculateCarsIntensityIndex(dataPoint.value);
+
         _.defaults(values, {
           color: CARS_COUNT.color[color_index],
-          fillColor: CARS_COUNT.color[color_index]
+          fillColor: CARS_COUNT.color[color_index],
+
+          markerColor: CARS_COUNT.markerColor[color_index]
         });
       }
     }

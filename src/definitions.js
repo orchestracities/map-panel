@@ -6,204 +6,220 @@ const PLUGIN_PATH = 'public/plugins/grafana-traffic-env-panel/'
 const AQI = {
   'range': [0, 50, 100, 150, 200, 300, 500],
   'meaning': ['Good', 'Moderate', 'Unhealthy for Sensitive Groups', 'Unhealthy', 'Very Unhealthy', 'Hazardous'],
-  'color': ['#00e400', '#ffff00', '#ff7e00', '#ff0000', '#8f3f97', '#7e0023'],
+  'markerColor': ['green', 'beige', 'orange', 'red', 'darkred', 'purple'],
+  'color': ['#00e400', '#fdca92', '#ff7e00', '#d41c32', '#7e0023', '#8f3f97'],
   'classColor': ['level-0', 'level-1', 'level-2', 'level-3', 'level-4', 'level-5', 'level-6'],
-  'risks': ['Air quality is considered satisfactory, and air pollution poses little or no risk.', 'Air quality is acceptable; however, for some pollutants there may be a moderate health concern for a very small number of people who are unusually sensitive to air pollution.', 'Members of sensitive groups may experience health effects. The general public is not likely to be affected.', 'Everyone may begin to experience health effects; members of sensitive groups may experience more serious health effects.', 'Health alert: everyone may experience more serious health effects.', 'Health warnings of emergency conditions. The entire population is more likely to be affected.']
+  'risks': [
+    'Air quality is considered satisfactory, and air pollution poses little or no risk.', 
+    'Air quality is acceptable; however, for some pollutants there may be a moderate health concern for a very small number of people who are unusually sensitive to air pollution.', 
+    'Members of sensitive groups may experience health effects. The general public is not likely to be affected.', 
+    'Everyone may begin to experience health effects; members of sensitive groups may experience more serious health effects.', 
+    'Health alert: everyone may experience more serious health effects.', 
+    'Health warnings of emergency conditions. The entire population is more likely to be affected.'
+    ]
 };
 
 const CARS_COUNT = {
   'range': [0, 15, 30, 45, 70, 85, 100],
-  'color': ['#00e400', '#ffff00', '#ff7e00', '#ff0000', '#8f3f97', '#7e0023'],
+  'color': ['#00e400', '#fdca92', '#ff7e00', '#d41c32', '#7e0023', '#8f3f97'],
+  'markerColor':  ['green', 'beige', 'orange', 'red', 'darkred', 'purple'],
   'classColor': ['level-0', 'level-1', 'level-2', 'level-3', 'level-4', 'level-5', 'level-6']
 };
 
+const DEFAULT_MARKER_COLORS_RANGE = {
+  range: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180],
+  markerColor:  [
+    'red', 'blue', 'green', 'purple', 'orange', 'darkred', 'lightred', 'beige', 
+    'darkblue', 'darkgreen', 'cadetblue', 'darkpurple', 'white', 'pink', 'lightblue', 'lightgreen', 'gray', 'black', 'lightgray'
+  ]
+}
+
 const HIGHCHARTS_THEME_DARK = {
-  colors: ['#2b908f', '#90ee7e', '#f45b5b', '#7798BF', '#aaeeee', '#ff0066', '#eeaaee', '#55BF3B', '#DF5353', '#7798BF', '#aaeeee'],
+  colors: ['#2b908f', '#90ee7e', '#f45b5b', '#7798BF', '#aaeeee', '#ff0066', '#eeaaee', '#55bf3b', '#df5353', '#7798bf', '#aaeeee'],
   chart: {
-      backgroundColor: {
-        linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
-        stops: [
-            [0, '#2a2a2b'],
-            [1, '#3e3e40']
-        ]
-      },
-      style: {
-        fontFamily: '\'Unica One\', sans-serif'
-      },
-      plotBorderColor: '#606063'
+    backgroundColor: {
+      linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
+      stops: [
+        [0, '#2a2a2b'],
+        [1, '#3e3e40']
+      ]
+    },
+    style: {
+      fontFamily: '\'Unica One\', sans-serif'
+    },
+    plotBorderColor: '#606063'
   },
   title: {
-      style: {
-        color: '#E0E0E3',
-        // textTransform: 'uppercase',
-        fontSize: '20px'
-      }
+    style: {
+      color: '#e0e0e3',
+      // textTransform: 'uppercase',
+      fontSize: '20px'
+    }
   },
   subtitle: {
       style: {
-        color: '#E0E0E3',
+        color: '#e0e0e3',
         textTransform: 'uppercase'
       }
   },
   xAxis: {
-      gridLineColor: '#707073',
-      labels: {
-        style: {
-            color: '#E0E0E3'
-        }
-      },
-      lineColor: '#707073',
-      minorGridLineColor: '#505053',
-      tickColor: '#707073',
-      title: {
-        style: {
-            color: '#A0A0A3'
-
-        }
+    gridLineColor: '#707073',
+    labels: {
+      style: {
+          color: '#e0e0e3'
       }
+    },
+    lineColor: '#707073',
+    minorGridLineColor: '#505053',
+    tickColor: '#707073',
+    title: {
+      style: {
+        color: '#a0a0a3'
+      }
+    }
   },
   yAxis: {
-      gridLineColor: '#707073',
-      labels: {
-        style: {
-            color: '#E0E0E3'
-        }
-      },
-      lineColor: '#707073',
-      minorGridLineColor: '#505053',
-      tickColor: '#707073',
-      tickWidth: 1,
-      title: {
-        style: {
-            color: '#A0A0A3'
-        }
+    gridLineColor: '#707073',
+    labels: {
+      style: {
+        color: '#e0e0e3'
       }
+    },
+    lineColor: '#707073',
+    minorGridLineColor: '#505053',
+    tickColor: '#707073',
+    tickWidth: 1,
+    title: {
+      style: {
+        color: '#a0a0a3'
+      }
+    }
   },
   tooltip: {
-      backgroundColor: 'rgba(0, 0, 0, 0.85)',
-      style: {
-        color: '#F0F0F0'
-      }
+    backgroundColor: 'rgba(0, 0, 0, 0.85)',
+    style: {
+      color: '#f0f0f0'
+    }
   },
   plotOptions: {
-      series: {
-        dataLabels: {
-            color: '#B0B0B3'
-        },
-        marker: {
-            lineColor: '#333'
-        }
+    series: {
+      dataLabels: {
+        color: '#B0B0B3'
       },
-      boxplot: {
-        fillColor: '#505053'
-      },
-      candlestick: {
-        lineColor: 'white'
-      },
-      errorbar: {
-        color: 'white'
+      marker: {
+        lineColor: '#333'
       }
+    },
+    boxplot: {
+      fillColor: '#505053'
+    },
+    candlestick: {
+      lineColor: 'white'
+    },
+    errorbar: {
+      color: 'white'
+    }
   },
   legend: {
-      itemStyle: {
-        color: '#E0E0E3'
-      },
-      itemHoverStyle: {
-        color: '#FFF'
-      },
-      itemHiddenStyle: {
-        color: '#606063'
-      }
+    itemStyle: {
+      color: '#e0e0e3'
+    },
+    itemHoverStyle: {
+      color: '#FFF'
+    },
+    itemHiddenStyle: {
+      color: '#606063'
+    }
   },
   credits: {
-      style: {
-        color: '#666'
-      }
+    style: {
+      color: '#666'
+    }
   },
   labels: {
-      style: {
-        color: '#707073'
-      }
+    style: {
+      color: '#707073'
+    }
   },
 
   drilldown: {
-      activeAxisLabelStyle: {
-        color: '#F0F0F3'
-      },
-      activeDataLabelStyle: {
-        color: '#F0F0F3'
-      }
+    activeAxisLabelStyle: {
+      color: '#f0f0f3'
+    },
+    activeDataLabelStyle: {
+      color: '#f0f0f3'
+    }
   },
 
   navigation: {
-      buttonOptions: {
-        symbolStroke: '#DDDDDD',
-        theme: {
-            fill: '#505053'
-        }
+    buttonOptions: {
+      symbolStroke: '#ddd',
+      theme: {
+        fill: '#505053'
       }
+    }
   },
 
   // scroll charts
   rangeSelector: {
-      buttonTheme: {
-        fill: '#505053',
-        stroke: '#000000',
-        style: {
-            color: '#CCC'
+    buttonTheme: {
+      fill: '#505053',
+      stroke: '#000000',
+      style: {
+        color: '#ccc'
+      },
+      states: {
+        hover: {
+          fill: '#707073',
+          stroke: '#000000',
+          style: {
+            color: 'white'
+          }
         },
-        states: {
-            hover: {
-              fill: '#707073',
-              stroke: '#000000',
-              style: {
-                  color: 'white'
-              }
-            },
-            select: {
-              fill: '#000003',
-              stroke: '#000000',
-              style: {
-                  color: 'white'
-              }
-            }
+        select: {
+          fill: '#000003',
+          stroke: '#000000',
+          style: {
+            color: 'white'
+          }
         }
-      },
-      inputBoxBorderColor: '#505053',
-      inputStyle: {
-        backgroundColor: '#333',
-        color: 'silver'
-      },
-      labelStyle: {
-        color: 'silver'
       }
+    },
+    inputBoxBorderColor: '#505053',
+    inputStyle: {
+      backgroundColor: '#333',
+      color: 'silver'
+    },
+    labelStyle: {
+      color: 'silver'
+    }
   },
 
   navigator: {
-      handles: {
-        backgroundColor: '#666',
-        borderColor: '#AAA'
-      },
-      outlineColor: '#CCC',
-      maskFill: 'rgba(255,255,255,0.1)',
-      series: {
-        color: '#7798BF',
-        lineColor: '#A6C7ED'
-      },
-      xAxis: {
-        gridLineColor: '#505053'
-      }
+    handles: {
+      backgroundColor: '#666',
+      borderColor: '#aaa'
+    },
+    outlineColor: '#ccc',
+    maskFill: 'rgba(255,255,255,0.1)',
+    series: {
+      color: '#7798BF',
+      lineColor: '#A6C7ED'
+    },
+    xAxis: {
+      gridLineColor: '#505053'
+    }
   },
 
   scrollbar: {
-      barBackgroundColor: '#808083',
-      barBorderColor: '#808083',
-      buttonArrowColor: '#CCC',
-      buttonBackgroundColor: '#606063',
-      buttonBorderColor: '#606063',
-      rifleColor: '#FFF',
-      trackBackgroundColor: '#404043',
-      trackBorderColor: '#404043'
+    barBackgroundColor: '#808083',
+    barBorderColor: '#808083',
+    buttonArrowColor: '#ccc',
+    buttonBackgroundColor: '#606063',
+    buttonBorderColor: '#606063',
+    rifleColor: '#fff',
+    trackBackgroundColor: '#404043',
+    trackBorderColor: '#404043'
   },
 
   // special colors for some of the
@@ -211,7 +227,7 @@ const HIGHCHARTS_THEME_DARK = {
   background2: '#505053',
   dataLabelsColor: '#B0B0B3',
   textColor: '#C0C0C0',
-  contrastTextColor: '#F0F0F3',
+  contrastTextColor: '#f0f0f3',
   maskColor: 'rgba(255,255,255,0.3)'
 };
 
@@ -283,7 +299,6 @@ const panelDefaults = {
   }],
   currentParameterForChart: 'AQI',
   layersIcons: {}
-
 };
 
 const mapCenters = {

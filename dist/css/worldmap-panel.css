@@ -130,19 +130,19 @@
   background-color: #00e400;
 }
 .map-marker-level-1, .map-container .map-container-popups table.intensity-scale tr.level-1 > td:nth-child(2) > span:nth-child(1) {
-  background-color: #ffff00;
+  background-color: #fdca92;
 }
 .map-marker-level-2, .map-container .map-container-popups table.intensity-scale tr.level-2 > td:nth-child(2) > span:nth-child(1) {
   background-color: #ff7e00;
 }
 .map-marker-level-3, .map-container .map-container-popups table.intensity-scale tr.level-3 > td:nth-child(2) > span:nth-child(1) {
-  background-color: #ff0000;
+  background-color: #d41c32;
 }
 .map-marker-level-4, .map-container .map-container-popups table.intensity-scale tr.level-4 > td:nth-child(2) > span:nth-child(1) {
-  background-color: #8f3f97;
+  background-color: #7e0023;
 }
 .map-marker-level-5, .map-container .map-container-popups table.intensity-scale tr.level-5 > td:nth-child(2) > span:nth-child(1) {
-  background-color: #7e0023;
+  background-color: #8f3f97;
 }
 
 .map-marker-default {

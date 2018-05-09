@@ -40,7 +40,14 @@ module.exports = (grunt) => {
         expand: true,
         src: ['highcharts.css'], 
         dest: 'dist/vendor/highcharts'
-      }
+      },
+
+      leafletAwesomeIcons: { 
+        cwd: 'node_modules/leaflet.awesome-markers/dist/',
+        expand: true,
+        src: ['**/*'], 
+        dest: 'dist/vendor/leaflet.awesome-markers'
+      },
     },
 
     babel: {
@@ -70,5 +77,9 @@ module.exports = (grunt) => {
 
   });
 
-  grunt.registerTask('default', ['clean', 'copy:srcToDist', 'copy:pluginDef', 'copy:imgToDist', 'copy:leaflet', 'copy:highchartsCss', 'babel']);
+  grunt.registerTask('default', [
+    'clean', 
+    'copy:srcToDist', 'copy:pluginDef', 'copy:imgToDist', 'copy:leaflet', 'copy:highchartsCss', 'copy:leafletAwesomeIcons',
+    'babel'
+  ]);
 };
