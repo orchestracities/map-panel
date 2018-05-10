@@ -24,7 +24,7 @@ export default function link(scope, elem, attrs, ctrl) {
     
     ctrl.worldMap.resize();
 
-    if( (ctrl.panel.mapCenter === 'cityenv' && ctrl.isADiferentCity()) || ctrl.mapCenterMoved) {
+    if( (ctrl.panel.mapCenter === 'cityenv') || ctrl.mapCenterMoved) {  //&& ctrl.isADiferentCity()
       console.debug('panToMapCenter');
       console.debug(`${ctrl.panel.mapCenterLatitude} : ${ctrl.panel.mapCenterLongitude}`)
       ctrl.worldMap.panToMapCenter();

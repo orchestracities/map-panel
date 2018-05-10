@@ -327,10 +327,13 @@ System.register(['lodash', './vendor/leaflet.awesome-markers/leaflet.awesome-mar
             var _this4 = this;
 
             var location = [parseFloat(this.ctrl.panel.mapCenterLatitude), parseFloat(this.ctrl.panel.mapCenterLongitude)];
-            console.info(location);
+
             if (this.ctrl.panel.mapCenter === 'cityenv' && this.ctrl.isADiferentCity()) {
               this.ctrl.setNewCoords().then(function () {
-                return _this4.map.flyTo(location);
+                console.debug('flying to a new location');
+                console.debug(location);
+                _this4.map.flyTo(location);
+                _this4.ctrl.refresh();
               }).catch(function (error) {
                 return console.warn(error);
               });

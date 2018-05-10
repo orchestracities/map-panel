@@ -241,10 +241,15 @@ export default class WorldMap {
 
   panToMapCenter() {
     let location = [parseFloat(this.ctrl.panel.mapCenterLatitude), parseFloat(this.ctrl.panel.mapCenterLongitude)]
-    console.info(location)
-    if (this.ctrl.panel.mapCenter === 'cityenv' && this.ctrl.isADiferentCity()) {
+
+    if ( this.ctrl.panel.mapCenter === 'cityenv' && this.ctrl.isADiferentCity() ) {
       this.ctrl.setNewCoords()
-        .then(() => this.map.flyTo(location))
+        .then(() => {
+          console.debug('flying to a new location')
+          console.debug(location)
+          this.map.flyTo(location)
+          this.ctrl.refresh();
+        })
         .catch(error => console.warn(error))
       return ;
     }
