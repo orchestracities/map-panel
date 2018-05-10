@@ -35,10 +35,16 @@ module.exports = (grunt) => {
         dest: 'dist/vendor/leaflet'
       },
       
-      highchartsCss: { 
-        cwd: 'node_modules/highcharts/css/',
+      // highchartsCss: { 
+      //   cwd: 'node_modules/highcharts/css/',
+      //   expand: true,
+      //   src: ['highcharts.css', 'themes/*'], 
+      //   dest: 'dist/vendor/highcharts'
+      // },
+      highchartsJs: { 
+        cwd: 'node_modules/highcharts/',
         expand: true,
-        src: ['highcharts.css'], 
+        src: ['highcharts.*', 'highstock.*', 'themes/dark-unica.*', 'themes/dark-unica.*', 'modules/exporting.*'], 
         dest: 'dist/vendor/highcharts'
       },
 
@@ -65,12 +71,12 @@ module.exports = (grunt) => {
             dest: 'dist',
             ext: '.js'
           },
-          { 
-            cwd: 'node_modules/highcharts/',
-            expand: true,
-            src: ['highstock.js'],
-            dest: 'dist/vendor/highcharts'
-          }
+          // { 
+          //   cwd: 'node_modules/highcharts/',
+          //   expand: true,
+          //   src: ['highstock.js'],
+          //   dest: 'dist/vendor/highcharts'
+          // }
         ]
       },
     },
@@ -79,7 +85,10 @@ module.exports = (grunt) => {
 
   grunt.registerTask('default', [
     'clean', 
-    'copy:srcToDist', 'copy:pluginDef', 'copy:imgToDist', 'copy:leaflet', 'copy:highchartsCss', 'copy:leafletAwesomeIcons',
+    'copy:srcToDist', 'copy:pluginDef', 'copy:imgToDist', 'copy:leaflet', 
+    //'copy:highchartsCss', 
+    'copy:highchartsJs',
+    'copy:leafletAwesomeIcons',
     'babel'
   ]);
 };

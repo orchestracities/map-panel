@@ -1,18 +1,15 @@
 'use strict';
 
-System.register(['lodash', 'app/core/config', '../definitions'], function (_export, _context) {
+System.register(['lodash', '../vendor/highcharts/highstock', '../vendor/highcharts/modules/exporting', 'app/core/config', '../definitions', '../utils/highcharts/theme-dark'], function (_export, _context) {
   "use strict";
 
-  var _, config, AQI, CARS_COUNT, HIGHCHARTS_THEME_DARK, NOMINATIM_ADDRESS;
+  var _, Highcharts, Exporting, config, AQI, CARS_COUNT, NOMINATIM_ADDRESS, HIGHCHARTS_THEME_DARK;
 
   /**
   * Primary functions
   */
 
   //helper to create series for chart display
-
-
-  /* Grafana Specific */
   function getTimeSeries(data) {
     var valueValues = {};
     var values = [];
@@ -48,11 +45,6 @@ System.register(['lodash', 'app/core/config', '../definitions'], function (_expo
   }
 
   // Agregate data by id
-
-
-  /* App specific */
-  // draw components in the map
-  /* Vendor specific */
   function dataTreatment(data) {
     var finalData = {};
     var auxData = void 0;
@@ -77,7 +69,9 @@ System.register(['lodash', 'app/core/config', '../definitions'], function (_expo
     });
 
     return finalData;
-  }function getUpdatedChartSeries(chartSeries, timeSeries, currentParameterForChart, currentTargetForChart) {
+  }
+
+  function getUpdatedChartSeries(chartSeries, timeSeries, currentParameterForChart, currentTargetForChart) {
 
     if (Object.keys(chartSeries).length === 0) return chartSeries;
 
@@ -126,7 +120,9 @@ System.register(['lodash', 'app/core/config', '../definitions'], function (_expo
     }
 
     return chartSeries;
-  }function processData(chartSeries, timeSeries, validated_pollutants, currentParameterForChart, currentTargetForChart) {
+  }
+
+  function processData(chartSeries, timeSeries, validated_pollutants, currentParameterForChart, currentTargetForChart) {
     //  console.log(currentParameterForChart)
     //  console.log(currentTargetForChart)
     var chartData = [];
@@ -271,7 +267,9 @@ System.register(['lodash', 'app/core/config', '../definitions'], function (_expo
   */
   function showDataDetailsSelect(panel_id) {
     document.querySelector('#data_details_' + panel_id).style.display = 'block';
-  }function getDataPointValues(dataPoint) {
+  }
+
+  function getDataPointValues(dataPoint) {
 
     var values = {
       id: dataPoint.id,
@@ -319,13 +317,17 @@ System.register(['lodash', 'app/core/config', '../definitions'], function (_expo
     }
 
     return values;
-  }function getMapMarkerClassName(type, value) {
+  }
+
+  function getMapMarkerClassName(type, value) {
     var resp = 'map-marker-';
     if (type === 'AirQualityObserved') {
       return resp + AQI.classColor[calculateAQIIndex(value)];
     } else if (type === 'TrafficFlowObserved') return resp + CARS_COUNT.classColor[calculateCarsIntensityIndex(value)];
     return resp + 'default';
-  }function getDataPointStickyInfo(dataPoint) {
+  }
+
+  function getDataPointStickyInfo(dataPoint) {
 
     var data = getDataPointValues(dataPoint);
 
@@ -345,16 +347,24 @@ System.register(['lodash', 'app/core/config', '../definitions'], function (_expo
     stickyInfo += '</div>';
 
     return stickyInfo;
-  }function renderChart(panel_id, chartSeries, chartData, parameterUnit, title) {
+  }
+
+  function renderChart(panel_id, chartSeries, chartData, parameterUnit, title) {
 
     showDataDetailsSelect(panel_id);
     drawChart(panel_id);
 
     //config highchart acording with grafana theme
-    if (!config.bootData.user.lightTheme) window.Highcharts.setOptions(HIGHCHARTS_THEME_DARK);
+    if (!config.bootData.user.lightTheme) {
+      Highcharts.theme = HIGHCHARTS_THEME_DARK;
 
-    window.Highcharts.stockChart('graph_container_' + panel_id, {
+      // Apply the theme
+      Highcharts.setOptions(Highcharts.theme);
+    }
+
+    Highcharts.chart('graph_container_' + panel_id, {
       chart: {
+        type: 'line',
         height: 200,
         zoomType: 'x',
         events: {
@@ -380,29 +390,14 @@ System.register(['lodash', 'app/core/config', '../definitions'], function (_expo
       legend: {
         enabled: false
       },
-      rangeSelector: {
-        buttons: [{
-          count: 5,
-          type: 'minute',
-          text: '5M'
-        }, {
-          count: 10,
-          type: 'minute',
-          text: '10M'
-        }, {
-          type: 'all',
-          text: 'All'
-        }],
-        inputEnabled: false,
-        selected: 2
-      },
-
       series: [{
         name: title,
         data: chartData
       }]
     });
-  }function hideAllGraphPopups(panel_id) {
+  }
+
+  function hideAllGraphPopups(panel_id) {
     var map_table_popups = ['measures_table', 'health_concerns_wrapper', 'environment_table', 'traffic_table'];
 
     var _iteratorNormalCompletion = true;
@@ -430,7 +425,8 @@ System.register(['lodash', 'app/core/config', '../definitions'], function (_expo
         }
       }
     }
-  }function drawHealthConcernsPopup(panel_id, providedPollutants, risk, color, meaning, map_size) {
+  }
+  function drawHealthConcernsPopup(panel_id, providedPollutants, risk, color, meaning, map_size) {
     var healthConcernsWrapper = document.getElementById('health_concerns_wrapper_' + panel_id);
     var healthConcerns = document.querySelector('#health_concerns_wrapper_' + panel_id + '>div');
     var healthConcernsColor = document.querySelector('#health_concerns_wrapper_' + panel_id + '>div>span>span.color');
@@ -439,11 +435,15 @@ System.register(['lodash', 'app/core/config', '../definitions'], function (_expo
     healthConcernsWrapper.style.display = 'block';
     healthConcernsColor.style.backgroundColor = color;
     healthRisk.innerHTML = risk;
-  }function drawDefaultPopups() {}function drawTrafficFlowPopup(panel_id) {
+  }
+  function drawDefaultPopups() {}
+  function drawTrafficFlowPopup(panel_id) {
     document.getElementById('traffic_table_' + panel_id).style.display = 'block';
-  }function drawChart(panel_id) {
+  }
+  function drawChart(panel_id) {
     document.getElementById('data_chart_' + panel_id).style.display = 'block';
-  }function drawPollutantsPopup(panel_id, providedPollutants, allPollutants, id, aqi, currentParameterForChart) {
+  }
+  function drawPollutantsPopup(panel_id, providedPollutants, allPollutants, id, aqi, currentParameterForChart) {
 
     //no pollutants
     if (!providedPollutants || Object.keys(providedPollutants).length === 0) return;
@@ -503,18 +503,39 @@ System.register(['lodash', 'app/core/config', '../definitions'], function (_expo
 
     document.getElementById('environment_table_' + panel_id).style.display = 'block';
     document.getElementById('measures_table_' + panel_id).style.display = 'block';
-  }return {
+  }
+
+  return {
     setters: [function (_lodash) {
       _ = _lodash.default;
+    }, function (_vendorHighchartsHighstock) {
+      Highcharts = _vendorHighchartsHighstock.default;
+    }, function (_vendorHighchartsModulesExporting) {
+      Exporting = _vendorHighchartsModulesExporting.default;
     }, function (_appCoreConfig) {
       config = _appCoreConfig.default;
     }, function (_definitions) {
       AQI = _definitions.AQI;
       CARS_COUNT = _definitions.CARS_COUNT;
-      HIGHCHARTS_THEME_DARK = _definitions.HIGHCHARTS_THEME_DARK;
       NOMINATIM_ADDRESS = _definitions.NOMINATIM_ADDRESS;
+    }, function (_utilsHighchartsThemeDark) {
+      HIGHCHARTS_THEME_DARK = _utilsHighchartsThemeDark.HIGHCHARTS_THEME_DARK;
     }],
     execute: function () {
+      // Initialize exporting module.
+
+      //import Highcharts from './vendor/highcharts/highstock';
+      //import "../vendor/highcharts/highcharts.css!";
+      //import "../vendor/highcharts/themes/dark-unica.css!";
+      Exporting(Highcharts);
+
+      /* Grafana Specific */
+      // draw components in the map
+      /* Vendor specific */
+
+
+      /* App specific */
+
       _export('processData', processData);
 
       _export('getTimeSeries', getTimeSeries);

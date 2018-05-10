@@ -1,9 +1,9 @@
 'use strict';
 
-System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet.awesome-markers/leaflet.awesome-markers.css!', './vendor/leaflet.awesome-markers/leaflet.awesome-markers', './vendor/leaflet/leaflet', './definitions', './utils/map_utils', './utils/data_formatter'], function (_export, _context) {
+System.register(['lodash', './vendor/leaflet.awesome-markers/leaflet.awesome-markers.css!', './vendor/leaflet.awesome-markers/leaflet.awesome-markers', './vendor/leaflet/leaflet', './definitions', './utils/map_utils', './utils/data_formatter'], function (_export, _context) {
   "use strict";
 
-  var _, Highcharts, L, tileServers, PLUGIN_PATH, dataTreatment, processData, getTimeSeries, getUpdatedChartSeries, drawPopups, renderChart, hideAllGraphPopups, getDataPointValues, getDataPointStickyInfo, getMapMarkerClassName, filterEmptyAndZeroValues, _slicedToArray, _createClass, DRAW_CHART, REDRAW_CHART, CIRCLE_RADIUS, POLYGON_MAGNIFY_RATIO, WorldMap;
+  var _, L, tileServers, PLUGIN_PATH, dataTreatment, processData, getTimeSeries, getUpdatedChartSeries, drawPopups, renderChart, hideAllGraphPopups, getDataPointValues, getDataPointStickyInfo, getMapMarkerClassName, filterEmptyAndZeroValues, _slicedToArray, _createClass, DRAW_CHART, REDRAW_CHART, CIRCLE_RADIUS, POLYGON_MAGNIFY_RATIO, WorldMap;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -14,8 +14,6 @@ System.register(['lodash', './vendor/highcharts/highstock', './vendor/leaflet.aw
   return {
     setters: [function (_lodash) {
       _ = _lodash.default;
-    }, function (_vendorHighchartsHighstock) {
-      Highcharts = _vendorHighchartsHighstock.default;
     }, function (_vendorLeafletAwesomeMarkersLeafletAwesomeMarkersCss) {}, function (_vendorLeafletAwesomeMarkersLeafletAwesomeMarkers) {}, function (_vendorLeafletLeaflet) {
       L = _vendorLeafletLeaflet.default;
     }, function (_definitions) {

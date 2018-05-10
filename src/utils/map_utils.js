@@ -1,12 +1,20 @@
 // draw components in the map
 /* Vendor specific */
 import _ from 'lodash';
+//import Highcharts from './vendor/highcharts/highstock';
+//import "../vendor/highcharts/highcharts.css!";
+//import "../vendor/highcharts/themes/dark-unica.css!";
+import Highcharts from "../vendor/highcharts/highstock";
+import Exporting from '../vendor/highcharts/modules/exporting';
+// Initialize exporting module.
+Exporting(Highcharts);
 
 /* Grafana Specific */
 import config from 'app/core/config';
 
 /* App specific */
-import { AQI, CARS_COUNT, HIGHCHARTS_THEME_DARK, NOMINATIM_ADDRESS } from '../definitions';
+import { AQI, CARS_COUNT, NOMINATIM_ADDRESS } from '../definitions';
+import { HIGHCHARTS_THEME_DARK } from '../utils/highcharts/theme-dark';
 
 /**
 * Primary functions
@@ -166,8 +174,6 @@ function processData(chartSeries, timeSeries, validated_pollutants, currentParam
   return [chartData, parameterUnit, title]
 }
 
-
-
 /*
 * Auxiliar functions
 */
@@ -266,8 +272,6 @@ function drawPopups(panel_id, timeSeries, validated_pollutants, currentParameter
     console.log("selected_id: " + selected_id + ", type: " + type + ", values: " + values)
   }
 }
-
-
 
 /*
 * view components manipulation
@@ -372,12 +376,17 @@ function renderChart(panel_id, chartSeries, chartData, parameterUnit, title) {
   drawChart(panel_id);
 
   //config highchart acording with grafana theme
-  if(!config.bootData.user.lightTheme)
-    window.Highcharts.setOptions(HIGHCHARTS_THEME_DARK);
+  if(!config.bootData.user.lightTheme) {
+    Highcharts.theme = HIGHCHARTS_THEME_DARK;
 
-  window.Highcharts.stockChart('graph_container_'+panel_id, 
+    // Apply the theme
+    Highcharts.setOptions(Highcharts.theme);
+  }
+
+  Highcharts.chart('graph_container_'+panel_id,
     {
       chart: {
+        type: 'line',
         height: 200,
         zoomType: 'x',
         events: {
@@ -387,46 +396,30 @@ function renderChart(panel_id, chartSeries, chartData, parameterUnit, title) {
         }
       },
       title: {
-          text: title
+        text: title
       },
       subtitle: {
-          text: ''
+        text: ''
       },
       xAxis: {
-          type: 'datetime'
+        type: 'datetime'
       },
       yAxis: {
-          title: {
-              text: parameterUnit
-          }
+        title: {
+          text: parameterUnit
+        }
       },
       legend: {
-          enabled: false
+        enabled: false
       },
-      rangeSelector: {
-        buttons: [{
-            count: 5,
-            type: 'minute',
-            text: '5M'
-        }, {
-            count: 10,
-            type: 'minute',
-            text: '10M'
-        }, {
-            type: 'all',
-            text: 'All'
-        }],
-        inputEnabled: false,
-        selected: 2
-      },
-
       series: [{
-          name: title,
-          data: chartData
+        name: title,
+        data: chartData
       }]
     }
   );
 }
+
 function hideAllGraphPopups(panel_id) {
   let map_table_popups = ['measures_table', 'health_concerns_wrapper', 'environment_table', 'traffic_table'];
 

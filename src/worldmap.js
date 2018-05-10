@@ -2,7 +2,6 @@
 
 /* Vendor specific */
 import _ from 'lodash';
-import Highcharts from './vendor/highcharts/highstock';
 
 import './vendor/leaflet.awesome-markers/leaflet.awesome-markers.css!';
 import './vendor/leaflet.awesome-markers/leaflet.awesome-markers';
