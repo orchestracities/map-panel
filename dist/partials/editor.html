@@ -13,20 +13,26 @@
     </div>
   </div>
 
-  <div class="gf-form" ng-show="ctrl.panel.mapCenter === 'custom'">
-    <label class="gf-form-label width-10">Latitude</label>
-    <input type="text"
-      class="input-small gf-form-input width-10"
-      ng-model="ctrl.panel.mapCenterLatitude"
-      ng-change="ctrl.setNewMapCenter()"
-      ng-model-onblur />
 
-    <label class="gf-form-label width-10">Longitude</label>
-    <input type="text"
-      class="input-small gf-form-input width-10"
-      ng-model="ctrl.panel.mapCenterLongitude"
-      ng-change="ctrl.setNewMapCenter()"
-      ng-model-onblur />
+  <div ng-show="ctrl.panel.mapCenter === 'custom'">
+    <div class="gf-form">
+      <span class="width-2"></span>
+      <label class="gf-form-label width-8">Latitude</label>
+      <input type="text"
+        class="input-small gf-form-input width-10"
+        ng-model="ctrl.panel.mapCenterLatitude"
+        ng-change="ctrl.setNewMapCenter()"
+        ng-model-onblur />
+    </div>
+    <div class="gf-form">
+      <span class="width-2"></span>
+      <label class="gf-form-label width-8">Longitude</label>
+      <input type="text"
+        class="input-small gf-form-input width-10"
+        ng-model="ctrl.panel.mapCenterLongitude"
+        ng-change="ctrl.setNewMapCenter()"
+        ng-model-onblur />
+    </div>
   </div>
 
   <div class="gf-form">
@@ -73,19 +79,23 @@
   <div class="section-heading">{{layerName}}</div>
   <div class="section gf-form-group">
     <div class="gf-form">
-      <label class="gf-form-label width-10">Icon</label>
+      <span class="gf-form-label width-10">Icon
+        <info-popover mode="right-normal">
+          <div ng-repeat="iconType in ctrl.iconTypes">
+            <i class="fa fa-{{iconType}}"></i> - {{iconType}}
+          </div>
+        </info-popover>
+      </span>
 
-      <select class="gf-form-input"
+      <select class="gf-form-input icon-select"
         ng-model="ctrl.panel.layersIcons[layerName]"
         ng-options="iconType for iconType in ctrl.iconTypes"
         ng-change="ctrl.render()"
         >
-      </select>
-      
+      </select>      
     </div>
   </div>
 </div>
-
 
 <div>
   <p>Info:</p>

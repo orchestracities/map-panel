@@ -160,3 +160,7 @@
 .chart-container .data-details {
 /*  margin-bottom: 5px;*/
 }
+
+select.icon-select{
+  font-family: FontAwesome, sans-serif;
+}

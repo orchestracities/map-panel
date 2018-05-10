@@ -1,14 +1,19 @@
+/*Leaflet Specific*/
 .map-container .map-darken img.leaflet-tile {
   -webkit-filter: brightness(1.6) grayscale(1) contrast(1);
   filter: brightness(1.6) grayscale(1) contrast(1);
 }
 
-.map-container .worldmap-popup .leaflet-popup-content-wrapper, .worldmap-popup .leaflet-popup-tip {
+.map-container .worldmap-popup .leaflet-popup-content-wrapper, 
+.map-container .worldmap-popup .leaflet-popup-tip,
+.map-container .leaflet-control-layers,
+.map-container .leaflet-control-zoom a {
   background-color: #333;
   color: white;
 /*  border: solid grey 1px;*/
 }
 
+/*map popups specific*/
 .map-container table tr, .info-container {
   color: white;
 }

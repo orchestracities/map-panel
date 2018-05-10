@@ -14,7 +14,7 @@ import config from 'app/core/config';
 
 /* App specific */
 import { AQI, CARS_COUNT, NOMINATIM_ADDRESS } from '../definitions';
-import { HIGHCHARTS_THEME_DARK } from '../utils/highcharts/theme-dark';
+import { HIGHCHARTS_THEME_DARK } from '../utils/highcharts/custom_themes';
 
 /**
 * Primary functions

@@ -1,6 +1,6 @@
 'use strict';
 
-System.register(['lodash', '../vendor/highcharts/highstock', '../vendor/highcharts/modules/exporting', 'app/core/config', '../definitions', '../utils/highcharts/theme-dark'], function (_export, _context) {
+System.register(['lodash', '../vendor/highcharts/highstock', '../vendor/highcharts/modules/exporting', 'app/core/config', '../definitions', '../utils/highcharts/custom_themes'], function (_export, _context) {
   "use strict";
 
   var _, Highcharts, Exporting, config, AQI, CARS_COUNT, NOMINATIM_ADDRESS, HIGHCHARTS_THEME_DARK;
@@ -518,8 +518,8 @@ System.register(['lodash', '../vendor/highcharts/highstock', '../vendor/highchar
       AQI = _definitions.AQI;
       CARS_COUNT = _definitions.CARS_COUNT;
       NOMINATIM_ADDRESS = _definitions.NOMINATIM_ADDRESS;
-    }, function (_utilsHighchartsThemeDark) {
-      HIGHCHARTS_THEME_DARK = _utilsHighchartsThemeDark.HIGHCHARTS_THEME_DARK;
+    }, function (_utilsHighchartsCustom_themes) {
+      HIGHCHARTS_THEME_DARK = _utilsHighchartsCustom_themes.HIGHCHARTS_THEME_DARK;
     }],
     execute: function () {
       // Initialize exporting module.
