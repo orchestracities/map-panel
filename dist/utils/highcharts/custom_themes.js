@@ -187,6 +187,17 @@ System.register([], function (_export, _context) {
           trackBorderColor: '#404043'
         },
 
+        exporting: {
+          buttons: {
+            contextButton: {
+              theme: {
+                fill: 'white',
+                strock: 'black'
+              }
+            }
+          }
+        },
+
         // special colors for some of the
         legendBackgroundColor: 'rgba(0, 0, 0, 0.5)',
         background2: '#505053',

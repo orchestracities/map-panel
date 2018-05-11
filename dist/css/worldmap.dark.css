@@ -4,17 +4,29 @@
   filter: brightness(1.6) grayscale(1) contrast(1);
 }
 
+.map-container .leaflet-container .leaflet-control-attribution,
+.map-container .leaflet-control-scale-line,
+/*.map-container .leaflet-div-icon,*/
+.map-container .leaflet-control-layers-expanded {
+  background-color: #333;
+}
+
 .map-container .worldmap-popup .leaflet-popup-content-wrapper, 
 .map-container .worldmap-popup .leaflet-popup-tip,
 .map-container .leaflet-control-layers,
 .map-container .leaflet-control-zoom a {
   background-color: #333;
   color: white;
-/*  border: solid grey 1px;*/
+}
+
+.leaflet-touch .leaflet-control-layers, 
+.leaflet-touch .leaflet-bar {
+  border: 1px solid black !important;
 }
 
 /*map popups specific*/
-.map-container table tr, .info-container {
+.map-container table tr, 
+.map-container .info-container {
   color: white;
 }
 
@@ -25,15 +37,31 @@
   background-color: #212124;
 }
 
-.map-container .info-container, .map-container .aqi_legend, .map-container .traffic_table {
+.map-container .info-container, 
+.map-container .aqi_legend, 
+.map-container .traffic_table {
   border: grey solid 1px;
 }
 
-.map-container thead > tr, .map-container .info-container {
+.map-container thead > tr, 
+.map-container .info-container {
   background-color: #212124;
 }
 
 .map-container .info-container .header {
 }
 .map-container .info-container .body {
+}
+
+
+/*highcharts customization*/
+.chart-container .highcharts-button-box {
+  color: white;
+  fill: #333;
+  stroke: black;
+}
+.chart-container .highcharts-reset-zoom > text {
+  /*color: white;*/
+  fill: white !important;
+/*  stroke: white;*/
 }
