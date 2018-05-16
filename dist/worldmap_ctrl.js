@@ -3,7 +3,7 @@
 System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn', 'lodash', './definitions', './utils/datasource', './utils/map_utils', './map_renderer', './utils/data_formatter', './css/worldmap-panel.css!', './vendor/leaflet/leaflet.css!'], function (_export, _context) {
   "use strict";
 
-  var MetricsPanelCtrl, TimeSeries, kbn, _, PLUGIN_PATH, panelDefaults, mapCenters, ICON_TYPES, getDatasources, getValidDatasources, getCityCoordinates, getSelectedCity, mapRenderer, DataFormatter, _createClass, dataFormatter, WorldmapCtrl;
+  var MetricsPanelCtrl, TimeSeries, kbn, _, PLUGIN_PATH, PANEL_DEFAULTS, DEFAULT_POLLUTANTS, MAP_LOCATIONS, ICON_TYPES, getDatasources, getValidDatasources, getCityCoordinates, getSelectedCity, mapRenderer, DataFormatter, _createClass, dataFormatter, WorldmapCtrl;
 
   function _toConsumableArray(arr) {
     if (Array.isArray(arr)) {
@@ -58,8 +58,9 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
       _ = _lodash.default;
     }, function (_definitions) {
       PLUGIN_PATH = _definitions.PLUGIN_PATH;
-      panelDefaults = _definitions.panelDefaults;
-      mapCenters = _definitions.mapCenters;
+      PANEL_DEFAULTS = _definitions.PANEL_DEFAULTS;
+      DEFAULT_POLLUTANTS = _definitions.DEFAULT_POLLUTANTS;
+      MAP_LOCATIONS = _definitions.MAP_LOCATIONS;
       ICON_TYPES = _definitions.ICON_TYPES;
     }, function (_utilsDatasource) {
       getDatasources = _utilsDatasource.getDatasources;
@@ -102,21 +103,34 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
           var _this = _possibleConstructorReturn(this, (WorldmapCtrl.__proto__ || Object.getPrototypeOf(WorldmapCtrl)).call(this, $scope, $injector));
 
           _this.setMapProvider(contextSrv);
-          console.info(_this.panel);
-          _.defaultsDeep(_this.panel, panelDefaults);
+          _.defaultsDeep(_this.panel, PANEL_DEFAULTS);
           _this.iconTypes = ICON_TYPES;
-          //this.mapCenterMoved=true;
-
+          _this.defaultPollutants = DEFAULT_POLLUTANTS;
+          //this.panel.pollutants=[['', '', '']]
           _this.events.on('init-edit-mode', _this.onInitEditMode.bind(_this));
           _this.events.on('data-error', _this.onDataError.bind(_this));
           _this.events.on('data-received', _this.onDataReceived.bind(_this)); //process resultset as a result of the execution of all queries
           _this.events.on('data-snapshot-load', _this.onDataReceived.bind(_this));
           //this.handleDatasourceParamsChange = this.applyDatasourceParamsChange.bind(this)
           //this.handleMapLayerIconsChange = this.changeMapLayerIcons.bind(this)
+
+          _this.handleClickAddPollutant = _this.addPollutant.bind(_this);
+          _this.handleRemovePollutants = _this.removePollutants.bind(_this);
           return _this;
         }
 
         _createClass(WorldmapCtrl, [{
+          key: 'addPollutant',
+          value: function addPollutant() {
+            this.panel.pollutants.push(['', '', '']);
+          }
+        }, {
+          key: 'removePollutants',
+          value: function removePollutants(index) {
+            this.panel.pollutants.splice(index, 1);
+            this.refresh();
+          }
+        }, {
           key: 'onInitEditMode',
           value: function onInitEditMode() {
             this.addEditorTab('Worldmap', PLUGIN_PATH + 'partials/editor.html', 2);
@@ -124,7 +138,14 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
         }, {
           key: 'onDataReceived',
           value: function onDataReceived(dataList) {
-            if (!dataList) return; //no result sets
+            if (!dataList || dataList.length == 0) {
+              //      throw new Error('Please verify your setting. No values Returned')
+              return; //no result sets  
+            }
+
+            console.log('dataList');
+            console.log(dataList);
+
             if (this.dashboard.snapshot && this.locations) {
               this.panel.snapshotLocationData = this.locations;
             }
@@ -132,7 +153,13 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
               return elem.target.split(':')[0];
             }))));
             this.series = dataList.map(this.seriesHandler.bind(this));
-            this.data = dataFormatter.getValues(this.series, this.panel.resources.airQualityObserved.pollutants);
+
+            //parsed data goes here
+            console.log('this.series');
+            console.log(this.series);
+            this.data = dataFormatter.getValues(this.series, this.panel.pollutants);
+            console.log('this.data');
+            console.log(this.data);
             this.render();
           }
         }, {
@@ -141,6 +168,7 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
             if (error && error.data && error.data.error) {
               console.warn('Error: ');
               console.warn(error.data.error.message);
+              throw new Error('Please verify your setting. No values Returned.' + error.data.error.message);
             }
             this.onDataReceived([]);
           }
@@ -164,11 +192,6 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
           key: 'setMapProvider',
           value: function setMapProvider(contextSrv) {
             this.tileServer = contextSrv.user.lightTheme ? 'CartoDB Positron' : 'CartoDB Dark';
-            this.setMapSaturationClass();
-          }
-        }, {
-          key: 'setMapSaturationClass',
-          value: function setMapSaturationClass() {
             this.saturationClass = this.tileServer === 'CartoDB Dark' ? 'map-darken' : '';
           }
         }, {
@@ -190,8 +213,8 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
             if (this.panel.mapCenter !== 'custom') {
               // center at continent or area
               console.info('centering !== custom');
-              this.panel.mapCenterLatitude = mapCenters[this.panel.mapCenter].mapCenterLatitude;
-              this.panel.mapCenterLongitude = mapCenters[this.panel.mapCenter].mapCenterLongitude;
+              this.panel.mapCenterLatitude = MAP_LOCATIONS[this.panel.mapCenter].mapCenterLatitude;
+              this.panel.mapCenterLongitude = MAP_LOCATIONS[this.panel.mapCenter].mapCenterLongitude;
             }
 
             this.mapCenterMoved = true;

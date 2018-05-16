@@ -3,7 +3,7 @@
 System.register(['./vendor/leaflet/leaflet'], function (_export, _context) {
   "use strict";
 
-  var L, PLUGIN_PATH, AQI, CARS_COUNT, DEFAULT_MARKER_COLORS_RANGE, tileServers, DEFAULT_MAP_MARKER, ICON_TYPES, panelDefaults, mapCenters, MIN_WIDTH_TO_SHOW_MAP_POPUPS, MIN_HEIGHT_TO_SHOW_MAP_POPUPS, NOMINATIM_ADDRESS;
+  var L, PLUGIN_PATH, AQI, CARS_COUNT, DEFAULT_MARKER_COLORS_RANGE, TILE_SERVERS, ICON_TYPES, PANEL_DEFAULTS, DEFAULT_POLLUTANTS, MAP_LOCATIONS, NOMINATIM_ADDRESS;
   return {
     setters: [function (_vendorLeafletLeaflet) {
       L = _vendorLeafletLeaflet.default;
@@ -32,19 +32,14 @@ System.register(['./vendor/leaflet/leaflet'], function (_export, _context) {
         markerColor: ['red', 'blue', 'green', 'purple', 'orange', 'darkred', 'lightred', 'beige', 'darkblue', 'darkgreen', 'cadetblue', 'darkpurple', 'white', 'pink', 'lightblue', 'lightgreen', 'gray', 'black', 'lightgray']
       };
 
-      _export('tileServers', tileServers = {
+      _export('TILE_SERVERS', TILE_SERVERS = {
         'CartoDB Positron': { url: 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>', subdomains: 'abcd' },
         'CartoDB Dark': { url: 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png', attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>', subdomains: 'abcd' }
       });
 
-      _export('DEFAULT_MAP_MARKER', DEFAULT_MAP_MARKER = L.icon({
-        iconUrl: 'img/map_marker.png',
-        iconSize: [25, 40]
-      }));
-
       _export('ICON_TYPES', ICON_TYPES = ['info-circle', 'question', 'clock-o', 'warning', 'car', 'bell', 'bell-slash', 'bicycle', 'bus', 'close', 'ban', 'tree', 'trash', 'truck', 'umbrella', 'volume-up']);
 
-      _export('panelDefaults', panelDefaults = {
+      _export('PANEL_DEFAULTS', PANEL_DEFAULTS = {
         maxDataPoints: 1,
         mapCenter: '(0°, 0°)',
         mapCenterLatitude: 0,
@@ -64,30 +59,29 @@ System.register(['./vendor/leaflet/leaflet'], function (_export, _context) {
         hideZero: false,
         stickyLabels: false,
 
-        resources: {
-          airQualityObserved: {
-            pollutants: '{\n' + '"aqi": {"name": "Air Quality Index", "unit": ""},\n' + '"h": {"name": "Hydrogen", "unit": ""},\n' + '"no2": {"name": "Nitrogen Dioxide", "unit": "µg/m3"},\n' + '"p": {"name": "Pressure", "unit": "hPa"},\n' + '"pm10": {"name": "PM10", "unit": "ug/m3"},\n' + '"pm25": {"name": "PM25", "unit": "ug/m3"},\n' + '"t": {"name": "Temperature", "unit": "ºC"}\n' + '}'
-          }
-        },
+        pollutants: [],
         targets: [{
           refId: "A",
           groupByAliases: ["type"],
           groupByColumns: ["entity_type"],
           whereClauses: [],
-          metricAggs: [{ alias: "id", column: "entity_id", type: "raw" }, { alias: "value", column: "aqi", type: "raw" }, { alias: "longitude", column: "longitude(location)", type: "raw" }, { alias: "latitude", column: "latitude(location)", type: "raw" }, { alias: "created_at", column: "time_index", type: "raw"
-            //      {column: "h", type: "raw"},
-            //      {column: "no2", type: "raw"},
-            //      {column: "p", type: "raw"},
-            //      {column: "pm10", type: "raw"},
-            //      {column: "pm25", type: "raw"},
-            //      {column: "t", type: "raw"}
-          }]
+          metricAggs: [{ alias: "id", column: "entity_id", type: "raw" }, { alias: "value", column: "", type: "raw" }, { alias: "longitude", column: "longitude(location)", type: "raw" }, { alias: "latitude", column: "latitude(location)", type: "raw" }, { alias: "created_at", column: "time_index", type: "raw" }]
         }],
-        currentParameterForChart: 'AQI',
         layersIcons: {}
       });
 
-      _export('mapCenters', mapCenters = {
+      _export('DEFAULT_POLLUTANTS', DEFAULT_POLLUTANTS = {
+        "aqi": { "name": "Air Quality Index", "unit": "" },
+        "h": { "name": "Hydrogen", "unit": "" },
+        "no2": { "name": "Nitrogen Dioxide", "unit": "µg/m3" },
+        "p": { "name": "Pressure", "unit": "hPa" },
+        "pm10": { "name": "PM10", "unit": "ug/m3" },
+        "pm25": { "name": "PM25", "unit": "ug/m3" },
+        "t": { "name": "Temperature", "unit": "ºC" },
+        "co": { "name": "CO2", "unit": "" }
+      });
+
+      _export('MAP_LOCATIONS', MAP_LOCATIONS = {
         '(0°, 0°)': { mapCenterLatitude: 0.0, mapCenterLongitude: 0.0 },
         'North America': { mapCenterLatitude: 40, mapCenterLongitude: -100 },
         'Europe': { mapCenterLatitude: 46, mapCenterLongitude: 14 },
@@ -95,31 +89,23 @@ System.register(['./vendor/leaflet/leaflet'], function (_export, _context) {
         'SE Asia': { mapCenterLatitude: 10, mapCenterLongitude: 106 }
       });
 
-      _export('MIN_WIDTH_TO_SHOW_MAP_POPUPS', MIN_WIDTH_TO_SHOW_MAP_POPUPS = 840);
-
-      _export('MIN_HEIGHT_TO_SHOW_MAP_POPUPS', MIN_HEIGHT_TO_SHOW_MAP_POPUPS = 480);
-
       _export('NOMINATIM_ADDRESS', NOMINATIM_ADDRESS = 'https://nominatim.openstreetmap.org/search/<city_name>?format=json&addressdetails=1&limit=1&polygon_svg=1');
 
       _export('PLUGIN_PATH', PLUGIN_PATH);
+
+      _export('PANEL_DEFAULTS', PANEL_DEFAULTS);
+
+      _export('NOMINATIM_ADDRESS', NOMINATIM_ADDRESS);
+
+      _export('TILE_SERVERS', TILE_SERVERS);
 
       _export('AQI', AQI);
 
       _export('CARS_COUNT', CARS_COUNT);
 
-      _export('tileServers', tileServers);
+      _export('DEFAULT_POLLUTANTS', DEFAULT_POLLUTANTS);
 
-      _export('DEFAULT_MAP_MARKER', DEFAULT_MAP_MARKER);
-
-      _export('panelDefaults', panelDefaults);
-
-      _export('mapCenters', mapCenters);
-
-      _export('MIN_WIDTH_TO_SHOW_MAP_POPUPS', MIN_WIDTH_TO_SHOW_MAP_POPUPS);
-
-      _export('MIN_HEIGHT_TO_SHOW_MAP_POPUPS', MIN_HEIGHT_TO_SHOW_MAP_POPUPS);
-
-      _export('NOMINATIM_ADDRESS', NOMINATIM_ADDRESS);
+      _export('MAP_LOCATIONS', MAP_LOCATIONS);
 
       _export('ICON_TYPES', ICON_TYPES);
     }

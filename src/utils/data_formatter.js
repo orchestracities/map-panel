@@ -2,36 +2,37 @@ import _ from 'lodash';
 
 export default class DataFormatter {
 
-  getValues(series, pollutants) {
+  getValues(series, panelDefaultPollutants) {
     if (!series || series.length ==0)
       return []
 
-    let s_ = this.getSeries(series, pollutants)
+    let parsedPollutants = this.getSeries(series, panelDefaultPollutants)
 
     //processing only latitudes  
-    return this.getDataValues();
+    return this.getDataValues(parsedPollutants, panelDefaultPollutants);
   }
 
-  getSeries(series, pollutants) {
+  getSeries(series, panelDefaultPollutants) {
     let setSeries = {};
     let serieType;
 
     series.forEach((serie) => {
       serieType = serie.id.split(':')[0];
       
-      // if (allowedTypes.indexOf(serieType) === -1) {
-      //    console.log('Please make sure you group by your query');
-      // }
       const serieName = serie.alias.split(': ')[1];
-      //console.log('serieType => '+serieType+', serieName => '+serieName)
-      // VERIFY HERE ALL TYPES RECEIVED
+      console.debug('serieType => '+serieType+', serieName => '+serieName)
+
       if (!(setSeries[serieName])) {
         setSeries[serieName] = [];
       }
 
       serie.datapoints.forEach((datapoint, index) => {
-        const datapointValue = parseFloat(datapoint[0]);
-        const valueAndType = {'value': datapointValue, 'type': serieType, 'id': index};
+        const valueAndType = {
+          'id': index,
+          'type': serieType,
+          'value': parseFloat(datapoint[0])
+        };
+
         setSeries[serieName].push(valueAndType);
       });
     });
@@ -42,45 +43,36 @@ export default class DataFormatter {
     this.ids = setSeries.id;
     this.times = setSeries.created_at;
 
-
     if ( !(this.latitudes && this.longitudes && this.values && this.ids && this.times) ) {
-      throw new Error("Please make sure you selected 'Raw' in the aggregation type for the mandatory fields 'latitude', 'longitude', 'value', 'id', 'created_at'. You must also group by expression in order to create map layers.");
+      throw new Error("Please make sure you selected 'Raw' in the aggregation type. 'latitude', 'longitude', 'value', 'id', 'created_at' are mandatory. You must also group by expression in order to create map layers.");
     }
 
+    let pollutants_ = {}
     //Try to process pollutants
-    if(pollutants) {
-      this.pollutantsAux = {};
+    if(panelDefaultPollutants) {
       setSeries.pollutants = [];
-      this.pollutants = JSON.parse(pollutants)
 
-      // if (this.pollutants) {
-        Object.keys(this.pollutants).forEach((key) => {
-          const currentPoll = this.pollutants[key];
+      panelDefaultPollutants.forEach((pollutant) => {
+        let key = pollutant[0]
 
-          if (setSeries[key]) {
-            // const receivedPoll = [];
-            setSeries[key].forEach((poll) => {     
-              const keyString = key.toString();
-              const keyId = poll.id.toString();
-              const newKey = keyString + keyId;
-              if (!(this.pollutantsAux[newKey])) {
-                this.pollutantsAux[newKey] = { 'value': poll.value };
-              }
-            });
-            delete setSeries[currentPoll.name];
-          }
-        });
-
-      //} else {
-      //  throw new Error("For each datasource target, please insert a valid JSON in the Available Pollutants field");
-      //}
+        if (setSeries[key]) {
+          setSeries[key].forEach((poll) => {
+            const keyId = poll.id.toString();
+            const newKey = key + keyId;
+            if (!(pollutants_[newKey])) {
+              pollutants_[newKey] = { 'value': poll.value };
+            }
+          });
+//          delete setSeries[panelDefaultPollutants[0][0]];//?
+        }
+      });
     }
-    
-    return setSeries;
+
+    return pollutants_;
   }
 
-  getDataValues() {
-    let response = []
+  getDataValues(parsedPollutants, panelDefaultPollutants) {
+    let dataValues = []
 
     this.latitudes.forEach((value, index) => {
       try {
@@ -90,25 +82,21 @@ export default class DataFormatter {
               value: this.values[index].value,
               type: this.values[index].type,
               id: this.ids[index].value,
-              time: this.times[index].value
+              time: this.times[index].value,
             };
 
-        // if AQI, add also info about pollutants
-        if (value.type === 'AirQualityObserved') {
-          const thisPollutants = [];        
+        let thisPollutants = [];
 
-          Object.keys(this.pollutants).forEach((key) => {
-            const getPollutant = key.toString() + value.id.toString();
+        panelDefaultPollutants.forEach((p) => {
+          const pollutantKey = p[0] + value.id.toString();
+          if (parsedPollutants[pollutantKey]) {
+            thisPollutants.push({'name': p[0], 'value': parsedPollutants[pollutantKey].value});
+          }
+        });
 
-            if (this.pollutantsAux[getPollutant]) {
-              thisPollutants.push({'name': key, 'value': this.pollutantsAux[getPollutant].value});
-            }
-          });
+        dataValue.pollutants = thisPollutants
 
-          dataValue.pollutants = thisPollutants
-        }
-
-        response.push(dataValue);
+        dataValues.push(dataValue);
 
       } catch (error) {
         console.log("Error:")
@@ -118,9 +106,9 @@ export default class DataFormatter {
 /*        throw new Error("Error parsing a data value");*/
       }
     });
-    return response;
+    console.debug(dataValues)
+    return dataValues;
   }
-
 }
 
 /*

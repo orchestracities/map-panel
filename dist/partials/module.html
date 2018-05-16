@@ -1,7 +1,17 @@
 <div id="map_panel_{{ctrl.panel.id}}" class="map-panel">
   <div id="mapid_{{ctrl.panel.id}}" class="map-container {{ctrl.saturationClass}}">
     <div class="map-container-popups" ng-show="ctrl.worldMap.map.getSize().x >= 640">
-      <div class="aqi-legend">
+      
+      <!-- Global detials -->
+      <div id="measures_table_{{ctrl.panel.id}}" class="measures-table hidden info-container">
+        <div class="header">Measured Details</div>
+        <table class="stripes">
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <!-- Range detials - used only in Air Quality and Traffic -->
+      <div class="values-ranges-legend">
         <table id="environment_table_{{ctrl.panel.id}}" class="environment-table hidden intensity-scale stripes info-container">
           <thead>
             <tr>
@@ -62,12 +72,8 @@
           </tbody>
         </table>
       </div>
-      <div id="measures_table_{{ctrl.panel.id}}" class="measures-table hidden info-container">
-        <div class="header">Air Parameters</div>
-        <table class="stripes">
-          <tbody></tbody>
-        </table>
-      </div>
+
+      <!-- Health Concerns - used only in Air Quality -->
       <div id="health_concerns_wrapper_{{ctrl.panel.id}}" class="health-concerns-wrapper hidden info-container">
         <div class="header header-left">Health Concerns <span><span class="color"/><span class="risk"></span></span></div>
         <div class="body" id="health_risk_{{ctrl.panel.id}}"></div>
@@ -75,9 +81,10 @@
     </div>
   </div>
 
-  <div id="data_chart_{{ctrl.panel.id}}" class="chart-container hidden">
+  <!-- The chart -->
+  <div id="data_chart_{{ctrl.panel.id}}" class="chart-container">
     <div id="data_details_{{ctrl.panel.id}}" class="data-details p-t-1">
-      <select id="air_parameters_dropdown_{{ctrl.panel.id}}" class="air-parameters-dropdown"></select>
+      <select id="parameters_dropdown_{{ctrl.panel.id}}" class="parameters-dropdown hidden"></select>
     </div>
     <div id="graph_container_{{ctrl.panel.id}}"></div>
   </div>

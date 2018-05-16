@@ -58,10 +58,24 @@
 .chart-container .highcharts-button-box {
   color: white;
   fill: #333;
-  stroke: black;
+  stroke: #181819;
 }
 .chart-container .highcharts-reset-zoom > text {
   /*color: white;*/
   fill: white !important;
 /*  stroke: white;*/
+}
+
+.chart-container .highcharts-menu {
+  box-shadow: none !important;
+  background-color: #181819 !important;
+}
+
+.chart-container .highcharts-menu .highcharts-menu-item {
+  color: white !important;
+}
+
+.chart-container .parameters-dropdown {
+  /*border: 1px solid #171819;*/
+  background-color: #181819;
 }

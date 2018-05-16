@@ -33,21 +33,21 @@ const DEFAULT_MARKER_COLORS_RANGE = {
   ]
 }
 
-const tileServers = {
+const TILE_SERVERS = {
   'CartoDB Positron': { url: 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>', subdomains: 'abcd'},
   'CartoDB Dark': {url: 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png', attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>', subdomains: 'abcd'}
 };
-const DEFAULT_MAP_MARKER = L.icon({
-  iconUrl: 'img/map_marker.png',
-  iconSize: [25, 40]
-});
+// const DEFAULT_MAP_MARKER = L.icon({
+//   iconUrl: 'img/map_marker.png',
+//   iconSize: [25, 40]
+// });
 
 const ICON_TYPES = [
         'info-circle', 'question', 'clock-o', 'warning', 'car', 'bell', 'bell-slash', 'bicycle', 'bus', 'close', 
         'ban', 'tree', 'trash', 'truck', 'umbrella', 'volume-up'
        ]
 
-const panelDefaults = {
+const PANEL_DEFAULTS = {
   maxDataPoints: 1,
   mapCenter: '(0°, 0°)',
   mapCenterLatitude: 0,
@@ -67,19 +67,7 @@ const panelDefaults = {
   hideZero: false,
   stickyLabels: false,
 
-  resources: {
-    airQualityObserved: {
-      pollutants: '{\n'+
-        '"aqi": {"name": "Air Quality Index", "unit": ""},\n'+
-        '"h": {"name": "Hydrogen", "unit": ""},\n'+
-        '"no2": {"name": "Nitrogen Dioxide", "unit": "µg/m3"},\n'+
-        '"p": {"name": "Pressure", "unit": "hPa"},\n'+
-        '"pm10": {"name": "PM10", "unit": "ug/m3"},\n'+
-        '"pm25": {"name": "PM25", "unit": "ug/m3"},\n'+
-        '"t": {"name": "Temperature", "unit": "ºC"}\n'+
-      '}'
-    }
-  },
+  pollutants: [],
   targets: [{
     refId: "A",
     groupByAliases: ["type"],
@@ -87,23 +75,36 @@ const panelDefaults = {
     whereClauses: [],
     metricAggs: [
       {alias: "id", column: "entity_id", type: "raw"},
-      {alias: "value", column: "aqi", type: "raw"}, 
+      {alias: "value", column: "", type: "raw"}, 
       {alias: "longitude", column: "longitude(location)", type: "raw"},
       {alias: "latitude", column: "latitude(location)", type: "raw"},
-      {alias: "created_at", column: "time_index", type: "raw"}      
-//      {column: "h", type: "raw"},
-//      {column: "no2", type: "raw"},
-//      {column: "p", type: "raw"},
-//      {column: "pm10", type: "raw"},
-//      {column: "pm25", type: "raw"},
-//      {column: "t", type: "raw"}
+      {alias: "created_at", column: "time_index", type: "raw"},
+
+//      {column: "aqi", type: "raw"}
+      // {column: "h", type: "raw"},
+      // {column: "no2", type: "raw"},
+      // {column: "p", type: "raw"},
+      // {column: "pm10", type: "raw"},
+      // {column: "pm25", type: "raw"},
+      // {column: "t", type: "raw"}
     ]
   }],
-  currentParameterForChart: 'AQI',
   layersIcons: {}
 };
 
-const mapCenters = {
+
+const DEFAULT_POLLUTANTS = {
+    "aqi": {"name": "Air Quality Index", "unit": ""},
+    "h": {"name": "Hydrogen", "unit": ""},
+    "no2": {"name": "Nitrogen Dioxide", "unit": "µg/m3"},
+    "p": {"name": "Pressure", "unit": "hPa"},
+    "pm10": {"name": "PM10", "unit": "ug/m3"},
+    "pm25": {"name": "PM25", "unit": "ug/m3"},
+    "t": {"name": "Temperature", "unit": "ºC"},
+    "co": {"name": "CO2", "unit": ""}
+  }
+
+const MAP_LOCATIONS = {
   '(0°, 0°)': {mapCenterLatitude: 0.0, mapCenterLongitude: 0.0},
   'North America': {mapCenterLatitude: 40, mapCenterLongitude: -100},
   'Europe': {mapCenterLatitude: 46, mapCenterLongitude: 14},
@@ -111,13 +112,14 @@ const mapCenters = {
   'SE Asia': {mapCenterLatitude: 10, mapCenterLongitude: 106}
 };
 
-const MIN_WIDTH_TO_SHOW_MAP_POPUPS = 840;
-const MIN_HEIGHT_TO_SHOW_MAP_POPUPS = 480;
+// const MIN_WIDTH_TO_SHOW_MAP_POPUPS = 840;
+// const MIN_HEIGHT_TO_SHOW_MAP_POPUPS = 480;
 
 const NOMINATIM_ADDRESS = 'https://nominatim.openstreetmap.org/search/<city_name>?format=json&addressdetails=1&limit=1&polygon_svg=1'
 
 export {
-  PLUGIN_PATH, 
-  AQI, CARS_COUNT, tileServers, DEFAULT_MAP_MARKER, panelDefaults, mapCenters, 
-  MIN_WIDTH_TO_SHOW_MAP_POPUPS, MIN_HEIGHT_TO_SHOW_MAP_POPUPS, NOMINATIM_ADDRESS, ICON_TYPES
+  PLUGIN_PATH, PANEL_DEFAULTS, 
+  NOMINATIM_ADDRESS, TILE_SERVERS, 
+  AQI, CARS_COUNT, 
+  DEFAULT_POLLUTANTS, MAP_LOCATIONS, ICON_TYPES  
 }

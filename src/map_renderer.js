@@ -10,17 +10,26 @@ export default function link(scope, elem, attrs, ctrl) {
   function render() {
     if (!ctrl.data) return;
 
+    console.debug('aggs')
+    console.debug(ctrl.panel.targets[0].metricAggs)
+    console.debug('pollutants')
+    console.debug(ctrl.panel.pollutants)
+
     //map is initializing
     if (!ctrl.worldMap) {
       ctrl.worldMap = new WorldMap(ctrl, mapContainer);
       console.debug('creating worldMap');
+      ctrl.worldMap.createMap();
     }
 
     if(layersChanged()){
       console.log('layers had changed! Please Refresh Page!');
       console.log(ctrl.layerNames);
       console.log(Object.keys(ctrl.worldMap.overlayMaps));
+      ctrl.worldMap.map = null;
+      ctrl.worldMap.createMap();
     }
+
     
     ctrl.worldMap.resize();
 

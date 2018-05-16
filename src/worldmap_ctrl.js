@@ -7,7 +7,7 @@ import kbn from 'app/core/utils/kbn';
 /* Vendor specific */
 import _ from 'lodash';
 /* App specific */
-import { PLUGIN_PATH, panelDefaults, mapCenters, ICON_TYPES } from './definitions'
+import { PLUGIN_PATH, PANEL_DEFAULTS, DEFAULT_POLLUTANTS, MAP_LOCATIONS, ICON_TYPES } from './definitions'
 import { getDatasources, getValidDatasources } from './utils/datasource';
 
 import { getCityCoordinates, getSelectedCity } from './utils/map_utils';
@@ -25,19 +25,28 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
   constructor($scope, $injector, contextSrv) {
     super($scope, $injector);
     this.setMapProvider(contextSrv);
-    console.info(this.panel)
-    _.defaultsDeep(this.panel, panelDefaults);
+    _.defaultsDeep(this.panel, PANEL_DEFAULTS);
     this.iconTypes = ICON_TYPES;
-    //this.mapCenterMoved=true;
-
+    this.defaultPollutants = DEFAULT_POLLUTANTS;
+//this.panel.pollutants=[['', '', '']]
     this.events.on('init-edit-mode', this.onInitEditMode.bind(this));
     this.events.on('data-error', this.onDataError.bind(this));
     this.events.on('data-received', this.onDataReceived.bind(this));  //process resultset as a result of the execution of all queries
     this.events.on('data-snapshot-load', this.onDataReceived.bind(this));
     //this.handleDatasourceParamsChange = this.applyDatasourceParamsChange.bind(this)
     //this.handleMapLayerIconsChange = this.changeMapLayerIcons.bind(this)
+
+    this.handleClickAddPollutant = this.addPollutant.bind(this)
+    this.handleRemovePollutants = this.removePollutants.bind(this)
   }
 
+  addPollutant() {
+    this.panel.pollutants.push(['','',''])
+  }
+  removePollutants(index) {
+    this.panel.pollutants.splice(index, 1)
+    this.refresh();
+  }
   onInitEditMode() {
     this.addEditorTab('Worldmap', `${PLUGIN_PATH}partials/editor.html`, 2);
   }
@@ -47,13 +56,26 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
   * @dataList: The resultset from the executed query 
   */
   onDataReceived(dataList) {
-    if (!dataList) return;    //no result sets
+    if (!dataList || dataList.length==0) {
+//      throw new Error('Please verify your setting. No values Returned')
+      return;    //no result sets  
+    }
+    
+    console.log('dataList')
+    console.log(dataList)
+
     if (this.dashboard.snapshot && this.locations) {
       this.panel.snapshotLocationData = this.locations;
     }
     this.layerNames = [...new Set(dataList.map((elem)=>elem.target.split(':')[0]))]
     this.series = dataList.map(this.seriesHandler.bind(this));
-    this.data = dataFormatter.getValues(this.series, this.panel.resources.airQualityObserved.pollutants);
+
+    //parsed data goes here
+    console.log('this.series')
+    console.log(this.series)
+    this.data = dataFormatter.getValues(this.series, this.panel.pollutants);
+    console.log('this.data')
+    console.log(this.data)
     this.render();
   }
 
@@ -61,6 +83,7 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
     if(error && error.data && error.data.error) {
       console.warn('Error: ')
       console.warn(error.data.error.message)
+      throw new Error('Please verify your setting. No values Returned.'+error.data.error.message)
     }
     this.onDataReceived([]);
   }
@@ -70,7 +93,7 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
   // }
 
   seriesHandler(seriesData) {
-    const series = new TimeSeries({
+    let series = new TimeSeries({
       datapoints: seriesData.datapoints,
       alias: seriesData.target,
     });
@@ -97,11 +120,7 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
 
   setMapProvider(contextSrv) {
     this.tileServer = contextSrv.user.lightTheme ? 'CartoDB Positron' : 'CartoDB Dark';
-    this.setMapSaturationClass();
-  }
-
-  setMapSaturationClass() {
-    this.saturationClass = this.tileServer === 'CartoDB Dark' ? 'map-darken' : '';    
+    this.saturationClass = this.tileServer === 'CartoDB Dark' ? 'map-darken' : ''; 
   }
 
   setNewMapCenter() {    
@@ -115,8 +134,8 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
 
     if (this.panel.mapCenter !== 'custom') { // center at continent or area
       console.info('centering !== custom')
-      this.panel.mapCenterLatitude = mapCenters[this.panel.mapCenter].mapCenterLatitude;
-      this.panel.mapCenterLongitude = mapCenters[this.panel.mapCenter].mapCenterLongitude;
+      this.panel.mapCenterLatitude = MAP_LOCATIONS[this.panel.mapCenter].mapCenterLatitude;
+      this.panel.mapCenterLongitude = MAP_LOCATIONS[this.panel.mapCenter].mapCenterLongitude;
     }
 
     this.mapCenterMoved = true;

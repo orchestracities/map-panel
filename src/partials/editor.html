@@ -57,21 +57,101 @@
 
 <!-- Pollutants -->
 
-<h5>Datasources</h5>
-
+<!-- <h5>Datasources</h5>
 <div class="section-heading">AirQualityObserved</div>
   <div class="section gf-form-group">
     <div class="gf-form">
       <label class="gf-form-label width-10">Pollutants</label>
       <textarea 
         class="gf-form-input width-30"
-        ng-model="ctrl.panel.resources.airQualityObserved.pollutants"
+        ng-model="ctrl.panel.pollutants"
         ng-change="ctrl.render()"
         rows="10" required ng-model-onblur
         >
       </textarea>        
     </div>
   </div>
+</div> -->
+
+<!-- <h5>Datasources 2</h5>
+<div ng-repeat="layerName in ctrl.layerNames">
+  <div class="section-heading">{{layerName}}</div>
+  <div class="section gf-form-group">
+    <div ng-repeat="metric in target.metricAggs">
+
+      <div class="gf-form">
+        <label class="gf-form-label width-10">{{metric.column}}</label>
+        <input type="text"
+          class="gf-form-input width-10"
+          ng-init="metric.name = (metric.name ? metric.name : ctrl.defaultPollutants[metric.column].name)"
+          ng-model="metric.name"
+          ng-change="ctrl.refresh()"
+          ng-model-onblur required
+          >
+        </input>
+
+        <input type="text" 
+          class="gf-form-input width-10"
+          ng-init="metric.unit = (metric.unit ? metric.unit : ctrl.defaultPollutants[metric.column].unit)"
+          ng-model="metric.unit"
+          ng-change="ctrl.refresh()"
+          ng-model-onblur required 
+          >
+        </input>
+
+      </div>
+
+    </div>
+  </div>
+</div> -->
+
+<div class="section-heading">Field Mappings/Units</div>
+<div class="section gf-form-group">
+  <div ng-repeat="pollutant in ctrl.panel.pollutants">
+    <div class="gf-form">
+      <!-- <span class="width-10">{{pollutant}}: {{pollutant[0]}}: {{!pollutant[1] ? ctrl.defaultPollutants[pollutant[0]].name : pollutant[1]}}</span> -->
+      <span class="width-10"></span>
+      <input type="text"
+        class="gf-form-input width-10"
+        ng-model="pollutant[0]"
+        ng-blur="ctrl.refresh()"
+        ng-model-onblur required
+        >
+      </input>
+
+      <input type="text"
+        class="gf-form-input width-10"
+        ng-init="pollutant[1] = !pollutant[1] ? ctrl.defaultPollutants[pollutant[0]].name : pollutant[1]"
+        ng-model="pollutant[1]"
+        ng-blur="ctrl.refresh()"
+        ng-model-onblur required
+        >
+      </input>
+
+      <input type="text" 
+        class="gf-form-input width-10"
+        ng-init="pollutant[2] = (pollutant[2]===null ? ctrl.defaultPollutants[pollutant[0]].unit : pollutant[2])"
+        ng-model="pollutant[2]"
+        ng-blur="ctrl.refresh()"
+        ng-model-onblur required 
+        >
+      </input>
+
+      <label class="gf-form-label">
+        <a class="pointer" ng-click="ctrl.handleRemovePollutants($index)">
+          <i class="fa fa-minus"></i>
+        </a>
+      </label>
+    </div>
+  </div>
+  <div class="gf-form">
+    <span class="width-10"></span>
+    <label class="gf-form-label">
+      <a class="pointer" ng-click="ctrl.handleClickAddPollutant()">
+        <i class="fa fa-plus"></i>
+      </a>
+    </label>
+  </div>    
 </div>
 
 <h5>Map Layers</h5>
@@ -102,23 +182,3 @@
   <p>Adding this panel for the firt time to your dashboard will pre-fill Metrics tab fields.</p>
   <p>You must have a default datasource or select one from the availables.</p>
 </div>
-
-
-<!-- <h5>Datasources</h5>
-
-<div ng-repeat="target in ctrl.panel.targets">
-  <div class="section-heading">{{target.datasource}}</div>
-  <div class="section gf-form-group">
-    <div class="gf-form">
-      <label class="gf-form-label width-10">Param1</label>
-      <textarea 
-        class="gf-form-input width-30"
-        name="pollutants" 
-        ng-model="target.pollutants"
-        ng-model-onblur ng-change="ctrl.handleDatasourceParamsChange(target)" rows="10" required 
-        >
-      </textarea>        
-    </div>
-  </div>
-</div> -->
- 

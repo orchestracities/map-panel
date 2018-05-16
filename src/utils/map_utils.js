@@ -13,8 +13,10 @@ Exporting(Highcharts);
 import config from 'app/core/config';
 
 /* App specific */
-import { AQI, CARS_COUNT, NOMINATIM_ADDRESS } from '../definitions';
+import { AQI, CARS_COUNT, NOMINATIM_ADDRESS, PANEL_DEFAULTS } from '../definitions';
 import { HIGHCHARTS_THEME_DARK } from '../utils/highcharts/custom_themes';
+
+const TRANSLATIONS = PANEL_DEFAULTS['pollutants']
 
 /**
 * Primary functions
@@ -22,6 +24,8 @@ import { HIGHCHARTS_THEME_DARK } from '../utils/highcharts/custom_themes';
 
 //helper to create series for chart display
 function getTimeSeries(data) {
+  console.debug('getTimeSeries')
+  console.debug(data)
   const valueValues = {};
   const values = [];
   const pollutantsValues = [];
@@ -33,7 +37,7 @@ function getTimeSeries(data) {
       let pollutants = '';
 
       const value = point.value;
-      if (point.type === 'AirQualityObserved') {
+//      if (point.type === 'AirQualityObserved') {
         pollutants = point.pollutants;
         const pollutantsTemp = {};
 
@@ -43,9 +47,9 @@ function getTimeSeries(data) {
           }
           pollutantsValues[pollutant.name].push({'time': time, 'value': pollutant.value, 'id': id});
         });
-      }
+//      }
 
-      if (!(valueValues[point.id])) {
+      if (!valueValues[point.id]) {
         valueValues[point.id] = [];
       }
       valueValues[point.id].push({'time': time, 'value': value, 'id': id});
@@ -61,23 +65,11 @@ function dataTreatment(data) {
   let auxData;
 
   data.forEach((value) => {
-    if (!(finalData[value.id])) {
+    if (!finalData[value.id]) {
       finalData[value.id] = [];
     }
 
-    auxData = {
-        'id': value.id, 
-        'locationLatitude': value.locationLatitude, 
-        'locationLongitude': value.locationLongitude, 
-        'time': value.time, 
-        'type': value.type, 
-        'value': value.value
-      }
-
-    if (value.type === 'AirQualityObserved')
-      auxData.pollutants = value.pollutants;
-
-    finalData[value.id].push( auxData );
+    finalData[value.id].push( value );
   });
 
   return finalData;
@@ -96,7 +88,7 @@ function getUpdatedChartSeries(chartSeries, timeSeries, currentParameterForChart
 
   try {
     let timeTemp;
-    if (currentParameter !== 'aqi' && targetType === 'AirQualityObserved'){
+    // if (currentParameter !== 'aqi' && targetType === 'AirQualityObserved'){    // 
       timeTemp = timeSeries.pollutants[currentParameter];
       timeTemp.forEach((val) => {
         if (val.id === targetId){
@@ -104,11 +96,11 @@ function getUpdatedChartSeries(chartSeries, timeSeries, currentParameterForChart
           lastMeasure = val.value;
         } 
       });
-    } else {
-      timeTemp = timeSeries.values[targetId];
-      lastMeasure = timeTemp[timeTemp.length - 1].value;
-      lastTime = timeTemp[timeTemp.length - 1].time
-    }
+    // } else {
+    //   timeTemp = timeSeries.values[targetId];
+    //   lastTime = timeTemp[timeTemp.length - 1].time
+    //   lastMeasure = timeTemp[timeTemp.length - 1].value;
+    // }
    
     const time = new Date(lastTime);
     const day = time.getDate();
@@ -135,38 +127,62 @@ function getUpdatedChartSeries(chartSeries, timeSeries, currentParameterForChart
   return chartSeries;
 }
 
-function processData(chartSeries, timeSeries, validated_pollutants, currentParameterForChart, currentTargetForChart) {
-//  console.log(currentParameterForChart)
-//  console.log(currentTargetForChart)
+function processData(chartSeries, timeSeries, validatedPollutants, currentParameterForChart, currentTargetForChart) {
+  //console.log(currentParameterForChart)
+  //console.log(currentTargetForChart)
+
   let chartData = [];
-  const currentParameter = currentParameterForChart.toLowerCase();
-  const id = currentTargetForChart.target.options.id;
-  const type = currentTargetForChart.target.options.type;
-  const values = timeSeries.values[id];
+  let currentParameter = currentParameterForChart.toLowerCase();
+
+  //currentTargetForChart is the marker
+  const C_T_CHART = currentTargetForChart.target.options;
+  const id_ = C_T_CHART.id;
+  const type_ = C_T_CHART.type;
 
   let parameterUnit = '';
   let title = '';
 
-  if (type === 'AirQualityObserved' && currentParameter !== 'aqi') {
-    parameterUnit = validated_pollutants[currentParameter].unit;
-    title = validated_pollutants[currentParameter].name + ' - Device ' + id;
+  if (validatedPollutants.length>0 ) {//type_ === 'AirQualityObserved' &&  currentParameter !== 'aqi'
 
-    const parameterChoice = timeSeries.pollutants[currentParameter];      
+    if(!currentParameter){
+      console.log('currentParameter is empty. going to use the first one '+validatedPollutants[0][0])
+      currentParameter = validatedPollutants[0][0]
+    }
+
+    let abc = validatedPollutants.filter((elem)=>elem[0]===currentParameter)[0]
+    if(!abc)
+      abc = validatedPollutants[0]
+    let pollutantId = abc[0]
+    let pollutantName = abc[1] 
+    let pollutantUnit = abc[2];
+
+//    parameterUnit = validated_pollutants[currentParameter].unit;
+    title = `${type_}: Device #${id_} - ${pollutantName}`;
+    parameterUnit = pollutantName + (pollutantUnit!='' ? ` (${pollutantUnit})` : '');
+
+
+    let parameterChoice = timeSeries.pollutants[currentParameter] || timeSeries.pollutants[0];
     parameterChoice.forEach((sensor) => {
-      if (sensor.id === id) {
+      if (sensor.id === id_) {
        chartData.push(createLine(sensor));
       }
     });
   } else {
-    if(type === 'TrafficFlowObserved') {
-      title = 'Cars Intensity - Device ' + id;
+    //without pollutants
+    if(type_ === 'AirQualityObserved') {
+      title = 'Air Quality Index: Device ' + id_;
+      parameterUnit = 'AQI'
+    } else
+    if(type_ === 'TrafficFlowObserved') {
+      title = 'Cars Intensity: Device ' + id_;
       parameterUnit = 'Cars'
     } else {
-      title = type + ' - Device ' + id;
-      parameterUnit = type;
+      title = type_ + ': Device ' + id_;
+      parameterUnit = '';
     }
 
-    values && values.forEach((value) => {
+    const values_ = timeSeries.values[id_];
+    values_ && values_.forEach((value) => {
       chartData.push(createLine(value));
     });
   }
@@ -233,43 +249,57 @@ function calculateCarsIntensityIndex(value) {
 * View components controllers
 */
 function drawPopups(panel_id, timeSeries, validated_pollutants, currentParameterForChart, currentTargetForChart) {
-  if(!currentTargetForChart)
+  if(!currentTargetForChart) {
+    console.warn('currentTargetForChart not setted')
     return ;
+  }
+  if(!currentTargetForChart.target.options.id) {
+    console.warn('currentTargetForChart id not setted')
+    return ;
+  }
 
   //console.log('drawPopups');
-  const selected_id = currentTargetForChart.target.options.id;
-  const type = currentTargetForChart.target.options.type;
-  const values = timeSeries.values[selected_id];
+  let selectedPointId = currentTargetForChart.target.options.id;
+  let selectedPointType = currentTargetForChart.target.options.type;
+  let selectedPointValues = timeSeries.values[selectedPointId];
 
   hideAllGraphPopups(panel_id)
 
   //render popups
   try {
-    const lastValueMeasure = values[values.length - 1].value; //values array is the one for the AQI values
-    const aqiIndex = calculateAQIIndex(lastValueMeasure);
+    let lastValueMeasure = selectedPointValues[selectedPointValues.length - 1].value; //values array is the one for the AQI values
 
     // Show Pollutants Legend (MAP)
 
-    switch(type) {
-      case 'AirQualityObserved':
-        const allPollutants = timeSeries.pollutants;
+    //draw select
+    if(validated_pollutants) {
+      let allPollutants = timeSeries.pollutants;
+      let pollutantsToShow = getPollutantsToShow(allPollutants, selectedPointId)
 
-        if(validated_pollutants) {
-          drawPollutantsPopup(panel_id, validated_pollutants, allPollutants, selected_id, lastValueMeasure, currentParameterForChart);
+      drawSelect(panel_id, pollutantsToShow, validated_pollutants, currentParameterForChart, currentTargetForChart.target.options)
+      drawMeasuresPopup(panel_id, pollutantsToShow, validated_pollutants, currentParameterForChart)
+
+      switch(selectedPointType) {
+        case 'AirQualityObserved':
+          let aqiIndex = calculateAQIIndex(lastValueMeasure);
+          
+          document.getElementById('environment_table_'+panel_id).style.display = 'block';
+          //drawAQIPollutantsPopup(panel_id, validated_pollutants, allPollutants, selectedPointId, lastValueMeasure, currentParameterForChart);
           drawHealthConcernsPopup(panel_id, validated_pollutants, AQI.risks[aqiIndex], AQI.color[aqiIndex], AQI.meaning[aqiIndex]);
-        }
-        break;
-      case 'TrafficFlowObserved':
-        drawTrafficFlowPopup(panel_id);
-        break;
-      default:
-        drawDefaultPopups(panel_id);
+     
+          break;
+        case 'TrafficFlowObserved':
+          drawTrafficFlowPopup(panel_id);
+          break;
+        default:
+          drawDefaultPopups(panel_id);
+      }
     }
     
   } catch(error) {
     console.log("Error:");
-//    console.log(error);
-    console.log("selected_id: " + selected_id + ", type: " + type + ", values: " + values)
+    console.log(error);
+    console.log("selectedPointId: " + selectedPointId + ", selectedPointType: " + selectedPointType + ", selectedPointValues: " + selectedPointValues)
   }
 }
 
@@ -280,14 +310,9 @@ function showDataDetailsSelect(panel_id) {
   document.querySelector('#data_details_'+panel_id).style.display = 'block';
 }
 
-function getDataPointValues(dataPoint) {
+function getDataPointExtraFields(dataPoint) {
 
   const values = {
-    id: dataPoint.id,
-    type: dataPoint.type,
-    latitude: dataPoint.locationLatitude,
-    longitude: dataPoint.locationLongitude,
-    value: dataPoint.value,
     fillOpacity: 0.5
   }
 
@@ -297,11 +322,6 @@ function getDataPointValues(dataPoint) {
     const aqiMeaning = AQI.meaning[aqi];
     const aqiRisk = AQI.risks[aqi];
 
-    const pollutants = dataPoint.pollutants;
-    if(pollutants) {
-      pollutants.push({'name': 'aqi', 'value': dataPoint.value});
-    }
-
     _.defaults(values, {
       color: aqiColor,
       fillColor: aqiColor,
@@ -309,7 +329,6 @@ function getDataPointValues(dataPoint) {
       aqiColor: aqiColor,
       aqiMeaning: aqiMeaning,
       aqiRisk: aqiRisk,
-      pollutants: pollutants,
       aqi: dataPoint.value,
 
       markerColor: AQI.markerColor[aqi]
@@ -339,36 +358,46 @@ function getMapMarkerClassName(type, value) {
   return resp+'default';
 }
 
-function getDataPointStickyInfo(dataPoint) {
-
-  let data = getDataPointValues(dataPoint);
-  
+function getDataPointStickyInfo(dataPoint, pollutantsTranslations) {
+  let dataPointExtraFields = getDataPointExtraFields(dataPoint);  
   let stickyInfo = '<div class="stycky-popup-info">'
 
-  if(data.type==='AirQualityObserved') {
-    stickyInfo += '<div class="head air-quality">Air Quality</div>' +
-      '<div class="body">'+
-        '<div>Device: ' + data.id + '</div>' +
-        '<div>AQI: ' + data.value + ' (' + data.aqiMeaning + ')</div>'+
-      '</div>'
-
+  if(dataPoint.type==='AirQualityObserved') {
+    stickyInfo += '<div class="head air-quality">Air Quality</div>'
   } else {
-    if(data.type==='TrafficFlowObserved') {
+    if(dataPoint.type==='TrafficFlowObserved') {
       stickyInfo += '<div class="head traffic-flow">Cars Intensity</div>'
     } else {
-      stickyInfo += '<div class="head">' + data.type + '</div>'
+      stickyInfo += '<div class="head">' + dataPoint.type + '</div>'
     }
+  }  
 
-    stickyInfo += '<div class="body">'+
-      '<div>Device: ' + data.id + '</div>' +
-      '<div>Value: '+data.value + '</div>' +
-    '</div>'
-  }
+  //body
+  stickyInfo += '<div class="body">'+
+                  '<div>Id: ' + dataPoint.id + '</div>';
+  // if(dataPoint.type==='AirQualityObserved')
+  //   stickyInfo += '<div>AQI: ' + dataPoint.value + ' (' + dataPointExtraFields.aqiMeaning + ')</div>'
+  // else
+    stickyInfo += '<div>Value: '+dataPoint.value + '</div>'
+
+  //let qq = getDataPointDetails(dataPoint.pollutants)
+  //console.debug(qq)
+  stickyInfo += getDataPointDetails(dataPoint, pollutantsTranslations).join('')
+  stickyInfo += '</div>'
   stickyInfo += '</div>'
 
+//console.debug(dataPoint)
   return stickyInfo
 }
 
+function getDataPointDetails(dataPoint, pollutantsTranslations) {
+  let translatedValues = dataPoint.pollutants.map((p)=>{
+    let trans = pollutantsTranslations.filter((elem)=>elem[0]===p.name)
+    return trans.length>0 ? { 'name': trans[0][1], value: p.value, unit: trans[0][2] } : { 'name': p, value: dataPoint[p.name], unit: '' }
+  })
+
+  return translatedValues.map((translatedValue)=>`<div>${translatedValue.name}: ${translatedValue.value} ${translatedValue.unit||''}</div>`)
+}
 
 function renderChart(panel_id, chartSeries, chartData, parameterUnit, title) {
 
@@ -447,23 +476,11 @@ function drawTrafficFlowPopup(panel_id) {
 function drawChart(panel_id) {
   document.getElementById('data_chart_'+panel_id).style.display = 'block';
 }
-function drawPollutantsPopup(panel_id, providedPollutants, allPollutants, id, aqi, currentParameterForChart) {
 
-  //no pollutants
-  if(!providedPollutants || Object.keys(providedPollutants).length===0)
-    return ;
-
-  const measuresTable = document.querySelector('#measures_table_'+panel_id+' > table > tbody');
-  while (measuresTable.rows[0]) measuresTable.deleteRow(0);
-
-  // Remove air paramters from dropdown
-  var el = document.querySelector('#air_parameters_dropdown_'+panel_id);
-  while ( el.firstChild ) {
-    el.removeChild( el.firstChild )
-  }
-
+//show all accepted pollutants for a specific point id
+function getPollutantsToShow(allPollutants, id) {
   const pollutantsToShow = {};
-  for (const key in allPollutants) {    
+  for (const key in allPollutants) {
     allPollutants[key].forEach((_value) => {
       if (_value.id === id) {
         if (_value.value) {
@@ -476,17 +493,21 @@ function drawPollutantsPopup(panel_id, providedPollutants, allPollutants, id, aq
     });
   }
 
-  pollutantsToShow['aqi'] = aqi;
+//  pollutantsToShow['aqi'] = aqi;
+  return pollutantsToShow
+}
 
+//render the select in the specific panel, with the specif pollutants and select the option
+function drawSelect(panel_id, pollutantsToShow, providedPollutants, currentParameterForChart, mapPointOptions) {
+
+  // Remove air paramters from dropdown
+  let el = document.querySelector('#parameters_dropdown_'+panel_id);
+  while ( el.firstChild ) {
+    el.removeChild( el.firstChild )
+  }
+  //select population
   for (const pollutant in pollutantsToShow){
-    const row = measuresTable.insertRow(0);
-    const innerCell0 = providedPollutants[pollutant].name;
-    const innerCell1 = pollutantsToShow[pollutant] + ' ' + providedPollutants[pollutant].unit;
-    const cell0 = row.insertCell(0);
-    const cell1 = row.insertCell(1);
-
-    cell0.innerHTML = innerCell0;
-    cell1.innerHTML = innerCell1;
+    let [pollutantId, pollutantName, pollutantUnit] = providedPollutants.filter((elem)=>elem[0]===pollutant)[0]
 
     // Add Pollutants to Chart Dropdown
     const newPollutant = document.createElement('option');
@@ -496,15 +517,51 @@ function drawPollutantsPopup(panel_id, providedPollutants, allPollutants, id, aq
     if(currentParameterForChart===newPollutant.value)
       newPollutant.selected = 'selected';
     
-    newPollutant.innerHTML = providedPollutants[pollutant].name;
+    newPollutant.innerHTML = pollutantName;
 
     el.appendChild(newPollutant);
     // ----
   }
+  let selectBox = document.querySelector('#parameters_dropdown_'+panel_id)
+  if(selectBox.options.length>0)
+    selectBox.style.display = 'block';
 
-  document.getElementById('environment_table_'+panel_id).style.display = 'block';
+}
+
+function drawMeasuresPopup(panel_id, pollutantsToShow, providedPollutants, currentParameterForChart) {
+  const measuresTable = document.querySelector('#measures_table_'+panel_id+' > table > tbody');
+  while (measuresTable.rows[0]) measuresTable.deleteRow(0);
+
+  for (const pollutant in pollutantsToShow){
+    const row = measuresTable.insertRow(-1);    // -1 for inserting bottom
+
+    let [pollutantId, pollutantName, pollutantUnit] = providedPollutants.filter((elem)=>elem[0]===pollutant)[0]
+
+    const innerCell0 = pollutantName;
+    const innerCell1 = pollutantsToShow[pollutant] + ' ' + pollutantUnit;
+    const cell0 = row.insertCell(0);
+    const cell1 = row.insertCell(1);
+
+    cell0.innerHTML = innerCell0;
+    cell1.innerHTML = innerCell1;
+  }
+
   document.getElementById('measures_table_'+panel_id).style.display = 'block';
 }
+
+
+// function drawAQIPollutantsPopup(panel_id, providedPollutants, allPollutants, selectedId, aqi, currentParameterForChart) {
+
+//   //no pollutants
+//   if(!providedPollutants || providedPollutants.length===0)
+//     return ;
+//   if(!selectedId) {
+//     console.warn('no selectedId here')
+//   }
+
+//   let pollutantsToShow = getPollutantsToShow(allPollutants, selectedId)
+//   drawAQIPopups(panel_id, pollutantsToShow, providedPollutants, currentParameterForChart)
+// }
 
 export {
   processData,
@@ -518,7 +575,7 @@ export {
 
   getCityCoordinates,
 
-  getDataPointValues,
+  getDataPointExtraFields,
   getDataPointStickyInfo,
 
   getSelectedCity,

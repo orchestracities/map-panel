@@ -49,7 +49,7 @@
   z-index: 1000;
 }
 
-.map-container .aqi-legend {
+.map-container .values-ranges-legend {
   right: 10px;
   bottom: 10px;
   position: absolute;

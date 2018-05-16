@@ -1,13 +1,7 @@
 export const HIGHCHARTS_THEME_DARK = {
   colors: ['#2b908f', '#90ee7e', '#f45b5b', '#7798BF', '#aaeeee', '#ff0066', '#eeaaee', '#55bf3b', '#df5353', '#7798bf', '#aaeeee'],
   chart: {
-    backgroundColor: '#262629',
-    // {
-    //   linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
-    //   stops: [
-    //     [0, '#3e3e40'], [1, '#2a2a2b']
-    //   ]
-    // },
+    backgroundColor: 'transparent',
     style: {
       fontFamily: '\'Unica One\', sans-serif'
     },
@@ -105,16 +99,6 @@ export const HIGHCHARTS_THEME_DARK = {
       color: '#707073'
     }
   },
-
-  // drilldown: {
-  //   activeAxisLabelStyle: {
-  //     color: '#f0f0f3'
-  //   },
-  //   activeDataLabelStyle: {
-  //     color: '#f0f0f3'
-  //   }
-  // },
-
   navigation: {
     buttonOptions: {
       symbolStroke: '#ddd',
@@ -124,41 +108,6 @@ export const HIGHCHARTS_THEME_DARK = {
     }
   },
 
-  /* scroll charts, zoom */
-  // rangeSelector: {
-  //   buttonTheme: {
-  //     fill: '#505053',
-  //     stroke: '#000000',
-  //     style: {
-  //       color: '#ccc'
-  //     },
-  //     states: {
-  //       hover: {
-  //         fill: '#707073',
-  //         stroke: '#000000',
-  //         style: {
-  //           color: 'white'
-  //         }
-  //       },
-  //       select: {
-  //         fill: '#000003',
-  //         stroke: '#000000',
-  //         style: {
-  //           color: 'white'
-  //         }
-  //       }
-  //     }
-  //   },
-
-  //   inputBoxBorderColor: '#505053',
-  //   inputStyle: {
-  //     backgroundColor: '#333',
-  //     color: 'silver'
-  //   },
-  //   labelStyle: {
-  //     color: 'silver'
-  //   }
-  // },
   rangeSelector: {
     enabled: false
   },
@@ -184,7 +133,7 @@ export const HIGHCHARTS_THEME_DARK = {
       contextButton: {
         theme: {
           fill: 'white',
-          strock: 'black'
+          strock: '#181819'
         }
       }
     }

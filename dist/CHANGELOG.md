@@ -12,11 +12,13 @@
 - Fix problem with multiple map panels in the same dashboard.
 - Ability to change the icon associated to the layer (with leaflet.awesome-markers).
 - When adding this panel for the first time to a dashboard, metrics are filled with predefined values.
+- Dark theme improvements.
 
 ### Develoment
 - Improvements based on grafana development guide best practices.
 - New project structure. Improved DRY.
 - Updated project packages. Leaflet version updated from 0.7 to 1.3.
+- Updated project packages. Highcharts updated from 5.0.15 to 6.1.0.
 - Fix app bugs introduced by Leaflet update.
 - Gruntfile improvements.
 

@@ -51,38 +51,37 @@ System.register(['lodash'], function (_export, _context) {
 
         _createClass(DataFormatter, [{
           key: 'getValues',
-          value: function getValues(series, pollutants) {
+          value: function getValues(series, panelDefaultPollutants) {
             if (!series || series.length == 0) return [];
 
-            var s_ = this.getSeries(series, pollutants);
+            var parsedPollutants = this.getSeries(series, panelDefaultPollutants);
 
             //processing only latitudes  
-            return this.getDataValues();
+            return this.getDataValues(parsedPollutants, panelDefaultPollutants);
           }
         }, {
           key: 'getSeries',
-          value: function getSeries(series, pollutants) {
-            var _this = this;
-
+          value: function getSeries(series, panelDefaultPollutants) {
             var setSeries = {};
             var serieType = void 0;
 
             series.forEach(function (serie) {
               serieType = serie.id.split(':')[0];
 
-              // if (allowedTypes.indexOf(serieType) === -1) {
-              //    console.log('Please make sure you group by your query');
-              // }
               var serieName = serie.alias.split(': ')[1];
-              //console.log('serieType => '+serieType+', serieName => '+serieName)
-              // VERIFY HERE ALL TYPES RECEIVED
+              console.debug('serieType => ' + serieType + ', serieName => ' + serieName);
+
               if (!setSeries[serieName]) {
                 setSeries[serieName] = [];
               }
 
               serie.datapoints.forEach(function (datapoint, index) {
-                var datapointValue = parseFloat(datapoint[0]);
-                var valueAndType = { 'value': datapointValue, 'type': serieType, 'id': index };
+                var valueAndType = {
+                  'id': index,
+                  'type': serieType,
+                  'value': parseFloat(datapoint[0])
+                };
+
                 setSeries[serieName].push(valueAndType);
               });
             });
@@ -94,74 +93,62 @@ System.register(['lodash'], function (_export, _context) {
             this.times = setSeries.created_at;
 
             if (!(this.latitudes && this.longitudes && this.values && this.ids && this.times)) {
-              throw new Error("Please make sure you selected 'Raw' in the aggregation type for the mandatory fields 'latitude', 'longitude', 'value', 'id', 'created_at'. You must also group by expression in order to create map layers.");
+              throw new Error("Please make sure you selected 'Raw' in the aggregation type. 'latitude', 'longitude', 'value', 'id', 'created_at' are mandatory. You must also group by expression in order to create map layers.");
             }
 
+            var pollutants_ = {};
             //Try to process pollutants
-            if (pollutants) {
-              this.pollutantsAux = {};
+            if (panelDefaultPollutants) {
               setSeries.pollutants = [];
-              this.pollutants = JSON.parse(pollutants);
 
-              // if (this.pollutants) {
-              Object.keys(this.pollutants).forEach(function (key) {
-                var currentPoll = _this.pollutants[key];
+              panelDefaultPollutants.forEach(function (pollutant) {
+                var key = pollutant[0];
 
                 if (setSeries[key]) {
-                  // const receivedPoll = [];
                   setSeries[key].forEach(function (poll) {
-                    var keyString = key.toString();
                     var keyId = poll.id.toString();
-                    var newKey = keyString + keyId;
-                    if (!_this.pollutantsAux[newKey]) {
-                      _this.pollutantsAux[newKey] = { 'value': poll.value };
+                    var newKey = key + keyId;
+                    if (!pollutants_[newKey]) {
+                      pollutants_[newKey] = { 'value': poll.value };
                     }
                   });
-                  delete setSeries[currentPoll.name];
+                  //          delete setSeries[panelDefaultPollutants[0][0]];//?
                 }
               });
-
-              //} else {
-              //  throw new Error("For each datasource target, please insert a valid JSON in the Available Pollutants field");
-              //}
             }
 
-            return setSeries;
+            return pollutants_;
           }
         }, {
           key: 'getDataValues',
-          value: function getDataValues() {
-            var _this2 = this;
+          value: function getDataValues(parsedPollutants, panelDefaultPollutants) {
+            var _this = this;
 
-            var response = [];
+            var dataValues = [];
 
             this.latitudes.forEach(function (value, index) {
               try {
                 var _dataValue = {
                   locationLatitude: value.value,
-                  locationLongitude: _this2.longitudes[index].value,
-                  value: _this2.values[index].value,
-                  type: _this2.values[index].type,
-                  id: _this2.ids[index].value,
-                  time: _this2.times[index].value
+                  locationLongitude: _this.longitudes[index].value,
+                  value: _this.values[index].value,
+                  type: _this.values[index].type,
+                  id: _this.ids[index].value,
+                  time: _this.times[index].value
                 };
 
-                // if AQI, add also info about pollutants
-                if (value.type === 'AirQualityObserved') {
-                  var thisPollutants = [];
+                var thisPollutants = [];
 
-                  Object.keys(_this2.pollutants).forEach(function (key) {
-                    var getPollutant = key.toString() + value.id.toString();
+                panelDefaultPollutants.forEach(function (p) {
+                  var pollutantKey = p[0] + value.id.toString();
+                  if (parsedPollutants[pollutantKey]) {
+                    thisPollutants.push({ 'name': p[0], 'value': parsedPollutants[pollutantKey].value });
+                  }
+                });
 
-                    if (_this2.pollutantsAux[getPollutant]) {
-                      thisPollutants.push({ 'name': key, 'value': _this2.pollutantsAux[getPollutant].value });
-                    }
-                  });
+                _dataValue.pollutants = thisPollutants;
 
-                  _dataValue.pollutants = thisPollutants;
-                }
-
-                response.push(_dataValue);
+                dataValues.push(_dataValue);
               } catch (error) {
                 console.log("Error:");
                 console.log(error);
@@ -170,7 +157,8 @@ System.register(['lodash'], function (_export, _context) {
                 /*        throw new Error("Error parsing a data value");*/
               }
             });
-            return response;
+            console.debug(dataValues);
+            return dataValues;
           }
         }]);
 
