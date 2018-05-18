@@ -137,6 +137,7 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
           key: 'onDataReceived',
           value: function onDataReceived(dataList) {
             if (!dataList || dataList.length == 0) {
+              console.debug('no data');
               return; //no result sets  
             }
             console.debug('dataList >');
@@ -149,10 +150,10 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
             this.layerNames = [].concat(_toConsumableArray(new Set(dataList.map(function (elem) {
               return elem.target.split(':')[0];
             }))));
+            this.data = dataFormatter.getValues(dataList, this.panel.metrics);
 
-            this.series = dataList.map(this.seriesHandler.bind(this));
-
-            this.data = dataFormatter.getValues(this.series, this.panel.metrics);
+            console.debug('data >');
+            console.debug(this.data);
 
             this.render();
           }
@@ -165,17 +166,6 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
               throw new Error('Please verify your setting. No values Returned.' + error.data.error.message);
             }
             this.onDataReceived([]);
-          }
-        }, {
-          key: 'seriesHandler',
-          value: function seriesHandler(seriesData) {
-            var series = new TimeSeries({
-              datapoints: seriesData.datapoints,
-              alias: seriesData.target
-            });
-
-            series.flotpairs = series.getFlotPairs(this.panel.nullPointMode);
-            return series;
           }
         }, {
           key: 'onPanelTeardown',

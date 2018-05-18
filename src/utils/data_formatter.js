@@ -13,8 +13,8 @@ export default class DataFormatter {
     let setSeries = {};
     let setSeriesByLayer = {}
 
-    series.forEach((series_elem) => {     
-      let [seriesLayer, seriesFieldName] = series_elem.alias.split(': ');
+    series.forEach((series_elem) => {
+      let [seriesLayer, seriesFieldName] = series_elem.target.split(': ');
    
       if (!(setSeriesByLayer[seriesLayer])) {
         setSeriesByLayer[seriesLayer] = [];        

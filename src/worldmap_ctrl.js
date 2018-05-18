@@ -55,6 +55,7 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
   */
   onDataReceived(dataList) {
     if (!dataList || dataList.length==0) {
+      console.debug('no data')
       return;    //no result sets  
     }
     console.debug('dataList >')
@@ -65,10 +66,10 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
     }
 
     this.layerNames = [...new Set(dataList.map((elem)=>elem.target.split(':')[0]))]
+    this.data = dataFormatter.getValues(dataList, this.panel.metrics);
 
-    this.series = dataList.map(this.seriesHandler.bind(this));
-
-    this.data = dataFormatter.getValues(this.series, this.panel.metrics);
+    console.debug('data >')
+    console.debug(this.data)
 
     this.render();
   }
@@ -81,32 +82,6 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
     }
     this.onDataReceived([]);
   }
-
-  // onDataSnapshotLoad(snapshotData) {
-  //   this.onDataReceived(snapshotData);
-  // }
-
-  seriesHandler(seriesData) {
-    let series = new TimeSeries({
-      datapoints: seriesData.datapoints,
-      alias: seriesData.target,
-    });
-
-    series.flotpairs = series.getFlotPairs(this.panel.nullPointMode);
-    return series;
-  }
-
-/*  changeMapLayerIcons(mapLayer) {
-    console.log('mapLayer')
-    console.log(mapLayer)
-    //this.panel.layersIcons[mapLayer]=mapLayer
-
-    console.log('panel')
-
-    console.log(this.panel.layersIcons)
-
-    this.render()
-  }*/
 
   onPanelTeardown() {
     if (this.worldMap) this.worldMap.remove();

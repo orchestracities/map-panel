@@ -113,10 +113,10 @@ System.register(['lodash'], function (_export, _context) {
             var setSeriesByLayer = {};
 
             series.forEach(function (series_elem) {
-              var _series_elem$alias$sp = series_elem.alias.split(': '),
-                  _series_elem$alias$sp2 = _slicedToArray(_series_elem$alias$sp, 2),
-                  seriesLayer = _series_elem$alias$sp2[0],
-                  seriesFieldName = _series_elem$alias$sp2[1];
+              var _series_elem$target$s = series_elem.target.split(': '),
+                  _series_elem$target$s2 = _slicedToArray(_series_elem$target$s, 2),
+                  seriesLayer = _series_elem$target$s2[0],
+                  seriesFieldName = _series_elem$target$s2[1];
 
               if (!setSeriesByLayer[seriesLayer]) {
                 setSeriesByLayer[seriesLayer] = [];
