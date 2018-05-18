@@ -37,10 +37,6 @@ const TILE_SERVERS = {
   'CartoDB Positron': { url: 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>', subdomains: 'abcd'},
   'CartoDB Dark': {url: 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png', attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>', subdomains: 'abcd'}
 };
-// const DEFAULT_MAP_MARKER = L.icon({
-//   iconUrl: 'img/map_marker.png',
-//   iconSize: [25, 40]
-// });
 
 const ICON_TYPES = [
         'info-circle', 'question', 'clock-o', 'warning', 'car', 'bell', 'bell-slash', 'bicycle', 'bus', 'close', 
@@ -67,7 +63,7 @@ const PANEL_DEFAULTS = {
   hideZero: false,
   stickyLabels: false,
 
-  pollutants: [],
+  metrics: [],
   targets: [{
     refId: "A",
     groupByAliases: ["type"],
@@ -78,22 +74,13 @@ const PANEL_DEFAULTS = {
       {alias: "value", column: "", type: "raw"}, 
       {alias: "longitude", column: "longitude(location)", type: "raw"},
       {alias: "latitude", column: "latitude(location)", type: "raw"},
-      {alias: "created_at", column: "time_index", type: "raw"},
-
-//      {column: "aqi", type: "raw"}
-      // {column: "h", type: "raw"},
-      // {column: "no2", type: "raw"},
-      // {column: "p", type: "raw"},
-      // {column: "pm10", type: "raw"},
-      // {column: "pm25", type: "raw"},
-      // {column: "t", type: "raw"}
+      {alias: "created_at", column: "time_index", type: "raw"}
     ]
   }],
   layersIcons: {}
 };
 
-
-const DEFAULT_POLLUTANTS = {
+const DEFAULT_METRICS = {
     "aqi": {"name": "Air Quality Index", "unit": ""},
     "h": {"name": "Hydrogen", "unit": ""},
     "no2": {"name": "Nitrogen Dioxide", "unit": "µg/m3"},
@@ -112,14 +99,11 @@ const MAP_LOCATIONS = {
   'SE Asia': {mapCenterLatitude: 10, mapCenterLongitude: 106}
 };
 
-// const MIN_WIDTH_TO_SHOW_MAP_POPUPS = 840;
-// const MIN_HEIGHT_TO_SHOW_MAP_POPUPS = 480;
-
 const NOMINATIM_ADDRESS = 'https://nominatim.openstreetmap.org/search/<city_name>?format=json&addressdetails=1&limit=1&polygon_svg=1'
 
 export {
   PLUGIN_PATH, PANEL_DEFAULTS, 
   NOMINATIM_ADDRESS, TILE_SERVERS, 
   AQI, CARS_COUNT, 
-  DEFAULT_POLLUTANTS, MAP_LOCATIONS, ICON_TYPES  
+  DEFAULT_METRICS, MAP_LOCATIONS, ICON_TYPES  
 }

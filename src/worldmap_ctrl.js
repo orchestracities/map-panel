@@ -7,7 +7,7 @@ import kbn from 'app/core/utils/kbn';
 /* Vendor specific */
 import _ from 'lodash';
 /* App specific */
-import { PLUGIN_PATH, PANEL_DEFAULTS, DEFAULT_POLLUTANTS, MAP_LOCATIONS, ICON_TYPES } from './definitions'
+import { PLUGIN_PATH, PANEL_DEFAULTS, DEFAULT_METRICS, MAP_LOCATIONS, ICON_TYPES } from './definitions'
 import { getDatasources, getValidDatasources } from './utils/datasource';
 
 import { getCityCoordinates, getSelectedCity } from './utils/map_utils';
@@ -27,24 +27,22 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
     this.setMapProvider(contextSrv);
     _.defaultsDeep(this.panel, PANEL_DEFAULTS);
     this.iconTypes = ICON_TYPES;
-    this.defaultPollutants = DEFAULT_POLLUTANTS;
-//this.panel.pollutants=[['', '', '']]
+    this.defaultMetrics = DEFAULT_METRICS;
+
     this.events.on('init-edit-mode', this.onInitEditMode.bind(this));
     this.events.on('data-error', this.onDataError.bind(this));
     this.events.on('data-received', this.onDataReceived.bind(this));  //process resultset as a result of the execution of all queries
     this.events.on('data-snapshot-load', this.onDataReceived.bind(this));
-    //this.handleDatasourceParamsChange = this.applyDatasourceParamsChange.bind(this)
-    //this.handleMapLayerIconsChange = this.changeMapLayerIcons.bind(this)
 
-    this.handleClickAddPollutant = this.addPollutant.bind(this)
-    this.handleRemovePollutants = this.removePollutants.bind(this)
+    this.handleClickAddMetric = this.addMetric.bind(this)
+    this.handleRemoveMetrics = this.removeMetrics.bind(this)
   }
 
-  addPollutant() {
-    this.panel.pollutants.push(['','',''])
+  addMetric() {
+    this.panel.metrics.push(['','',''])
   }
-  removePollutants(index) {
-    this.panel.pollutants.splice(index, 1)
+  removeMetrics(index) {
+    this.panel.metrics.splice(index, 1)
     this.refresh();
   }
   onInitEditMode() {
@@ -57,25 +55,21 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
   */
   onDataReceived(dataList) {
     if (!dataList || dataList.length==0) {
-//      throw new Error('Please verify your setting. No values Returned')
       return;    //no result sets  
     }
-    
-    console.log('dataList')
-    console.log(dataList)
+    console.debug('dataList >')
+    console.debug(dataList)
 
     if (this.dashboard.snapshot && this.locations) {
       this.panel.snapshotLocationData = this.locations;
     }
+
     this.layerNames = [...new Set(dataList.map((elem)=>elem.target.split(':')[0]))]
+
     this.series = dataList.map(this.seriesHandler.bind(this));
 
-    //parsed data goes here
-    console.log('this.series')
-    console.log(this.series)
-    this.data = dataFormatter.getValues(this.series, this.panel.pollutants);
-    console.log('this.data')
-    console.log(this.data)
+    this.data = dataFormatter.getValues(this.series, this.panel.metrics);
+
     this.render();
   }
 

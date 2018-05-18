@@ -2,112 +2,50 @@ import _ from 'lodash';
 
 export default class DataFormatter {
 
-  getValues(series, panelDefaultPollutants) {
-    if (!series || series.length ==0)
-      return []
+  getValues(series, panelDefaultMetrics) {
+    if (!series || series.length == 0)
+      return {}
 
-    let parsedPollutants = this.getSeries(series, panelDefaultPollutants)
-
-    //processing only latitudes  
-    return this.getDataValues(parsedPollutants, panelDefaultPollutants);
+    return this.getSeries(series, panelDefaultMetrics)
   }
 
-  getSeries(series, panelDefaultPollutants) {
+  getSeries(series, panelDefaultMetrics) {
     let setSeries = {};
-    let serieType;
+    let setSeriesByLayer = {}
 
-    series.forEach((serie) => {
-      serieType = serie.id.split(':')[0];
+    series.forEach((series_elem) => {     
+      let [seriesLayer, seriesFieldName] = series_elem.alias.split(': ');
+   
+      if (!(setSeriesByLayer[seriesLayer])) {
+        setSeriesByLayer[seriesLayer] = [];        
+      }
+
+      setSeriesByLayer[seriesLayer].push([seriesFieldName, ...series_elem.datapoints.map((elem)=>elem[0])])
+    });
+
+
+    // get one array and transform into a hash
+    let hashSeriesByLayerByKey = {}
+    Object.keys(setSeriesByLayer).forEach((layerName)=>{
+      if (!hashSeriesByLayerByKey[layerName])
+        hashSeriesByLayerByKey[layerName] = {};  
+
+      let superArray = setSeriesByLayer[layerName]
       
-      const serieName = serie.alias.split(': ')[1];
-      console.debug('serieType => '+serieType+', serieName => '+serieName)
-
-      if (!(setSeries[serieName])) {
-        setSeries[serieName] = [];
-      }
-
-      serie.datapoints.forEach((datapoint, index) => {
-        const valueAndType = {
-          'id': index,
-          'type': serieType,
-          'value': parseFloat(datapoint[0])
-        };
-
-        setSeries[serieName].push(valueAndType);
-      });
-    });
-
-    this.latitudes = setSeries.latitude;
-    this.longitudes = setSeries.longitude;
-    this.values = setSeries.value;
-    this.ids = setSeries.id;
-    this.times = setSeries.created_at;
-
-    if ( !(this.latitudes && this.longitudes && this.values && this.ids && this.times) ) {
-      throw new Error("Please make sure you selected 'Raw' in the aggregation type. 'latitude', 'longitude', 'value', 'id', 'created_at' are mandatory. You must also group by expression in order to create map layers.");
-    }
-
-    let pollutants_ = {}
-    //Try to process pollutants
-    if(panelDefaultPollutants) {
-      setSeries.pollutants = [];
-
-      panelDefaultPollutants.forEach((pollutant) => {
-        let key = pollutant[0]
-
-        if (setSeries[key]) {
-          setSeries[key].forEach((poll) => {
-            const keyId = poll.id.toString();
-            const newKey = key + keyId;
-            if (!(pollutants_[newKey])) {
-              pollutants_[newKey] = { 'value': poll.value };
-            }
-          });
-//          delete setSeries[panelDefaultPollutants[0][0]];//?
+      for(let column=1; column<superArray[0].length; column++) {
+        let result = {}
+        for(let line=0; line<superArray.length; line++) {
+          result[superArray[line][0]] = superArray[line][column]
         }
-      });
-    }
 
-    return pollutants_;
-  }
+        if(!hashSeriesByLayerByKey[layerName][result.id])
+          hashSeriesByLayerByKey[layerName][result.id] = []
 
-  getDataValues(parsedPollutants, panelDefaultPollutants) {
-    let dataValues = []
+        hashSeriesByLayerByKey[layerName][result.id].push(result)
+      } 
+    })
 
-    this.latitudes.forEach((value, index) => {
-      try {
-        let dataValue = {
-              locationLatitude: value.value,
-              locationLongitude: this.longitudes[index].value,
-              value: this.values[index].value,
-              type: this.values[index].type,
-              id: this.ids[index].value,
-              time: this.times[index].value,
-            };
-
-        let thisPollutants = [];
-
-        panelDefaultPollutants.forEach((p) => {
-          const pollutantKey = p[0] + value.id.toString();
-          if (parsedPollutants[pollutantKey]) {
-            thisPollutants.push({'name': p[0], 'value': parsedPollutants[pollutantKey].value});
-          }
-        });
-
-        dataValue.pollutants = thisPollutants
-
-        dataValues.push(dataValue);
-
-      } catch (error) {
-        console.log("Error:")
-        console.log(error)
-        console.log("Parsing a data value:")
-        console.log(dataValue)
-/*        throw new Error("Error parsing a data value");*/
-      }
-    });
-    console.debug(dataValues)
-    return dataValues;
+    return hashSeriesByLayerByKey;
   }
 }
 

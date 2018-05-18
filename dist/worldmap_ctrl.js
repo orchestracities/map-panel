@@ -3,7 +3,7 @@
 System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn', 'lodash', './definitions', './utils/datasource', './utils/map_utils', './map_renderer', './utils/data_formatter', './css/worldmap-panel.css!', './vendor/leaflet/leaflet.css!'], function (_export, _context) {
   "use strict";
 
-  var MetricsPanelCtrl, TimeSeries, kbn, _, PLUGIN_PATH, PANEL_DEFAULTS, DEFAULT_POLLUTANTS, MAP_LOCATIONS, ICON_TYPES, getDatasources, getValidDatasources, getCityCoordinates, getSelectedCity, mapRenderer, DataFormatter, _createClass, dataFormatter, WorldmapCtrl;
+  var MetricsPanelCtrl, TimeSeries, kbn, _, PLUGIN_PATH, PANEL_DEFAULTS, DEFAULT_METRICS, MAP_LOCATIONS, ICON_TYPES, getDatasources, getValidDatasources, getCityCoordinates, getSelectedCity, mapRenderer, DataFormatter, _createClass, dataFormatter, WorldmapCtrl;
 
   function _toConsumableArray(arr) {
     if (Array.isArray(arr)) {
@@ -59,7 +59,7 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
     }, function (_definitions) {
       PLUGIN_PATH = _definitions.PLUGIN_PATH;
       PANEL_DEFAULTS = _definitions.PANEL_DEFAULTS;
-      DEFAULT_POLLUTANTS = _definitions.DEFAULT_POLLUTANTS;
+      DEFAULT_METRICS = _definitions.DEFAULT_METRICS;
       MAP_LOCATIONS = _definitions.MAP_LOCATIONS;
       ICON_TYPES = _definitions.ICON_TYPES;
     }, function (_utilsDatasource) {
@@ -105,29 +105,27 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
           _this.setMapProvider(contextSrv);
           _.defaultsDeep(_this.panel, PANEL_DEFAULTS);
           _this.iconTypes = ICON_TYPES;
-          _this.defaultPollutants = DEFAULT_POLLUTANTS;
-          //this.panel.pollutants=[['', '', '']]
+          _this.defaultMetrics = DEFAULT_METRICS;
+
           _this.events.on('init-edit-mode', _this.onInitEditMode.bind(_this));
           _this.events.on('data-error', _this.onDataError.bind(_this));
           _this.events.on('data-received', _this.onDataReceived.bind(_this)); //process resultset as a result of the execution of all queries
           _this.events.on('data-snapshot-load', _this.onDataReceived.bind(_this));
-          //this.handleDatasourceParamsChange = this.applyDatasourceParamsChange.bind(this)
-          //this.handleMapLayerIconsChange = this.changeMapLayerIcons.bind(this)
 
-          _this.handleClickAddPollutant = _this.addPollutant.bind(_this);
-          _this.handleRemovePollutants = _this.removePollutants.bind(_this);
+          _this.handleClickAddMetric = _this.addMetric.bind(_this);
+          _this.handleRemoveMetrics = _this.removeMetrics.bind(_this);
           return _this;
         }
 
         _createClass(WorldmapCtrl, [{
-          key: 'addPollutant',
-          value: function addPollutant() {
-            this.panel.pollutants.push(['', '', '']);
+          key: 'addMetric',
+          value: function addMetric() {
+            this.panel.metrics.push(['', '', '']);
           }
         }, {
-          key: 'removePollutants',
-          value: function removePollutants(index) {
-            this.panel.pollutants.splice(index, 1);
+          key: 'removeMetrics',
+          value: function removeMetrics(index) {
+            this.panel.metrics.splice(index, 1);
             this.refresh();
           }
         }, {
@@ -139,27 +137,23 @@ System.register(['app/plugins/sdk', 'app/core/time_series2', 'app/core/utils/kbn
           key: 'onDataReceived',
           value: function onDataReceived(dataList) {
             if (!dataList || dataList.length == 0) {
-              //      throw new Error('Please verify your setting. No values Returned')
               return; //no result sets  
             }
-
-            console.log('dataList');
-            console.log(dataList);
+            console.debug('dataList >');
+            console.debug(dataList);
 
             if (this.dashboard.snapshot && this.locations) {
               this.panel.snapshotLocationData = this.locations;
             }
+
             this.layerNames = [].concat(_toConsumableArray(new Set(dataList.map(function (elem) {
               return elem.target.split(':')[0];
             }))));
+
             this.series = dataList.map(this.seriesHandler.bind(this));
 
-            //parsed data goes here
-            console.log('this.series');
-            console.log(this.series);
-            this.data = dataFormatter.getValues(this.series, this.panel.pollutants);
-            console.log('this.data');
-            console.log(this.data);
+            this.data = dataFormatter.getValues(this.series, this.panel.metrics);
+
             this.render();
           }
         }, {

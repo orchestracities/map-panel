@@ -15,11 +15,6 @@ System.register(['lodash', './worldmap', './utils/map_utils'], function (_export
     function render() {
       if (!ctrl.data) return;
 
-      console.debug('aggs');
-      console.debug(ctrl.panel.targets[0].metricAggs);
-      console.debug('pollutants');
-      console.debug(ctrl.panel.pollutants);
-
       //map is initializing
       if (!ctrl.worldMap) {
         ctrl.worldMap = new WorldMap(ctrl, mapContainer);
@@ -28,10 +23,11 @@ System.register(['lodash', './worldmap', './utils/map_utils'], function (_export
       }
 
       if (layersChanged()) {
-        console.log('layers had changed! Please Refresh Page!');
-        console.log(ctrl.layerNames);
-        console.log(Object.keys(ctrl.worldMap.overlayMaps));
-        ctrl.worldMap.map = null;
+        console.log('layers had changed!');
+        //      console.log(ctrl.layerNames);
+        //      console.log(Object.keys(ctrl.worldMap.overlayMaps));
+        //.off();
+        ctrl.worldMap.map.remove();
         ctrl.worldMap.createMap();
       }
 
@@ -45,14 +41,16 @@ System.register(['lodash', './worldmap', './utils/map_utils'], function (_export
       }
 
       ctrl.worldMap.clearLayers();
-      ctrl.worldMap.setPollutants();
+      ctrl.worldMap.setMetrics();
+
+      //ctrl.worldMap.filterEmptyData();
       ctrl.worldMap.drawPoints();
 
       /**
-      * graph display
+      * popups and graph display
       */
-      ctrl.worldMap.prepareSeries();
-      ctrl.worldMap.drawChart(true); // call drawChart but redraw the chart just update information related
+      // draw all info associated with selected point but when redrawing the chart just update information related
+      ctrl.worldMap.drawPointDetails();
 
       ctrl.renderingCompleted();
     }

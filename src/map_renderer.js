@@ -10,11 +10,6 @@ export default function link(scope, elem, attrs, ctrl) {
   function render() {
     if (!ctrl.data) return;
 
-    console.debug('aggs')
-    console.debug(ctrl.panel.targets[0].metricAggs)
-    console.debug('pollutants')
-    console.debug(ctrl.panel.pollutants)
-
     //map is initializing
     if (!ctrl.worldMap) {
       ctrl.worldMap = new WorldMap(ctrl, mapContainer);
@@ -23,13 +18,13 @@ export default function link(scope, elem, attrs, ctrl) {
     }
 
     if(layersChanged()){
-      console.log('layers had changed! Please Refresh Page!');
-      console.log(ctrl.layerNames);
-      console.log(Object.keys(ctrl.worldMap.overlayMaps));
-      ctrl.worldMap.map = null;
+      console.log('layers had changed!');
+//      console.log(ctrl.layerNames);
+//      console.log(Object.keys(ctrl.worldMap.overlayMaps));
+      //.off();
+      ctrl.worldMap.map.remove();
       ctrl.worldMap.createMap();
     }
-
     
     ctrl.worldMap.resize();
 
@@ -40,14 +35,17 @@ export default function link(scope, elem, attrs, ctrl) {
     }
 
     ctrl.worldMap.clearLayers();
-    ctrl.worldMap.setPollutants()
+    ctrl.worldMap.setMetrics()
+
+
+    //ctrl.worldMap.filterEmptyData();
     ctrl.worldMap.drawPoints();
 
     /**
-    * graph display
+    * popups and graph display
     */
-    ctrl.worldMap.prepareSeries();
-    ctrl.worldMap.drawChart(true); // call drawChart but redraw the chart just update information related
+    // draw all info associated with selected point but when redrawing the chart just update information related
+    ctrl.worldMap.drawPointDetails(); 
 
     ctrl.renderingCompleted();
   }

@@ -3,7 +3,7 @@
 System.register(['./vendor/leaflet/leaflet'], function (_export, _context) {
   "use strict";
 
-  var L, PLUGIN_PATH, AQI, CARS_COUNT, DEFAULT_MARKER_COLORS_RANGE, TILE_SERVERS, ICON_TYPES, PANEL_DEFAULTS, DEFAULT_POLLUTANTS, MAP_LOCATIONS, NOMINATIM_ADDRESS;
+  var L, PLUGIN_PATH, AQI, CARS_COUNT, DEFAULT_MARKER_COLORS_RANGE, TILE_SERVERS, ICON_TYPES, PANEL_DEFAULTS, DEFAULT_METRICS, MAP_LOCATIONS, NOMINATIM_ADDRESS;
   return {
     setters: [function (_vendorLeafletLeaflet) {
       L = _vendorLeafletLeaflet.default;
@@ -59,7 +59,7 @@ System.register(['./vendor/leaflet/leaflet'], function (_export, _context) {
         hideZero: false,
         stickyLabels: false,
 
-        pollutants: [],
+        metrics: [],
         targets: [{
           refId: "A",
           groupByAliases: ["type"],
@@ -70,7 +70,7 @@ System.register(['./vendor/leaflet/leaflet'], function (_export, _context) {
         layersIcons: {}
       });
 
-      _export('DEFAULT_POLLUTANTS', DEFAULT_POLLUTANTS = {
+      _export('DEFAULT_METRICS', DEFAULT_METRICS = {
         "aqi": { "name": "Air Quality Index", "unit": "" },
         "h": { "name": "Hydrogen", "unit": "" },
         "no2": { "name": "Nitrogen Dioxide", "unit": "µg/m3" },
@@ -103,7 +103,7 @@ System.register(['./vendor/leaflet/leaflet'], function (_export, _context) {
 
       _export('CARS_COUNT', CARS_COUNT);
 
-      _export('DEFAULT_POLLUTANTS', DEFAULT_POLLUTANTS);
+      _export('DEFAULT_METRICS', DEFAULT_METRICS);
 
       _export('MAP_LOCATIONS', MAP_LOCATIONS);
 

@@ -3,7 +3,19 @@
 System.register(['lodash'], function (_export, _context) {
   "use strict";
 
-  var _, _createClass, DataFormatter;
+  var _, _slicedToArray, _createClass, DataFormatter;
+
+  function _toConsumableArray(arr) {
+    if (Array.isArray(arr)) {
+      for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) {
+        arr2[i] = arr[i];
+      }
+
+      return arr2;
+    } else {
+      return Array.from(arr);
+    }
+  }
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -26,6 +38,44 @@ System.register(['lodash'], function (_export, _context) {
       _ = _lodash.default;
     }],
     execute: function () {
+      _slicedToArray = function () {
+        function sliceIterator(arr, i) {
+          var _arr = [];
+          var _n = true;
+          var _d = false;
+          var _e = undefined;
+
+          try {
+            for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
+              _arr.push(_s.value);
+
+              if (i && _arr.length === i) break;
+            }
+          } catch (err) {
+            _d = true;
+            _e = err;
+          } finally {
+            try {
+              if (!_n && _i["return"]) _i["return"]();
+            } finally {
+              if (_d) throw _e;
+            }
+          }
+
+          return _arr;
+        }
+
+        return function (arr, i) {
+          if (Array.isArray(arr)) {
+            return arr;
+          } else if (Symbol.iterator in Object(arr)) {
+            return sliceIterator(arr, i);
+          } else {
+            throw new TypeError("Invalid attempt to destructure non-iterable instance");
+          }
+        };
+      }();
+
       _createClass = function () {
         function defineProperties(target, props) {
           for (var i = 0; i < props.length; i++) {
@@ -51,114 +101,52 @@ System.register(['lodash'], function (_export, _context) {
 
         _createClass(DataFormatter, [{
           key: 'getValues',
-          value: function getValues(series, panelDefaultPollutants) {
-            if (!series || series.length == 0) return [];
+          value: function getValues(series, panelDefaultMetrics) {
+            if (!series || series.length == 0) return {};
 
-            var parsedPollutants = this.getSeries(series, panelDefaultPollutants);
-
-            //processing only latitudes  
-            return this.getDataValues(parsedPollutants, panelDefaultPollutants);
+            return this.getSeries(series, panelDefaultMetrics);
           }
         }, {
           key: 'getSeries',
-          value: function getSeries(series, panelDefaultPollutants) {
+          value: function getSeries(series, panelDefaultMetrics) {
             var setSeries = {};
-            var serieType = void 0;
+            var setSeriesByLayer = {};
 
-            series.forEach(function (serie) {
-              serieType = serie.id.split(':')[0];
+            series.forEach(function (series_elem) {
+              var _series_elem$alias$sp = series_elem.alias.split(': '),
+                  _series_elem$alias$sp2 = _slicedToArray(_series_elem$alias$sp, 2),
+                  seriesLayer = _series_elem$alias$sp2[0],
+                  seriesFieldName = _series_elem$alias$sp2[1];
 
-              var serieName = serie.alias.split(': ')[1];
-              console.debug('serieType => ' + serieType + ', serieName => ' + serieName);
-
-              if (!setSeries[serieName]) {
-                setSeries[serieName] = [];
+              if (!setSeriesByLayer[seriesLayer]) {
+                setSeriesByLayer[seriesLayer] = [];
               }
 
-              serie.datapoints.forEach(function (datapoint, index) {
-                var valueAndType = {
-                  'id': index,
-                  'type': serieType,
-                  'value': parseFloat(datapoint[0])
-                };
-
-                setSeries[serieName].push(valueAndType);
-              });
+              setSeriesByLayer[seriesLayer].push([seriesFieldName].concat(_toConsumableArray(series_elem.datapoints.map(function (elem) {
+                return elem[0];
+              }))));
             });
 
-            this.latitudes = setSeries.latitude;
-            this.longitudes = setSeries.longitude;
-            this.values = setSeries.value;
-            this.ids = setSeries.id;
-            this.times = setSeries.created_at;
+            // get one array and transform into a hash
+            var hashSeriesByLayerByKey = {};
+            Object.keys(setSeriesByLayer).forEach(function (layerName) {
+              if (!hashSeriesByLayerByKey[layerName]) hashSeriesByLayerByKey[layerName] = {};
 
-            if (!(this.latitudes && this.longitudes && this.values && this.ids && this.times)) {
-              throw new Error("Please make sure you selected 'Raw' in the aggregation type. 'latitude', 'longitude', 'value', 'id', 'created_at' are mandatory. You must also group by expression in order to create map layers.");
-            }
+              var superArray = setSeriesByLayer[layerName];
 
-            var pollutants_ = {};
-            //Try to process pollutants
-            if (panelDefaultPollutants) {
-              setSeries.pollutants = [];
-
-              panelDefaultPollutants.forEach(function (pollutant) {
-                var key = pollutant[0];
-
-                if (setSeries[key]) {
-                  setSeries[key].forEach(function (poll) {
-                    var keyId = poll.id.toString();
-                    var newKey = key + keyId;
-                    if (!pollutants_[newKey]) {
-                      pollutants_[newKey] = { 'value': poll.value };
-                    }
-                  });
-                  //          delete setSeries[panelDefaultPollutants[0][0]];//?
+              for (var column = 1; column < superArray[0].length; column++) {
+                var result = {};
+                for (var line = 0; line < superArray.length; line++) {
+                  result[superArray[line][0]] = superArray[line][column];
                 }
-              });
-            }
 
-            return pollutants_;
-          }
-        }, {
-          key: 'getDataValues',
-          value: function getDataValues(parsedPollutants, panelDefaultPollutants) {
-            var _this = this;
+                if (!hashSeriesByLayerByKey[layerName][result.id]) hashSeriesByLayerByKey[layerName][result.id] = [];
 
-            var dataValues = [];
-
-            this.latitudes.forEach(function (value, index) {
-              try {
-                var _dataValue = {
-                  locationLatitude: value.value,
-                  locationLongitude: _this.longitudes[index].value,
-                  value: _this.values[index].value,
-                  type: _this.values[index].type,
-                  id: _this.ids[index].value,
-                  time: _this.times[index].value
-                };
-
-                var thisPollutants = [];
-
-                panelDefaultPollutants.forEach(function (p) {
-                  var pollutantKey = p[0] + value.id.toString();
-                  if (parsedPollutants[pollutantKey]) {
-                    thisPollutants.push({ 'name': p[0], 'value': parsedPollutants[pollutantKey].value });
-                  }
-                });
-
-                _dataValue.pollutants = thisPollutants;
-
-                dataValues.push(_dataValue);
-              } catch (error) {
-                console.log("Error:");
-                console.log(error);
-                console.log("Parsing a data value:");
-                console.log(dataValue);
-                /*        throw new Error("Error parsing a data value");*/
+                hashSeriesByLayerByKey[layerName][result.id].push(result);
               }
             });
-            console.debug(dataValues);
-            return dataValues;
+
+            return hashSeriesByLayerByKey;
           }
         }]);
 

@@ -55,16 +55,16 @@
 </div>
 
 
-<!-- Pollutants -->
+<!-- Metrics -->
 
 <!-- <h5>Datasources</h5>
 <div class="section-heading">AirQualityObserved</div>
   <div class="section gf-form-group">
     <div class="gf-form">
-      <label class="gf-form-label width-10">Pollutants</label>
+      <label class="gf-form-label width-10">Metrics</label>
       <textarea 
         class="gf-form-input width-30"
-        ng-model="ctrl.panel.pollutants"
+        ng-model="ctrl.panel.metrics"
         ng-change="ctrl.render()"
         rows="10" required ng-model-onblur
         >
@@ -83,7 +83,7 @@
         <label class="gf-form-label width-10">{{metric.column}}</label>
         <input type="text"
           class="gf-form-input width-10"
-          ng-init="metric.name = (metric.name ? metric.name : ctrl.defaultPollutants[metric.column].name)"
+          ng-init="metric.name = (metric.name ? metric.name : ctrl.defaultMetrics[metric.column].name)"
           ng-model="metric.name"
           ng-change="ctrl.refresh()"
           ng-model-onblur required
@@ -92,7 +92,7 @@
 
         <input type="text" 
           class="gf-form-input width-10"
-          ng-init="metric.unit = (metric.unit ? metric.unit : ctrl.defaultPollutants[metric.column].unit)"
+          ng-init="metric.unit = (metric.unit ? metric.unit : ctrl.defaultMetrics[metric.column].unit)"
           ng-model="metric.unit"
           ng-change="ctrl.refresh()"
           ng-model-onblur required 
@@ -107,13 +107,12 @@
 
 <div class="section-heading">Field Mappings/Units</div>
 <div class="section gf-form-group">
-  <div ng-repeat="pollutant in ctrl.panel.pollutants">
+  <div ng-repeat="metric in ctrl.panel.metrics">
     <div class="gf-form">
-      <!-- <span class="width-10">{{pollutant}}: {{pollutant[0]}}: {{!pollutant[1] ? ctrl.defaultPollutants[pollutant[0]].name : pollutant[1]}}</span> -->
       <span class="width-10"></span>
       <input type="text"
         class="gf-form-input width-10"
-        ng-model="pollutant[0]"
+        ng-model="metric[0]"
         ng-blur="ctrl.refresh()"
         ng-model-onblur required
         >
@@ -121,8 +120,8 @@
 
       <input type="text"
         class="gf-form-input width-10"
-        ng-init="pollutant[1] = !pollutant[1] ? ctrl.defaultPollutants[pollutant[0]].name : pollutant[1]"
-        ng-model="pollutant[1]"
+        ng-init="metric[1] = !metric[1] ? ctrl.defaultMetrics[metric[0]].name : metric[1]"
+        ng-model="metric[1]"
         ng-blur="ctrl.refresh()"
         ng-model-onblur required
         >
@@ -130,15 +129,15 @@
 
       <input type="text" 
         class="gf-form-input width-10"
-        ng-init="pollutant[2] = (pollutant[2]===null ? ctrl.defaultPollutants[pollutant[0]].unit : pollutant[2])"
-        ng-model="pollutant[2]"
+        ng-init="metric[2] = (metric[2]===null ? ctrl.defaultMetrics[metric[0]].unit : metric[2])"
+        ng-model="metric[2]"
         ng-blur="ctrl.refresh()"
-        ng-model-onblur required 
+        ng-model-onblur 
         >
       </input>
 
       <label class="gf-form-label">
-        <a class="pointer" ng-click="ctrl.handleRemovePollutants($index)">
+        <a class="pointer" ng-click="ctrl.handleRemoveMetrics($index)">
           <i class="fa fa-minus"></i>
         </a>
       </label>
@@ -147,7 +146,7 @@
   <div class="gf-form">
     <span class="width-10"></span>
     <label class="gf-form-label">
-      <a class="pointer" ng-click="ctrl.handleClickAddPollutant()">
+      <a class="pointer" ng-click="ctrl.handleClickAddMetric()">
         <i class="fa fa-plus"></i>
       </a>
     </label>

@@ -12,7 +12,8 @@ import L from './vendor/leaflet/leaflet';
 import { TILE_SERVERS, PLUGIN_PATH } from './definitions';
 import { 
   dataTreatment, processData, getTimeSeries, getUpdatedChartSeries,
-  drawPopups, renderChart, hideAllGraphPopups, getDataPointExtraFields, getDataPointStickyInfo,
+  drawSelect, drawPopups, renderChart, 
+  hideAllGraphPopups, getDataPointExtraFields, getDataPointStickyInfo,
   getMapMarkerClassName
 } from './utils/map_utils';
 import { filterEmptyAndZeroValues } from './utils/data_formatter';
@@ -28,7 +29,7 @@ export default class WorldMap {
   constructor(ctrl, mapContainer) {
     this.ctrl = ctrl;
     this.mapContainer = mapContainer;
-    this.validated_pollutants = {};
+    this.validated_metrics = {};
     this.timeSeries = {};
     this.chartSeries = {};
     this.chartData = [];
@@ -79,9 +80,9 @@ export default class WorldMap {
     document.querySelector('#parameters_dropdown_'+this.ctrl.panel.id)
       .addEventListener('change', (event) => {
         this.currentParameterForChart = event.currentTarget.value;
-        console.info('selecting point with value:')
-        console.info(this.currentParameterForChart)
-        this.drawChart(REDRAW_CHART);
+        console.debug('selecting point for measure:')
+        console.debug(this.currentParameterForChart)
+        this.drawPointDetails();
       }); //, {passive: true} <= to avoid blocking
   }
 
@@ -96,45 +97,32 @@ export default class WorldMap {
     this.layers.forEach((layer)=>layer.clearLayers())
   }
 
-  /* Validate pollutants for a given target*/
-  setPollutants() {
+  /* Validate metrics for a given target*/
+  setMetrics() {
     try {
-      this.validated_pollutants = this.ctrl.panel.pollutants;
+      this.validated_metrics = this.ctrl.panel.metrics;
     } catch(error) {
-      console.log(error)
-      throw new Error('Please insert a valid JSON in the Pollutants field (Edit > Tab Worldmap > Section AirQualityObserved - Pollutents field)');
+      console.warn(error)
+      throw new Error('Please insert a valid JSON in the Metrics field (Edit > Tab Worldmap > Section AirQualityObserved - Metrics field)');
     }
   }
 
   drawPoints() {
-    console.log('agregate data by key, striping unnecessary entries from recieved data...')
-    this.data = dataTreatment(
-                    filterEmptyAndZeroValues(this.ctrl.data, this.ctrl.panel.hideEmpty, this.ctrl.panel.hideZero)
-                )
+    Object.keys(this.ctrl.data).forEach((layerKey) => {
+      let layer = this.ctrl.data[layerKey]
 
-    this.addPointsToMap();
-  }
+      //for each layer
+      Object.keys(layer).forEach((objectKey) => {
+        let lastObjectValues = layer[objectKey][layer[objectKey].length-1]
+        lastObjectValues.type = layerKey
 
-  // Prepare series to show in chart
-  prepareSeries() {    
-    this.timeSeries = getTimeSeries(this.data);
+        let newIcon = this.createIcon(lastObjectValues);
 
-    if (this.currentTargetForChart === null) 
-      return ;
-
-    this.chartSeries = getUpdatedChartSeries(this.chartSeries, this.timeSeries, this.currentParameterForChart, this.currentTargetForChart);
-  }
-
-  addPointsToMap() {
-    //console.log('addPointsToMap');
-    Object.keys(this.data).forEach((key) => {
-      const value = this.data[key][this.data[key].length - 1]; // Use the last data for each sensor to create on map -> avoid repeated markers on map and use just the last measurement (the one needed to show on marker)
-      const newIcon = this.createIcon(value);
-
-      try { 
-        if(newIcon)
-          this.overlayMaps[value.type].addLayer(newIcon)
-      } catch(error) { console.warn(value); console.warn(error) }
+        try { 
+          if(newIcon)
+            this.overlayMaps[layerKey].addLayer(newIcon)
+        } catch(error) { console.warn(layerKey); console.warn(error) }
+      })
     });
   }
 
@@ -144,13 +132,11 @@ export default class WorldMap {
       return null;
     
     let styled_icon = this.ctrl.panel.layersIcons[dataPoint.type]
-    //console.debug(styled_icon ? styled_icon : 'styled_icon not found for datapoint type '+dataPoint.type+'. going to use default shape!')
-
     let icon = styled_icon ? this.createMarker(dataPoint, styled_icon ? styled_icon : 'question') : this.createShape(dataPoint);
 
     this.createPopup(
       this.associateEvents(icon), 
-      getDataPointStickyInfo(dataPoint, this.ctrl.panel.pollutants)
+      getDataPointStickyInfo(dataPoint, this.ctrl.panel.metrics)
     );
 
     return icon;
@@ -160,26 +146,25 @@ export default class WorldMap {
     let dataPointExtraFields = getDataPointExtraFields(dataPoint);
     let shape;
 
-
     _.defaultsDeep(dataPointExtraFields, dataPoint)
 
     switch(dataPoint.type) {
       case 'AirQualityObserved':
-        shape = L.circle([dataPoint.locationLatitude, dataPoint.locationLongitude], CIRCLE_RADIUS, dataPointExtraFields)
+        shape = L.circle([dataPoint.latitude, dataPoint.longitude], CIRCLE_RADIUS, dataPointExtraFields)
       break;
       case 'TrafficFlowObserved':
         shape = L.rectangle([
-            [dataPoint.locationLatitude-(0.001*POLYGON_MAGNIFY_RATIO), dataPoint.locationLongitude-(0.0015*POLYGON_MAGNIFY_RATIO)], 
-            [dataPoint.locationLatitude+(0.001*POLYGON_MAGNIFY_RATIO), dataPoint.locationLongitude+(0.0015*POLYGON_MAGNIFY_RATIO)]
+            [dataPoint.latitude-(0.001*POLYGON_MAGNIFY_RATIO), dataPoint.longitude-(0.0015*POLYGON_MAGNIFY_RATIO)], 
+            [dataPoint.latitude+(0.001*POLYGON_MAGNIFY_RATIO), dataPoint.longitude+(0.0015*POLYGON_MAGNIFY_RATIO)]
           ], dataPointExtraFields)
         //shape = L.circle([dataPoint.locationLatitude, dataPoint.locationLongitude], CIRCLE_RADIUS, dataPointExtraFields)
       break;
       default:
         dataPointExtraFields.color='green'  //default color
         shape = L.polygon([
-          [dataPoint.locationLatitude-(0.001*POLYGON_MAGNIFY_RATIO), dataPoint.locationLongitude-(0.0015*POLYGON_MAGNIFY_RATIO)], 
-          [dataPoint.locationLatitude+(0.001*POLYGON_MAGNIFY_RATIO), dataPoint.locationLongitude],
-          [dataPoint.locationLatitude-(0.001*POLYGON_MAGNIFY_RATIO), dataPoint.locationLongitude+(0.0015*POLYGON_MAGNIFY_RATIO)],
+          [dataPoint.latitude-(0.001*POLYGON_MAGNIFY_RATIO), dataPoint.longitude-(0.0015*POLYGON_MAGNIFY_RATIO)], 
+          [dataPoint.latitude+(0.001*POLYGON_MAGNIFY_RATIO), dataPoint.longitude],
+          [dataPoint.latitude-(0.001*POLYGON_MAGNIFY_RATIO), dataPoint.longitude+(0.0015*POLYGON_MAGNIFY_RATIO)],
         ], dataPointExtraFields)
     }
 
@@ -188,14 +173,7 @@ export default class WorldMap {
 
   createMarker(dataPoint, styled_icon) {
     let dataPointExtraFields = getDataPointExtraFields(dataPoint);
-    //console.debug(dataPointExtraFields)
-    //let myIcon = L.icon({
-    //  iconUrl: PLUGIN_PATH+'img/fa/'+styled_icon+'.svg',
-    //  iconSize:  [25, 25], // size of the icon
-    //  className: getMapMarkerClassName(dataPointExtraFields.value)
-    //});
-
-    let location = [dataPoint.locationLatitude, dataPoint.locationLongitude];
+    let location = [dataPoint.latitude, dataPoint.longitude];
 
     let markerProperties = { 
       icon: L.AwesomeMarkers.icon(
@@ -210,18 +188,12 @@ export default class WorldMap {
     _.defaultsDeep(markerProperties, dataPoint)
 
     return L.marker(location, markerProperties);
-
-
-    // return L.marker(
-    //   [dataPointExtraFields.latitude, dataPointExtraFields.longitude], 
-    //   { icon: myIcon, id: dataPointExtraFields.id, type: dataPointExtraFields.type }
-    // );
   }
 
   associateEvents(shape) {
     return shape
       .on('click', (event) => {this.currentTargetForChart = event})
-      .on('click', () => this.drawChart(REDRAW_CHART))
+      .on('click', () => this.drawPointDetails())
   }
 
   createPopup(shape, stickyPopupInfo) {
@@ -275,29 +247,33 @@ export default class WorldMap {
     this.map.setZoom(parseInt(zoomFactor, 10));
   }
 
-  drawChart(redrawChart) {
-    if(this.currentTargetForChart==null || this.timeSeries==null ) {//this.currentTargetForChart.target.options.id==null || 
+  drawPointDetails() {
+    console.debug('drawPointDetails')
+    if(this.currentTargetForChart==null){
+      console.debug('no point selected in map')
       return ;
     }
 
-    let selectBoxOption = this.currentParameterForChart || (this.currentTargetForChart.target.options.pollutants.length>0 ? this.currentTargetForChart.target.options.pollutants[0].name : 'value')
+    let currentParameterForChart = this.currentParameterForChart || 'value'
 
-    drawPopups(this.ctrl.panel.id, this.timeSeries, this.validated_pollutants, selectBoxOption, this.currentTargetForChart)
+    let selectedPointValues = this.ctrl.data[this.currentTargetForChart.target.options.type][this.currentTargetForChart.target.options.id];
+    let lastValueMeasure = selectedPointValues[selectedPointValues.length - 1];
 
-    // ------
-    let parameterUnit = ''
-    let title = ''
+    drawSelect(this.ctrl.panel.id, lastValueMeasure, this.validated_metrics, currentParameterForChart)
 
-    if (redrawChart) {
-      [this.chartData, parameterUnit, title] = processData(
-        this.chartSeries,
-        this.timeSeries,
-        this.validated_pollutants,
-        selectBoxOption,
-        this.currentTargetForChart
-        )
-    }
-    
-    renderChart(this.ctrl.panel.id, this.chartSeries, this.chartData, parameterUnit, title)
+    drawPopups(this.ctrl.panel.id, lastValueMeasure, this.validated_metrics, currentParameterForChart)
+
+    renderChart(this.ctrl.panel.id, selectedPointValues, 
+      getTranslation(this.validated_metrics, currentParameterForChart),
+      [
+        this.currentTargetForChart.target.options.type,
+        this.currentTargetForChart.target.options.id,
+        currentParameterForChart
+      ])
   }
+}
+
+function getTranslation(measuresMetaInfo, measure) {
+  let resp = measuresMetaInfo.filter((measure_)=>measure_[0].toLowerCase()===measure.toLowerCase())
+  return resp.length>0 ? resp[0] : [measure, measure, null]
 }

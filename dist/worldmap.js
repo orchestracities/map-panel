@@ -3,7 +3,7 @@
 System.register(['lodash', './vendor/leaflet.awesome-markers/leaflet.awesome-markers.css!', './vendor/leaflet.awesome-markers/leaflet.awesome-markers', './vendor/leaflet/leaflet', './definitions', './utils/map_utils', './utils/data_formatter'], function (_export, _context) {
   "use strict";
 
-  var _, L, TILE_SERVERS, PLUGIN_PATH, dataTreatment, processData, getTimeSeries, getUpdatedChartSeries, drawPopups, renderChart, hideAllGraphPopups, getDataPointExtraFields, getDataPointStickyInfo, getMapMarkerClassName, filterEmptyAndZeroValues, _slicedToArray, _createClass, DRAW_CHART, REDRAW_CHART, CIRCLE_RADIUS, POLYGON_MAGNIFY_RATIO, WorldMap;
+  var _, L, TILE_SERVERS, PLUGIN_PATH, dataTreatment, processData, getTimeSeries, getUpdatedChartSeries, drawSelect, drawPopups, renderChart, hideAllGraphPopups, getDataPointExtraFields, getDataPointStickyInfo, getMapMarkerClassName, filterEmptyAndZeroValues, _createClass, DRAW_CHART, REDRAW_CHART, CIRCLE_RADIUS, POLYGON_MAGNIFY_RATIO, WorldMap;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -11,6 +11,12 @@ System.register(['lodash', './vendor/leaflet.awesome-markers/leaflet.awesome-mar
     }
   }
 
+  function getTranslation(measuresMetaInfo, measure) {
+    var resp = measuresMetaInfo.filter(function (measure_) {
+      return measure_[0].toLowerCase() === measure.toLowerCase();
+    });
+    return resp.length > 0 ? resp[0] : [measure, measure, null];
+  }
   return {
     setters: [function (_lodash) {
       _ = _lodash.default;
@@ -24,6 +30,7 @@ System.register(['lodash', './vendor/leaflet.awesome-markers/leaflet.awesome-mar
       processData = _utilsMap_utils.processData;
       getTimeSeries = _utilsMap_utils.getTimeSeries;
       getUpdatedChartSeries = _utilsMap_utils.getUpdatedChartSeries;
+      drawSelect = _utilsMap_utils.drawSelect;
       drawPopups = _utilsMap_utils.drawPopups;
       renderChart = _utilsMap_utils.renderChart;
       hideAllGraphPopups = _utilsMap_utils.hideAllGraphPopups;
@@ -34,44 +41,6 @@ System.register(['lodash', './vendor/leaflet.awesome-markers/leaflet.awesome-mar
       filterEmptyAndZeroValues = _utilsData_formatter.filterEmptyAndZeroValues;
     }],
     execute: function () {
-      _slicedToArray = function () {
-        function sliceIterator(arr, i) {
-          var _arr = [];
-          var _n = true;
-          var _d = false;
-          var _e = undefined;
-
-          try {
-            for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
-              _arr.push(_s.value);
-
-              if (i && _arr.length === i) break;
-            }
-          } catch (err) {
-            _d = true;
-            _e = err;
-          } finally {
-            try {
-              if (!_n && _i["return"]) _i["return"]();
-            } finally {
-              if (_d) throw _e;
-            }
-          }
-
-          return _arr;
-        }
-
-        return function (arr, i) {
-          if (Array.isArray(arr)) {
-            return arr;
-          } else if (Symbol.iterator in Object(arr)) {
-            return sliceIterator(arr, i);
-          } else {
-            throw new TypeError("Invalid attempt to destructure non-iterable instance");
-          }
-        };
-      }();
-
       _createClass = function () {
         function defineProperties(target, props) {
           for (var i = 0; i < props.length; i++) {
@@ -101,7 +70,7 @@ System.register(['lodash', './vendor/leaflet.awesome-markers/leaflet.awesome-mar
 
           this.ctrl = ctrl;
           this.mapContainer = mapContainer;
-          this.validated_pollutants = {};
+          this.validated_metrics = {};
           this.timeSeries = {};
           this.chartSeries = {};
           this.chartData = [];
@@ -157,9 +126,9 @@ System.register(['lodash', './vendor/leaflet.awesome-markers/leaflet.awesome-mar
 
             document.querySelector('#parameters_dropdown_' + this.ctrl.panel.id).addEventListener('change', function (event) {
               _this.currentParameterForChart = event.currentTarget.value;
-              console.info('selecting point with value:');
-              console.info(_this.currentParameterForChart);
-              _this.drawChart(REDRAW_CHART);
+              console.debug('selecting point for measure:');
+              console.debug(_this.currentParameterForChart);
+              _this.drawPointDetails();
             }); //, {passive: true} <= to avoid blocking
           }
         }, {
@@ -178,47 +147,36 @@ System.register(['lodash', './vendor/leaflet.awesome-markers/leaflet.awesome-mar
             });
           }
         }, {
-          key: 'setPollutants',
-          value: function setPollutants() {
+          key: 'setMetrics',
+          value: function setMetrics() {
             try {
-              this.validated_pollutants = this.ctrl.panel.pollutants;
+              this.validated_metrics = this.ctrl.panel.metrics;
             } catch (error) {
-              console.log(error);
-              throw new Error('Please insert a valid JSON in the Pollutants field (Edit > Tab Worldmap > Section AirQualityObserved - Pollutents field)');
+              console.warn(error);
+              throw new Error('Please insert a valid JSON in the Metrics field (Edit > Tab Worldmap > Section AirQualityObserved - Metrics field)');
             }
           }
         }, {
           key: 'drawPoints',
           value: function drawPoints() {
-            console.log('agregate data by key, striping unnecessary entries from recieved data...');
-            this.data = dataTreatment(filterEmptyAndZeroValues(this.ctrl.data, this.ctrl.panel.hideEmpty, this.ctrl.panel.hideZero));
-
-            this.addPointsToMap();
-          }
-        }, {
-          key: 'prepareSeries',
-          value: function prepareSeries() {
-            this.timeSeries = getTimeSeries(this.data);
-
-            if (this.currentTargetForChart === null) return;
-
-            this.chartSeries = getUpdatedChartSeries(this.chartSeries, this.timeSeries, this.currentParameterForChart, this.currentTargetForChart);
-          }
-        }, {
-          key: 'addPointsToMap',
-          value: function addPointsToMap() {
             var _this2 = this;
 
-            //console.log('addPointsToMap');
-            Object.keys(this.data).forEach(function (key) {
-              var value = _this2.data[key][_this2.data[key].length - 1]; // Use the last data for each sensor to create on map -> avoid repeated markers on map and use just the last measurement (the one needed to show on marker)
-              var newIcon = _this2.createIcon(value);
+            Object.keys(this.ctrl.data).forEach(function (layerKey) {
+              var layer = _this2.ctrl.data[layerKey];
 
-              try {
-                if (newIcon) _this2.overlayMaps[value.type].addLayer(newIcon);
-              } catch (error) {
-                console.warn(value);console.warn(error);
-              }
+              //for each layer
+              Object.keys(layer).forEach(function (objectKey) {
+                var lastObjectValues = layer[objectKey][layer[objectKey].length - 1];
+                lastObjectValues.type = layerKey;
+
+                var newIcon = _this2.createIcon(lastObjectValues);
+
+                try {
+                  if (newIcon) _this2.overlayMaps[layerKey].addLayer(newIcon);
+                } catch (error) {
+                  console.warn(layerKey);console.warn(error);
+                }
+              });
             });
           }
         }, {
@@ -228,11 +186,9 @@ System.register(['lodash', './vendor/leaflet.awesome-markers/leaflet.awesome-mar
             if (!dataPoint || !dataPoint.type) return null;
 
             var styled_icon = this.ctrl.panel.layersIcons[dataPoint.type];
-            //console.debug(styled_icon ? styled_icon : 'styled_icon not found for datapoint type '+dataPoint.type+'. going to use default shape!')
-
             var icon = styled_icon ? this.createMarker(dataPoint, styled_icon ? styled_icon : 'question') : this.createShape(dataPoint);
 
-            this.createPopup(this.associateEvents(icon), getDataPointStickyInfo(dataPoint, this.ctrl.panel.pollutants));
+            this.createPopup(this.associateEvents(icon), getDataPointStickyInfo(dataPoint, this.ctrl.panel.metrics));
 
             return icon;
           }
@@ -246,15 +202,15 @@ System.register(['lodash', './vendor/leaflet.awesome-markers/leaflet.awesome-mar
 
             switch (dataPoint.type) {
               case 'AirQualityObserved':
-                shape = L.circle([dataPoint.locationLatitude, dataPoint.locationLongitude], CIRCLE_RADIUS, dataPointExtraFields);
+                shape = L.circle([dataPoint.latitude, dataPoint.longitude], CIRCLE_RADIUS, dataPointExtraFields);
                 break;
               case 'TrafficFlowObserved':
-                shape = L.rectangle([[dataPoint.locationLatitude - 0.001 * POLYGON_MAGNIFY_RATIO, dataPoint.locationLongitude - 0.0015 * POLYGON_MAGNIFY_RATIO], [dataPoint.locationLatitude + 0.001 * POLYGON_MAGNIFY_RATIO, dataPoint.locationLongitude + 0.0015 * POLYGON_MAGNIFY_RATIO]], dataPointExtraFields);
+                shape = L.rectangle([[dataPoint.latitude - 0.001 * POLYGON_MAGNIFY_RATIO, dataPoint.longitude - 0.0015 * POLYGON_MAGNIFY_RATIO], [dataPoint.latitude + 0.001 * POLYGON_MAGNIFY_RATIO, dataPoint.longitude + 0.0015 * POLYGON_MAGNIFY_RATIO]], dataPointExtraFields);
                 //shape = L.circle([dataPoint.locationLatitude, dataPoint.locationLongitude], CIRCLE_RADIUS, dataPointExtraFields)
                 break;
               default:
                 dataPointExtraFields.color = 'green'; //default color
-                shape = L.polygon([[dataPoint.locationLatitude - 0.001 * POLYGON_MAGNIFY_RATIO, dataPoint.locationLongitude - 0.0015 * POLYGON_MAGNIFY_RATIO], [dataPoint.locationLatitude + 0.001 * POLYGON_MAGNIFY_RATIO, dataPoint.locationLongitude], [dataPoint.locationLatitude - 0.001 * POLYGON_MAGNIFY_RATIO, dataPoint.locationLongitude + 0.0015 * POLYGON_MAGNIFY_RATIO]], dataPointExtraFields);
+                shape = L.polygon([[dataPoint.latitude - 0.001 * POLYGON_MAGNIFY_RATIO, dataPoint.longitude - 0.0015 * POLYGON_MAGNIFY_RATIO], [dataPoint.latitude + 0.001 * POLYGON_MAGNIFY_RATIO, dataPoint.longitude], [dataPoint.latitude - 0.001 * POLYGON_MAGNIFY_RATIO, dataPoint.longitude + 0.0015 * POLYGON_MAGNIFY_RATIO]], dataPointExtraFields);
             }
 
             return shape;
@@ -263,14 +219,7 @@ System.register(['lodash', './vendor/leaflet.awesome-markers/leaflet.awesome-mar
           key: 'createMarker',
           value: function createMarker(dataPoint, styled_icon) {
             var dataPointExtraFields = getDataPointExtraFields(dataPoint);
-            //console.debug(dataPointExtraFields)
-            //let myIcon = L.icon({
-            //  iconUrl: PLUGIN_PATH+'img/fa/'+styled_icon+'.svg',
-            //  iconSize:  [25, 25], // size of the icon
-            //  className: getMapMarkerClassName(dataPointExtraFields.value)
-            //});
-
-            var location = [dataPoint.locationLatitude, dataPoint.locationLongitude];
+            var location = [dataPoint.latitude, dataPoint.longitude];
 
             var markerProperties = {
               icon: L.AwesomeMarkers.icon({
@@ -283,11 +232,6 @@ System.register(['lodash', './vendor/leaflet.awesome-markers/leaflet.awesome-mar
             _.defaultsDeep(markerProperties, dataPoint);
 
             return L.marker(location, markerProperties);
-
-            // return L.marker(
-            //   [dataPointExtraFields.latitude, dataPointExtraFields.longitude], 
-            //   { icon: myIcon, id: dataPointExtraFields.id, type: dataPointExtraFields.type }
-            // );
           }
         }, {
           key: 'associateEvents',
@@ -297,7 +241,7 @@ System.register(['lodash', './vendor/leaflet.awesome-markers/leaflet.awesome-mar
             return shape.on('click', function (event) {
               _this3.currentTargetForChart = event;
             }).on('click', function () {
-              return _this3.drawChart(REDRAW_CHART);
+              return _this3.drawPointDetails();
             });
           }
         }, {
@@ -362,32 +306,24 @@ System.register(['lodash', './vendor/leaflet.awesome-markers/leaflet.awesome-mar
             this.map.setZoom(parseInt(zoomFactor, 10));
           }
         }, {
-          key: 'drawChart',
-          value: function drawChart(redrawChart) {
-            if (this.currentTargetForChart == null || this.timeSeries == null) {
-              //this.currentTargetForChart.target.options.id==null || 
+          key: 'drawPointDetails',
+          value: function drawPointDetails() {
+            console.debug('drawPointDetails');
+            if (this.currentTargetForChart == null) {
+              console.debug('no point selected in map');
               return;
             }
 
-            var selectBoxOption = this.currentParameterForChart || (this.currentTargetForChart.target.options.pollutants.length > 0 ? this.currentTargetForChart.target.options.pollutants[0].name : 'value');
+            var currentParameterForChart = this.currentParameterForChart || 'value';
 
-            drawPopups(this.ctrl.panel.id, this.timeSeries, this.validated_pollutants, selectBoxOption, this.currentTargetForChart);
+            var selectedPointValues = this.ctrl.data[this.currentTargetForChart.target.options.type][this.currentTargetForChart.target.options.id];
+            var lastValueMeasure = selectedPointValues[selectedPointValues.length - 1];
 
-            // ------
-            var parameterUnit = '';
-            var title = '';
+            drawSelect(this.ctrl.panel.id, lastValueMeasure, this.validated_metrics, currentParameterForChart);
 
-            if (redrawChart) {
-              var _processData = processData(this.chartSeries, this.timeSeries, this.validated_pollutants, selectBoxOption, this.currentTargetForChart);
+            drawPopups(this.ctrl.panel.id, lastValueMeasure, this.validated_metrics, currentParameterForChart);
 
-              var _processData2 = _slicedToArray(_processData, 3);
-
-              this.chartData = _processData2[0];
-              parameterUnit = _processData2[1];
-              title = _processData2[2];
-            }
-
-            renderChart(this.ctrl.panel.id, this.chartSeries, this.chartData, parameterUnit, title);
+            renderChart(this.ctrl.panel.id, selectedPointValues, getTranslation(this.validated_metrics, currentParameterForChart), [this.currentTargetForChart.target.options.type, this.currentTargetForChart.target.options.id, currentParameterForChart]);
           }
         }]);
 
