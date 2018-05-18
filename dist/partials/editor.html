@@ -120,7 +120,7 @@
 
       <input type="text"
         class="gf-form-input width-10"
-        ng-init="metric[1] = !metric[1] ? ctrl.defaultMetrics[metric[0]].name : metric[1]"
+        ng-init="metric[1] = (!metric[1] ? ctrl.defaultMetrics[metric[0]].name : metric[1])"
         ng-model="metric[1]"
         ng-blur="ctrl.refresh()"
         ng-model-onblur required
@@ -129,7 +129,7 @@
 
       <input type="text" 
         class="gf-form-input width-10"
-        ng-init="metric[2] = (metric[2]===null ? ctrl.defaultMetrics[metric[0]].unit : metric[2])"
+        ng-init="metric[2] = (!metric[2]? ctrl.defaultMetrics[metric[0]].unit : metric[2])"
         ng-model="metric[2]"
         ng-blur="ctrl.refresh()"
         ng-model-onblur 

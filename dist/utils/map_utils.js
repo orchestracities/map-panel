@@ -5,6 +5,16 @@ System.register(['lodash', '../vendor/highcharts/highstock', '../vendor/highchar
 
   var _, Highcharts, Exporting, config, AQI, CARS_COUNT, NOMINATIM_ADDRESS, PANEL_DEFAULTS, HIGHCHARTS_THEME_DARK, _slicedToArray, TRANSLATIONS;
 
+  function capitalize(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+
+  function titleize(str) {
+    return str.split('_').map(function (elem) {
+      return capitalize(elem);
+    }).join(' ');
+  }
+
   /*
   * Auxiliar functions
   */
@@ -179,7 +189,7 @@ System.register(['lodash', '../vendor/highcharts/highstock', '../vendor/highchar
       var trans = metricsTranslations.filter(function (elem) {
         return elem[0] === dpKey;
       });
-      return { 'name': trans.length > 0 ? trans[0][1] : dpKey, value: dP, unit: trans.length > 0 ? trans[0][2] : '' };
+      return { 'name': trans.length > 0 && trans[0][1] ? trans[0][1] : titleize(dpKey), value: dP || '-', unit: trans.length > 0 ? trans[0][2] : '' };
     });
 
     return translatedValues.map(function (translatedValue) {
@@ -209,7 +219,7 @@ System.register(['lodash', '../vendor/highcharts/highstock', '../vendor/highchar
       };
 
       return {
-        title: (props[type] || type) + ': Device ' + pointId + ' - ' + measurementUnits[1],
+        title: (props[type] || type) + ': Device ' + pointId + ' - ' + (measurementUnits[1] ? measurementUnits[1] : titleize(measurementUnits[0])),
         units: measurementUnits[2] ? measurementUnits[1] + ' (' + measurementUnits[2] + ')' : measurementUnits[1]
       };
     }
@@ -334,7 +344,6 @@ System.register(['lodash', '../vendor/highcharts/highstock', '../vendor/highchar
 
   //render the select in the specific panel, with the specif metrics and select the option
   function drawSelect(panel_id, metricsToShow, providedMetrics, currentParameterForChart) {
-
     // Remove air paramters from dropdown
     var el = document.querySelector('#parameters_dropdown_' + panel_id);
     while (el.firstChild) {
@@ -358,7 +367,7 @@ System.register(['lodash', '../vendor/highcharts/highstock', '../vendor/highchar
 
           if (currentParameterForChart === newMetric.value) newMetric.selected = 'selected';
 
-          newMetric.innerHTML = elem[1];
+          newMetric.innerHTML = elem[1] ? elem[1] : titleize(elem[0]);
 
           el.appendChild(newMetric);
         }
@@ -377,7 +386,7 @@ System.register(['lodash', '../vendor/highcharts/highstock', '../vendor/highchar
       providedMetrics.forEach(function (elem) {
         if (elem[0] == metric) {
           var row = measuresTable.insertRow(); // -1 for inserting bottom
-          var innerCell0 = elem[1];
+          var innerCell0 = elem[1] ? elem[1] : titleize(elem[0]);
           var innerCell1 = (metricsToShow[metric] ? metricsToShow[metric] : '-') + (elem[2] ? ' ' + elem[2] : '');
           var cell0 = row.insertCell(0);
           var cell1 = row.insertCell(1);

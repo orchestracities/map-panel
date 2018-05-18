@@ -18,6 +18,16 @@ import { HIGHCHARTS_THEME_DARK } from '../utils/highcharts/custom_themes';
 
 const TRANSLATIONS = PANEL_DEFAULTS['metrics']
 
+
+function capitalize(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function titleize(str) {
+  return str.split('_').map((elem)=>capitalize(elem)).join(' ');
+}
+
+
 /*
 * Auxiliar functions
 */
@@ -189,7 +199,7 @@ function getDataPointDetails(dataPoint, metricsTranslations) {
   let translatedValues = Object.keys(dataPoint).map((dpKey)=>{
     let dP = dataPoint[dpKey]
     let trans = metricsTranslations.filter((elem)=>elem[0]===dpKey)
-    return { 'name': (trans.length>0 ? trans[0][1] : dpKey ), value: dP, unit: (trans.length>0 ? trans[0][2] : '') }
+    return { 'name': (trans.length>0 && trans[0][1] ? trans[0][1] : titleize(dpKey) ), value: dP||'-', unit: (trans.length>0 ? trans[0][2] : '') }
   })
 
   return translatedValues.map((translatedValue)=>`<div>${translatedValue.name}: ${translatedValue.value} ${translatedValue.unit||''}</div>`)
@@ -211,7 +221,7 @@ function renderChart(panelId, selectedPointData, measurementUnits, chartDetails)
     }
 
     return { 
-        title: `${props[type]||type}: Device ${pointId} - ${measurementUnits[1]}`,
+        title: `${props[type]||type}: Device ${pointId} - ${measurementUnits[1]?measurementUnits[1]:titleize(measurementUnits[0])}`,
         units: (measurementUnits[2] ? `${measurementUnits[1]} (${measurementUnits[2]})` : measurementUnits[1])
       }
   }
@@ -315,7 +325,6 @@ function getMetricsToShow(allMetrics, id) {
 
 //render the select in the specific panel, with the specif metrics and select the option
 function drawSelect(panel_id, metricsToShow, providedMetrics, currentParameterForChart) {
-
   // Remove air paramters from dropdown
   let el = document.querySelector('#parameters_dropdown_'+panel_id);
   while ( el.firstChild ) {
@@ -340,7 +349,7 @@ function drawSelect(panel_id, metricsToShow, providedMetrics, currentParameterFo
         if(currentParameterForChart===newMetric.value)
           newMetric.selected = 'selected';
         
-        newMetric.innerHTML = elem[1];
+        newMetric.innerHTML = elem[1]?elem[1]:titleize(elem[0]);
 
         el.appendChild(newMetric);
       }
@@ -350,7 +359,6 @@ function drawSelect(panel_id, metricsToShow, providedMetrics, currentParameterFo
   let selectBox = document.querySelector('#parameters_dropdown_'+panel_id)
   if(selectBox.options.length>0)
     selectBox.style.display = 'block';
-
 }
 
 function drawMeasuresPopup(panel_id, metricsToShow, providedMetrics, currentParameterForChart) {
@@ -361,7 +369,7 @@ function drawMeasuresPopup(panel_id, metricsToShow, providedMetrics, currentPara
     providedMetrics.forEach((elem)=>{
       if(elem[0] == metric) {
         let row = measuresTable.insertRow();    // -1 for inserting bottom
-        let innerCell0 = elem[1];
+        let innerCell0 = elem[1]?elem[1]:titleize(elem[0]);
         let innerCell1 = (metricsToShow[metric] ? metricsToShow[metric] : '-') + (elem[2]?` ${elem[2]}`:'');
         let cell0 = row.insertCell(0);
         let cell1 = row.insertCell(1);
@@ -375,6 +383,9 @@ function drawMeasuresPopup(panel_id, metricsToShow, providedMetrics, currentPara
 
   document.getElementById('measures_table_'+panel_id).style.display = 'block';
 }
+
+
+
 
 export {
 
