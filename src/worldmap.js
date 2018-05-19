@@ -261,7 +261,7 @@ export default class WorldMap {
 
     drawSelect(this.ctrl.panel.id, lastValueMeasure, this.validated_metrics, currentParameterForChart)
 
-    drawPopups(this.ctrl.panel.id, lastValueMeasure, this.validated_metrics, currentParameterForChart)
+    drawPopups(this.ctrl.panel.id, lastValueMeasure, this.validated_metrics)
 
     renderChart(this.ctrl.panel.id, selectedPointValues, 
       getTranslation(this.validated_metrics, currentParameterForChart),

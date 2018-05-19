@@ -1,10 +1,8 @@
 // draw components in the map
 /* Vendor specific */
 import _ from 'lodash';
-//import Highcharts from './vendor/highcharts/highstock';
-//import "../vendor/highcharts/highcharts.css!";
-//import "../vendor/highcharts/themes/dark-unica.css!";
-import Highcharts from "../vendor/highcharts/highstock";
+
+import Highcharts from "../vendor/highcharts/highcharts";
 import Exporting from '../vendor/highcharts/modules/exporting';
 // Initialize exporting module.
 Exporting(Highcharts);
@@ -12,107 +10,47 @@ Exporting(Highcharts);
 /* Grafana Specific */
 import config from 'app/core/config';
 
+import { titleize } from './string'
+
 /* App specific */
-import { AQI, CARS_COUNT, NOMINATIM_ADDRESS, PANEL_DEFAULTS } from '../definitions';
+import { AQI, CARS_COUNT, NOMINATIM_ADDRESS } from '../definitions';
 import { HIGHCHARTS_THEME_DARK } from '../utils/highcharts/custom_themes';
 
-const TRANSLATIONS = PANEL_DEFAULTS['metrics']
-
-
-function capitalize(str) {
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}
-
-function titleize(str) {
-  return str.split('_').map((elem)=>capitalize(elem)).join(' ');
-}
-
 
 /*
-* Auxiliar functions
+* Primary functions
 */
-// just for improve DRY
-function createLine(time_, value) {
-  const time = new Date(time_);
-  const day = time.getDate();
-  const month = time.getMonth();
-  const year = time.getFullYear();
-  const hour = time.getHours() - 1;
-  const minutes = time.getMinutes();
-  const seconds = time.getSeconds();
-  const milliseconds = time.getMilliseconds();
-  return [Date.UTC(year, month, day, hour+1, minutes, seconds, milliseconds), value]
-}
 
-// Access remote api and gives the coordinates from a city center based on NOMINATIM url server
-function getCityCoordinates(city_name) {
-  let url = NOMINATIM_ADDRESS.replace('<city_name>', city_name)
-  return fetch(url)
-    .then(response => response.json())
-    .then(data => { return { latitude: data[0].lat, longitude: data[0].lon } })
-    .catch(error => console.error(error))
-}
-
-// Given vars passed as param, retrieves the selected city
-function getSelectedCity(vars) {
-  let cityenv_ = vars.filter(elem => elem.name==="cityenv")
-  let city = null;
-  if(cityenv_ && cityenv_.length === 1)
-    city = cityenv_[0].current.value
-
-  return city;
-}
-
-// gets the aqi index from the AQI var
-function calculateAQIIndex(value) {
-  let aqiIndex;
-  AQI.range.forEach((elem, index) => {
-    if (value >= elem) {
-      aqiIndex = index;
-    }
-  });
-  return aqiIndex;
-}
-// gets the index from the CARS_COUNT const var
-function calculateCarsIntensityIndex(value) {
-  CARS_COUNT.range.forEach((elem, index) => {
-    if (value >= elem) {
-      return index;
-    }
-  });
-  return 0;
-}
-
-/*
-* View components controllers
+/**
+* Display popups based in the click in map's marker
 */
-function drawPopups(panel_id, lastValueMeasure, validated_metrics, currentParameterForChart) {
+function drawPopups(panelId, lastValueMeasure, validatedMetrics) {
 
   //render popups
   try {
     // Show Metrics Legend (MAP)
 
     //draw select
-    if(validated_metrics) {
+    if(validatedMetrics) {
 
-      hideAllGraphPopups(panel_id)
+      hideAllGraphPopups(panelId)
 
-      drawMeasuresPopup(panel_id, lastValueMeasure, validated_metrics, currentParameterForChart)
+      drawMeasuresPopup(panelId, lastValueMeasure, validatedMetrics)
 
       switch(lastValueMeasure.type) {
         case 'AirQualityObserved':
           let aqiIndex = calculateAQIIndex(lastValueMeasure.value);
           
-          document.getElementById('environment_table_'+panel_id).style.display = 'block';
+          document.getElementById('environment_table_'+panelId).style.display = 'block';
 
-          drawHealthConcernsPopup(panel_id, AQI.risks[aqiIndex], AQI.color[aqiIndex], AQI.meaning[aqiIndex]);
+          drawHealthConcernsPopup(panelId, AQI.risks[aqiIndex], AQI.color[aqiIndex], AQI.meaning[aqiIndex]);
      
           break;
         case 'TrafficFlowObserved':
-          drawTrafficFlowPopup(panel_id);
+          drawTrafficFlowPopup(panelId);
           break;
         default:
-          drawDefaultPopups(panel_id);
+          drawDefaultPopups(panelId);
       }
     }
     
@@ -123,8 +61,121 @@ function drawPopups(panel_id, lastValueMeasure, validated_metrics, currentParame
     console.log(lastValueMeasure)
   }
 }
+/*
+* Draw the select box in the specific panel, with the specif metrics and select the option
+*/
+function drawSelect(panelId, metricsToShow, providedMetrics, currentParameterForChart) {
+  // Remove air paramters from dropdown
+  let el = document.querySelector('#parameters_dropdown_'+panelId);
+  while ( el.firstChild ) {
+    el.removeChild( el.firstChild )
+  }
+
+  //default option
+  let emptyOption = document.createElement('option');
+  emptyOption.id = 'metricsOption_'+panelId;
+  emptyOption.value = 'value';
+  emptyOption.innerHTML = 'Select Metric';
+  el.appendChild(emptyOption);
+
+  //select population
+  Object.keys(metricsToShow).forEach((metric)=>{
+    providedMetrics.forEach((elem)=>{
+      if(elem[0] == metric) {
+        let newMetric = document.createElement('option');
+        newMetric.id = 'metricsOption_'+panelId;
+        newMetric.value = metric.toUpperCase();
+
+        if(currentParameterForChart===newMetric.value)
+          newMetric.selected = 'selected';
+        
+        newMetric.innerHTML = elem[1]?elem[1]:titleize(elem[0]);
+
+        el.appendChild(newMetric);
+      }
+    })
+  })
+
+  let selectBox = document.querySelector('#parameters_dropdown_'+panelId)
+  if(selectBox.options.length>0)
+    selectBox.style.display = 'block';
+}
+/**
+* Render's the chart in panel
+*/
+function renderChart(panelId, selectedPointData, measurementUnits, chartDetails) {
+  console.debug('renderChart')
+  let [type, pointId, fieldName] = chartDetails
+
+  drawChartCointainer(panelId);
+
+  //prepare data to chart
+  let chartData = selectedPointData.map((elem)=>createLine(elem.created_at, elem[fieldName.toLowerCase()]));
+
+  function getChartMetaInfo() {
+    let props = {
+      AirQualityObserved: 'Air Quality',
+      TrafficFlowObserved: 'Cars'
+    }
+
+    return { 
+        title: `${props[type]||type}: Device ${pointId} - ${measurementUnits[1]?measurementUnits[1]:titleize(measurementUnits[0])}`,
+        units: (measurementUnits[2] ? `${measurementUnits[1]} (${measurementUnits[2]})` : measurementUnits[1])
+      }
+  }
 
 
+  let chartInfo = getChartMetaInfo();
+  
+  //config highchart acording with grafana theme
+  if(!config.bootData.user.lightTheme) {
+    Highcharts.theme = HIGHCHARTS_THEME_DARK;
+
+    // Apply the theme
+    Highcharts.setOptions(Highcharts.theme);
+  }
+
+  Highcharts.chart('graph_container_'+panelId,
+    {
+      chart: {
+        type: 'line',
+        height: 200,
+        zoomType: 'x',
+        events: {
+          load: function () {            
+            chartData = this.series[0]; // set up the updating of the chart each second
+          }
+        }
+      },
+      title: {
+        text: chartInfo.title
+      },
+      subtitle: {
+        text: ''
+      },
+      xAxis: {
+        type: 'datetime'
+      },
+      yAxis: {
+        title: {
+          text: chartInfo.units
+        }
+      },
+      legend: {
+        enabled: false
+      },
+      series: [{
+        name: chartInfo.units,
+        data: chartData
+      }]
+    }
+  );
+}
+
+
+/**
+* private functions
+*/
 function getDataPointExtraFields(dataPoint) {
 
   const values = {
@@ -205,104 +256,6 @@ function getDataPointDetails(dataPoint, metricsTranslations) {
   return translatedValues.map((translatedValue)=>`<div>${translatedValue.name}: ${translatedValue.value} ${translatedValue.unit||''}</div>`)
 }
 
-function renderChart(panelId, selectedPointData, measurementUnits, chartDetails) {
-  console.debug('renderChart')
-  let [type, pointId, fieldName] = chartDetails
-
-  drawChartCointainer(panelId);
-
-  //prepare data to chart
-  let chartData = selectedPointData.map((elem)=>createLine(elem.created_at, elem[fieldName.toLowerCase()]));
-
-  function getChartMetaInfo() {
-    let props = {
-      AirQualityObserved: 'Air Quality',
-      TrafficFlowObserved: 'Cars'
-    }
-
-    return { 
-        title: `${props[type]||type}: Device ${pointId} - ${measurementUnits[1]?measurementUnits[1]:titleize(measurementUnits[0])}`,
-        units: (measurementUnits[2] ? `${measurementUnits[1]} (${measurementUnits[2]})` : measurementUnits[1])
-      }
-  }
-
-
-  let chartInfo = getChartMetaInfo();
-  
-  //config highchart acording with grafana theme
-  if(!config.bootData.user.lightTheme) {
-    Highcharts.theme = HIGHCHARTS_THEME_DARK;
-
-    // Apply the theme
-    Highcharts.setOptions(Highcharts.theme);
-  }
-
-  Highcharts.chart('graph_container_'+panelId,
-    {
-      chart: {
-        type: 'line',
-        height: 200,
-        zoomType: 'x',
-        events: {
-          load: function () {            
-            chartData = this.series[0]; // set up the updating of the chart each second
-          }
-        }
-      },
-      title: {
-        text: chartInfo.title
-      },
-      subtitle: {
-        text: ''
-      },
-      xAxis: {
-        type: 'datetime'
-      },
-      yAxis: {
-        title: {
-          text: chartInfo.units
-        }
-      },
-      legend: {
-        enabled: false
-      },
-      series: [{
-        name: chartInfo.units,
-        data: chartData
-      }]
-    }
-  );
-}
-
-function hideAllGraphPopups(panel_id) {
-  let map_table_popups = ['measures_table', 'health_concerns_wrapper', 'environment_table', 'traffic_table'];
-
-  for(let map_table_popup of map_table_popups) {
-    let popup = document.getElementById(map_table_popup+'_'+panel_id)
-    if(popup)
-      popup.style.display = 'none';
-  }
-}
-function drawHealthConcernsPopup(panel_id, risk, color, meaning, map_size) {
-  const healthConcernsWrapper = document.getElementById('health_concerns_wrapper_'+panel_id);
-  const healthConcerns = document.querySelector('#health_concerns_wrapper_'+panel_id+'>div');
-  const healthConcernsColor = document.querySelector('#health_concerns_wrapper_'+panel_id+'>div>span>span.color');
-  const healthRisk = document.getElementById('health_risk_'+panel_id);
-
-  healthConcernsWrapper.style.display = 'block';
-  healthConcernsColor.style.backgroundColor = color;
-  healthRisk.innerHTML = risk;
-}
-function drawDefaultPopups() {  
-}
-function drawTrafficFlowPopup(panel_id) {
-  document.getElementById('traffic_table_'+panel_id).style.display = 'block';
-}
-function drawChartCointainer(panel_id) {
-  document.querySelector('#data_details_'+panel_id).style.display = 'block';
-  document.getElementById('data_chart_'+panel_id).style.display = 'block';
-}
-
 //show all accepted metrics for a specific point id
 function getMetricsToShow(allMetrics, id) {
   const metricsToShow = {};
@@ -323,46 +276,54 @@ function getMetricsToShow(allMetrics, id) {
   return metricsToShow
 }
 
-//render the select in the specific panel, with the specif metrics and select the option
-function drawSelect(panel_id, metricsToShow, providedMetrics, currentParameterForChart) {
-  // Remove air paramters from dropdown
-  let el = document.querySelector('#parameters_dropdown_'+panel_id);
-  while ( el.firstChild ) {
-    el.removeChild( el.firstChild )
-  }
+// Given vars passed as param, retrieves the selected city
+function getSelectedCity(vars) {
+  let cityenv_ = vars.filter(elem => elem.name==="cityenv")
+  let city = null;
+  if(cityenv_ && cityenv_.length === 1)
+    city = cityenv_[0].current.value
 
-  //default option
-  let emptyOption = document.createElement('option');
-  emptyOption.id = 'metricsOption_'+panel_id;
-  emptyOption.value = 'value';
-  emptyOption.innerHTML = 'Select Metric';
-  el.appendChild(emptyOption);
-
-  //select population
-  Object.keys(metricsToShow).forEach((metric)=>{
-    providedMetrics.forEach((elem)=>{
-      if(elem[0] == metric) {
-        let newMetric = document.createElement('option');
-        newMetric.id = 'metricsOption_'+panel_id;
-        newMetric.value = metric.toUpperCase();
-
-        if(currentParameterForChart===newMetric.value)
-          newMetric.selected = 'selected';
-        
-        newMetric.innerHTML = elem[1]?elem[1]:titleize(elem[0]);
-
-        el.appendChild(newMetric);
-      }
-    })
-  })
-
-  let selectBox = document.querySelector('#parameters_dropdown_'+panel_id)
-  if(selectBox.options.length>0)
-    selectBox.style.display = 'block';
+  return city;
 }
 
-function drawMeasuresPopup(panel_id, metricsToShow, providedMetrics, currentParameterForChart) {
-  const measuresTable = document.querySelector('#measures_table_'+panel_id+' > table > tbody');
+function hideAllGraphPopups(panelId) {
+  let map_table_popups = ['measures_table', 'health_concerns_wrapper', 'environment_table', 'traffic_table'];
+
+  for(let map_table_popup of map_table_popups) {
+    let popup = document.getElementById(map_table_popup+'_'+panelId)
+    if(popup)
+      popup.style.display = 'none';
+  }
+}
+
+function drawDefaultPopups() {  
+}
+/*
+* Draw Traffic Flow Popup
+*/
+function drawTrafficFlowPopup(panelId) {
+  document.getElementById('traffic_table_'+panelId).style.display = 'block';
+}
+/*
+* Draw Health Concerns Popup
+*/
+function drawHealthConcernsPopup(panelId, risk, color, meaning, map_size) {
+  const healthConcernsWrapper = document.getElementById('health_concerns_wrapper_'+panelId);
+  const healthConcerns = document.querySelector('#health_concerns_wrapper_'+panelId+'>div');
+  const healthConcernsColor = document.querySelector('#health_concerns_wrapper_'+panelId+'>div>span>span.color');
+  const healthRisk = document.getElementById('health_risk_'+panelId);
+
+  healthConcernsWrapper.style.display = 'block';
+  healthConcernsColor.style.backgroundColor = color;
+  healthRisk.innerHTML = risk;
+}
+/*
+* Draw Measures Popup - The popup info is related with the choosed value 
+*  from select box and with the metrics that came from result set
+*  and from a list of what to show metrics
+*/
+function drawMeasuresPopup(panelId, metricsToShow, providedMetrics) {
+  const measuresTable = document.querySelector('#measures_table_'+panelId+' > table > tbody');
   while (measuresTable.rows[0]) measuresTable.deleteRow(0);
 
   Object.keys(metricsToShow).forEach((metric)=>{
@@ -381,11 +342,60 @@ function drawMeasuresPopup(panel_id, metricsToShow, providedMetrics, currentPara
 
   })
 
-  document.getElementById('measures_table_'+panel_id).style.display = 'block';
+  document.getElementById('measures_table_'+panelId).style.display = 'block';
+}
+/*
+* Draw Chart
+*/
+function drawChartCointainer(panelId) {
+  document.querySelector('#data_details_'+panelId).style.display = 'block';
+  document.getElementById('data_chart_'+panelId).style.display = 'block';
 }
 
+// Access remote api and gives the coordinates from a city center based on NOMINATIM url server
+function getCityCoordinates(city_name) {
+  let url = NOMINATIM_ADDRESS.replace('<city_name>', city_name)
+  return fetch(url)
+    .then(response => response.json())
+    .then(data => { return { latitude: data[0].lat, longitude: data[0].lon } })
+    .catch(error => console.error(error))
+}
 
+// gets the aqi index from the AQI var
+function calculateAQIIndex(value) {
+  let aqiIndex;
+  AQI.range.forEach((elem, index) => {
+    if (value >= elem) {
+      aqiIndex = index;
+    }
+  });
+  return aqiIndex;
+}
+// gets the index from the CARS_COUNT const var
+function calculateCarsIntensityIndex(value) {
+  CARS_COUNT.range.forEach((elem, index) => {
+    if (value >= elem) {
+      return index;
+    }
+  });
+  return 0;
+}
 
+/*
+* Auxiliar functions
+*/
+// just for improve DRY
+function createLine(time_, value) {
+  const time = new Date(time_);
+  const day = time.getDate();
+  const month = time.getMonth();
+  const year = time.getFullYear();
+  const hour = time.getHours() - 1;
+  const minutes = time.getMinutes();
+  const seconds = time.getSeconds();
+  const milliseconds = time.getMilliseconds();
+  return [Date.UTC(year, month, day, hour+1, minutes, seconds, milliseconds), value]
+}
 
 export {
 

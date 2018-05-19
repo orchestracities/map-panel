@@ -5,6 +5,7 @@ module.exports = (grunt) => {
 
   grunt.loadNpmTasks('grunt-execute');
   grunt.loadNpmTasks('grunt-contrib-clean');
+  //grunt.loadNpmTasks('grunt-postcss');
 
   grunt.initConfig({
     clean: ["dist"],
@@ -69,16 +70,37 @@ module.exports = (grunt) => {
       },
     },
 
+    // postcss: {
+    //   options: {
+    //     map: true, // inline sourcemaps
+
+    //     processors: [
+    //       require('pixrem')(), // add fallbacks for rem units
+    //       require('autoprefixer')({browsers: 'last 2 versions'}), // add vendor prefixes 
+    //       //require('cssnano')() // minify the result TO-DO: just for production
+    //     ]
+    //   },
+    //   dist: {
+    //     cwd: 'src',
+    //     expand: true,
+    //     src: ['*css/*.css'],
+    //     dest: 'dist'
+    //   }
+    // }
+
   });
 
   grunt.registerTask('default', [
     'clean', 
-    'copy:srcToDist', 'copy:pluginDef', 
+    'copy:srcToDist', 
+    'copy:pluginDef', 
     'copy:imgToDist', 
     'copy:leaflet', 
-    //'copy:highchartsCss', 
+ 
     'copy:highcharts',
     'copy:leafletAwesomeIcons',
+
+//    'postcss',
     'babel'
   ]);
 };

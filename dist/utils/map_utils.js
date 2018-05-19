@@ -1,109 +1,44 @@
 'use strict';
 
-System.register(['lodash', '../vendor/highcharts/highstock', '../vendor/highcharts/modules/exporting', 'app/core/config', '../definitions', '../utils/highcharts/custom_themes'], function (_export, _context) {
+System.register(['lodash', '../vendor/highcharts/highcharts', '../vendor/highcharts/modules/exporting', 'app/core/config', './string', '../definitions', '../utils/highcharts/custom_themes'], function (_export, _context) {
   "use strict";
 
-  var _, Highcharts, Exporting, config, AQI, CARS_COUNT, NOMINATIM_ADDRESS, PANEL_DEFAULTS, HIGHCHARTS_THEME_DARK, _slicedToArray, TRANSLATIONS;
-
-  function capitalize(str) {
-    return str.charAt(0).toUpperCase() + str.slice(1);
-  }
-
-  function titleize(str) {
-    return str.split('_').map(function (elem) {
-      return capitalize(elem);
-    }).join(' ');
-  }
+  var _, Highcharts, Exporting, config, titleize, AQI, CARS_COUNT, NOMINATIM_ADDRESS, HIGHCHARTS_THEME_DARK, _slicedToArray;
 
   /*
-  * Auxiliar functions
+  * Primary functions
   */
-  // just for improve DRY
-  function createLine(time_, value) {
-    var time = new Date(time_);
-    var day = time.getDate();
-    var month = time.getMonth();
-    var year = time.getFullYear();
-    var hour = time.getHours() - 1;
-    var minutes = time.getMinutes();
-    var seconds = time.getSeconds();
-    var milliseconds = time.getMilliseconds();
-    return [Date.UTC(year, month, day, hour + 1, minutes, seconds, milliseconds), value];
-  }
 
-  // Access remote api and gives the coordinates from a city center based on NOMINATIM url server
-  function getCityCoordinates(city_name) {
-    var url = NOMINATIM_ADDRESS.replace('<city_name>', city_name);
-    return fetch(url).then(function (response) {
-      return response.json();
-    }).then(function (data) {
-      return { latitude: data[0].lat, longitude: data[0].lon };
-    }).catch(function (error) {
-      return console.error(error);
-    });
-  }
-
-  // Given vars passed as param, retrieves the selected city
-  function getSelectedCity(vars) {
-    var cityenv_ = vars.filter(function (elem) {
-      return elem.name === "cityenv";
-    });
-    var city = null;
-    if (cityenv_ && cityenv_.length === 1) city = cityenv_[0].current.value;
-
-    return city;
-  }
-
-  // gets the aqi index from the AQI var
-  function calculateAQIIndex(value) {
-    var aqiIndex = void 0;
-    AQI.range.forEach(function (elem, index) {
-      if (value >= elem) {
-        aqiIndex = index;
-      }
-    });
-    return aqiIndex;
-  }
-  // gets the index from the CARS_COUNT const var
-  function calculateCarsIntensityIndex(value) {
-    CARS_COUNT.range.forEach(function (elem, index) {
-      if (value >= elem) {
-        return index;
-      }
-    });
-    return 0;
-  }
-
-  /*
-  * View components controllers
+  /**
+  * Display popups based in the click in map's marker
   */
-  function drawPopups(panel_id, lastValueMeasure, validated_metrics, currentParameterForChart) {
+  function drawPopups(panelId, lastValueMeasure, validatedMetrics) {
 
     //render popups
     try {
       // Show Metrics Legend (MAP)
 
       //draw select
-      if (validated_metrics) {
+      if (validatedMetrics) {
 
-        hideAllGraphPopups(panel_id);
+        hideAllGraphPopups(panelId);
 
-        drawMeasuresPopup(panel_id, lastValueMeasure, validated_metrics, currentParameterForChart);
+        drawMeasuresPopup(panelId, lastValueMeasure, validatedMetrics);
 
         switch (lastValueMeasure.type) {
           case 'AirQualityObserved':
             var aqiIndex = calculateAQIIndex(lastValueMeasure.value);
 
-            document.getElementById('environment_table_' + panel_id).style.display = 'block';
+            document.getElementById('environment_table_' + panelId).style.display = 'block';
 
-            drawHealthConcernsPopup(panel_id, AQI.risks[aqiIndex], AQI.color[aqiIndex], AQI.meaning[aqiIndex]);
+            drawHealthConcernsPopup(panelId, AQI.risks[aqiIndex], AQI.color[aqiIndex], AQI.meaning[aqiIndex]);
 
             break;
           case 'TrafficFlowObserved':
-            drawTrafficFlowPopup(panel_id);
+            drawTrafficFlowPopup(panelId);
             break;
           default:
-            drawDefaultPopups(panel_id);
+            drawDefaultPopups(panelId);
         }
       }
     } catch (error) {
@@ -113,7 +48,121 @@ System.register(['lodash', '../vendor/highcharts/highstock', '../vendor/highchar
       console.log(lastValueMeasure);
     }
   }
+  /*
+  * Draw the select box in the specific panel, with the specif metrics and select the option
+  */
+  function drawSelect(panelId, metricsToShow, providedMetrics, currentParameterForChart) {
+    // Remove air paramters from dropdown
+    var el = document.querySelector('#parameters_dropdown_' + panelId);
+    while (el.firstChild) {
+      el.removeChild(el.firstChild);
+    }
 
+    //default option
+    var emptyOption = document.createElement('option');
+    emptyOption.id = 'metricsOption_' + panelId;
+    emptyOption.value = 'value';
+    emptyOption.innerHTML = 'Select Metric';
+    el.appendChild(emptyOption);
+
+    //select population
+    Object.keys(metricsToShow).forEach(function (metric) {
+      providedMetrics.forEach(function (elem) {
+        if (elem[0] == metric) {
+          var newMetric = document.createElement('option');
+          newMetric.id = 'metricsOption_' + panelId;
+          newMetric.value = metric.toUpperCase();
+
+          if (currentParameterForChart === newMetric.value) newMetric.selected = 'selected';
+
+          newMetric.innerHTML = elem[1] ? elem[1] : titleize(elem[0]);
+
+          el.appendChild(newMetric);
+        }
+      });
+    });
+
+    var selectBox = document.querySelector('#parameters_dropdown_' + panelId);
+    if (selectBox.options.length > 0) selectBox.style.display = 'block';
+  }
+  /**
+  * Render's the chart in panel
+  */
+  function renderChart(panelId, selectedPointData, measurementUnits, chartDetails) {
+    console.debug('renderChart');
+
+    var _chartDetails = _slicedToArray(chartDetails, 3),
+        type = _chartDetails[0],
+        pointId = _chartDetails[1],
+        fieldName = _chartDetails[2];
+
+    drawChartCointainer(panelId);
+
+    //prepare data to chart
+    var chartData = selectedPointData.map(function (elem) {
+      return createLine(elem.created_at, elem[fieldName.toLowerCase()]);
+    });
+
+    function getChartMetaInfo() {
+      var props = {
+        AirQualityObserved: 'Air Quality',
+        TrafficFlowObserved: 'Cars'
+      };
+
+      return {
+        title: (props[type] || type) + ': Device ' + pointId + ' - ' + (measurementUnits[1] ? measurementUnits[1] : titleize(measurementUnits[0])),
+        units: measurementUnits[2] ? measurementUnits[1] + ' (' + measurementUnits[2] + ')' : measurementUnits[1]
+      };
+    }
+
+    var chartInfo = getChartMetaInfo();
+
+    //config highchart acording with grafana theme
+    if (!config.bootData.user.lightTheme) {
+      Highcharts.theme = HIGHCHARTS_THEME_DARK;
+
+      // Apply the theme
+      Highcharts.setOptions(Highcharts.theme);
+    }
+
+    Highcharts.chart('graph_container_' + panelId, {
+      chart: {
+        type: 'line',
+        height: 200,
+        zoomType: 'x',
+        events: {
+          load: function load() {
+            chartData = this.series[0]; // set up the updating of the chart each second
+          }
+        }
+      },
+      title: {
+        text: chartInfo.title
+      },
+      subtitle: {
+        text: ''
+      },
+      xAxis: {
+        type: 'datetime'
+      },
+      yAxis: {
+        title: {
+          text: chartInfo.units
+        }
+      },
+      legend: {
+        enabled: false
+      },
+      series: [{
+        name: chartInfo.units,
+        data: chartData
+      }]
+    });
+  }
+
+  /**
+  * private functions
+  */
   function getDataPointExtraFields(dataPoint) {
 
     var values = {
@@ -197,126 +246,6 @@ System.register(['lodash', '../vendor/highcharts/highstock', '../vendor/highchar
     });
   }
 
-  function renderChart(panelId, selectedPointData, measurementUnits, chartDetails) {
-    console.debug('renderChart');
-
-    var _chartDetails = _slicedToArray(chartDetails, 3),
-        type = _chartDetails[0],
-        pointId = _chartDetails[1],
-        fieldName = _chartDetails[2];
-
-    drawChartCointainer(panelId);
-
-    //prepare data to chart
-    var chartData = selectedPointData.map(function (elem) {
-      return createLine(elem.created_at, elem[fieldName.toLowerCase()]);
-    });
-
-    function getChartMetaInfo() {
-      var props = {
-        AirQualityObserved: 'Air Quality',
-        TrafficFlowObserved: 'Cars'
-      };
-
-      return {
-        title: (props[type] || type) + ': Device ' + pointId + ' - ' + (measurementUnits[1] ? measurementUnits[1] : titleize(measurementUnits[0])),
-        units: measurementUnits[2] ? measurementUnits[1] + ' (' + measurementUnits[2] + ')' : measurementUnits[1]
-      };
-    }
-
-    var chartInfo = getChartMetaInfo();
-
-    //config highchart acording with grafana theme
-    if (!config.bootData.user.lightTheme) {
-      Highcharts.theme = HIGHCHARTS_THEME_DARK;
-
-      // Apply the theme
-      Highcharts.setOptions(Highcharts.theme);
-    }
-
-    Highcharts.chart('graph_container_' + panelId, {
-      chart: {
-        type: 'line',
-        height: 200,
-        zoomType: 'x',
-        events: {
-          load: function load() {
-            chartData = this.series[0]; // set up the updating of the chart each second
-          }
-        }
-      },
-      title: {
-        text: chartInfo.title
-      },
-      subtitle: {
-        text: ''
-      },
-      xAxis: {
-        type: 'datetime'
-      },
-      yAxis: {
-        title: {
-          text: chartInfo.units
-        }
-      },
-      legend: {
-        enabled: false
-      },
-      series: [{
-        name: chartInfo.units,
-        data: chartData
-      }]
-    });
-  }
-
-  function hideAllGraphPopups(panel_id) {
-    var map_table_popups = ['measures_table', 'health_concerns_wrapper', 'environment_table', 'traffic_table'];
-
-    var _iteratorNormalCompletion = true;
-    var _didIteratorError = false;
-    var _iteratorError = undefined;
-
-    try {
-      for (var _iterator = map_table_popups[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-        var map_table_popup = _step.value;
-
-        var popup = document.getElementById(map_table_popup + '_' + panel_id);
-        if (popup) popup.style.display = 'none';
-      }
-    } catch (err) {
-      _didIteratorError = true;
-      _iteratorError = err;
-    } finally {
-      try {
-        if (!_iteratorNormalCompletion && _iterator.return) {
-          _iterator.return();
-        }
-      } finally {
-        if (_didIteratorError) {
-          throw _iteratorError;
-        }
-      }
-    }
-  }
-  function drawHealthConcernsPopup(panel_id, risk, color, meaning, map_size) {
-    var healthConcernsWrapper = document.getElementById('health_concerns_wrapper_' + panel_id);
-    var healthConcerns = document.querySelector('#health_concerns_wrapper_' + panel_id + '>div');
-    var healthConcernsColor = document.querySelector('#health_concerns_wrapper_' + panel_id + '>div>span>span.color');
-    var healthRisk = document.getElementById('health_risk_' + panel_id);
-
-    healthConcernsWrapper.style.display = 'block';
-    healthConcernsColor.style.backgroundColor = color;
-    healthRisk.innerHTML = risk;
-  }
-  function drawDefaultPopups() {}
-  function drawTrafficFlowPopup(panel_id) {
-    document.getElementById('traffic_table_' + panel_id).style.display = 'block';
-  }
-  function drawChartCointainer(panel_id) {
-    document.querySelector('#data_details_' + panel_id).style.display = 'block';
-    document.getElementById('data_chart_' + panel_id).style.display = 'block';
-  }
-
   //show all accepted metrics for a specific point id
   function getMetricsToShow(allMetrics, id) {
     var metricsToShow = {};
@@ -342,44 +271,74 @@ System.register(['lodash', '../vendor/highcharts/highstock', '../vendor/highchar
     return metricsToShow;
   }
 
-  //render the select in the specific panel, with the specif metrics and select the option
-  function drawSelect(panel_id, metricsToShow, providedMetrics, currentParameterForChart) {
-    // Remove air paramters from dropdown
-    var el = document.querySelector('#parameters_dropdown_' + panel_id);
-    while (el.firstChild) {
-      el.removeChild(el.firstChild);
-    }
-
-    //default option
-    var emptyOption = document.createElement('option');
-    emptyOption.id = 'metricsOption_' + panel_id;
-    emptyOption.value = 'value';
-    emptyOption.innerHTML = 'Select Metric';
-    el.appendChild(emptyOption);
-
-    //select population
-    Object.keys(metricsToShow).forEach(function (metric) {
-      providedMetrics.forEach(function (elem) {
-        if (elem[0] == metric) {
-          var newMetric = document.createElement('option');
-          newMetric.id = 'metricsOption_' + panel_id;
-          newMetric.value = metric.toUpperCase();
-
-          if (currentParameterForChart === newMetric.value) newMetric.selected = 'selected';
-
-          newMetric.innerHTML = elem[1] ? elem[1] : titleize(elem[0]);
-
-          el.appendChild(newMetric);
-        }
-      });
+  // Given vars passed as param, retrieves the selected city
+  function getSelectedCity(vars) {
+    var cityenv_ = vars.filter(function (elem) {
+      return elem.name === "cityenv";
     });
+    var city = null;
+    if (cityenv_ && cityenv_.length === 1) city = cityenv_[0].current.value;
 
-    var selectBox = document.querySelector('#parameters_dropdown_' + panel_id);
-    if (selectBox.options.length > 0) selectBox.style.display = 'block';
+    return city;
   }
 
-  function drawMeasuresPopup(panel_id, metricsToShow, providedMetrics, currentParameterForChart) {
-    var measuresTable = document.querySelector('#measures_table_' + panel_id + ' > table > tbody');
+  function hideAllGraphPopups(panelId) {
+    var map_table_popups = ['measures_table', 'health_concerns_wrapper', 'environment_table', 'traffic_table'];
+
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+      for (var _iterator = map_table_popups[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+        var map_table_popup = _step.value;
+
+        var popup = document.getElementById(map_table_popup + '_' + panelId);
+        if (popup) popup.style.display = 'none';
+      }
+    } catch (err) {
+      _didIteratorError = true;
+      _iteratorError = err;
+    } finally {
+      try {
+        if (!_iteratorNormalCompletion && _iterator.return) {
+          _iterator.return();
+        }
+      } finally {
+        if (_didIteratorError) {
+          throw _iteratorError;
+        }
+      }
+    }
+  }
+
+  function drawDefaultPopups() {}
+  /*
+  * Draw Traffic Flow Popup
+  */
+  function drawTrafficFlowPopup(panelId) {
+    document.getElementById('traffic_table_' + panelId).style.display = 'block';
+  }
+  /*
+  * Draw Health Concerns Popup
+  */
+  function drawHealthConcernsPopup(panelId, risk, color, meaning, map_size) {
+    var healthConcernsWrapper = document.getElementById('health_concerns_wrapper_' + panelId);
+    var healthConcerns = document.querySelector('#health_concerns_wrapper_' + panelId + '>div');
+    var healthConcernsColor = document.querySelector('#health_concerns_wrapper_' + panelId + '>div>span>span.color');
+    var healthRisk = document.getElementById('health_risk_' + panelId);
+
+    healthConcernsWrapper.style.display = 'block';
+    healthConcernsColor.style.backgroundColor = color;
+    healthRisk.innerHTML = risk;
+  }
+  /*
+  * Draw Measures Popup - The popup info is related with the choosed value 
+  *  from select box and with the metrics that came from result set
+  *  and from a list of what to show metrics
+  */
+  function drawMeasuresPopup(panelId, metricsToShow, providedMetrics) {
+    var measuresTable = document.querySelector('#measures_table_' + panelId + ' > table > tbody');
     while (measuresTable.rows[0]) {
       measuresTable.deleteRow(0);
     }Object.keys(metricsToShow).forEach(function (metric) {
@@ -397,23 +356,79 @@ System.register(['lodash', '../vendor/highcharts/highstock', '../vendor/highchar
       });
     });
 
-    document.getElementById('measures_table_' + panel_id).style.display = 'block';
+    document.getElementById('measures_table_' + panelId).style.display = 'block';
+  }
+  /*
+  * Draw Chart
+  */
+  function drawChartCointainer(panelId) {
+    document.querySelector('#data_details_' + panelId).style.display = 'block';
+    document.getElementById('data_chart_' + panelId).style.display = 'block';
+  }
+
+  // Access remote api and gives the coordinates from a city center based on NOMINATIM url server
+  function getCityCoordinates(city_name) {
+    var url = NOMINATIM_ADDRESS.replace('<city_name>', city_name);
+    return fetch(url).then(function (response) {
+      return response.json();
+    }).then(function (data) {
+      return { latitude: data[0].lat, longitude: data[0].lon };
+    }).catch(function (error) {
+      return console.error(error);
+    });
+  }
+
+  // gets the aqi index from the AQI var
+  function calculateAQIIndex(value) {
+    var aqiIndex = void 0;
+    AQI.range.forEach(function (elem, index) {
+      if (value >= elem) {
+        aqiIndex = index;
+      }
+    });
+    return aqiIndex;
+  }
+  // gets the index from the CARS_COUNT const var
+  function calculateCarsIntensityIndex(value) {
+    CARS_COUNT.range.forEach(function (elem, index) {
+      if (value >= elem) {
+        return index;
+      }
+    });
+    return 0;
+  }
+
+  /*
+  * Auxiliar functions
+  */
+  // just for improve DRY
+  function createLine(time_, value) {
+    var time = new Date(time_);
+    var day = time.getDate();
+    var month = time.getMonth();
+    var year = time.getFullYear();
+    var hour = time.getHours() - 1;
+    var minutes = time.getMinutes();
+    var seconds = time.getSeconds();
+    var milliseconds = time.getMilliseconds();
+    return [Date.UTC(year, month, day, hour + 1, minutes, seconds, milliseconds), value];
   }
 
   return {
     setters: [function (_lodash) {
       _ = _lodash.default;
-    }, function (_vendorHighchartsHighstock) {
-      Highcharts = _vendorHighchartsHighstock.default;
+    }, function (_vendorHighchartsHighcharts) {
+      Highcharts = _vendorHighchartsHighcharts.default;
     }, function (_vendorHighchartsModulesExporting) {
       Exporting = _vendorHighchartsModulesExporting.default;
     }, function (_appCoreConfig) {
       config = _appCoreConfig.default;
+    }, function (_string) {
+      titleize = _string.titleize;
     }, function (_definitions) {
       AQI = _definitions.AQI;
       CARS_COUNT = _definitions.CARS_COUNT;
       NOMINATIM_ADDRESS = _definitions.NOMINATIM_ADDRESS;
-      PANEL_DEFAULTS = _definitions.PANEL_DEFAULTS;
     }, function (_utilsHighchartsCustom_themes) {
       HIGHCHARTS_THEME_DARK = _utilsHighchartsCustom_themes.HIGHCHARTS_THEME_DARK;
     }],
@@ -463,7 +478,6 @@ System.register(['lodash', '../vendor/highcharts/highstock', '../vendor/highchar
 
 
       /* App specific */
-      TRANSLATIONS = PANEL_DEFAULTS['metrics'];
 
       _export('hideAllGraphPopups', hideAllGraphPopups);
 

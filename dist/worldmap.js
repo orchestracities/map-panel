@@ -321,7 +321,7 @@ System.register(['lodash', './vendor/leaflet.awesome-markers/leaflet.awesome-mar
 
             drawSelect(this.ctrl.panel.id, lastValueMeasure, this.validated_metrics, currentParameterForChart);
 
-            drawPopups(this.ctrl.panel.id, lastValueMeasure, this.validated_metrics, currentParameterForChart);
+            drawPopups(this.ctrl.panel.id, lastValueMeasure, this.validated_metrics);
 
             renderChart(this.ctrl.panel.id, selectedPointValues, getTranslation(this.validated_metrics, currentParameterForChart), [this.currentTargetForChart.target.options.type, this.currentTargetForChart.target.options.id, currentParameterForChart]);
           }
