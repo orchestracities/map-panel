@@ -21,9 +21,11 @@ var CARS_COUNT = {
   'classColor': ['level-0', 'level-1', 'level-2', 'level-3', 'level-4', 'level-5', 'level-6']
 };
 
+var MARKER_COLORS = ['red', 'blue', 'green', 'purple', 'orange', 'darkred', 'lightred', 'beige', 'darkblue', 'darkgreen', 'cadetblue', 'darkpurple', 'white', 'pink', 'lightblue', 'lightgreen', 'gray', 'black', 'lightgray'];
+
 var DEFAULT_MARKER_COLORS_RANGE = {
   range: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180],
-  markerColor: ['red', 'blue', 'green', 'purple', 'orange', 'darkred', 'lightred', 'beige', 'darkblue', 'darkgreen', 'cadetblue', 'darkpurple', 'white', 'pink', 'lightblue', 'lightgreen', 'gray', 'black', 'lightgray']
+  markerColor: MARKER_COLORS
 };
 
 var TILE_SERVERS = {
@@ -61,7 +63,8 @@ var PANEL_DEFAULTS = {
     whereClauses: [],
     metricAggs: [{ alias: "id", column: "entity_id", type: "raw" }, { alias: "value", column: "", type: "raw" }, { alias: "longitude", column: "longitude(location)", type: "raw" }, { alias: "latitude", column: "latitude(location)", type: "raw" }, { alias: "created_at", column: "time_index", type: "raw" }]
   }],
-  layersIcons: {}
+  layersIcons: {},
+  layersColors: {}
 };
 
 var DEFAULT_METRICS = {
@@ -94,4 +97,5 @@ exports.CARS_COUNT = CARS_COUNT;
 exports.DEFAULT_METRICS = DEFAULT_METRICS;
 exports.MAP_LOCATIONS = MAP_LOCATIONS;
 exports.ICON_TYPES = ICON_TYPES;
+exports.MARKER_COLORS = MARKER_COLORS;
 //# sourceMappingURL=definitions.js.map

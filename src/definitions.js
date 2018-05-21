@@ -23,12 +23,12 @@ const CARS_COUNT = {
   'classColor': ['level-0', 'level-1', 'level-2', 'level-3', 'level-4', 'level-5', 'level-6']
 };
 
+const MARKER_COLORS = ['red', 'blue', 'green', 'purple', 'orange', 'darkred', 'lightred', 'beige', 
+    'darkblue', 'darkgreen', 'cadetblue', 'darkpurple', 'white', 'pink', 'lightblue', 'lightgreen', 'gray', 'black', 'lightgray']
+
 const DEFAULT_MARKER_COLORS_RANGE = {
   range: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180],
-  markerColor:  [
-    'red', 'blue', 'green', 'purple', 'orange', 'darkred', 'lightred', 'beige', 
-    'darkblue', 'darkgreen', 'cadetblue', 'darkpurple', 'white', 'pink', 'lightblue', 'lightgreen', 'gray', 'black', 'lightgray'
-  ]
+  markerColor: MARKER_COLORS
 }
 
 const TILE_SERVERS = {
@@ -75,7 +75,8 @@ const PANEL_DEFAULTS = {
       {alias: "created_at", column: "time_index", type: "raw"}
     ]
   }],
-  layersIcons: {}
+  layersIcons: {},
+  layersColors: {}
 };
 
 const DEFAULT_METRICS = {
@@ -103,5 +104,5 @@ export {
   PLUGIN_PATH, PANEL_DEFAULTS, 
   NOMINATIM_ADDRESS, TILE_SERVERS, 
   AQI, CARS_COUNT, 
-  DEFAULT_METRICS, MAP_LOCATIONS, ICON_TYPES  
+  DEFAULT_METRICS, MAP_LOCATIONS, ICON_TYPES, MARKER_COLORS
 }

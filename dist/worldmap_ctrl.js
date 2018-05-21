@@ -67,8 +67,11 @@ var WorldmapCtrl = function (_MetricsPanelCtrl) {
 
     _this.setMapProvider(contextSrv);
     _lodash2.default.defaultsDeep(_this.panel, _definitions.PANEL_DEFAULTS);
+
+    _this.mapLocationsLabels = [].concat(_toConsumableArray(Object.keys(_definitions.MAP_LOCATIONS)), ['cityenv', 'custom']);
     _this.iconTypes = _definitions.ICON_TYPES;
     _this.defaultMetrics = _definitions.DEFAULT_METRICS;
+    _this.markerColors = _definitions.MARKER_COLORS;
 
     _this.events.on('init-edit-mode', _this.onInitEditMode.bind(_this));
     _this.events.on('data-error', _this.onDataError.bind(_this));
@@ -76,7 +79,7 @@ var WorldmapCtrl = function (_MetricsPanelCtrl) {
     _this.events.on('data-snapshot-load', _this.onDataReceived.bind(_this));
 
     _this.handleClickAddMetric = _this.addMetric.bind(_this);
-    _this.handleRemoveMetrics = _this.removeMetrics.bind(_this);
+    _this.handleRemoveMetric = _this.removeMetric.bind(_this);
     return _this;
   }
 
@@ -86,8 +89,8 @@ var WorldmapCtrl = function (_MetricsPanelCtrl) {
       this.panel.metrics.push(['', '', '']);
     }
   }, {
-    key: 'removeMetrics',
-    value: function removeMetrics(index) {
+    key: 'removeMetric',
+    value: function removeMetric(index) {
       this.panel.metrics.splice(index, 1);
       this.refresh();
     }
@@ -109,7 +112,7 @@ var WorldmapCtrl = function (_MetricsPanelCtrl) {
         console.debug('no data');
         return; //no result sets  
       }
-      console.debug('dataList >');
+      console.debug('dataList:');
       console.debug(dataList);
 
       if (this.dashboard.snapshot && this.locations) {

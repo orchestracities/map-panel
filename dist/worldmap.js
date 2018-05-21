@@ -166,8 +166,9 @@ var WorldMap = function () {
       //console.log(this.ctrl.panel.layersIcons)
       if (!dataPoint || !dataPoint.type) return null;
 
-      var styled_icon = this.ctrl.panel.layersIcons[dataPoint.type];
-      var icon = styled_icon ? this.createMarker(dataPoint, styled_icon ? styled_icon : 'question') : this.createShape(dataPoint);
+      var layerIcon = this.ctrl.panel.layersIcons[dataPoint.type];
+      var layerColor = this.ctrl.panel.layersColors[dataPoint.type];
+      var icon = layerIcon ? this.createMarker(dataPoint, layerIcon, layerColor) : this.createShape(dataPoint);
 
       this.createPopup(this.associateEvents(icon), (0, _map_utils.getDataPointStickyInfo)(dataPoint, this.ctrl.panel.metrics));
 
@@ -198,15 +199,15 @@ var WorldMap = function () {
     }
   }, {
     key: 'createMarker',
-    value: function createMarker(dataPoint, styled_icon) {
+    value: function createMarker(dataPoint, elementIcon, elementColor) {
       var dataPointExtraFields = (0, _map_utils.getDataPointExtraFields)(dataPoint);
       var location = [dataPoint.latitude, dataPoint.longitude];
 
       var markerProperties = {
         icon: L.AwesomeMarkers.icon({
-          icon: styled_icon,
+          icon: elementIcon,
           prefix: 'fa',
-          markerColor: dataPointExtraFields.markerColor
+          markerColor: elementColor ? elementColor : dataPointExtraFields.markerColor
           //spin: true,
         })
       };

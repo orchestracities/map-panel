@@ -6,7 +6,7 @@
     <div class="gf-form-select-wrapper max-width-10">
       <select class="input-small gf-form-input" 
         ng-model="ctrl.panel.mapCenter" 
-        ng-options="t for t in ['(0°, 0°)', 'North America', 'Europe', 'West Asia', 'SE Asia', 'cityenv', 'custom']" 
+        ng-options="mapLocation for mapLocation in ctrl.mapLocationsLabels" 
         ng-change="ctrl.setNewMapCenter()"
         >
       </select>
@@ -14,7 +14,7 @@
   </div>
 
 
-  <div ng-show="ctrl.panel.mapCenter === 'custom'">
+  <div ng-show="ctrl.panel.mapCenter==='custom'">
     <div class="gf-form">
       <span class="width-2"></span>
       <label class="gf-form-label width-8">Latitude</label>
@@ -137,7 +137,7 @@
       </input>
 
       <label class="gf-form-label">
-        <a class="pointer" ng-click="ctrl.handleRemoveMetrics($index)">
+        <a class="pointer" ng-click="ctrl.handleRemoveMetric($index)">
           <i class="fa fa-minus"></i>
         </a>
       </label>
@@ -169,9 +169,18 @@
       <select class="gf-form-input icon-select"
         ng-model="ctrl.panel.layersIcons[layerName]"
         ng-options="iconType for iconType in ctrl.iconTypes"
-        ng-change="ctrl.render()"
+        ng-change="ctrl.render()" title="Choose the marker icon for this layer"
         >
-      </select>      
+        <option value=""></option>
+      </select>
+
+      <select class="gf-form-input icon-select"
+        ng-model="ctrl.panel.layersColors[layerName]"
+        ng-options="markerColor for markerColor in ctrl.markerColors"
+        ng-change="ctrl.render()" title="Choose the marker's color for this layer"
+        >
+        <option value=""></option>
+      </select>
     </div>
   </div>
 </div>

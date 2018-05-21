@@ -7,7 +7,7 @@ import kbn from 'app/core/utils/kbn';
 /* Vendor specific */
 import _ from 'lodash';
 /* App specific */
-import { PLUGIN_PATH, PANEL_DEFAULTS, DEFAULT_METRICS, MAP_LOCATIONS, ICON_TYPES } from './definitions'
+import { PLUGIN_PATH, PANEL_DEFAULTS, DEFAULT_METRICS, MAP_LOCATIONS, ICON_TYPES, MARKER_COLORS } from './definitions'
 import { getDatasources, getValidDatasources } from './utils/datasource';
 
 import { getCityCoordinates, getSelectedCity } from './utils/map_utils';
@@ -26,8 +26,11 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
     super($scope, $injector);
     this.setMapProvider(contextSrv);
     _.defaultsDeep(this.panel, PANEL_DEFAULTS);
+
+    this.mapLocationsLabels = [...Object.keys(MAP_LOCATIONS), 'cityenv', 'custom'];
     this.iconTypes = ICON_TYPES;
     this.defaultMetrics = DEFAULT_METRICS;
+    this.markerColors = MARKER_COLORS;
 
     this.events.on('init-edit-mode', this.onInitEditMode.bind(this));
     this.events.on('data-error', this.onDataError.bind(this));
@@ -35,13 +38,13 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
     this.events.on('data-snapshot-load', this.onDataReceived.bind(this));
 
     this.handleClickAddMetric = this.addMetric.bind(this)
-    this.handleRemoveMetrics = this.removeMetrics.bind(this)
+    this.handleRemoveMetric = this.removeMetric.bind(this)
   }
 
   addMetric() {
     this.panel.metrics.push(['','',''])
   }
-  removeMetrics(index) {
+  removeMetric(index) {
     this.panel.metrics.splice(index, 1)
     this.refresh();
   }
@@ -58,7 +61,7 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
       console.debug('no data')
       return;    //no result sets  
     }
-    console.debug('dataList >')
+    console.debug('dataList:')
     console.debug(dataList)
 
     if (this.dashboard.snapshot && this.locations) {

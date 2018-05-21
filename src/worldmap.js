@@ -131,8 +131,9 @@ export default class WorldMap {
     if(!dataPoint || !dataPoint.type)
       return null;
     
-    let styled_icon = this.ctrl.panel.layersIcons[dataPoint.type]
-    let icon = styled_icon ? this.createMarker(dataPoint, styled_icon ? styled_icon : 'question') : this.createShape(dataPoint);
+    let layerIcon = this.ctrl.panel.layersIcons[dataPoint.type]
+    let layerColor = this.ctrl.panel.layersColors[dataPoint.type]
+    let icon = layerIcon ? this.createMarker(dataPoint, layerIcon, layerColor) : this.createShape(dataPoint);
 
     this.createPopup(
       this.associateEvents(icon), 
@@ -171,16 +172,16 @@ export default class WorldMap {
     return shape;
   }
 
-  createMarker(dataPoint, styled_icon) {
+  createMarker(dataPoint, elementIcon, elementColor) {
     let dataPointExtraFields = getDataPointExtraFields(dataPoint);
     let location = [dataPoint.latitude, dataPoint.longitude];
 
     let markerProperties = { 
       icon: L.AwesomeMarkers.icon(
         { 
-          icon: styled_icon,
+          icon: elementIcon,
           prefix: 'fa',
-          markerColor: dataPointExtraFields.markerColor,
+          markerColor: (elementColor ? elementColor : dataPointExtraFields.markerColor),
           //spin: true,
         }        
       )
