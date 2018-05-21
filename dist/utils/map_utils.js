@@ -137,7 +137,7 @@ function renderChart(panelId, selectedPointData, measurementUnits, chartDetails)
 
   //prepare data to chart
   var chartData = selectedPointData.map(function (elem) {
-    return createLine(elem.created_at, elem[fieldName.toLowerCase()]);
+    return [convertDate(elem.created_at), elem[fieldName.toLowerCase()]];
   });
 
   function getChartMetaInfo() {
@@ -271,15 +271,15 @@ function getDataPointStickyInfo(dataPoint, metricsTranslations) {
 
 function getDataPointDetails(dataPoint, metricsTranslations) {
   var translatedValues = Object.keys(dataPoint).map(function (dpKey) {
-    var dP = dataPoint[dpKey];
+    var dP = dpKey === 'created_at' ? new Date(dataPoint[dpKey]).toLocaleString() : dataPoint[dpKey];
     var trans = metricsTranslations.filter(function (elem) {
       return elem[0] === dpKey;
     });
     return { 'name': trans.length > 0 && trans[0][1] ? trans[0][1] : (0, _string.titleize)(dpKey), value: dP || '-', unit: trans.length > 0 ? trans[0][2] : '' };
   });
-
+  //creation of html row
   return translatedValues.map(function (translatedValue) {
-    return '<div>' + translatedValue.name + ': ' + translatedValue.value + ' ' + (translatedValue.unit || '') + '</div>';
+    return '<div><span>' + translatedValue.name + '</span><span>' + translatedValue.value + ' ' + (translatedValue.unit || '') + '</span></div>';
   });
 }
 
@@ -439,7 +439,7 @@ function calculateCarsIntensityIndex(value) {
 * Auxiliar functions
 */
 // just for improve DRY
-function createLine(time_, value) {
+function convertDate(time_) {
   var time = new Date(time_);
   var day = time.getDate();
   var month = time.getMonth();
@@ -448,7 +448,7 @@ function createLine(time_, value) {
   var minutes = time.getMinutes();
   var seconds = time.getSeconds();
   var milliseconds = time.getMilliseconds();
-  return [Date.UTC(year, month, day, hour + 1, minutes, seconds, milliseconds), value];
+  return Date.UTC(year, month, day, hour + 1, minutes, seconds, milliseconds);
 }
 
 exports.hideAllGraphPopups = hideAllGraphPopups;

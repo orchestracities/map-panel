@@ -43,6 +43,27 @@
   z-index: 100;
 }
 
+.map-container .worldmap-popup .stycky-popup-info {
+  display: table;  
+}
+
+.map-container .worldmap-popup .stycky-popup-info .head {
+  font-weight: bolder;
+  font-size: 14px;
+  border-bottom: 1px solid;
+}
+
+.map-container .worldmap-popup .stycky-popup-info .body div {
+  display: table-row;
+}
+.map-container .worldmap-popup .stycky-popup-info .body div span {
+  display: table-cell;
+}
+
+.map-container .worldmap-popup .stycky-popup-info .body div span:nth-child(1) {
+  font-weight: bold;
+  font-style: italic;
+}
 /*---------------------------ADDED-------------------------------------*/
 
 .map-container .map-container-popups > div {

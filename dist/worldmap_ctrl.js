@@ -153,7 +153,10 @@ var WorldmapCtrl = function (_MetricsPanelCtrl) {
   }, {
     key: 'onPanelTeardown',
     value: function onPanelTeardown() {
-      if (this.worldMap) this.worldMap.remove();
+      if (this.worldMap) {
+        console.debug('Cleaning map');
+        this.worldMap.map.remove();
+      }
     }
   }, {
     key: 'setMapProvider',

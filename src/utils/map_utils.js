@@ -110,7 +110,7 @@ function renderChart(panelId, selectedPointData, measurementUnits, chartDetails)
   drawChartCointainer(panelId);
 
   //prepare data to chart
-  let chartData = selectedPointData.map((elem)=>createLine(elem.created_at, elem[fieldName.toLowerCase()]));
+  let chartData = selectedPointData.map((elem)=>[ convertDate(elem.created_at), elem[fieldName.toLowerCase()] ]);
 
   function getChartMetaInfo() {
     let props = {
@@ -248,12 +248,12 @@ function getDataPointStickyInfo(dataPoint, metricsTranslations) {
 
 function getDataPointDetails(dataPoint, metricsTranslations) {
   let translatedValues = Object.keys(dataPoint).map((dpKey)=>{
-    let dP = dataPoint[dpKey]
+    let dP = (dpKey==='created_at'?new Date(dataPoint[dpKey]).toLocaleString():dataPoint[dpKey])
     let trans = metricsTranslations.filter((elem)=>elem[0]===dpKey)
     return { 'name': (trans.length>0 && trans[0][1] ? trans[0][1] : titleize(dpKey) ), value: dP||'-', unit: (trans.length>0 ? trans[0][2] : '') }
   })
-
-  return translatedValues.map((translatedValue)=>`<div>${translatedValue.name}: ${translatedValue.value} ${translatedValue.unit||''}</div>`)
+  //creation of html row
+  return translatedValues.map((translatedValue)=>`<div><span>${translatedValue.name}</span><span>${translatedValue.value} ${translatedValue.unit||''}</span></div>`)
 }
 
 //show all accepted metrics for a specific point id
@@ -385,7 +385,7 @@ function calculateCarsIntensityIndex(value) {
 * Auxiliar functions
 */
 // just for improve DRY
-function createLine(time_, value) {
+function convertDate(time_) {
   const time = new Date(time_);
   const day = time.getDate();
   const month = time.getMonth();
@@ -394,7 +394,7 @@ function createLine(time_, value) {
   const minutes = time.getMinutes();
   const seconds = time.getSeconds();
   const milliseconds = time.getMilliseconds();
-  return [Date.UTC(year, month, day, hour+1, minutes, seconds, milliseconds), value]
+  return Date.UTC(year, month, day, hour+1, minutes, seconds, milliseconds)
 }
 
 export {
