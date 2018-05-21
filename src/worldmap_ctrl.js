@@ -27,27 +27,34 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
     this.setMapProvider(contextSrv);
     _.defaultsDeep(this.panel, PANEL_DEFAULTS);
 
+    //helper vars definitions to be used in editor
     this.mapLocationsLabels = [...Object.keys(MAP_LOCATIONS), 'cityenv', 'custom'];
     this.iconTypes = ICON_TYPES;
     this.defaultMetrics = DEFAULT_METRICS;
     this.markerColors = MARKER_COLORS;
 
+    //bind grafana events
     this.events.on('init-edit-mode', this.onInitEditMode.bind(this));
     this.events.on('data-error', this.onDataError.bind(this));
     this.events.on('data-received', this.onDataReceived.bind(this));  //process resultset as a result of the execution of all queries
+    this.events.on('panel-teardown', this.onPanelTeardown.bind(this));
     this.events.on('data-snapshot-load', this.onDataReceived.bind(this));
 
+    //bind specific editor events
     this.handleClickAddMetric = this.addMetric.bind(this)
     this.handleRemoveMetric = this.removeMetric.bind(this)
   }
 
+  //adds a empty line in order to allow adding new metric in editor
   addMetric() {
     this.panel.metrics.push(['','',''])
   }
+  //removes specific metric in editor
   removeMetric(index) {
     this.panel.metrics.splice(index, 1)
     this.refresh();
   }
+  //process the event of clicking the Worldmap Tab
   onInitEditMode() {
     this.addEditorTab('Worldmap', `${PLUGIN_PATH}partials/editor.html`, 2);
   }
@@ -87,7 +94,10 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
   }
 
   onPanelTeardown() {
-    if (this.worldMap) this.worldMap.remove();
+    if (this.worldMap) {
+      console.debug('Cleaning map')
+      this.worldMap.map.remove();
+    }
   }
 
   setMapProvider(contextSrv) {
@@ -95,7 +105,7 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
     this.saturationClass = this.tileServer === 'CartoDB Dark' ? 'map-darken' : ''; 
   }
 
-  setNewMapCenter() {    
+  setNewMapCenter() {
     if (this.panel.mapCenter === 'cityenv') {// && this.isADiferentCity()
       this.setNewCoords()
         .then(()=>this.render())

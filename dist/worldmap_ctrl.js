@@ -68,32 +68,43 @@ var WorldmapCtrl = function (_MetricsPanelCtrl) {
     _this.setMapProvider(contextSrv);
     _lodash2.default.defaultsDeep(_this.panel, _definitions.PANEL_DEFAULTS);
 
+    //helper vars definitions to be used in editor
     _this.mapLocationsLabels = [].concat(_toConsumableArray(Object.keys(_definitions.MAP_LOCATIONS)), ['cityenv', 'custom']);
     _this.iconTypes = _definitions.ICON_TYPES;
     _this.defaultMetrics = _definitions.DEFAULT_METRICS;
     _this.markerColors = _definitions.MARKER_COLORS;
 
+    //bind grafana events
     _this.events.on('init-edit-mode', _this.onInitEditMode.bind(_this));
     _this.events.on('data-error', _this.onDataError.bind(_this));
     _this.events.on('data-received', _this.onDataReceived.bind(_this)); //process resultset as a result of the execution of all queries
+    _this.events.on('panel-teardown', _this.onPanelTeardown.bind(_this));
     _this.events.on('data-snapshot-load', _this.onDataReceived.bind(_this));
 
+    //bind specific editor events
     _this.handleClickAddMetric = _this.addMetric.bind(_this);
     _this.handleRemoveMetric = _this.removeMetric.bind(_this);
     return _this;
   }
+
+  //adds a empty line in order to allow adding new metric in editor
+
 
   _createClass(WorldmapCtrl, [{
     key: 'addMetric',
     value: function addMetric() {
       this.panel.metrics.push(['', '', '']);
     }
+    //removes specific metric in editor
+
   }, {
     key: 'removeMetric',
     value: function removeMetric(index) {
       this.panel.metrics.splice(index, 1);
       this.refresh();
     }
+    //process the event of clicking the Worldmap Tab
+
   }, {
     key: 'onInitEditMode',
     value: function onInitEditMode() {
