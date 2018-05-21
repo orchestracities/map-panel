@@ -4,9 +4,9 @@
 import _ from 'lodash';
 
 import './vendor/leaflet.awesome-markers/leaflet.awesome-markers.css!';
-import './vendor/leaflet.awesome-markers/leaflet.awesome-markers';
 
-import L from './vendor/leaflet/leaflet';
+import * as L from './vendor/leaflet/leaflet';
+import './vendor/leaflet.awesome-markers/leaflet.awesome-markers';
 
 /* App Specific */
 import { TILE_SERVERS, PLUGIN_PATH } from './definitions';

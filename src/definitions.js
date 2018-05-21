@@ -1,5 +1,3 @@
-import L from './vendor/leaflet/leaflet';
-
 const PLUGIN_PATH = 'public/plugins/grafana-traffic-env-panel/'
 
 const AQI = {

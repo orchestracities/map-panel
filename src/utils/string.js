@@ -5,3 +5,11 @@ export function capitalize(str) {
 export function titleize(str) {
   return str.split('_').map((elem)=>capitalize(elem)).join(' ');
 }
+
+
+String.prototype.capitalize = function() {
+  this.charAt(0).toUpperCase() + this.slice(1);
+}
+String.prototype.titleize = function() {
+  this.split('_').map((elem)=>this.capitalize(elem)).join(' ');
+}

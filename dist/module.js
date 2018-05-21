@@ -1,26 +1,24 @@
 'use strict';
 
-System.register(['app/plugins/sdk', './worldmap_ctrl'], function (_export, _context) {
-  "use strict";
-
-  var loadPluginCss, WorldmapCtrl;
-  return {
-    setters: [function (_appPluginsSdk) {
-      loadPluginCss = _appPluginsSdk.loadPluginCss;
-    }, function (_worldmap_ctrl) {
-      WorldmapCtrl = _worldmap_ctrl.default;
-    }],
-    execute: function () {
-      /* eslint import/no-extraneous-dependencies: 0 */
-      loadPluginCss({
-        dark: 'plugins/grafana-traffic-env-panel/css/worldmap.dark.css',
-        light: 'plugins/grafana-traffic-env-panel/css/worldmap.light.css'
-      });
-
-      /* eslint import/prefer-default-export: 0 */
-
-      _export('PanelCtrl', WorldmapCtrl);
-    }
-  };
+Object.defineProperty(exports, "__esModule", {
+  value: true
 });
+exports.PanelCtrl = undefined;
+
+var _sdk = require('app/plugins/sdk');
+
+var _worldmap_ctrl = require('./worldmap_ctrl');
+
+var _worldmap_ctrl2 = _interopRequireDefault(_worldmap_ctrl);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/* eslint import/no-extraneous-dependencies: 0 */
+(0, _sdk.loadPluginCss)({
+  dark: 'plugins/grafana-traffic-env-panel/css/worldmap.dark.css',
+  light: 'plugins/grafana-traffic-env-panel/css/worldmap.light.css'
+});
+
+/* eslint import/prefer-default-export: 0 */
+exports.PanelCtrl = _worldmap_ctrl2.default;
 //# sourceMappingURL=module.js.map

@@ -1,77 +1,75 @@
 'use strict';
 
-System.register(['lodash', './worldmap', './utils/map_utils'], function (_export, _context) {
-  "use strict";
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = link;
 
-  var _, WorldMap, hideAllGraphPopups;
+var _lodash = require('lodash');
 
-  function link(scope, elem, attrs, ctrl) {
-    var mapContainer = elem.find('.map-container')[0];
+var _lodash2 = _interopRequireDefault(_lodash);
 
-    ctrl.events.on('render', function () {
-      return render();
-    });
+var _worldmap = require('./worldmap');
 
-    function render() {
-      if (!ctrl.data) return;
+var _worldmap2 = _interopRequireDefault(_worldmap);
 
-      //map is initializing
-      if (!ctrl.worldMap) {
-        ctrl.worldMap = new WorldMap(ctrl, mapContainer);
-        console.debug('creating worldMap');
-        ctrl.worldMap.createMap();
-      }
+var _map_utils = require('./utils/map_utils');
 
-      if (layersChanged()) {
-        console.log('layers had changed!');
-        //      console.log(ctrl.layerNames);
-        //      console.log(Object.keys(ctrl.worldMap.overlayMaps));
-        //.off();
-        ctrl.worldMap.map.remove();
-        ctrl.worldMap.createMap();
-      }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-      ctrl.worldMap.resize();
+function link(scope, elem, attrs, ctrl) {
+  var mapContainer = elem.find('.map-container')[0];
 
-      if (ctrl.panel.mapCenter === 'cityenv' || ctrl.mapCenterMoved) {
-        //&& ctrl.isADiferentCity()
-        console.debug('panToMapCenter');
-        console.debug(ctrl.panel.mapCenterLatitude + ' : ' + ctrl.panel.mapCenterLongitude);
-        ctrl.worldMap.panToMapCenter();
-      }
+  ctrl.events.on('render', function () {
+    return render();
+  });
 
-      ctrl.worldMap.clearLayers();
-      ctrl.worldMap.setMetrics();
+  function render() {
+    if (!ctrl.data) return;
 
-      //ctrl.worldMap.filterEmptyData();
-      ctrl.worldMap.drawPoints();
-
-      /**
-      * popups and graph display
-      */
-      // draw all info associated with selected point but when redrawing the chart just update information related
-      ctrl.worldMap.drawPointDetails();
-
-      ctrl.renderingCompleted();
+    //map is initializing
+    if (!ctrl.worldMap) {
+      ctrl.worldMap = new _worldmap2.default(ctrl, mapContainer);
+      console.debug('creating worldMap');
+      ctrl.worldMap.createMap();
     }
 
-    // if users add new metrics we must verify if layers are the same or if we must recreate the map
-    function layersChanged() {
-      return !_.isEqual(ctrl.layerNames, Object.keys(ctrl.worldMap.overlayMaps));
+    if (layersChanged()) {
+      console.log('layers had changed!');
+      //      console.log(ctrl.layerNames);
+      //      console.log(Object.keys(ctrl.worldMap.overlayMaps));
+      //.off();
+      ctrl.worldMap.map.remove();
+      ctrl.worldMap.createMap();
     }
+
+    ctrl.worldMap.resize();
+
+    if (ctrl.panel.mapCenter === 'cityenv' || ctrl.mapCenterMoved) {
+      //&& ctrl.isADiferentCity()
+      console.debug('panToMapCenter');
+      console.debug(ctrl.panel.mapCenterLatitude + ' : ' + ctrl.panel.mapCenterLongitude);
+      ctrl.worldMap.panToMapCenter();
+    }
+
+    ctrl.worldMap.clearLayers();
+    ctrl.worldMap.setMetrics();
+
+    //ctrl.worldMap.filterEmptyData();
+    ctrl.worldMap.drawPoints();
+
+    /**
+    * popups and graph display
+    */
+    // draw all info associated with selected point but when redrawing the chart just update information related
+    ctrl.worldMap.drawPointDetails();
+
+    ctrl.renderingCompleted();
   }
 
-  _export('default', link);
-
-  return {
-    setters: [function (_lodash) {
-      _ = _lodash.default;
-    }, function (_worldmap) {
-      WorldMap = _worldmap.default;
-    }, function (_utilsMap_utils) {
-      hideAllGraphPopups = _utilsMap_utils.hideAllGraphPopups;
-    }],
-    execute: function () {}
-  };
-});
+  // if users add new metrics we must verify if layers are the same or if we must recreate the map
+  function layersChanged() {
+    return !_lodash2.default.isEqual(ctrl.layerNames, Object.keys(ctrl.worldMap.overlayMaps));
+  }
+}
 //# sourceMappingURL=map_renderer.js.map
