@@ -49,8 +49,8 @@
 
 .map-container .worldmap-popup .stycky-popup-info .head {
   font-weight: bolder;
-  font-size: 14px;
   border-bottom: 1px solid;
+  margin-bottom: 5px;
 }
 
 .map-container .worldmap-popup .stycky-popup-info .body div {
@@ -61,7 +61,9 @@
 }
 
 .map-container .worldmap-popup .stycky-popup-info .body div span:nth-child(1) {
+  font-weight: bolder;
   font-style: italic;
+  padding-right: 10px;
 }
 /*---------------------------ADDED-------------------------------------*/
 

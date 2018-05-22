@@ -109,7 +109,7 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
     if (this.panel.mapCenter === 'cityenv') {// && this.isADiferentCity()
       this.setNewCoords()
         .then(()=>this.render())
-        .catch(error => console.log(error))
+        .catch(error => console.warn(error))
 
       return ;
     }

@@ -87,7 +87,8 @@ const DEFAULT_METRICS = {
     "pm10": {"name": "PM10", "unit": "ug/m3"},
     "pm25": {"name": "PM25", "unit": "ug/m3"},
     "t": {"name": "Temperature", "unit": "ºC"},
-    "co": {"name": "CO2", "unit": ""}
+    "co": {"name": "CO2", "unit": ""},
+    "intensity": {"name": "Intensity", "unit": ""}
   }
 
 const MAP_LOCATIONS = {

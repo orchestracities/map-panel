@@ -174,7 +174,7 @@ var WorldmapCtrl = function (_MetricsPanelCtrl) {
         this.setNewCoords().then(function () {
           return _this2.render();
         }).catch(function (error) {
-          return console.log(error);
+          return console.warn(error);
         });
 
         return;
