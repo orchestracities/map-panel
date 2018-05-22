@@ -18,9 +18,6 @@ import {
 } from './utils/map_utils';
 import { filterEmptyAndZeroValues } from './utils/data_formatter';
 
-const DRAW_CHART = false
-const REDRAW_CHART = true
-
 const CIRCLE_RADIUS = 200
 const POLYGON_MAGNIFY_RATIO = 3
 
@@ -55,7 +52,6 @@ export default class WorldMap {
         attributionControl: false,
         layers: this.layers
       })
-      //.fitWorld()
 
     this.map.setZoom(this.ctrl.panel.initialZoom);
     this.map.panTo(location);
