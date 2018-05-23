@@ -1,5 +1,14 @@
 <div class="section gf-form-group">
   <h5 class="section-heading">Map Layout</h5>
+
+  <gf-form-switch 
+    class="gf-form"
+    label="Render Chart" label-class="width-10"
+    checked="ctrl.panel.renderChart"
+    on-change="this.render();"
+    >
+  </gf-form-switch>
+
   <div class="gf-form">
     <label class="gf-form-label width-10">Center</label>
     <div class="gf-form-select-wrapper max-width-12">

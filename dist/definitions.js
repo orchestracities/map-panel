@@ -65,7 +65,8 @@ var PANEL_DEFAULTS = {
   }],
   layersIcons: {},
   layersColors: {},
-  cityEnvVariable: ''
+  cityEnvVariable: '',
+  renderChart: false
 };
 
 var DEFAULT_METRICS = {

@@ -1,7 +1,8 @@
 <div id="map_panel_{{ctrl.panel.id}}" class="map-panel">
-  <div id="mapid_{{ctrl.panel.id}}" class="map-container {{ctrl.saturationClass}}">
-    <div class="map-container-popups" ng-show="ctrl.worldMap.map.getSize().x >= 640">
-      
+  <div id="mapid_{{ctrl.panel.id}}" 
+        class="map-container {{ctrl.saturationClass}} {{ctrl.width}}" 
+        ng-style="{'height':ctrl.height-(ctrl.panel.renderChart?270:0)}">
+    <div class="map-container-popups" ng-show="ctrl.worldMap.map.getSize().x >= 640">      
       <!-- Global detials -->
       <div id="measures_table_{{ctrl.panel.id}}" class="measures-table hidden info-container">
         <div class="header">Measured Details</div>
