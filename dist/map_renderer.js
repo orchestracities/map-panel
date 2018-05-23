@@ -45,7 +45,7 @@ function link(scope, elem, attrs, ctrl) {
 
     ctrl.worldMap.resize();
 
-    if (ctrl.panel.mapCenter === 'cityenv' || ctrl.mapCenterMoved) {
+    if (ctrl.panel.mapCenter === 'Location Variable' || ctrl.mapCenterMoved) {
       //&& ctrl.isADiferentCity()
       console.debug('panToMapCenter');
       console.debug(ctrl.panel.mapCenterLatitude + ' : ' + ctrl.panel.mapCenterLongitude);

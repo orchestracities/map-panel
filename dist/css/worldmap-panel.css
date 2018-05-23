@@ -183,6 +183,6 @@
 /*  margin-bottom: 5px;*/
 }
 
-select.icon-select{
-  font-family: FontAwesome, sans-serif;
+.empty-space-margin {
+  margin-right:3px;
 }

@@ -76,7 +76,8 @@ const PANEL_DEFAULTS = {
     ]
   }],
   layersIcons: {},
-  layersColors: {}
+  layersColors: {},
+  cityEnvVariable: ''
 };
 
 const DEFAULT_METRICS = {

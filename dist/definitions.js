@@ -64,7 +64,8 @@ var PANEL_DEFAULTS = {
     metricAggs: [{ alias: "id", column: "entity_id", type: "raw" }, { alias: "value", column: "", type: "raw" }, { alias: "longitude", column: "longitude(location)", type: "raw" }, { alias: "latitude", column: "latitude(location)", type: "raw" }, { alias: "created_at", column: "time_index", type: "raw" }]
   }],
   layersIcons: {},
-  layersColors: {}
+  layersColors: {},
+  cityEnvVariable: ''
 };
 
 var DEFAULT_METRICS = {

@@ -257,7 +257,7 @@ var WorldMap = function () {
 
       var location = [parseFloat(this.ctrl.panel.mapCenterLatitude), parseFloat(this.ctrl.panel.mapCenterLongitude)];
 
-      if (this.ctrl.panel.mapCenter === 'cityenv' && this.ctrl.isADiferentCity()) {
+      if (this.ctrl.panel.mapCenter === 'Location Variable' && this.ctrl.isADiferentCity()) {
         this.ctrl.setNewCoords().then(function () {
           console.debug('flying to a new location');
           console.debug(location);

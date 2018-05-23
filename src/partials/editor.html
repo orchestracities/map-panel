@@ -2,7 +2,7 @@
   <h5 class="section-heading">Map Layout</h5>
   <div class="gf-form">
     <label class="gf-form-label width-10">Center</label>
-    <div class="gf-form-select-wrapper max-width-10">
+    <div class="gf-form-select-wrapper max-width-12">
       <select class="input-small gf-form-input" 
         ng-model="ctrl.panel.mapCenter" 
         ng-options="mapLocation for mapLocation in ctrl.mapLocationsLabels" 
@@ -12,22 +12,36 @@
     </div>
   </div>
 
-
-  <div ng-show="ctrl.panel.mapCenter==='custom'">
+  <div ng-show="ctrl.panel.mapCenter==='Location Variable'">
     <div class="gf-form">
-      <span class="width-2"></span>
+      <span class="width-2 empty-space-margin">&nbsp;</span>
+      <label class="gf-form-label width-8">Variable Name</label>
+      <div class="gf-form-select-wrapper max-width-12">
+        <select class="gf-form-input"
+          ng-model="ctrl.panel.cityEnvVariable"
+          ng-options="environmentVar for environmentVar in ctrl.environmentVars"
+          ng-change="ctrl.render()"
+          >
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div ng-show="ctrl.panel.mapCenter==='Custom'">
+    <div class="gf-form">
+      <span class="width-2 empty-space-margin"></span>
       <label class="gf-form-label width-8">Latitude</label>
       <input type="text"
-        class="input-small gf-form-input width-10"
+        class="input-small gf-form-input width-12"
         ng-model="ctrl.panel.mapCenterLatitude"
         ng-change="ctrl.setNewMapCenter()"
         ng-model-onblur />
     </div>
     <div class="gf-form">
-      <span class="width-2"></span>
+      <span class="width-2 empty-space-margin"></span>
       <label class="gf-form-label width-8">Longitude</label>
       <input type="text"
-        class="input-small gf-form-input width-10"
+        class="input-small gf-form-input width-12"
         ng-model="ctrl.panel.mapCenterLongitude"
         ng-change="ctrl.setNewMapCenter()"
         ng-model-onblur />
@@ -37,7 +51,7 @@
   <div class="gf-form">
     <label class="gf-form-label width-10">Initial Zoom</label>
     <input type="text" 
-      class="input-small gf-form-input width-10" 
+      class="input-small gf-form-input width-12" 
       placeholder="1"
       ng-model="ctrl.panel.initialZoom" 
       ng-change="ctrl.setZoom()"
@@ -52,58 +66,6 @@
     >
   </gf-form-switch>
 </div>
-
-
-<!-- Metrics -->
-
-<!-- <h5>Datasources</h5>
-<div class="section-heading">AirQualityObserved</div>
-  <div class="section gf-form-group">
-    <div class="gf-form">
-      <label class="gf-form-label width-10">Metrics</label>
-      <textarea 
-        class="gf-form-input width-30"
-        ng-model="ctrl.panel.metrics"
-        ng-change="ctrl.render()"
-        rows="10" required ng-model-onblur
-        >
-      </textarea>        
-    </div>
-  </div>
-</div> -->
-
-<!-- <h5>Datasources 2</h5>
-<div ng-repeat="layerName in ctrl.layerNames">
-  <div class="section-heading">{{layerName}}</div>
-  <div class="section gf-form-group">
-    <div ng-repeat="metric in target.metricAggs">
-
-      <div class="gf-form">
-        <label class="gf-form-label width-10">{{metric.column}}</label>
-        <input type="text"
-          class="gf-form-input width-10"
-          ng-init="metric.name = (metric.name ? metric.name : ctrl.defaultMetrics[metric.column].name)"
-          ng-model="metric.name"
-          ng-change="ctrl.refresh()"
-          ng-model-onblur required
-          >
-        </input>
-
-        <input type="text" 
-          class="gf-form-input width-10"
-          ng-init="metric.unit = (metric.unit ? metric.unit : ctrl.defaultMetrics[metric.column].unit)"
-          ng-model="metric.unit"
-          ng-change="ctrl.refresh()"
-          ng-model-onblur required 
-          >
-        </input>
-
-      </div>
-
-    </div>
-  </div>
-</div> -->
-
 
 <div class="section gf-form-group">
   <h5 class="section-heading" title="Map between the fieldname from the query and the alias and units associated. (eg. fieldname is 'p', alias is 'pressure', units are 'hPa'">
@@ -123,7 +85,6 @@
         ng-model="metric[0]"
         ng-blur="ctrl.refresh()"
         ng-model-onblur required
-        title="q"
         >
       </input>
 
@@ -133,7 +94,6 @@
         ng-model="metric[1]"
         ng-blur="ctrl.refresh()"
         ng-model-onblur required
-        title="2"
         >
       </input>
 
@@ -143,7 +103,6 @@
         ng-model="metric[2]"
         ng-blur="ctrl.refresh()"
         ng-model-onblur 
-        title="3"
         >
       </input>
 
@@ -176,7 +135,7 @@
         </info-popover>
       </span>
 
-      <select class="gf-form-input icon-select"
+      <select class="gf-form-input"
         ng-model="ctrl.panel.layersIcons[layerName]"
         ng-options="iconType for iconType in ctrl.iconTypes"
         ng-change="ctrl.render()" title="Choose the marker icon for this layer"
@@ -184,7 +143,7 @@
         <option value=""></option>
       </select>
 
-      <select class="gf-form-input icon-select"
+      <select class="gf-form-input"
         ng-model="ctrl.panel.layersColors[layerName]"
         ng-options="markerColor for markerColor in ctrl.markerColors"
         ng-change="ctrl.render()" title="Choose the marker's color for this layer"

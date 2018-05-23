@@ -277,11 +277,12 @@ function getMetricsToShow(allMetrics, id) {
 }
 
 // Given vars passed as param, retrieves the selected city
-function getSelectedCity(vars) {
-  let cityenv_ = vars.filter(elem => elem.name==="cityenv")
+function getSelectedCity(vars, selectedVarName) {
+  let cityEnv = vars.filter(elem => elem.name===selectedVarName)
+
   let city = null;
-  if(cityenv_ && cityenv_.length === 1)
-    city = cityenv_[0].current.value
+  if(cityEnv && cityEnv.length === 1)
+    city = cityEnv[0].current.value
 
   return city;
 }

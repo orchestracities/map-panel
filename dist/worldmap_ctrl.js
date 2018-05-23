@@ -69,10 +69,13 @@ var WorldmapCtrl = function (_MetricsPanelCtrl) {
     _lodash2.default.defaultsDeep(_this.panel, _definitions.PANEL_DEFAULTS);
 
     //helper vars definitions to be used in editor
-    _this.mapLocationsLabels = [].concat(_toConsumableArray(Object.keys(_definitions.MAP_LOCATIONS)), ['cityenv', 'custom']);
+    _this.mapLocationsLabels = [].concat(_toConsumableArray(Object.keys(_definitions.MAP_LOCATIONS)), ['Location Variable', 'Custom']);
     _this.iconTypes = _definitions.ICON_TYPES;
     _this.defaultMetrics = _definitions.DEFAULT_METRICS;
     _this.markerColors = _definitions.MARKER_COLORS;
+    _this.environmentVars = _this.templateSrv.variables.map(function (elem) {
+      return elem.name;
+    });
 
     //bind grafana events
     _this.events.on('init-edit-mode', _this.onInitEditMode.bind(_this));
@@ -144,9 +147,7 @@ var WorldmapCtrl = function (_MetricsPanelCtrl) {
     key: 'onDataError',
     value: function onDataError(error) {
       if (error && error.data && error.data.error) {
-        console.warn('Error: ');
-        console.warn(error.data.error.message);
-        throw new Error('Please verify your setting. No values Returned.' + error.data.error.message);
+        console.warn('Error: ' + error.data.error.message);
       }
       this.onDataReceived([]);
     }
@@ -169,7 +170,7 @@ var WorldmapCtrl = function (_MetricsPanelCtrl) {
     value: function setNewMapCenter() {
       var _this2 = this;
 
-      if (this.panel.mapCenter === 'cityenv') {
+      if (this.panel.mapCenter === 'Location Variable') {
         // && this.isADiferentCity()
         this.setNewCoords().then(function () {
           return _this2.render();
@@ -180,9 +181,9 @@ var WorldmapCtrl = function (_MetricsPanelCtrl) {
         return;
       }
 
-      if (this.panel.mapCenter !== 'custom') {
+      if (this.panel.mapCenter !== 'Custom') {
         // center at continent or area
-        console.info('centering !== custom');
+        console.info('centering at pre-defined location');
         this.panel.mapCenterLatitude = _definitions.MAP_LOCATIONS[this.panel.mapCenter].mapCenterLatitude;
         this.panel.mapCenterLongitude = _definitions.MAP_LOCATIONS[this.panel.mapCenter].mapCenterLongitude;
       }
@@ -193,14 +194,14 @@ var WorldmapCtrl = function (_MetricsPanelCtrl) {
   }, {
     key: 'isADiferentCity',
     value: function isADiferentCity() {
-      return (0, _map_utils.getSelectedCity)(this.templateSrv.variables) !== this.panel.city;
+      return (0, _map_utils.getSelectedCity)(this.templateSrv.variables, this.panel.cityEnvVariable) !== this.panel.city;
     }
   }, {
     key: 'setNewCoords',
     value: function setNewCoords() {
       var _this3 = this;
 
-      var city = (0, _map_utils.getSelectedCity)(this.templateSrv.variables);
+      var city = (0, _map_utils.getSelectedCity)(this.templateSrv.variables, this.panel.cityEnvVariable);
 
       return (0, _map_utils.getCityCoordinates)(city).then(function (coordinates) {
         _this3.panel.city = city;

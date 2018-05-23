@@ -28,10 +28,11 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
     _.defaultsDeep(this.panel, PANEL_DEFAULTS);
 
     //helper vars definitions to be used in editor
-    this.mapLocationsLabels = [...Object.keys(MAP_LOCATIONS), 'cityenv', 'custom'];
+    this.mapLocationsLabels = [...Object.keys(MAP_LOCATIONS), 'Location Variable', 'Custom'];
     this.iconTypes = ICON_TYPES;
     this.defaultMetrics = DEFAULT_METRICS;
     this.markerColors = MARKER_COLORS;
+    this.environmentVars = this.templateSrv.variables.map((elem)=>elem.name)
 
     //bind grafana events
     this.events.on('init-edit-mode', this.onInitEditMode.bind(this));
@@ -86,9 +87,7 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
 
   onDataError(error) {    
     if(error && error.data && error.data.error) {
-      console.warn('Error: ')
-      console.warn(error.data.error.message)
-      throw new Error('Please verify your setting. No values Returned.'+error.data.error.message)
+      console.warn('Error: '+error.data.error.message)
     }
     this.onDataReceived([]);
   }
@@ -106,7 +105,7 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
   }
 
   setNewMapCenter() {
-    if (this.panel.mapCenter === 'cityenv') {// && this.isADiferentCity()
+    if (this.panel.mapCenter === 'Location Variable') {// && this.isADiferentCity()
       this.setNewCoords()
         .then(()=>this.render())
         .catch(error => console.warn(error))
@@ -114,8 +113,8 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
       return ;
     }
 
-    if (this.panel.mapCenter !== 'custom') { // center at continent or area
-      console.info('centering !== custom')
+    if (this.panel.mapCenter !== 'Custom') { // center at continent or area
+      console.info('centering at pre-defined location')
       this.panel.mapCenterLatitude = MAP_LOCATIONS[this.panel.mapCenter].mapCenterLatitude;
       this.panel.mapCenterLongitude = MAP_LOCATIONS[this.panel.mapCenter].mapCenterLongitude;
     }
@@ -125,11 +124,11 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
   }
 
   isADiferentCity() {
-    return getSelectedCity(this.templateSrv.variables) !== this.panel.city
+    return (getSelectedCity(this.templateSrv.variables, this.panel.cityEnvVariable)!==this.panel.city)
   }
 
   setNewCoords() {
-    let city = getSelectedCity(this.templateSrv.variables)
+    let city = getSelectedCity(this.templateSrv.variables, this.panel.cityEnvVariable)
     
     return getCityCoordinates(city)
       .then(coordinates => {
