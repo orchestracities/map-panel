@@ -18,8 +18,6 @@ var _kbn2 = _interopRequireDefault(_kbn);
 
 var _lodash = require('lodash');
 
-var _lodash2 = _interopRequireDefault(_lodash);
-
 var _definitions = require('./definitions');
 
 var _datasource = require('./utils/datasource');
@@ -30,9 +28,7 @@ var _map_renderer = require('./map_renderer');
 
 var _map_renderer2 = _interopRequireDefault(_map_renderer);
 
-var _data_formatter = require('./utils/data_formatter');
-
-var _data_formatter2 = _interopRequireDefault(_data_formatter);
+var _data_utils = require('./utils/data_utils');
 
 require('./css/worldmap-panel.css!');
 
@@ -55,7 +51,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 /* App specific */
 
 
-var dataFormatter = new _data_formatter2.default();
+var dataFormatter = new _data_utils.DataFormatter();
 
 var WorldmapCtrl = function (_MetricsPanelCtrl) {
   _inherits(WorldmapCtrl, _MetricsPanelCtrl);
@@ -66,7 +62,7 @@ var WorldmapCtrl = function (_MetricsPanelCtrl) {
     var _this = _possibleConstructorReturn(this, (WorldmapCtrl.__proto__ || Object.getPrototypeOf(WorldmapCtrl)).call(this, $scope, $injector));
 
     _this.setMapProvider(contextSrv);
-    _lodash2.default.defaultsDeep(_this.panel, _definitions.PANEL_DEFAULTS);
+    (0, _lodash.defaultsDeep)(_this.panel, _definitions.PANEL_DEFAULTS);
 
     //helper vars definitions to be used in editor
     _this.mapLocationsLabels = [].concat(_toConsumableArray(Object.keys(_definitions.MAP_LOCATIONS)), ['Location Variable', 'Custom']);
@@ -122,24 +118,29 @@ var WorldmapCtrl = function (_MetricsPanelCtrl) {
   }, {
     key: 'onDataReceived',
     value: function onDataReceived(dataList) {
-      if (!dataList || dataList.length == 0) {
-        console.debug('no data');
-        return; //no result sets  
-      }
-      console.debug('dataList:');
-      console.debug(dataList);
+      //console.debug('dataList:')
+      //console.debug(dataList)
 
       if (this.dashboard.snapshot && this.locations) {
         this.panel.snapshotLocationData = this.locations;
       }
 
+      if (!dataList) {
+        console.debug('No dataList recieved but continuing. returning...');
+        return;
+      }
+      if (dataList.length === 0) {
+        console.debug('Enpty dataList. returning...');
+        return;
+      }
+
+      this.data = dataFormatter.getValues(dataList, this.panel.metrics);
       this.layerNames = [].concat(_toConsumableArray(new Set(dataList.map(function (elem) {
         return elem.target.split(':')[0];
       }))));
-      this.data = dataFormatter.getValues(dataList, this.panel.metrics);
 
-      console.debug('data >');
-      console.debug(this.data);
+      //console.debug('data recieved >')
+      //console.debug(this.data)
 
       this.render();
     }

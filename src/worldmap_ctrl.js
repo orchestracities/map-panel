@@ -5,7 +5,7 @@ import {MetricsPanelCtrl} from 'app/plugins/sdk';
 import TimeSeries from 'app/core/time_series2';
 import kbn from 'app/core/utils/kbn';
 /* Vendor specific */
-import _ from 'lodash';
+import { defaultsDeep } from 'lodash';
 /* App specific */
 import { PLUGIN_PATH, PANEL_DEFAULTS, DEFAULT_METRICS, MAP_LOCATIONS, ICON_TYPES, MARKER_COLORS } from './definitions'
 import { getDatasources, getValidDatasources } from './utils/datasource';
@@ -13,7 +13,7 @@ import { getDatasources, getValidDatasources } from './utils/datasource';
 import { getCityCoordinates, getSelectedCity } from './utils/map_utils';
 
 import mapRenderer from './map_renderer';
-import DataFormatter from './utils/data_formatter';
+import { DataFormatter, dataRecievedIsTheSame } from './utils/data_utils';
 
 import './css/worldmap-panel.css!';
 import './vendor/leaflet/leaflet.css!';
@@ -25,7 +25,7 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
   constructor($scope, $injector, contextSrv) {
     super($scope, $injector);
     this.setMapProvider(contextSrv);
-    _.defaultsDeep(this.panel, PANEL_DEFAULTS);
+    defaultsDeep(this.panel, PANEL_DEFAULTS);
 
     //helper vars definitions to be used in editor
     this.mapLocationsLabels = [...Object.keys(MAP_LOCATIONS), 'Location Variable', 'Custom'];
@@ -65,22 +65,27 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
   * @dataList: The resultset from the executed query 
   */
   onDataReceived(dataList) {
-    if (!dataList || dataList.length==0) {
-      console.debug('no data')
-      return;    //no result sets  
-    }
-    console.debug('dataList:')
-    console.debug(dataList)
+    //console.debug('dataList:')
+    //console.debug(dataList)
 
     if (this.dashboard.snapshot && this.locations) {
       this.panel.snapshotLocationData = this.locations;
     }
 
-    this.layerNames = [...new Set(dataList.map((elem)=>elem.target.split(':')[0]))]
-    this.data = dataFormatter.getValues(dataList, this.panel.metrics);
+    if (!dataList) {
+      console.debug('No dataList recieved but continuing. returning...')
+      return ;
+    }
+    if(dataList.length===0){
+      console.debug('Enpty dataList. returning...')
+      return ;
+    }
 
-    console.debug('data >')
-    console.debug(this.data)
+    this.data = dataFormatter.getValues(dataList, this.panel.metrics);
+    this.layerNames = [...new Set(dataList.map((elem)=>elem.target.split(':')[0]))]
+
+    //console.debug('data recieved >')
+    //console.debug(this.data)
 
     this.render();
   }

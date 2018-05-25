@@ -1,6 +1,6 @@
 // draw components in the map
 /* Vendor specific */
-import _ from 'lodash';
+import { defaults, isEqual } from 'lodash';
 
 import Highcharts from "../vendor/highcharts/highcharts";
 import Exporting from '../vendor/highcharts/modules/exporting';
@@ -35,7 +35,8 @@ function drawPopups(panelId, lastValueMeasure, validatedMetrics) {
 
       hideAllGraphPopups(panelId)
 
-      drawMeasuresPopup(panelId, lastValueMeasure, validatedMetrics)
+      if(document.querySelector('#parameters_dropdown_'+panelId).options.length>1)
+        drawMeasuresPopup(panelId, lastValueMeasure, validatedMetrics)
 
       switch(lastValueMeasure.type) {
         case 'AirQualityObserved':
@@ -71,15 +72,20 @@ function drawSelect(panelId, metricsToShow, providedMetrics, currentParameterFor
     el.removeChild( el.firstChild )
   }
 
+  let metricsKeys = Object.keys(metricsToShow)
+
   //default option
   let emptyOption = document.createElement('option');
   emptyOption.id = 'metricsOption_'+panelId;
   emptyOption.value = 'value';
+  emptyOption.title = "Select this to see the default field values"
   emptyOption.innerHTML = 'Select Metric';
+  if(metricsKeys.length===0)
+    emptyOption.selected = 'selected';
   el.appendChild(emptyOption);
 
   //select population
-  Object.keys(metricsToShow).forEach((metric)=>{
+  metricsKeys.forEach((metric)=>{
     providedMetrics.forEach((elem)=>{
       if(elem[0] == metric) {
         let newMetric = document.createElement('option');
@@ -95,7 +101,7 @@ function drawSelect(panelId, metricsToShow, providedMetrics, currentParameterFor
       }
     })
   })
-
+  
   let selectBox = document.querySelector('#parameters_dropdown_'+panelId)
   if(selectBox.options.length>0)
     selectBox.style.display = 'block';
@@ -124,7 +130,6 @@ function renderChart(panelId, selectedPointData, measurementUnits, chartDetails)
       }
   }
 
-
   let chartInfo = getChartMetaInfo();
   
   //config highchart acording with grafana theme
@@ -134,6 +139,10 @@ function renderChart(panelId, selectedPointData, measurementUnits, chartDetails)
     // Apply the theme
     Highcharts.setOptions(Highcharts.theme);
   }
+
+  // let chart = angular.element(
+  //     document.getElementById('graph_container_'+panelId)
+  // ).highcharts();
 
   Highcharts.chart('graph_container_'+panelId,
     {
@@ -186,7 +195,7 @@ function getDataPointExtraFields(dataPoint) {
     let aqiIndex = calculateAQIIndex(dataPoint.value);
     let aqiColor = AQI.color[aqiIndex];
 
-    _.defaults(values, {
+    defaults(values, {
       color: aqiColor,
       fillColor: aqiColor,
 
@@ -201,7 +210,7 @@ function getDataPointExtraFields(dataPoint) {
     if(dataPoint.type==='TrafficFlowObserved') {
       let colorIndex = calculateCarsIntensityIndex(dataPoint.value)
 
-      _.defaults(values, {
+      defaults(values, {
         color: CARS_COUNT.color[colorIndex], 
         fillColor: CARS_COUNT.color[colorIndex],
         
@@ -257,24 +266,24 @@ function getDataPointDetails(dataPoint, metricsTranslations) {
 }
 
 //show all accepted metrics for a specific point id
-function getMetricsToShow(allMetrics, id) {
-  const metricsToShow = {};
-  for (const key in allMetrics) {
-    allMetrics[key].forEach((_value) => {
-      if (_value.id === id) {
-        if (_value.value) {
-          if (!(metricsToShow[key])){
-            metricsToShow[key] = 0;
-          }
-          metricsToShow[key] = _value.value;
-        }
-      }
-    });
-  }
+// function getMetricsToShow(allMetrics, id) {
+//   const metricsToShow = {};
+//   for (const key in allMetrics) {
+//     allMetrics[key].forEach((_value) => {
+//       if (_value.id === id) {
+//         if (_value.value) {
+//           if (!(metricsToShow[key])){
+//             metricsToShow[key] = 0;
+//           }
+//           metricsToShow[key] = _value.value;
+//         }
+//       }
+//     });
+//   }
 
-  //  metricsToShow['aqi'] = aqi;
-  return metricsToShow
-}
+//   //  metricsToShow['aqi'] = aqi;
+//   return metricsToShow
+// }
 
 // Given vars passed as param, retrieves the selected city
 function getSelectedCity(vars, selectedVarName) {

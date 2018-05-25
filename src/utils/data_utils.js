@@ -1,6 +1,6 @@
-import _ from 'lodash';
+//import { isEqual, reduce, filter, transform, isObject } from 'lodash';
 
-export default class DataFormatter {
+class DataFormatter {
 
   getValues(series, panelDefaultMetrics) {
     if (!series || series.length == 0)
@@ -49,12 +49,5 @@ export default class DataFormatter {
   }
 }
 
-/*
-* Discard elements with value 0 or null
-* and hidden elements
-*/
-function filterEmptyAndZeroValues(data, hideEmpty, hideZero) {
-  return _.filter(data, (o) => { return !(hideEmpty && _.isNil(o.value)) && !(hideZero && o.value === 0) });
-}
 
-export { filterEmptyAndZeroValues }
+export { DataFormatter }

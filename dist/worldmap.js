@@ -14,8 +14,6 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _lodash = require('lodash');
 
-var _lodash2 = _interopRequireDefault(_lodash);
-
 require('./vendor/leaflet.awesome-markers/leaflet.awesome-markers.css!');
 
 var _leaflet = require('./vendor/leaflet/leaflet');
@@ -28,11 +26,7 @@ var _definitions = require('./definitions');
 
 var _map_utils = require('./utils/map_utils');
 
-var _data_formatter = require('./utils/data_formatter');
-
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -45,16 +39,23 @@ var WorldMap = function () {
 
     this.ctrl = ctrl;
     this.mapContainer = mapContainer;
-    this.validated_metrics = {};
+    this.validatedMetrics = {};
     this.timeSeries = {};
     this.chartSeries = {};
     this.chartData = [];
     this.currentTargetForChart = null;
     this.currentParameterForChart = null;
     this.map = null;
+
+    this.ctrl.events.on('panel-size-changed', this.flagChartRefresh.bind(this));
   }
 
   _createClass(WorldMap, [{
+    key: 'flagChartRefresh',
+    value: function flagChartRefresh() {
+      this.refreshChart = true;
+    }
+  }, {
     key: 'getLayers',
     value: function getLayers() {
       return this.ctrl.layerNames.map(function (elem) {
@@ -127,7 +128,7 @@ var WorldMap = function () {
     key: 'setMetrics',
     value: function setMetrics() {
       try {
-        this.validated_metrics = this.ctrl.panel.metrics;
+        this.validatedMetrics = this.ctrl.panel.metrics;
       } catch (error) {
         console.warn(error);
         throw new Error('Please insert a valid JSON in the Metrics field (Edit > Tab Worldmap > Section AirQualityObserved - Metrics field)');
@@ -176,7 +177,7 @@ var WorldMap = function () {
       var dataPointExtraFields = (0, _map_utils.getDataPointExtraFields)(dataPoint);
       var shape = void 0;
 
-      _lodash2.default.defaultsDeep(dataPointExtraFields, dataPoint);
+      (0, _lodash.defaultsDeep)(dataPointExtraFields, dataPoint);
 
       switch (dataPoint.type) {
         case 'AirQualityObserved':
@@ -207,7 +208,7 @@ var WorldMap = function () {
           //spin: true,
         })
       };
-      _lodash2.default.defaultsDeep(markerProperties, dataPoint);
+      (0, _lodash.defaultsDeep)(markerProperties, dataPoint);
 
       return L.marker(location, markerProperties);
     }
@@ -293,15 +294,33 @@ var WorldMap = function () {
       }
 
       var currentParameterForChart = this.currentParameterForChart || 'value';
-
       var selectedPointValues = this.ctrl.data[this.currentTargetForChart.target.options.type][this.currentTargetForChart.target.options.id];
       var lastValueMeasure = selectedPointValues[selectedPointValues.length - 1];
 
-      (0, _map_utils.drawSelect)(this.ctrl.panel.id, lastValueMeasure, this.validated_metrics, currentParameterForChart);
+      (0, _map_utils.drawSelect)(this.ctrl.panel.id, lastValueMeasure, this.validatedMetrics, currentParameterForChart);
 
-      (0, _map_utils.drawPopups)(this.ctrl.panel.id, lastValueMeasure, this.validated_metrics);
+      (0, _map_utils.drawPopups)(this.ctrl.panel.id, lastValueMeasure, this.validatedMetrics);
 
-      (0, _map_utils.renderChart)(this.ctrl.panel.id, selectedPointValues, getTranslation(this.validated_metrics, currentParameterForChart), [this.currentTargetForChart.target.options.type, this.currentTargetForChart.target.options.id, currentParameterForChart]);
+      //refresh chart only if new values arrived
+      if (!this.isToRefreshChart(selectedPointValues, currentParameterForChart)) return;
+
+      (0, _map_utils.renderChart)(this.ctrl.panel.id, selectedPointValues, getTranslation(this.validatedMetrics, currentParameterForChart), [this.currentTargetForChart.target.options.type, this.currentTargetForChart.target.options.id, currentParameterForChart]);
+
+      this.refreshChart = false;
+    }
+
+    // helper method just to avoid unnecessary chart refresh
+
+  }, {
+    key: 'isToRefreshChart',
+    value: function isToRefreshChart(selectedPointValues, currentParameterForChart) {
+      if (this.refreshChart) return true;
+      var chartData = selectedPointValues.map(function (elem) {
+        return [elem.created_at, elem[currentParameterForChart]];
+      });
+      if ((0, _lodash.isEqual)(this.currentChartData, chartData)) return false;
+      this.currentChartData = chartData;
+      return true;
     }
   }]);
 

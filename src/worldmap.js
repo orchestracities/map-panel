@@ -1,7 +1,7 @@
 /* eslint-disable id-length, no-unused-vars */
 
 /* Vendor specific */
-import _ from 'lodash';
+import { defaultsDeep, isEqual } from 'lodash';
 
 import './vendor/leaflet.awesome-markers/leaflet.awesome-markers.css!';
 
@@ -16,7 +16,6 @@ import {
   hideAllGraphPopups, getDataPointExtraFields, getDataPointStickyInfo,
   getMapMarkerClassName
 } from './utils/map_utils';
-import { filterEmptyAndZeroValues } from './utils/data_formatter';
 
 const CIRCLE_RADIUS = 200
 const POLYGON_MAGNIFY_RATIO = 3
@@ -26,15 +25,20 @@ export default class WorldMap {
   constructor(ctrl, mapContainer) {
     this.ctrl = ctrl;
     this.mapContainer = mapContainer;
-    this.validated_metrics = {};
+    this.validatedMetrics = {};
     this.timeSeries = {};
     this.chartSeries = {};
     this.chartData = [];
     this.currentTargetForChart = null;
     this.currentParameterForChart = null;
     this.map = null;
+
+    this.ctrl.events.on('panel-size-changed', this.flagChartRefresh.bind(this));
   }
 
+  flagChartRefresh() {
+    this.refreshChart = true
+  }
   getLayers() {
     return this.ctrl.layerNames.map(elem => L.layerGroup())
   }
@@ -96,7 +100,7 @@ export default class WorldMap {
   /* Validate metrics for a given target*/
   setMetrics() {
     try {
-      this.validated_metrics = this.ctrl.panel.metrics;
+      this.validatedMetrics = this.ctrl.panel.metrics;
     } catch(error) {
       console.warn(error)
       throw new Error('Please insert a valid JSON in the Metrics field (Edit > Tab Worldmap > Section AirQualityObserved - Metrics field)');
@@ -143,7 +147,7 @@ export default class WorldMap {
     let dataPointExtraFields = getDataPointExtraFields(dataPoint);
     let shape;
 
-    _.defaultsDeep(dataPointExtraFields, dataPoint)
+    defaultsDeep(dataPointExtraFields, dataPoint)
 
     switch(dataPoint.type) {
       case 'AirQualityObserved':
@@ -182,7 +186,7 @@ export default class WorldMap {
         }        
       )
     }
-    _.defaultsDeep(markerProperties, dataPoint)
+    defaultsDeep(markerProperties, dataPoint)
 
     return L.marker(location, markerProperties);
   }
@@ -252,21 +256,39 @@ export default class WorldMap {
     }
 
     let currentParameterForChart = this.currentParameterForChart || 'value'
-
     let selectedPointValues = this.ctrl.data[this.currentTargetForChart.target.options.type][this.currentTargetForChart.target.options.id];
     let lastValueMeasure = selectedPointValues[selectedPointValues.length - 1];
 
-    drawSelect(this.ctrl.panel.id, lastValueMeasure, this.validated_metrics, currentParameterForChart)
+    drawSelect(this.ctrl.panel.id, lastValueMeasure, this.validatedMetrics, currentParameterForChart)
 
-    drawPopups(this.ctrl.panel.id, lastValueMeasure, this.validated_metrics)
+    drawPopups(this.ctrl.panel.id, lastValueMeasure, this.validatedMetrics)
+
+    //refresh chart only if new values arrived
+    if(!this.isToRefreshChart(selectedPointValues, currentParameterForChart))
+      return ;
 
     renderChart(this.ctrl.panel.id, selectedPointValues, 
-      getTranslation(this.validated_metrics, currentParameterForChart),
+      getTranslation(this.validatedMetrics, currentParameterForChart),
       [
         this.currentTargetForChart.target.options.type,
         this.currentTargetForChart.target.options.id,
         currentParameterForChart
-      ])
+      ]
+    )  
+
+    this.refreshChart = false
+  }
+
+
+  // helper method just to avoid unnecessary chart refresh
+  isToRefreshChart(selectedPointValues, currentParameterForChart) {
+    if(this.refreshChart)
+      return true;
+    let chartData = selectedPointValues.map((elem)=>[ elem.created_at, elem[currentParameterForChart] ]);
+    if(isEqual(this.currentChartData, chartData))
+      return false;
+    this.currentChartData = chartData
+    return true;
   }
 }
 
