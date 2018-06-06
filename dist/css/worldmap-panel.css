@@ -146,6 +146,9 @@
 .map-container .map-container-popups table.intensity-scale tr > td > span {
   padding: 8px 3px;
 }
+.map-container .map-container-popups table.intensity-scale tr > td > span:nth-child(1) {
+  margin-right: 3px;
+}
 
 /*levels of intensity*/
 .map-marker-level-0, .map-container .map-container-popups table.intensity-scale tr.level-0 > td:nth-child(2) > span:nth-child(1) {

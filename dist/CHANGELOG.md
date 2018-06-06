@@ -1,5 +1,8 @@
 # Changelog
 
+## v1.1.0
+- In the editor metrics tab, a query result can be 'format as' 'table'
+
 ## v1.0.0
 
 ### New features / Fix

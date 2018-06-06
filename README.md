@@ -15,8 +15,8 @@ $ npm install
 ## Test / Run
 
 - Start kubectl. Don't forget to specify your config location if you don't have a default.
-```$
-kubectl --kubeconfig <path to config file> port-forward --namespace prod crate-0 4200:4200
+```sh
+kubectl [--kubeconfig <path to config file> port-forward] --namespace prod crate-0 4200:4200
 ```
 
 - Start docker-compose.
@@ -28,7 +28,7 @@ kubectl --kubeconfig <path to config file> port-forward --namespace prod crate-0
 ## Other Tasks
 
 Compiles the code to the vendor folder
-```
+```sh
 $ grunt
 ```
 

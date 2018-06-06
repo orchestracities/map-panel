@@ -1,6 +1,6 @@
 {
-  "name": "environment-traffic-panel",
-  "version": "1.0.0",
+  "name": "map-panel",
+  "version": "1.1.0",
   "description": "Map panel for grafana using traffic and environment data",
   "repository": {
     "type": "git",

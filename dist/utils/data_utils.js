@@ -21,14 +21,52 @@ var DataFormatter = function () {
 
   _createClass(DataFormatter, [{
     key: 'getValues',
-    value: function getValues(series, panelDefaultMetrics) {
-      if (!series || series.length == 0) return {};
+    value: function getValues(series) {
+      if (!series || series.length === 0) return {};
 
-      return this.getSeries(series, panelDefaultMetrics);
+      var seriesType = this._getSeriesType(series);
+
+      return 'table' === seriesType ? this._getSeries(series) : this._getSeriesTimeSeries(series);
     }
   }, {
-    key: 'getSeries',
-    value: function getSeries(series, panelDefaultMetrics) {
+    key: '_getSeries',
+    value: function _getSeries(series) {
+      var hashSeriesByLayerByKey = {};
+      var seriesLayer = null;
+      var id = null;
+
+      series.forEach(function (series_elem) {
+
+        var columns = series_elem.columns.map(function (elem) {
+          return elem.text;
+        });
+
+        series_elem.rows.forEach(function (series_elem_row) {
+          seriesLayer = series_elem_row[series_elem_row.length - 1];
+
+          if (!hashSeriesByLayerByKey[seriesLayer]) {
+            hashSeriesByLayerByKey[seriesLayer] = {};
+          }
+
+          id = series_elem_row[1];
+          if (!hashSeriesByLayerByKey[seriesLayer][id]) {
+            hashSeriesByLayerByKey[seriesLayer][id] = [];
+          }
+
+          var hashWithValues = {};
+          columns.forEach(function (elem, i) {
+            if (i !== 0 && i !== columns.length - 1) //do not insert grafana field 'time' and the group by field
+              hashWithValues[elem] = series_elem_row[i];
+          });
+          hashSeriesByLayerByKey[seriesLayer][id].push(hashWithValues);
+        });
+      });
+
+      return hashSeriesByLayerByKey;
+    }
+  }, {
+    key: '_getSeriesTimeSeries',
+    value: function _getSeriesTimeSeries(series) {
       var setSeries = {};
       var setSeriesByLayer = {};
 
@@ -49,6 +87,7 @@ var DataFormatter = function () {
 
       // get one array and transform into a hash
       var hashSeriesByLayerByKey = {};
+
       Object.keys(setSeriesByLayer).forEach(function (layerName) {
         if (!hashSeriesByLayerByKey[layerName]) hashSeriesByLayerByKey[layerName] = {};
 
@@ -67,6 +106,11 @@ var DataFormatter = function () {
       });
 
       return hashSeriesByLayerByKey;
+    }
+  }, {
+    key: '_getSeriesType',
+    value: function _getSeriesType(series) {
+      return series[0].type;
     }
   }]);
 

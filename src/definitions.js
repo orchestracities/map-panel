@@ -101,7 +101,7 @@ const MAP_LOCATIONS = {
   'SE Asia': {mapCenterLatitude: 10, mapCenterLongitude: 106}
 };
 
-const NOMINATIM_ADDRESS = 'https://nominatim.openstreetmap.org/search/<city_name>?format=json&addressdetails=1&limit=1&polygon_svg=1'
+const NOMINATIM_ADDRESS = 'https://nominatim.openstreetmap.org/search/<city_name>?format=json&addressdetails=0&limit=1&polygon_svg=0'
 
 export {
   PLUGIN_PATH, PANEL_DEFAULTS, 

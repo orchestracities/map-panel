@@ -89,7 +89,7 @@ var MAP_LOCATIONS = {
   'SE Asia': { mapCenterLatitude: 10, mapCenterLongitude: 106 }
 };
 
-var NOMINATIM_ADDRESS = 'https://nominatim.openstreetmap.org/search/<city_name>?format=json&addressdetails=1&limit=1&polygon_svg=1';
+var NOMINATIM_ADDRESS = 'https://nominatim.openstreetmap.org/search/<city_name>?format=json&addressdetails=0&limit=1&polygon_svg=0';
 
 exports.PLUGIN_PATH = PLUGIN_PATH;
 exports.PANEL_DEFAULTS = PANEL_DEFAULTS;

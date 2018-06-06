@@ -126,18 +126,16 @@ var WorldmapCtrl = function (_MetricsPanelCtrl) {
       }
 
       if (!dataList) {
-        console.debug('No dataList recieved but continuing. returning...');
+        console.debug('No dataList recieved but continuing...');
         return;
       }
       if (dataList.length === 0) {
-        console.debug('Enpty dataList. returning...');
+        console.debug('Empty dataList. returning...');
         return;
       }
 
-      this.data = dataFormatter.getValues(dataList, this.panel.metrics);
-      this.layerNames = [].concat(_toConsumableArray(new Set(dataList.map(function (elem) {
-        return elem.target.split(':')[0];
-      }))));
+      this.data = dataFormatter.getValues(dataList); //, this.panel.metrics);
+      this.layerNames = Object.keys(this.data);
 
       //console.debug('data recieved >')
       //console.debug(this.data)

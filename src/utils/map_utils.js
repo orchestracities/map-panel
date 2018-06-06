@@ -233,23 +233,23 @@ function getMapMarkerClassName(type, value) {
 
 function getDataPointStickyInfo(dataPoint, metricsTranslations) {
   let dataPointExtraFields = getDataPointExtraFields(dataPoint);  
-  let stickyInfo = '<div class="stycky-popup-info">'
+  let stickyInfo = '<div class="stycky-popup-info">';
 
   if(dataPoint.type==='AirQualityObserved') {
-    stickyInfo += '<div class="head air-quality">Air Quality</div>'
+    stickyInfo += '<div class="head air-quality">Air Quality</div>';
   } else {
     if(dataPoint.type==='TrafficFlowObserved') {
-      stickyInfo += '<div class="head traffic-flow">Cars Intensity</div>'
+      stickyInfo += '<div class="head traffic-flow">Cars Intensity</div>';
     } else {
-      stickyInfo += '<div class="head">' + dataPoint.type + '</div>'
+      stickyInfo += '<div class="head">' + dataPoint.type + '</div>';
     }
   }  
 
   //body
-  stickyInfo += '<div class="body">'
-  stickyInfo += getDataPointDetails(dataPoint, metricsTranslations).join('')
-  stickyInfo += '</div>'
-  stickyInfo += '</div>'
+  stickyInfo += '<div class="body">';
+  stickyInfo += getDataPointDetails(dataPoint, metricsTranslations).join('');
+  stickyInfo += '</div>';
+  stickyInfo += '</div>';
 
   //console.debug(dataPoint)
   return stickyInfo
@@ -257,8 +257,8 @@ function getDataPointStickyInfo(dataPoint, metricsTranslations) {
 
 function getDataPointDetails(dataPoint, metricsTranslations) {
   let translatedValues = Object.keys(dataPoint).map((dpKey)=>{
-    let dP = (dpKey==='created_at'?new Date(dataPoint[dpKey]).toLocaleString():dataPoint[dpKey])
-    let trans = metricsTranslations.filter((elem)=>elem[0]===dpKey)
+    let dP = (dpKey==='created_at'?new Date(dataPoint[dpKey]).toLocaleString():dataPoint[dpKey]);
+    let trans = metricsTranslations.filter((elem)=>elem[0]===dpKey);
     return { 'name': (trans.length>0 && trans[0][1] ? trans[0][1] : titleize(dpKey) ), value: dP||'-', unit: (trans.length>0 ? trans[0][2] : '') }
   })
   //creation of html row
@@ -291,7 +291,7 @@ function getSelectedCity(vars, selectedVarName) {
 
   let city = null;
   if(cityEnv && cityEnv.length === 1)
-    city = cityEnv[0].current.value
+    city = cityEnv[0].current.value;
 
   return city;
 }
@@ -300,7 +300,7 @@ function hideAllGraphPopups(panelId) {
   let map_table_popups = ['measures_table', 'health_concerns_wrapper', 'environment_table', 'traffic_table'];
 
   for(let map_table_popup of map_table_popups) {
-    let popup = document.getElementById(map_table_popup+'_'+panelId)
+    let popup = document.getElementById(map_table_popup+'_'+panelId);
     if(popup)
       popup.style.display = 'none';
   }
