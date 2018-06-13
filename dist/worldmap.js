@@ -231,11 +231,11 @@ var WorldMap = function () {
         'className': 'worldmap-popup',
         'closeButton': this.ctrl.panel.stickyLabels
       });
-      shape.on('mouseover', function () {
-        this.openPopup();
-      });
 
       if (!this.ctrl.panel.stickyLabels) {
+        shape.on('mouseover', function () {
+          this.openPopup();
+        });
         shape.on('mouseout', function () {
           this.closePopup();
         });
