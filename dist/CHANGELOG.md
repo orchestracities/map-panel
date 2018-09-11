@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.2.0
+- Suport for leaflet markercluster
+- Suport for leaflet sleep to avoid auto scroll when hover big dashboards.
+- Resize panel improvements for mobile.
+- min zoom level set to 3.
+
 ## v1.1.0
 - In the editor metrics tab, a query result can be 'format as' 'table'
 
@@ -17,7 +23,7 @@
 - When adding this panel for the first time to a dashboard, metrics are filled with predefined values.
 - Dark theme improvements.
 
-### Develoment
+### Development
 - Improvements based on grafana development guide best practices.
 - New project structure. Improved DRY.
 - Updated project packages. Leaflet version updated from 0.7 to 1.3.

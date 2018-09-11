@@ -22,6 +22,14 @@ var L = _interopRequireWildcard(_leaflet);
 
 require('./vendor/leaflet.awesome-markers/leaflet.awesome-markers');
 
+require('./vendor/leaflet-sleep/Leaflet.Sleep');
+
+require('./vendor/leaflet.markercluster/leaflet.markercluster');
+
+require('./vendor/leaflet.markercluster/MarkerCluster.Default.css!');
+
+require('./vendor/leaflet.markercluster/MarkerCluster.css!');
+
 var _definitions = require('./definitions');
 
 var _map_utils = require('./utils/map_utils');
@@ -72,9 +80,13 @@ var WorldMap = function () {
       this.layers = this.getLayers();
 
       this.map = L.map(this.mapContainer, {
+        sleepNote: false,
+        sleepOpacity: .8,
+        hoverToWake: false,
         worldCopyJump: true,
         center: location,
         zoomControl: false,
+        minZoom: 3,
         attributionControl: false,
         layers: this.layers
       });
@@ -141,6 +153,7 @@ var WorldMap = function () {
 
       Object.keys(this.ctrl.data).forEach(function (layerKey) {
         var layer = _this2.ctrl.data[layerKey];
+        var markers = L.markerClusterGroup();
 
         //for each layer
         Object.keys(layer).forEach(function (objectKey) {
@@ -150,11 +163,13 @@ var WorldMap = function () {
           var newIcon = _this2.createIcon(lastObjectValues);
 
           try {
-            if (newIcon) _this2.overlayMaps[layerKey].addLayer(newIcon);
+            if (newIcon) markers.addLayer(newIcon);
           } catch (error) {
             console.warn(layerKey);console.warn(error);
           }
         });
+
+        _this2.overlayMaps[layerKey].addLayer(markers);
       });
     }
   }, {
