@@ -1,0 +1,29 @@
+image: node:9.11
+cache:
+  paths:
+  - node_modules/
+
+stages:
+  - build
+  - deploy
+
+build frontend:
+  stage: build
+  script:
+  - yarn install
+  - yarn build
+
+pages:
+  stage: deploy
+  script:
+  - echo "Creating artifact / Deploying"
+  - yarn install
+  - grunt
+  - rm -rf public
+  - mv dist public
+  artifacts:
+    paths:
+    - public
+    expire_in: 1 month
+  only:
+  - master
