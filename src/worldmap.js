@@ -7,6 +7,10 @@ import './vendor/leaflet.awesome-markers/leaflet.awesome-markers.css!';
 
 import * as L from './vendor/leaflet/leaflet';
 import './vendor/leaflet.awesome-markers/leaflet.awesome-markers';
+import './vendor/leaflet-sleep/Leaflet.Sleep';
+import './vendor/leaflet.markercluster/leaflet.markercluster';
+import './vendor/leaflet.markercluster/MarkerCluster.Default.css!';
+import './vendor/leaflet.markercluster/MarkerCluster.css!';
 
 /* App Specific */
 import { TILE_SERVERS, PLUGIN_PATH } from './definitions';
@@ -50,9 +54,13 @@ export default class WorldMap {
 
     this.map = L.map(this.mapContainer, 
       {
+        sleepNote: false,
+        sleepOpacity: .8,
+        hoverToWake: false,
         worldCopyJump: true, 
         center: location,
         zoomControl: false, 
+        minZoom: 3,
         attributionControl: false,
         layers: this.layers
       })
@@ -108,21 +116,26 @@ export default class WorldMap {
   }
 
   drawPoints() {
+    
+
     Object.keys(this.ctrl.data).forEach((layerKey) => {
-      let layer = this.ctrl.data[layerKey]
+      let layer = this.ctrl.data[layerKey];
+      let markers = L.markerClusterGroup();
 
       //for each layer
       Object.keys(layer).forEach((objectKey) => {
-        let lastObjectValues = layer[objectKey][layer[objectKey].length-1]
-        lastObjectValues.type = layerKey
+        let lastObjectValues = layer[objectKey][layer[objectKey].length-1];
+        lastObjectValues.type = layerKey;
 
         let newIcon = this.createIcon(lastObjectValues);
 
         try { 
           if(newIcon)
-            this.overlayMaps[layerKey].addLayer(newIcon)
-        } catch(error) { console.warn(layerKey); console.warn(error) }
+            markers.addLayer(newIcon);            
+        } catch(error) { console.warn(layerKey); console.warn(error); }
       })
+
+      this.overlayMaps[layerKey].addLayer(markers);
     });
   }
 
@@ -131,8 +144,8 @@ export default class WorldMap {
     if(!dataPoint || !dataPoint.type)
       return null;
     
-    let layerIcon = this.ctrl.panel.layersIcons[dataPoint.type]
-    let layerColor = this.ctrl.panel.layersColors[dataPoint.type]
+    let layerIcon = this.ctrl.panel.layersIcons[dataPoint.type];
+    let layerColor = this.ctrl.panel.layersColors[dataPoint.type];
     let icon = layerIcon ? this.createMarker(dataPoint, layerIcon, layerColor) : this.createShape(dataPoint);
 
     this.createPopup(

@@ -43,12 +43,27 @@ module.exports = (grunt) => {
         dest: 'dist/vendor/highcharts'
       },
 
-      leafletAwesomeIcons: { 
+      leafletAwesomeMarkers: { 
         cwd: 'node_modules/leaflet.awesome-markers/dist/',
         expand: true,
         src: ['**/*'], 
         dest: 'dist/vendor/leaflet.awesome-markers'
       },
+
+      leafletMarkerCluster: { 
+        cwd: 'node_modules/leaflet.markercluster/dist/',
+        expand: true,
+        src: ['**/*'], 
+        dest: 'dist/vendor/leaflet.markercluster'
+      },
+      leafletSleep: { 
+        cwd: 'node_modules/leaflet-sleep/',
+        expand: true,
+        src: ['Leaflet.Sleep.js'], 
+        dest: 'dist/vendor/leaflet-sleep/'
+      },
+
+
     },
 
     babel: {
@@ -97,7 +112,9 @@ module.exports = (grunt) => {
     'copy:leaflet', 
  
     'copy:highcharts',
-    'copy:leafletAwesomeIcons',
+    'copy:leafletAwesomeMarkers',
+    'copy:leafletMarkerCluster',
+    'copy:leafletSleep',
 
 //    'postcss',
     'babel'
