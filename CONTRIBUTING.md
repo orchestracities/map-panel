@@ -35,7 +35,7 @@ kubectl [--kubeconfig <path to config file>] port-forward --namespace prod crate
 
 Compiles the code + restart grafana
 ```sh
-$ grunt && docker-compose restart grafana
+$ yarn build && docker-compose restart grafana
 ```
 
 ## Notes
@@ -43,6 +43,4 @@ $ grunt && docker-compose restart grafana
 Default start page url: http://localhost:3000
 Default user is admin.
 
-If you are trying to install packages and you get console permitions errors, it could be because grafana is changing owner from dist files.
-
-Grafana will read in the dist folder first so to see your changes to WorldMap in Grafana, you have to run Grunt. However, you do not need to restart your local Grafana server after every change; just refresh the page.
+If you are trying to install packages and you get console permitions errors, it could be related with grafana changing owner from dist files.
