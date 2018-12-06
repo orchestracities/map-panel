@@ -407,6 +407,12 @@ function convertDate(time_) {
   return Date.UTC(year, month, day, hour+1, minutes, seconds, milliseconds)
 }
 
+var geolocationOptions = {
+  enableHighAccuracy: true,
+  timeout: 5000,
+  maximumAge: 110
+};
+
 export {
 
   hideAllGraphPopups, 
@@ -421,5 +427,7 @@ export {
 
   getSelectedCity,
 
-  getMapMarkerClassName
+  getMapMarkerClassName,
+
+  geolocationOptions
 }

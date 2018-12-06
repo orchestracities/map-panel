@@ -10,7 +10,7 @@ import { defaultsDeep } from 'lodash';
 import { PLUGIN_PATH, PANEL_DEFAULTS, DEFAULT_METRICS, MAP_LOCATIONS, ICON_TYPES, MARKER_COLORS } from './definitions'
 import { getDatasources, getValidDatasources } from './utils/datasource';
 
-import { getCityCoordinates, getSelectedCity } from './utils/map_utils';
+import { getCityCoordinates, getSelectedCity, geolocationOptions } from './utils/map_utils';
 
 import mapRenderer from './map_renderer';
 import { DataFormatter, dataRecievedIsTheSame } from './utils/data_utils';
@@ -28,7 +28,7 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
     defaultsDeep(this.panel, PANEL_DEFAULTS);
 
     //helper vars definitions to be used in editor
-    this.mapLocationsLabels = [...Object.keys(MAP_LOCATIONS), 'Location Variable', 'Custom'];
+    this.mapLocationsLabels = [...Object.keys(MAP_LOCATIONS), 'Location Variable', 'Custom', 'User Geolocation'];
     this.iconTypes = ICON_TYPES;
     this.defaultMetrics = DEFAULT_METRICS;
     this.markerColors = MARKER_COLORS;
@@ -99,7 +99,7 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
 
   onPanelTeardown() {
     if (this.worldMap) {
-      console.debug('Cleaning map')
+      //console.debug('Cleaning map')
       this.worldMap.map.remove();
     }
   }
@@ -109,23 +109,41 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
     this.saturationClass = this.tileServer === 'CartoDB Dark' ? 'map-darken' : ''; 
   }
 
+  setLocationByUserGeolocation(render=false) {
+    console.log('User Geolocation')
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const coordinates = position.coords
+            this.recenterMap(coordinates);
+            if(render)
+              this.render()
+          },
+          (error) => console.log('Unable to get location!'),
+          geolocationOptions
+        );
+      } else {
+        console.log('Geolocation is not supported by this browser.');
+      }
+  }
+
+  //var watchID = navigator.geolocation.watchPosition
+  //navigator.geolocation.clearWatch(watchID)
   setNewMapCenter() {
-    if (this.panel.mapCenter === 'Location Variable') {// && this.isADiferentCity()
-      this.setNewCoords()
-        .then(()=>this.render())
-        .catch(error => console.warn(error))
 
-      return ;
-    }
-
-    if (this.panel.mapCenter !== 'Custom') { // center at continent or area
-      console.info('centering at pre-defined location')
-      this.panel.mapCenterLatitude = MAP_LOCATIONS[this.panel.mapCenter].mapCenterLatitude;
-      this.panel.mapCenterLongitude = MAP_LOCATIONS[this.panel.mapCenter].mapCenterLongitude;
-    }
-
-    this.mapCenterMoved = true;
-    this.render();
+    if ('User Geolocation'===this.panel.mapCenter) {
+      this.setLocationByUserGeolocation(true);
+    } else
+    if ('Location Variable'===this.panel.mapCenter) {// && this.isADiferentCity()
+      console.log('Location Variable')
+      this.setNewCoords()        
+    } else
+    if ('Custom' !== this.panel.mapCenter && 'Location Variable' !== this.panel.mapCenter && 'User Geolocation' !== this.panel.mapCenter ) { // center at continent or area
+      console.info('centering at City/Continent location')
+      const coordinates = {latitude: MAP_LOCATIONS[this.panel.mapCenter].mapCenterLatitude, longitude: MAP_LOCATIONS[this.panel.mapCenter].mapCenterLongitude}
+      this.recenterMap(coordinates);
+      this.render();
+    }    
   }
 
   isADiferentCity() {
@@ -133,14 +151,26 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
   }
 
   setNewCoords() {
-    let city = getSelectedCity(this.templateSrv.variables, this.panel.cityEnvVariable)
-    
+    const city = getSelectedCity(this.templateSrv.variables, this.panel.cityEnvVariable)
+    console.debug('selecting new city: '+city)
     return getCityCoordinates(city)
       .then(coordinates => {
         this.panel.city = city;
-        this.panel.mapCenterLatitude = coordinates.latitude;
-        this.panel.mapCenterLongitude = coordinates.longitude;
+        if(coordinates) {          
+          this.recenterMap(coordinates);
+          this.render();
+        } else
+          console.log('Coordinates not available for the selected location '+city)
       })
+      .catch(error => console.warn(error))
+  }
+
+  recenterMap(coordinates) {
+    console.debug('recenter at new coordinates')
+    //console.debug(coordinates)
+    this.panel.mapCenterLatitude = coordinates.latitude;
+    this.panel.mapCenterLongitude = coordinates.longitude;
+    this.mapCenterMoved = true;
   }
 
   setZoom() {

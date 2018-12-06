@@ -115,8 +115,7 @@ export default class WorldMap {
     }
   }
 
-  drawPoints() {
-    
+  drawPoints() {   
 
     Object.keys(this.ctrl.data).forEach((layerKey) => {
       let layer = this.ctrl.data[layerKey];
@@ -236,7 +235,9 @@ export default class WorldMap {
   panToMapCenter() {
     let location = [parseFloat(this.ctrl.panel.mapCenterLatitude), parseFloat(this.ctrl.panel.mapCenterLongitude)]
 
-    if ( this.ctrl.panel.mapCenter === 'Location Variable' && this.ctrl.isADiferentCity() ) {
+/*    if ( 'Location Variable' === this.ctrl.panel.mapCenter && this.ctrl.isADiferentCity() ) {
+      console.log('diferent city detected')
+      
       this.ctrl.setNewCoords()
         .then(() => {
           console.debug('flying to a new location')
@@ -246,7 +247,7 @@ export default class WorldMap {
         })
         .catch(error => console.warn(error))
       return ;
-    }
+    }*/
     
     this.map.flyTo(location);
     this.ctrl.mapCenterMoved = false;

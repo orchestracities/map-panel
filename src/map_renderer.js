@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import WorldMap from './worldmap';
-import { hideAllGraphPopups } from './utils/map_utils';
+import { hideAllGraphPopups, getUserLocation } from './utils/map_utils';
 
 export default function link(scope, elem, attrs, ctrl) {
   const mapContainer = elem.find('.map-container')[0];
@@ -14,23 +14,34 @@ export default function link(scope, elem, attrs, ctrl) {
     if (!ctrl.worldMap) {
       ctrl.worldMap = new WorldMap(ctrl, mapContainer);
       console.debug('creating worldMap');
-      ctrl.worldMap.createMap();
+
+      if('User Geolocation'===ctrl.panel.mapCenter) {
+        ctrl.setLocationByUserGeolocation();
+      } else
+      //detect city change when using Location Variable
+      if ('Location Variable'===ctrl.panel.mapCenter) {// && this.ctrl.isADiferentCity()
+        console.log('centering at city');
+        ctrl.setNewCoords();
+      }
+      else
+        ctrl.mapCenterMoved=true;
+
+      ctrl.worldMap.createMap();      
+    } else
+    if ('Location Variable'===ctrl.panel.mapCenter && ctrl.isADiferentCity()) {
+      console.log('centering at new city');
+      ctrl.setNewCoords();
     }
 
     if(layersChanged()){
       console.log('layers had changed!');
-//      console.log(ctrl.layerNames);
-//      console.log(Object.keys(ctrl.worldMap.overlayMaps));
-      //.off();
       ctrl.worldMap.map.remove();
       ctrl.worldMap.createMap();
     }
     
     ctrl.worldMap.resize();
 
-    if( (ctrl.panel.mapCenter === 'Location Variable') || ctrl.mapCenterMoved) {  //&& ctrl.isADiferentCity()
-      console.debug('panToMapCenter');
-      console.debug(`${ctrl.panel.mapCenterLatitude} : ${ctrl.panel.mapCenterLongitude}`)
+    if(ctrl.mapCenterMoved) {
       ctrl.worldMap.panToMapCenter();
     }
 

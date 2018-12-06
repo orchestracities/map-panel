@@ -269,21 +269,21 @@ var WorldMap = function () {
   }, {
     key: 'panToMapCenter',
     value: function panToMapCenter() {
-      var _this4 = this;
-
       var location = [parseFloat(this.ctrl.panel.mapCenterLatitude), parseFloat(this.ctrl.panel.mapCenterLongitude)];
 
-      if (this.ctrl.panel.mapCenter === 'Location Variable' && this.ctrl.isADiferentCity()) {
-        this.ctrl.setNewCoords().then(function () {
-          console.debug('flying to a new location');
-          console.debug(location);
-          _this4.map.flyTo(location);
-          _this4.ctrl.refresh();
-        }).catch(function (error) {
-          return console.warn(error);
-        });
-        return;
-      }
+      /*    if ( 'Location Variable' === this.ctrl.panel.mapCenter && this.ctrl.isADiferentCity() ) {
+            console.log('diferent city detected')
+            
+            this.ctrl.setNewCoords()
+              .then(() => {
+                console.debug('flying to a new location')
+                console.debug(location)
+                this.map.flyTo(location)
+                this.ctrl.refresh();
+              })
+              .catch(error => console.warn(error))
+            return ;
+          }*/
 
       this.map.flyTo(location);
       this.ctrl.mapCenterMoved = false;

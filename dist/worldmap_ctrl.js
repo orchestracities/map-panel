@@ -65,7 +65,7 @@ var WorldmapCtrl = function (_MetricsPanelCtrl) {
     (0, _lodash.defaultsDeep)(_this.panel, _definitions.PANEL_DEFAULTS);
 
     //helper vars definitions to be used in editor
-    _this.mapLocationsLabels = [].concat(_toConsumableArray(Object.keys(_definitions.MAP_LOCATIONS)), ['Location Variable', 'Custom']);
+    _this.mapLocationsLabels = [].concat(_toConsumableArray(Object.keys(_definitions.MAP_LOCATIONS)), ['Location Variable', 'Custom', 'User Geolocation']);
     _this.iconTypes = _definitions.ICON_TYPES;
     _this.defaultMetrics = _definitions.DEFAULT_METRICS;
     _this.markerColors = _definitions.MARKER_COLORS;
@@ -154,7 +154,7 @@ var WorldmapCtrl = function (_MetricsPanelCtrl) {
     key: 'onPanelTeardown',
     value: function onPanelTeardown() {
       if (this.worldMap) {
-        console.debug('Cleaning map');
+        //console.debug('Cleaning map')
         this.worldMap.map.remove();
       }
     }
@@ -165,30 +165,46 @@ var WorldmapCtrl = function (_MetricsPanelCtrl) {
       this.saturationClass = this.tileServer === 'CartoDB Dark' ? 'map-darken' : '';
     }
   }, {
-    key: 'setNewMapCenter',
-    value: function setNewMapCenter() {
+    key: 'setLocationByUserGeolocation',
+    value: function setLocationByUserGeolocation() {
       var _this2 = this;
 
-      if (this.panel.mapCenter === 'Location Variable') {
+      var render = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+
+      console.log('User Geolocation');
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function (position) {
+          var coordinates = position.coords;
+          _this2.recenterMap(coordinates);
+          if (render) _this2.render();
+        }, function (error) {
+          return console.log('Unable to get location!');
+        }, _map_utils.geolocationOptions);
+      } else {
+        console.log('Geolocation is not supported by this browser.');
+      }
+    }
+
+    //var watchID = navigator.geolocation.watchPosition
+    //navigator.geolocation.clearWatch(watchID)
+
+  }, {
+    key: 'setNewMapCenter',
+    value: function setNewMapCenter() {
+
+      if ('User Geolocation' === this.panel.mapCenter) {
+        this.setLocationByUserGeolocation(true);
+      } else if ('Location Variable' === this.panel.mapCenter) {
         // && this.isADiferentCity()
-        this.setNewCoords().then(function () {
-          return _this2.render();
-        }).catch(function (error) {
-          return console.warn(error);
-        });
-
-        return;
-      }
-
-      if (this.panel.mapCenter !== 'Custom') {
+        console.log('Location Variable');
+        this.setNewCoords();
+      } else if ('Custom' !== this.panel.mapCenter && 'Location Variable' !== this.panel.mapCenter && 'User Geolocation' !== this.panel.mapCenter) {
         // center at continent or area
-        console.info('centering at pre-defined location');
-        this.panel.mapCenterLatitude = _definitions.MAP_LOCATIONS[this.panel.mapCenter].mapCenterLatitude;
-        this.panel.mapCenterLongitude = _definitions.MAP_LOCATIONS[this.panel.mapCenter].mapCenterLongitude;
+        console.info('centering at City/Continent location');
+        var coordinates = { latitude: _definitions.MAP_LOCATIONS[this.panel.mapCenter].mapCenterLatitude, longitude: _definitions.MAP_LOCATIONS[this.panel.mapCenter].mapCenterLongitude };
+        this.recenterMap(coordinates);
+        this.render();
       }
-
-      this.mapCenterMoved = true;
-      this.render();
     }
   }, {
     key: 'isADiferentCity',
@@ -201,12 +217,25 @@ var WorldmapCtrl = function (_MetricsPanelCtrl) {
       var _this3 = this;
 
       var city = (0, _map_utils.getSelectedCity)(this.templateSrv.variables, this.panel.cityEnvVariable);
-
+      console.debug('selecting new city: ' + city);
       return (0, _map_utils.getCityCoordinates)(city).then(function (coordinates) {
         _this3.panel.city = city;
-        _this3.panel.mapCenterLatitude = coordinates.latitude;
-        _this3.panel.mapCenterLongitude = coordinates.longitude;
+        if (coordinates) {
+          _this3.recenterMap(coordinates);
+          _this3.render();
+        } else console.log('Coordinates not available for the selected location ' + city);
+      }).catch(function (error) {
+        return console.warn(error);
       });
+    }
+  }, {
+    key: 'recenterMap',
+    value: function recenterMap(coordinates) {
+      console.debug('recenter at new coordinates');
+      //console.debug(coordinates)
+      this.panel.mapCenterLatitude = coordinates.latitude;
+      this.panel.mapCenterLongitude = coordinates.longitude;
+      this.mapCenterMoved = true;
     }
   }, {
     key: 'setZoom',
