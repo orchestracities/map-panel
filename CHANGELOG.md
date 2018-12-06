@@ -1,5 +1,8 @@
 # Changelog
 
+## v1.3.0
+- New option for centering map at user geolocation
+
 ## v1.2.0
 - Suport for leaflet markercluster
 - Suport for leaflet sleep to avoid auto scroll when hover big dashboards.
