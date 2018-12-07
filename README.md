@@ -1,7 +1,8 @@
 # Grafana Map Plugin
 
-Map views of your datasources.
+Map views of your Time Series datasources.
 
-Use this plugin if you want a representation of your data as map markers.
+Use this plugin if you want:
 
-You can also analyse the historical timeline values using a line chart.
+- A representation of your geolocated data in one map panel with your points represented as markers.
+- Analyse the historical timeline data using a line chart.

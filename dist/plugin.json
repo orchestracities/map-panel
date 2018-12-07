@@ -4,7 +4,7 @@
   "id": "grafana-traffic-env-panel",
 
   "info": {
-    "description": "Map panel for grafana using traffic and environment data",
+    "description": "Grafana Map panel for analysing timeseries geolocated data (eg.traffic and environment data)",
     "author": {
       "name": "Ubiwhere",
       "url": ""
@@ -18,7 +18,7 @@
       {"name": "Project site", "url": ""},
       {"name": "MIT License", "url": ""}
     ],
-    "version": "1.3.0"
+    "version": "1.3.1"
   },
 
   "dependencies": {

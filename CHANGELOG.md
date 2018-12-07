@@ -1,5 +1,8 @@
 # Changelog
 
+## v1.3.1
+- Map centered at location updated when changing coordinates.
+
 ## v1.3.0
 - New option for centering map at user geolocation
 

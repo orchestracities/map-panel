@@ -83,10 +83,6 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
 
     this.data = dataFormatter.getValues(dataList);//, this.panel.metrics);
     this.layerNames = Object.keys(this.data);
-
-    //console.debug('data recieved >')
-    //console.debug(this.data)
-
     this.render();
   }
 
@@ -130,20 +126,23 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
   //var watchID = navigator.geolocation.watchPosition
   //navigator.geolocation.clearWatch(watchID)
   setNewMapCenter() {
-
-    if ('User Geolocation'===this.panel.mapCenter) {
+    console.debug(this.panel.mapCenter)
+    if('User Geolocation'===this.panel.mapCenter) {
       this.setLocationByUserGeolocation(true);
     } else
-    if ('Location Variable'===this.panel.mapCenter) {// && this.isADiferentCity()
-      console.log('Location Variable')
+    if('Location Variable'===this.panel.mapCenter) {// && this.isADiferentCity()
       this.setNewCoords()        
     } else
-    if ('Custom' !== this.panel.mapCenter && 'Location Variable' !== this.panel.mapCenter && 'User Geolocation' !== this.panel.mapCenter ) { // center at continent or area
-      console.info('centering at City/Continent location')
+    if('Custom'===this.panel.mapCenter) {
+      this.mapCenterMoved = true;
+      this.render();
+    }
+    else { // center at continent or area
+      //console.info('centering at City/Continent location')
       const coordinates = {latitude: MAP_LOCATIONS[this.panel.mapCenter].mapCenterLatitude, longitude: MAP_LOCATIONS[this.panel.mapCenter].mapCenterLongitude}
       this.recenterMap(coordinates);
       this.render();
-    }    
+    }
   }
 
   isADiferentCity() {
@@ -166,7 +165,7 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
   }
 
   recenterMap(coordinates) {
-    console.debug('recenter at new coordinates')
+    console.debug('recentering at new coordinates')
     //console.debug(coordinates)
     this.panel.mapCenterLatitude = coordinates.latitude;
     this.panel.mapCenterLongitude = coordinates.longitude;

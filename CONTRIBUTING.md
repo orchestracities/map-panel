@@ -1,4 +1,4 @@
-# Building WorldMap
+# Building Map Plugin
 
 ## Requirements
 - git
@@ -22,18 +22,18 @@ or
 
 - Start kubectl. Don't forget to specify your config location if you don't have a default definition (docker-compose.yml).
 ```sh
-kubectl [--kubeconfig <path to config file>] port-forward --namespace prod crate-0 4200:4200
+$ kubectl [--kubeconfig <path to config file>] port-forward --namespace prod crate-0 4200:4200
 ```
 
 - Start docker-compose.
 ```sh
-(...)/grafana_data/plugins/grafana_status_panel (master)$ docker-compose start grafana
+(...)/grafana_data/plugins/map-plugin (master)$ docker-compose start grafana
 ```
 
 
 ## Other Tasks
 
-Compiles the code + restart grafana
+`Compiles the code` + restart grafana
 ```sh
 $ yarn build && docker-compose restart grafana
 ```
