@@ -49,6 +49,11 @@ Once the services are up and running, set-up the data as follows:
 **NOTE:** Unless you remove the docker volumes, you need to run the last two
 steps above only the first time)
 
+At this point in time login in grafana using admin/admin and you should be
+able to see a dashboard called `Dashboard Map`. If there is an error regarding
+the datasource metadata, just go to the `datasource` menu, open the datasource
+and click `save & test`.
+
 ## Other Tasks
 
 - `Compile the code` + restart grafana
