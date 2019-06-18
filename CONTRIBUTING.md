@@ -11,29 +11,45 @@
 - Install plugin package dependencies
 
 ```sh
-(...)/grafana_data/plugins/map-plugin (develop)$ npm install
+$ npm install
 ```
 or
 ```
-(...)/grafana_data/plugins/map-plugin (develop)$ yarn install
+$ yarn install
 ```
 
 ## Test / Run
 
-- Start kubectl. Don't forget to specify your config location if you don't have a default definition (docker-compose.yml).
-```sh
-$ kubectl [--kubeconfig <path to config file>] port-forward --namespace prod crate-0 4200:4200
-```
+- clone the crated data source.
+
+    ```sh
+    $ sh get-crate-plugin.sh
+    ```
 
 - Start docker-compose.
-```sh
-(...)/grafana_data/plugins/map-plugin (master)$ docker-compose start grafana
-```
 
+    ```sh
+    $ docker-compose up -d
+    ```
+
+(unless you remove the docker volumes, you need to run the following steps only
+the first time)
+
+- Populate the database:
+
+    ```sh
+    $ sh create-table.sh
+    ```
+
+- Set-up grafana:
+
+    ```sh
+    $ sh set-up-grafana.sh
+    ```
 
 ## Other Tasks
 
-`Compiles the code` + restart grafana
+- `Compile the code` + restart grafana
 ```sh
 $ yarn build && docker-compose restart grafana
 ```
@@ -43,4 +59,4 @@ $ yarn build && docker-compose restart grafana
 Default start page url: http://localhost:3000
 Default user is admin.
 
-If you are trying to install packages and you get console permitions errors, it could be related with grafana changing owner from dist files.
+If you are trying to install packages and you get console permissions errors, it could be related with grafana changing owner from dist files.
