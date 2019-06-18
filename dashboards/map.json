@@ -16,7 +16,8 @@
     "editable": true,
     "gnetId": null,
     "graphTooltip": 0,
-    "id": 1,
+    "id": null,
+    "uid": null,
     "links": [],
     "panels": [
       {
@@ -166,7 +167,6 @@
     },
     "timezone": "",
     "title": "Map Dashboard",
-    "uid": "W15_ZU7Zk",
     "version": 7
   },
   "folderId": 0,

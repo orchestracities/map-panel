@@ -2,3 +2,4 @@ node_modules
 npm-debug.log
 .DS_Store
 crate-datasource
+package-lock.json

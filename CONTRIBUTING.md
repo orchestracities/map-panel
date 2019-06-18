@@ -32,8 +32,7 @@ $ yarn install
     $ docker-compose up -d
     ```
 
-(unless you remove the docker volumes, you need to run the following steps only
-the first time)
+Once the services are up and running, set-up the data as follows:
 
 - Populate the database:
 
@@ -46,6 +45,9 @@ the first time)
     ```sh
     $ sh set-up-grafana.sh
     ```
+
+**NOTE:** Unless you remove the docker volumes, you need to run the last two
+steps above only the first time)
 
 ## Other Tasks
 

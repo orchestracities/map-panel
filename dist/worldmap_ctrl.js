@@ -194,13 +194,11 @@ var WorldmapCtrl = function (_MetricsPanelCtrl) {
         // && this.isADiferentCity()
         this.setNewCoords();
       } else if ('Custom' === this.panel.mapCenter) {
-        console.log(this.panel.mapCenterLatitude);
-        console.log(this.panel.mapCenterLongitude);
         this.mapCenterMoved = true;
         this.render();
       } else {
         // center at continent or area
-        console.info('centering at City/Continent location');
+        //console.info('centering at City/Continent location')
         var coordinates = { latitude: _definitions.MAP_LOCATIONS[this.panel.mapCenter].mapCenterLatitude, longitude: _definitions.MAP_LOCATIONS[this.panel.mapCenter].mapCenterLongitude };
         this.recenterMap(coordinates);
         this.render();
@@ -231,7 +229,7 @@ var WorldmapCtrl = function (_MetricsPanelCtrl) {
   }, {
     key: 'recenterMap',
     value: function recenterMap(coordinates) {
-      console.debug('recenter at new coordinates');
+      console.debug('recentering at new coordinates');
       //console.debug(coordinates)
       this.panel.mapCenterLatitude = coordinates.latitude;
       this.panel.mapCenterLongitude = coordinates.longitude;
