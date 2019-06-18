@@ -1,0 +1,27 @@
+
+version: '2'
+services:
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - '3000:3000'
+    volumes:
+      - grafana-storage:/var/lib/grafana
+      - .:/var/lib/grafana/plugins/map-panel/
+      - ./crate-datasource:/var/lib/grafana/plugins/crate-datasource/
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USERNAME}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+  crate:
+    image: crate:3.3.3
+    ports:
+      - "4200:4200"
+      - "5432:5432"
+    volumes:
+      - crate-storage:/data
+    environment:
+      CRATE_HEAP_SIZE: 1g
+    command: crate -Cnode.name=crate
+volumes:
+  grafana-storage:
+  crate-storage:
