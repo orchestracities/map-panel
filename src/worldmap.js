@@ -273,6 +273,9 @@ export default class WorldMap {
 
     let currentParameterForChart = this.currentParameterForChart || 'value'
     let selectedPointValues = this.ctrl.data[this.currentTargetForChart.target.options.type][this.currentTargetForChart.target.options.id];
+    if (!selectedPointValues) {
+        return;
+    }
     let lastValueMeasure = selectedPointValues[selectedPointValues.length - 1];
 
     drawSelect(this.ctrl.panel.id, lastValueMeasure, this.validatedMetrics, currentParameterForChart)

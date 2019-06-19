@@ -314,6 +314,9 @@ var WorldMap = function () {
 
       var currentParameterForChart = this.currentParameterForChart || 'value';
       var selectedPointValues = this.ctrl.data[this.currentTargetForChart.target.options.type][this.currentTargetForChart.target.options.id];
+      if (!selectedPointValues) {
+        return;
+      }
       var lastValueMeasure = selectedPointValues[selectedPointValues.length - 1];
 
       (0, _map_utils.drawSelect)(this.ctrl.panel.id, lastValueMeasure, this.validatedMetrics, currentParameterForChart);
