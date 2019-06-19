@@ -92,6 +92,8 @@ export default class WorldMap {
         console.debug(this.currentParameterForChart)
         this.drawPointDetails();
       }); //, {passive: true} <= to avoid blocking
+
+    this.geoJsonLayer = L.geoJSON().addTo(this.map);
   }
 
   addLayersToMap() {
@@ -115,8 +117,8 @@ export default class WorldMap {
     }
   }
 
-  drawPoints() {   
-
+  drawPoints() {
+    this.geoJsonLayer.clearLayers();
     Object.keys(this.ctrl.data).forEach((layerKey) => {
       let layer = this.ctrl.data[layerKey];
       let markers = L.markerClusterGroup();
@@ -126,7 +128,20 @@ export default class WorldMap {
         let lastObjectValues = layer[objectKey][layer[objectKey].length-1];
         lastObjectValues.type = layerKey;
 
-        let newIcon = this.createIcon(lastObjectValues);
+        var geoJsonName = null;
+        var keyArray = Object.keys(lastObjectValues);
+        for (var k = 0; k < keyArray.length; k++) {
+            if(keyArray[k].toLowerCase() === 'geojson'){
+                geoJsonName = keyArray[k];
+                break;
+            }
+        }
+
+        if(geoJsonName && lastObjectValues[geoJsonName]) {
+            this.createGeoJson(lastObjectValues, geoJsonName).addTo(this.geoJsonLayer);
+        }
+
+        let newIcon = this.createIcon(lastObjectValues, geoJsonName);
 
         try { 
           if(newIcon)
@@ -138,7 +153,28 @@ export default class WorldMap {
     });
   }
 
-  createIcon(dataPoint) {
+  createGeoJson(dataPoint, geoJsonName) {
+    var geoColor = this.ctrl.panel.layersColors[dataPoint.type];
+    if (geoColor === 'lightred') {
+        geoColor = '#FF9898';
+    } else if (geoColor === 'darkpurple') {
+        geoColor = '#6813B2';
+    } else if (geoColor === 'black') {
+        geoColor = '#404040';
+    } else if (geoColor === null && this.ctrl.panel.layersIcons[dataPoint.type] !== null) {
+        geoColor = 'red';
+    }
+    var myStyle = {
+      "color": geoColor,
+      "weight": 5,
+      "opacity": 0.65
+    };
+    return L.geoJSON(JSON.parse(dataPoint[geoJsonName]), {
+      style: myStyle
+    });
+  }
+
+  createIcon(dataPoint, geoJsonName) {
     //console.log(this.ctrl.panel.layersIcons)
     if(!dataPoint || !dataPoint.type)
       return null;
@@ -147,9 +183,14 @@ export default class WorldMap {
     let layerColor = this.ctrl.panel.layersColors[dataPoint.type];
     let icon = layerIcon ? this.createMarker(dataPoint, layerIcon, layerColor) : this.createShape(dataPoint);
 
+    var dataInfoWithoutGeoJson = JSON.parse(JSON.stringify(dataPoint)); //creates clone of json
+    if (geoJsonName) {
+        delete dataInfoWithoutGeoJson[geoJsonName];
+    }
+
     this.createPopup(
       this.associateEvents(icon), 
-      getDataPointStickyInfo(dataPoint, this.ctrl.panel.metrics)
+      getDataPointStickyInfo(dataInfoWithoutGeoJson, this.ctrl.panel.metrics)
     );
 
     return icon;
