@@ -264,7 +264,11 @@ var WorldMap = function () {
   }, {
     key: 'resize',
     value: function resize() {
-      this.map.invalidateSize();
+      var _this4 = this;
+
+      setTimeout(function () {
+        _this4.map.invalidateSize();
+      }, 0);
     }
   }, {
     key: 'panToMapCenter',
