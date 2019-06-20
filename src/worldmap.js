@@ -169,6 +169,11 @@ export default class WorldMap {
       "weight": 5,
       "opacity": 0.65
     };
+    if(typeof dataPoint[geoJsonName] === 'object') {
+        return L.geoJSON(dataPoint[geoJsonName], {
+            style: myStyle
+        });
+    }
     return L.geoJSON(JSON.parse(dataPoint[geoJsonName]), {
       style: myStyle
     });
