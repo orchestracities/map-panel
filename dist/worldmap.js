@@ -119,8 +119,6 @@ var WorldMap = function () {
         console.debug(_this.currentParameterForChart);
         _this.drawPointDetails();
       }); //, {passive: true} <= to avoid blocking
-
-      this.geoJsonLayer = L.geoJSON().addTo(this.map);
     }
   }, {
     key: 'addLayersToMap',
@@ -155,9 +153,9 @@ var WorldMap = function () {
     value: function drawPoints() {
       var _this2 = this;
 
-      this.geoJsonLayer.clearLayers();
       Object.keys(this.ctrl.data).forEach(function (layerKey) {
         var layer = _this2.ctrl.data[layerKey];
+        var markersGJ = L.geoJSON();
         var markers = L.markerClusterGroup();
 
         //for each layer
@@ -175,19 +173,21 @@ var WorldMap = function () {
           }
 
           if (geoJsonName && lastObjectValues[geoJsonName]) {
-            _this2.createGeoJson(lastObjectValues, geoJsonName).addTo(_this2.geoJsonLayer);
+            var newGJ = _this2.createGeoJson(lastObjectValues, geoJsonName);
+            newGJ.addTo(markersGJ);
           }
-
-          var newIcon = _this2.createIcon(lastObjectValues, geoJsonName);
-
-          try {
-            if (newIcon) markers.addLayer(newIcon);
-          } catch (error) {
-            console.warn(layerKey);console.warn(error);
+          if (lastObjectValues.latitude && lastObjectValues.longitude) {
+            var newIcon = _this2.createIcon(lastObjectValues, geoJsonName);
+            try {
+              if (newIcon) markers.addLayer(newIcon);
+            } catch (error) {
+              console.warn(layerKey);console.warn(error);
+            }
           }
         });
 
         _this2.overlayMaps[layerKey].addLayer(markers);
+        _this2.overlayMaps[layerKey].addLayer(markersGJ);
       });
     }
   }, {
@@ -208,14 +208,22 @@ var WorldMap = function () {
         "weight": 5,
         "opacity": 0.65
       };
+      var retVal;
       if (_typeof(dataPoint[geoJsonName]) === 'object') {
-        return L.geoJSON(dataPoint[geoJsonName], {
+        retVal = L.geoJSON(dataPoint[geoJsonName], {
+          style: myStyle
+        });
+      } else {
+        retVal = L.geoJSON(JSON.parse(dataPoint[geoJsonName]), {
           style: myStyle
         });
       }
-      return L.geoJSON(JSON.parse(dataPoint[geoJsonName]), {
-        style: myStyle
-      });
+      var dataInfoWithoutGeoJson = JSON.parse(JSON.stringify(dataPoint)); //creates clone of json
+      if (geoJsonName) {
+        delete dataInfoWithoutGeoJson[geoJsonName];
+      }
+      this.createPopup(this.associateEvents(retVal), (0, _map_utils.getDataPointStickyInfo)(dataInfoWithoutGeoJson, this.ctrl.panel.metrics));
+      return retVal;
     }
   }, {
     key: 'createIcon',
@@ -327,7 +335,7 @@ var WorldMap = function () {
 
       /*    if ( 'Location Variable' === this.ctrl.panel.mapCenter && this.ctrl.isADiferentCity() ) {
             console.log('diferent city detected')
-            
+      
             this.ctrl.setNewCoords()
               .then(() => {
                 console.debug('flying to a new location')
@@ -363,6 +371,9 @@ var WorldMap = function () {
       }
 
       var currentParameterForChart = this.currentParameterForChart || 'value';
+      if (!this.currentTargetForChart.target.options.type || this.currentTargetForChart.target.options.id) {
+        return;
+      }
       var selectedPointValues = this.ctrl.data[this.currentTargetForChart.target.options.type][this.currentTargetForChart.target.options.id];
       if (!selectedPointValues) {
         return;

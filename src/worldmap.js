@@ -14,9 +14,9 @@ import './vendor/leaflet.markercluster/MarkerCluster.css!';
 
 /* App Specific */
 import { TILE_SERVERS, PLUGIN_PATH } from './definitions';
-import { 
+import {
   dataTreatment, processData, getTimeSeries, getUpdatedChartSeries,
-  drawSelect, drawPopups, renderChart, 
+  drawSelect, drawPopups, renderChart,
   hideAllGraphPopups, getDataPointExtraFields, getDataPointStickyInfo,
   getMapMarkerClassName
 } from './utils/map_utils';
@@ -52,14 +52,14 @@ export default class WorldMap {
 
     this.layers = this.getLayers()
 
-    this.map = L.map(this.mapContainer, 
+    this.map = L.map(this.mapContainer,
       {
         sleepNote: false,
         sleepOpacity: .8,
         hoverToWake: false,
-        worldCopyJump: true, 
+        worldCopyJump: true,
         center: location,
-        zoomControl: false, 
+        zoomControl: false,
         minZoom: 3,
         attributionControl: false,
         layers: this.layers
@@ -92,8 +92,6 @@ export default class WorldMap {
         console.debug(this.currentParameterForChart)
         this.drawPointDetails();
       }); //, {passive: true} <= to avoid blocking
-
-    this.geoJsonLayer = L.geoJSON().addTo(this.map);
   }
 
   addLayersToMap() {
@@ -118,9 +116,9 @@ export default class WorldMap {
   }
 
   drawPoints() {
-    this.geoJsonLayer.clearLayers();
     Object.keys(this.ctrl.data).forEach((layerKey) => {
       let layer = this.ctrl.data[layerKey];
+      let markersGJ = L.geoJSON();
       let markers = L.markerClusterGroup();
 
       //for each layer
@@ -138,18 +136,21 @@ export default class WorldMap {
         }
 
         if(geoJsonName && lastObjectValues[geoJsonName]) {
-            this.createGeoJson(lastObjectValues, geoJsonName).addTo(this.geoJsonLayer);
+          let newGJ = this.createGeoJson(lastObjectValues, geoJsonName);
+          newGJ.addTo(markersGJ);
         }
-
-        let newIcon = this.createIcon(lastObjectValues, geoJsonName);
-
-        try { 
-          if(newIcon)
-            markers.addLayer(newIcon);            
-        } catch(error) { console.warn(layerKey); console.warn(error); }
+        if (lastObjectValues.latitude && lastObjectValues.longitude) {
+          let newIcon = this.createIcon(lastObjectValues, geoJsonName);
+          try {
+            if(newIcon)
+              markers.addLayer(newIcon);
+          } catch(error) { console.warn(layerKey); console.warn(error); }
+        }
       })
 
       this.overlayMaps[layerKey].addLayer(markers);
+      this.overlayMaps[layerKey].addLayer(markersGJ);
+
     });
   }
 
@@ -169,21 +170,32 @@ export default class WorldMap {
       "weight": 5,
       "opacity": 0.65
     };
+    var retVal;
     if(typeof dataPoint[geoJsonName] === 'object') {
-        return L.geoJSON(dataPoint[geoJsonName], {
+        retVal = L.geoJSON(dataPoint[geoJsonName], {
             style: myStyle
         });
+    } else {
+        retVal = L.geoJSON(JSON.parse(dataPoint[geoJsonName]), {
+          style: myStyle
+        });
     }
-    return L.geoJSON(JSON.parse(dataPoint[geoJsonName]), {
-      style: myStyle
-    });
+    var dataInfoWithoutGeoJson = JSON.parse(JSON.stringify(dataPoint)); //creates clone of json
+    if (geoJsonName) {
+      delete dataInfoWithoutGeoJson[geoJsonName];
+    }
+    this.createPopup(
+        this.associateEvents(retVal),
+        getDataPointStickyInfo(dataInfoWithoutGeoJson, this.ctrl.panel.metrics)
+    );
+    return retVal;
   }
 
   createIcon(dataPoint, geoJsonName) {
     //console.log(this.ctrl.panel.layersIcons)
     if(!dataPoint || !dataPoint.type)
       return null;
-    
+
     let layerIcon = this.ctrl.panel.layersIcons[dataPoint.type];
     let layerColor = this.ctrl.panel.layersColors[dataPoint.type];
     let icon = layerIcon ? this.createMarker(dataPoint, layerIcon, layerColor) : this.createShape(dataPoint);
@@ -194,7 +206,7 @@ export default class WorldMap {
     }
 
     this.createPopup(
-      this.associateEvents(icon), 
+      this.associateEvents(icon),
       getDataPointStickyInfo(dataInfoWithoutGeoJson, this.ctrl.panel.metrics)
     );
 
@@ -213,7 +225,7 @@ export default class WorldMap {
       break;
       case 'TrafficFlowObserved':
         shape = L.rectangle([
-            [dataPoint.latitude-(0.001*POLYGON_MAGNIFY_RATIO), dataPoint.longitude-(0.0015*POLYGON_MAGNIFY_RATIO)], 
+            [dataPoint.latitude-(0.001*POLYGON_MAGNIFY_RATIO), dataPoint.longitude-(0.0015*POLYGON_MAGNIFY_RATIO)],
             [dataPoint.latitude+(0.001*POLYGON_MAGNIFY_RATIO), dataPoint.longitude+(0.0015*POLYGON_MAGNIFY_RATIO)]
           ], dataPointExtraFields)
         //shape = L.circle([dataPoint.locationLatitude, dataPoint.locationLongitude], CIRCLE_RADIUS, dataPointExtraFields)
@@ -221,7 +233,7 @@ export default class WorldMap {
       default:
         dataPointExtraFields.color='green'  //default color
         shape = L.polygon([
-          [dataPoint.latitude-(0.001*POLYGON_MAGNIFY_RATIO), dataPoint.longitude-(0.0015*POLYGON_MAGNIFY_RATIO)], 
+          [dataPoint.latitude-(0.001*POLYGON_MAGNIFY_RATIO), dataPoint.longitude-(0.0015*POLYGON_MAGNIFY_RATIO)],
           [dataPoint.latitude+(0.001*POLYGON_MAGNIFY_RATIO), dataPoint.longitude],
           [dataPoint.latitude-(0.001*POLYGON_MAGNIFY_RATIO), dataPoint.longitude+(0.0015*POLYGON_MAGNIFY_RATIO)],
         ], dataPointExtraFields)
@@ -234,14 +246,14 @@ export default class WorldMap {
     let dataPointExtraFields = getDataPointExtraFields(dataPoint);
     let location = [dataPoint.latitude, dataPoint.longitude];
 
-    let markerProperties = { 
+    let markerProperties = {
       icon: L.AwesomeMarkers.icon(
-        { 
+        {
           icon: elementIcon,
           prefix: 'fa',
           markerColor: (elementColor ? elementColor : dataPointExtraFields.markerColor),
           //spin: true,
-        }        
+        }
       )
     }
     defaultsDeep(markerProperties, dataPoint)
@@ -256,15 +268,15 @@ export default class WorldMap {
   }
 
   createPopup(shape, stickyPopupInfo) {
-    shape.bindPopup(stickyPopupInfo, 
+    shape.bindPopup(stickyPopupInfo,
       {
-        'offset': L.point(0, -2), 
-        'className': 'worldmap-popup', 
+        'offset': L.point(0, -2),
+        'className': 'worldmap-popup',
         'closeButton': this.ctrl.panel.stickyLabels
       }
     );
-    
-    if (!this.ctrl.panel.stickyLabels) { 
+
+    if (!this.ctrl.panel.stickyLabels) {
       shape.on('mouseover', function () { this.openPopup() });
       shape.on('mouseout', function () { this.closePopup() });
     }
@@ -285,7 +297,7 @@ export default class WorldMap {
 
 /*    if ( 'Location Variable' === this.ctrl.panel.mapCenter && this.ctrl.isADiferentCity() ) {
       console.log('diferent city detected')
-      
+
       this.ctrl.setNewCoords()
         .then(() => {
           console.debug('flying to a new location')
@@ -296,7 +308,7 @@ export default class WorldMap {
         .catch(error => console.warn(error))
       return ;
     }*/
-    
+
     this.map.flyTo(location);
     this.ctrl.mapCenterMoved = false;
   }
@@ -311,35 +323,38 @@ export default class WorldMap {
   }
 
   drawPointDetails() {
-    console.debug('drawPointDetails')
+    console.debug('drawPointDetails');
     if(this.currentTargetForChart==null){
-      console.debug('no point selected in map')
+      console.debug('no point selected in map');
       return ;
     }
 
-    let currentParameterForChart = this.currentParameterForChart || 'value'
+    let currentParameterForChart = this.currentParameterForChart || 'value';
+    if (!this.currentTargetForChart.target.options.type || this.currentTargetForChart.target.options.id) {
+      return;
+    }
     let selectedPointValues = this.ctrl.data[this.currentTargetForChart.target.options.type][this.currentTargetForChart.target.options.id];
     if (!selectedPointValues) {
         return;
     }
     let lastValueMeasure = selectedPointValues[selectedPointValues.length - 1];
 
-    drawSelect(this.ctrl.panel.id, lastValueMeasure, this.validatedMetrics, currentParameterForChart)
+    drawSelect(this.ctrl.panel.id, lastValueMeasure, this.validatedMetrics, currentParameterForChart);
 
-    drawPopups(this.ctrl.panel.id, lastValueMeasure, this.validatedMetrics)
+    drawPopups(this.ctrl.panel.id, lastValueMeasure, this.validatedMetrics);
 
     //refresh chart only if new values arrived
     if(!this.isToRefreshChart(selectedPointValues, currentParameterForChart))
       return ;
 
-    renderChart(this.ctrl.panel.id, selectedPointValues, 
+    renderChart(this.ctrl.panel.id, selectedPointValues,
       getTranslation(this.validatedMetrics, currentParameterForChart),
       [
         this.currentTargetForChart.target.options.type,
         this.currentTargetForChart.target.options.id,
         currentParameterForChart
       ]
-    )  
+    )
 
     this.refreshChart = false
   }
