@@ -155,14 +155,21 @@ export default class WorldMap {
   }
 
   createGeoJson(dataPoint, geoJsonName) {
-    var geoColor = this.ctrl.panel.layersColors[dataPoint.type];
-    if (geoColor === 'lightred') {
+    var geoColor
+    if (dataPoint.color !== undefined) {
+      geoColor = dataPoint.color
+    } else {
+      geoColor = this.ctrl.panel.layersColors[dataPoint.type];
+
+      if (geoColor === 'lightred') {
         geoColor = '#FF9898';
-    } else if (geoColor === 'darkpurple') {
-        geoColor = '#6813B2';
-    } else if (geoColor === null && this.ctrl.panel.layersIcons[dataPoint.type] !== null) {
-        geoColor = 'red';
+      } else if (geoColor === 'darkpurple') {
+          geoColor = '#6813B2';
+      } else if (geoColor === null && this.ctrl.panel.layersIcons[dataPoint.type] !== null) {
+          geoColor = 'red';
+      }
     }
+    
     var myStyle = {
       "color": geoColor,
       "weight": 5,
