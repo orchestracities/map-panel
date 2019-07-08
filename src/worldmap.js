@@ -160,8 +160,6 @@ export default class WorldMap {
         geoColor = '#FF9898';
     } else if (geoColor === 'darkpurple') {
         geoColor = '#6813B2';
-    } else if (geoColor === 'black') {
-        geoColor = '#404040';
     } else if (geoColor === null && this.ctrl.panel.layersIcons[dataPoint.type] !== null) {
         geoColor = 'red';
     }
