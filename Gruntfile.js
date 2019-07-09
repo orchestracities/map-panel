@@ -43,6 +43,13 @@ module.exports = (grunt) => {
         dest: 'dist/vendor/highcharts'
       },
 
+      turf: { 
+        cwd: 'node_modules/turf',
+        expand: true,
+        src: ['**/*'], 
+        dest: 'dist/vendor/turf'
+      },
+
       leafletAwesomeMarkers: { 
         cwd: 'node_modules/leaflet.awesome-markers/dist/',
         expand: true,
@@ -112,6 +119,7 @@ module.exports = (grunt) => {
     'copy:leaflet', 
  
     'copy:highcharts',
+    'copy:turf',
     'copy:leafletAwesomeMarkers',
     'copy:leafletMarkerCluster',
     'copy:leafletSleep',
