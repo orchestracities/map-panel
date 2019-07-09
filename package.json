@@ -63,6 +63,7 @@
     "leaflet-sleep": "^0.5.1",
     "leaflet.awesome-markers": "^2.0.4",
     "leaflet.markercluster": "^1.4.0",
+    "turf": "^3.0.14",
     "yarn": "^1.16.0"
   }
 }
