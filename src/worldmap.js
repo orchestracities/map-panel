@@ -21,6 +21,8 @@ import {
   getMapMarkerClassName
 } from './utils/map_utils';
 
+import * as turf from './vendor/turf/turf';
+
 const CIRCLE_RADIUS = 200
 const POLYGON_MAGNIFY_RATIO = 3
 
@@ -133,6 +135,12 @@ export default class WorldMap {
                 geoJsonName = keyArray[k];
                 break;
             }
+        }
+
+        if (geoJsonName !== null && lastObjectValues.latitude === undefined && lastObjectValues.longitude === undefined) {
+          var centroid = turf.centroid(lastObjectValues[geoJsonName]);
+          lastObjectValues.longitude = centroid.geometry.coordinates[0];
+          lastObjectValues.latitude = centroid.geometry.coordinates[1];
         }
 
         if(geoJsonName && lastObjectValues[geoJsonName]) {
