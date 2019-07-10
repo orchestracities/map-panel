@@ -38,6 +38,7 @@ export default class WorldMap {
     this.currentTargetForChart = null;
     this.currentParameterForChart = null;
     this.map = null;
+    this.geoMarkers = {};
 
     this.ctrl.events.on('panel-size-changed', this.flagChartRefresh.bind(this));
   }
@@ -78,6 +79,11 @@ export default class WorldMap {
       this.currentTargetForChart = null;
     });
 
+    this.map.on('zoomend', () => {
+      var zoomLevel = this.map.getZoom();
+      this.updateGeoLayers(zoomLevel);
+    });
+
     const selectedTileServer = TILE_SERVERS[this.ctrl.tileServer];
     L.tileLayer(selectedTileServer.url, {
       maxZoom: 18,
@@ -107,6 +113,25 @@ export default class WorldMap {
     this.layers.forEach((layer)=>layer.clearLayers())
   }
 
+  updateGeoLayers(zoomLevel) {
+    const geoMarkersVisibilityZoomLevelTrashold = 13;
+
+    Object.keys(this.geoMarkers).forEach((layerKey) => {
+      for (const layer of this.geoMarkers[layerKey]) {
+        if (zoomLevel < geoMarkersVisibilityZoomLevelTrashold) {
+          if (this.overlayMaps[layerKey].hasLayer(layer)) {
+            this.overlayMaps[layerKey].removeLayer(layer);
+          }
+        }
+        else {
+          if (!this.overlayMaps[layerKey].hasLayer(layer)) {
+            this.overlayMaps[layerKey].addLayer(layer);
+          }
+        }
+      }
+    })
+  }
+
   /* Validate metrics for a given target*/
   setMetrics() {
     try {
@@ -120,6 +145,7 @@ export default class WorldMap {
   drawPoints() {
     Object.keys(this.ctrl.data).forEach((layerKey) => {
       let layer = this.ctrl.data[layerKey];
+      
       let markersGJ = L.geoJSON();
       let markers = L.markerClusterGroup();
 
@@ -159,6 +185,8 @@ export default class WorldMap {
       this.overlayMaps[layerKey].addLayer(markers);
       this.overlayMaps[layerKey].addLayer(markersGJ);
 
+      this.geoMarkers[layerKey] = this.geoMarkers[layerKey] || [];
+      this.geoMarkers[layerKey].push(markersGJ);
     });
   }
 
