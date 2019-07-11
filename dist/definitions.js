@@ -58,10 +58,11 @@ var PANEL_DEFAULTS = {
   metrics: [],
   targets: [{
     refId: "A",
+    resultFormat: "table",
     groupByAliases: ["type"],
     groupByColumns: ["entity_type"],
     whereClauses: [],
-    metricAggs: [{ alias: "id", column: "entity_id", type: "raw" }, { alias: "value", column: "", type: "raw" }, { alias: "longitude", column: "longitude(location)", type: "raw" }, { alias: "latitude", column: "latitude(location)", type: "raw" }, { alias: "created_at", column: "time_index", type: "raw" }]
+    metricAggs: [{ alias: "id", column: "entity_id", type: "raw" }, { alias: "value", column: "availablespotnumber", type: "raw" }, { alias: "geojson", column: "location", type: "raw" }, { alias: "created_at", column: "time_index", type: "raw" }]
   }],
   layersIcons: {},
   layersColors: {},

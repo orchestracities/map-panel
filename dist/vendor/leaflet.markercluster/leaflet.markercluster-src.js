@@ -1,5 +1,5 @@
 /*
- * Leaflet.markercluster 1.4.0+master.86ce41f,
+ * Leaflet.markercluster 1.4.1+master.94f9815,
  * Provides Beautiful Animated Marker Clustering functionality for Leaflet, a JS library for interactive maps.
  * https://github.com/Leaflet/Leaflet.markercluster
  * (c) 2012-2017, Dave Leaver, smartrak
@@ -720,10 +720,11 @@ var MarkerClusterGroup = L.MarkerClusterGroup = L.FeatureGroup.extend({
 	},
 
 	_childMarkerDragEnd: function (e) {
-		if (e.target.__dragStart) {
-			this._moveChild(e.target, e.target.__dragStart, e.target._latlng);
-		}
+		var dragStart = e.target.__dragStart;
 		delete e.target.__dragStart;
+		if (dragStart) {
+			this._moveChild(e.target, dragStart, e.target._latlng);
+		}		
 	},
 
 
@@ -1412,7 +1413,7 @@ var MarkerCluster = L.MarkerCluster = L.Marker.extend({
 	},
 
 	//Recursively retrieve all child markers of this cluster
-	getAllChildMarkers: function (storageArray) {
+	getAllChildMarkers: function (storageArray, ignoreDraggedMarker) {
 		storageArray = storageArray || [];
 
 		for (var i = this._childClusters.length - 1; i >= 0; i--) {
@@ -1420,6 +1421,9 @@ var MarkerCluster = L.MarkerCluster = L.Marker.extend({
 		}
 
 		for (var j = this._markers.length - 1; j >= 0; j--) {
+			if (ignoreDraggedMarker && this._markers[j].__dragStart) {
+				continue;
+			}
 			storageArray.push(this._markers[j]);
 		}
 
@@ -2113,7 +2117,7 @@ L.MarkerCluster.include({
 			return;
 		}
 
-		var childMarkers = this.getAllChildMarkers(),
+		var childMarkers = this.getAllChildMarkers(null, true),
 			group = this._group,
 			map = group._map,
 			center = map.latLngToLayerPoint(this._latlng),
@@ -2191,7 +2195,7 @@ L.MarkerCluster.include({
 		var group = this._group,
 			map = group._map,
 			fg = group._featureGroup,
-			childMarkers = this.getAllChildMarkers(),
+			childMarkers = this.getAllChildMarkers(null, true),
 			m, i;
 
 		group._ignoreMove = true;
@@ -2384,7 +2388,7 @@ L.MarkerCluster.include({
 			map = group._map,
 			fg = group._featureGroup,
 			thisLayerPos = zoomDetails ? map._latLngToNewLayerPoint(this._latlng, zoomDetails.zoom, zoomDetails.center) : map.latLngToLayerPoint(this._latlng),
-			childMarkers = this.getAllChildMarkers(),
+			childMarkers = this.getAllChildMarkers(null, true),
 			svg = L.Path.SVG,
 			m, i, leg, legPath, legLength, nonAnimatable;
 
