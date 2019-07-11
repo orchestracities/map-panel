@@ -151,16 +151,55 @@
         >
         <option value=""></option>
       </select>
-
-      <select class="gf-form-input"
-        ng-model="ctrl.panel.layersColors[layerName]"
-        ng-options="markerColor for markerColor in ctrl.markerColors"
-        ng-change="ctrl.render()" title="Choose the marker's color for this layer"
-        >
-        <option value=""></option>
-      </select>
     </div>
   </div>
+</div>
+
+<div class="section gf-form-group">
+  <h5 class="section-heading">Markers Coloring</h5>
+
+  <div class="gf-form">
+    <label class="gf-form-label width-10">Column</label>
+    <input type="text" 
+      class="input-small gf-form-input width-12" 
+      ng-model="ctrl.panel.geoMarkerColoringBinding"
+      ng-change="ctrl.render()" />
+  </div>
+
+  <div class="gf-form">
+    <label class="gf-form-label width-10">Color Thresholds</label>
+    <input type="text" 
+      class="input-small gf-form-input width-12" 
+      placeholder="50, 100"
+      ng-model="ctrl.panel.geoMarkerColoringThresholds" 
+      ng-change="ctrl.render()" />
+  </div>
+
+  <div class="gf-form">
+    <label class="gf-form-label width-10">Colors</label>
+
+    <select class="gf-form-input"
+      ng-model="ctrl.panel.geoMarkerColoringColorLow"
+      ng-options="markerColor for markerColor in ctrl.markerColors"
+      ng-change="ctrl.render()" 
+      title="Color low">
+    </select>
+
+    <select class="gf-form-input"
+      ng-model="ctrl.panel.geoMarkerColoringColorMedium"
+      ng-options="markerColor for markerColor in ctrl.markerColors"
+      ng-change="ctrl.render()" 
+      title="Color medium">
+    </select>
+
+    <select class="gf-form-input"
+      ng-model="ctrl.panel.geoMarkerColoringColorHigh"
+      ng-options="markerColor for markerColor in ctrl.markerColors"
+      ng-change="ctrl.render()" 
+      title="Color high">
+    </select>
+  </div>
+
 </div>
 
 <div>
