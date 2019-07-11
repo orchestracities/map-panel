@@ -232,13 +232,10 @@ export default class WorldMap {
           style: myStyle
         });
     }
-    var dataInfoWithoutGeoJson = JSON.parse(JSON.stringify(dataPoint)); //creates clone of json
-    if (geoJsonName) {
-      delete dataInfoWithoutGeoJson[geoJsonName];
-    }
+
     this.createPopup(
         this.associateEvents(retVal),
-        getDataPointStickyInfo(dataInfoWithoutGeoJson, this.ctrl.panel.metrics)
+        getDataPointStickyInfo(dataPoint, this.ctrl.panel.metrics)
     );
     return retVal;
   }
@@ -251,14 +248,9 @@ export default class WorldMap {
     let layerIcon = this.ctrl.panel.layersIcons[dataPoint.type];
     let icon = layerIcon ? this.createMarker(dataPoint, layerIcon, markerColor) : this.createShape(dataPoint);
 
-    var dataInfoWithoutGeoJson = JSON.parse(JSON.stringify(dataPoint)); //creates clone of json
-    if (geoJsonName) {
-        delete dataInfoWithoutGeoJson[geoJsonName];
-    }
-
     this.createPopup(
       this.associateEvents(icon),
-      getDataPointStickyInfo(dataInfoWithoutGeoJson, this.ctrl.panel.metrics)
+      getDataPointStickyInfo(dataPoint, this.ctrl.panel.metrics)
     );
 
     return icon;

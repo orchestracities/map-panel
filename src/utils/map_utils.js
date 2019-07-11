@@ -256,7 +256,8 @@ function getDataPointStickyInfo(dataPoint, metricsTranslations) {
 }
 
 function getDataPointDetails(dataPoint, metricsTranslations) {
-  let translatedValues = Object.keys(dataPoint).map((dpKey)=>{
+  const withoutGeojson = Object.keys(dataPoint).filter((key) => key !== 'geojson');
+  let translatedValues = withoutGeojson.map((dpKey)=>{
     let dP = (dpKey==='created_at'?new Date(dataPoint[dpKey]).toLocaleString():dataPoint[dpKey]);
     let trans = metricsTranslations.filter((elem)=>elem[0]===dpKey);
     return { 'name': (trans.length>0 && trans[0][1] ? trans[0][1] : titleize(dpKey) ), value: dP||'-', unit: (trans.length>0 ? trans[0][2] : '') }
