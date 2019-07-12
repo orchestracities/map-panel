@@ -4,6 +4,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /* eslint-disable id-length, no-unused-vars */
 
 /* Vendor specific */
@@ -153,6 +155,7 @@ var WorldMap = function () {
 
       Object.keys(this.ctrl.data).forEach(function (layerKey) {
         var layer = _this2.ctrl.data[layerKey];
+        var markersGJ = L.geoJSON();
         var markers = L.markerClusterGroup();
 
         //for each layer
@@ -160,21 +163,71 @@ var WorldMap = function () {
           var lastObjectValues = layer[objectKey][layer[objectKey].length - 1];
           lastObjectValues.type = layerKey;
 
-          var newIcon = _this2.createIcon(lastObjectValues);
+          var geoJsonName = null;
+          var keyArray = Object.keys(lastObjectValues);
+          for (var k = 0; k < keyArray.length; k++) {
+            if (keyArray[k].toLowerCase() === 'geojson') {
+              geoJsonName = keyArray[k];
+              break;
+            }
+          }
 
-          try {
-            if (newIcon) markers.addLayer(newIcon);
-          } catch (error) {
-            console.warn(layerKey);console.warn(error);
+          if (geoJsonName && lastObjectValues[geoJsonName]) {
+            var newGJ = _this2.createGeoJson(lastObjectValues, geoJsonName);
+            newGJ.addTo(markersGJ);
+          }
+          if (lastObjectValues.latitude && lastObjectValues.longitude) {
+            var newIcon = _this2.createIcon(lastObjectValues, geoJsonName);
+            try {
+              if (newIcon) markers.addLayer(newIcon);
+            } catch (error) {
+              console.warn(layerKey);console.warn(error);
+            }
           }
         });
 
         _this2.overlayMaps[layerKey].addLayer(markers);
+        _this2.overlayMaps[layerKey].addLayer(markersGJ);
       });
     }
   }, {
+    key: 'createGeoJson',
+    value: function createGeoJson(dataPoint, geoJsonName) {
+      var geoColor = this.ctrl.panel.layersColors[dataPoint.type];
+      if (geoColor === 'lightred') {
+        geoColor = '#FF9898';
+      } else if (geoColor === 'darkpurple') {
+        geoColor = '#6813B2';
+      } else if (geoColor === 'black') {
+        geoColor = '#404040';
+      } else if (geoColor === null && this.ctrl.panel.layersIcons[dataPoint.type] !== null) {
+        geoColor = 'red';
+      }
+      var myStyle = {
+        "color": geoColor,
+        "weight": 5,
+        "opacity": 0.65
+      };
+      var retVal;
+      if (_typeof(dataPoint[geoJsonName]) === 'object') {
+        retVal = L.geoJSON(dataPoint[geoJsonName], {
+          style: myStyle
+        });
+      } else {
+        retVal = L.geoJSON(JSON.parse(dataPoint[geoJsonName]), {
+          style: myStyle
+        });
+      }
+      var dataInfoWithoutGeoJson = JSON.parse(JSON.stringify(dataPoint)); //creates clone of json
+      if (geoJsonName) {
+        delete dataInfoWithoutGeoJson[geoJsonName];
+      }
+      this.createPopup(this.associateEvents(retVal), (0, _map_utils.getDataPointStickyInfo)(dataInfoWithoutGeoJson, this.ctrl.panel.metrics));
+      return retVal;
+    }
+  }, {
     key: 'createIcon',
-    value: function createIcon(dataPoint) {
+    value: function createIcon(dataPoint, geoJsonName) {
       //console.log(this.ctrl.panel.layersIcons)
       if (!dataPoint || !dataPoint.type) return null;
 
@@ -182,7 +235,12 @@ var WorldMap = function () {
       var layerColor = this.ctrl.panel.layersColors[dataPoint.type];
       var icon = layerIcon ? this.createMarker(dataPoint, layerIcon, layerColor) : this.createShape(dataPoint);
 
-      this.createPopup(this.associateEvents(icon), (0, _map_utils.getDataPointStickyInfo)(dataPoint, this.ctrl.panel.metrics));
+      var dataInfoWithoutGeoJson = JSON.parse(JSON.stringify(dataPoint)); //creates clone of json
+      if (geoJsonName) {
+        delete dataInfoWithoutGeoJson[geoJsonName];
+      }
+
+      this.createPopup(this.associateEvents(icon), (0, _map_utils.getDataPointStickyInfo)(dataInfoWithoutGeoJson, this.ctrl.panel.metrics));
 
       return icon;
     }
@@ -264,7 +322,11 @@ var WorldMap = function () {
   }, {
     key: 'resize',
     value: function resize() {
-      this.map.invalidateSize();
+      var _this4 = this;
+
+      setTimeout(function () {
+        _this4.map.invalidateSize();
+      }, 0);
     }
   }, {
     key: 'panToMapCenter',
@@ -273,7 +335,7 @@ var WorldMap = function () {
 
       /*    if ( 'Location Variable' === this.ctrl.panel.mapCenter && this.ctrl.isADiferentCity() ) {
             console.log('diferent city detected')
-            
+      
             this.ctrl.setNewCoords()
               .then(() => {
                 console.debug('flying to a new location')
@@ -309,7 +371,13 @@ var WorldMap = function () {
       }
 
       var currentParameterForChart = this.currentParameterForChart || 'value';
+      if (!this.currentTargetForChart.target.options.type || this.currentTargetForChart.target.options.id) {
+        return;
+      }
       var selectedPointValues = this.ctrl.data[this.currentTargetForChart.target.options.type][this.currentTargetForChart.target.options.id];
+      if (!selectedPointValues) {
+        return;
+      }
       var lastValueMeasure = selectedPointValues[selectedPointValues.length - 1];
 
       (0, _map_utils.drawSelect)(this.ctrl.panel.id, lastValueMeasure, this.validatedMetrics, currentParameterForChart);

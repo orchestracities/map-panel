@@ -16,8 +16,6 @@
     "editable": true,
     "gnetId": null,
     "graphTooltip": 0,
-    "id": null,
-    "uid": null,
     "links": [],
     "panels": [
       {
@@ -123,7 +121,111 @@
           }
         ],
         "thresholds": "0,10",
-        "title": "Map",
+        "title": "Map Points",
+        "type": "grafana-traffic-env-panel",
+        "unitPlural": "",
+        "unitSingle": "",
+        "valueName": "total"
+      },
+      {
+        "circleMaxSize": 30,
+        "circleMinSize": 2,
+        "cityEnvVariable": "",
+        "colors": [
+          "rgba(245, 54, 54, 0.9)",
+          "rgba(237, 129, 40, 0.89)",
+          "rgba(50, 172, 45, 0.97)"
+        ],
+        "datasource": "example",
+        "decimals": 0,
+        "esMetric": "Count",
+        "gridPos": {
+          "h": 9,
+          "w": 24,
+          "x": 0,
+          "y": 9
+        },
+        "hideEmpty": false,
+        "hideZero": false,
+        "id": 3,
+        "initialZoom": "11",
+        "layersColors": {
+          "OffStreetParking": "blue"
+        },
+        "layersIcons": {
+          "OffStreetParking": "car"
+        },
+        "links": [],
+        "mapCenter": "Custom",
+        "mapCenterLatitude": "47.3655761",
+        "mapCenterLongitude": "8.546587188888887",
+        "maxDataPoints": 1,
+        "metrics": [],
+        "renderChart": false,
+        "showLegend": true,
+        "stickyLabels": false,
+        "targets": [
+          {
+            "format": "time_series",
+            "group": [],
+            "groupByAliases": [
+              "type"
+            ],
+            "groupByColumns": [
+              "entity_type"
+            ],
+            "hide": false,
+            "metricAggs": [
+              {
+                "alias": "id",
+                "column": "entity_id",
+                "type": "raw"
+              },
+              {
+                "alias": "value",
+                "column": "availablespotnumber",
+                "type": "raw"
+              },
+              {
+                "alias": "geojson",
+                "column": "location",
+                "type": "raw"
+              },
+              {
+                "alias": "created_at",
+                "column": "time_index",
+                "type": "raw"
+              }
+            ],
+            "metricColumn": "none",
+            "rawQuery": false,
+            "rawSql": "SELECT\n  $__time(time_column),\n  value1\nFROM\n  metric_table\nWHERE\n  $__timeFilter(time_column)\n",
+            "refId": "A",
+            "resultFormat": "table",
+            "select": [
+              [
+                {
+                  "params": [
+                    "value"
+                  ],
+                  "type": "column"
+                }
+              ]
+            ],
+            "timeColumn": "time",
+            "timeInterval": "auto_gf",
+            "where": [
+              {
+                "name": "$__timeFilter",
+                "params": [],
+                "type": "macro"
+              }
+            ],
+            "whereClauses": []
+          }
+        ],
+        "thresholds": "0,10",
+        "title": "Map GeoJson",
         "type": "grafana-traffic-env-panel",
         "unitPlural": "",
         "unitSingle": "",
@@ -167,7 +269,7 @@
     },
     "timezone": "",
     "title": "Map Dashboard",
-    "version": 7
+    "version": 3
   },
   "folderId": 0,
   "overwrite": true
