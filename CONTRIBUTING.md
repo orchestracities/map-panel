@@ -18,6 +18,13 @@ or
 $ yarn install
 ```
 
+If you are using Docker, the two steps above can be done as follows:
+```
+# First cd into this plugin's folder.
+docker run -it --rm -v "$PWD":/usr/src/app -w /usr/src/app node:8 npm install
+docker run -it --rm -v "$PWD":/usr/src/app -w /usr/src/app node:8 yarn install
+```
+
 ## Test / Run
 
 - clone the crated data source.
@@ -61,9 +68,15 @@ and click `save & test`.
 $ yarn build && docker-compose restart grafana
 ```
 
+Or using docker:
+```
+docker run -it --rm -v "$PWD":/usr/src/app -w /usr/src/app node:8 yarn build
+docker-compose restart grafana
+```
+
 ## Notes
 
 Default start page url: http://localhost:3000
-Default user is admin.
+Default user/pass is admin/admin.
 
 If you are trying to install packages and you get console permissions errors, it could be related with grafana changing owner from dist files.

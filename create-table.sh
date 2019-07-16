@@ -43,6 +43,21 @@ echo '\n\ninsert data 5\n'
     -d '{"stmt": "INSERT INTO example (address,availablespotnumber,entity_id,entity_type,fiware_servicepath,license,location,location_centroid,name,source,status,time_index,timeinstant) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", "bulk_args": [[{"addressCountry":"Switzerland","streetAddress":"Schillerstrasse 5","addressLocality":"Zurich"}, 65, "urn:ngsi-ld:OffStreetParking:opera", "OffStreetParking", "/ParkingManagement", "https://creativecommons.org/publicdomain/zero/1.0/", {"coordinates":[[[8.5457149,47.3656622],[8.546062,47.365176],[8.5468001,47.365415],[8.5469132,47.3654479],[8.5472176,47.3655636],[8.5471347,47.3656516],[8.5470483,47.3656188],[8.546679,47.3659876],[8.5457149,47.3656622]]],"type":"Polygon"}, [8.546587188888887,47.3655761], "Parkhaus Opéra / Schillerstrasse 5", "https://data.stadt-zuerich.ch/", "open", 1551200630000, "2019-02-26T17:03:50Z"
 ]]}'
 
+echo '\n\ninsert data 6\n'
+
+  curl -sS -H 'Content-Type: application/json' \
+    -X POST 'localhost:4200/_sql' \
+    -H 'Default-Schema: doc' \
+    -d '{"stmt": "INSERT INTO example (address,availablespotnumber,entity_id,entity_type,fiware_servicepath,license,location,location_centroid,name,source,status,time_index,timeinstant) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", "bulk_args": [[{"addressCountry":"Switzerland","streetAddress":"Gladbachstrasse","addressLocality":"Zurich"}, 0, "urn:ngsi-ld:OffStreetParking:Siriuswiese", "OffStreetParking", "/ParkingManagement", "https://creativecommons.org/publicdomain/zero/1.0/", {"coordinates":[8.5539437,47.3797464],"type":"Point"}, [8.5539437,47.3797464], "Siriuswiese", "https://test.ch/", "open", 1551200630000, "2019-02-26T17:03:50Z"
+]]}'
+
+echo '\n\ninsert data 7\n'
+
+  curl -sS -H 'Content-Type: application/json' \
+    -X POST 'localhost:4200/_sql' \
+    -H 'Default-Schema: doc' \
+    -d '{"stmt": "INSERT INTO example (address,availablespotnumber,entity_id,entity_type,fiware_servicepath,license,location,location_centroid,name,source,status,time_index,timeinstant) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", "bulk_args": [[{"addressCountry":"Switzerland","streetAddress":"Voltastrasse 40","addressLocality":"Zurich"}, 1, "urn:ngsi-ld:OffStreetParking:ultimobacio", "OffStreetParking", "/ParkingManagement", "https://creativecommons.org/publicdomain/zero/1.0/", {"coordinates":[8.5534266,47.3791918],"type":"Point"}, [8.5534266,47.3791918], "LUltimo Bacio", "https://test/", "open", 1551200630000, "2019-02-26T17:03:50Z"
+]]}'
 
 echo '\n\ndone\n'
 
