@@ -173,7 +173,7 @@ export default class WorldMap {
           lastObjectValues.latitude = centroid.geometry.coordinates[1];
         }
 
-        if(geoJsonName && lastObjectValues[geoJsonName]) {
+        if(geoJsonName && lastObjectValues[geoJsonName] && lastObjectValues[geoJsonName].type !== 'Point') {
           let newGJ = this.createGeoJson(lastObjectValues, geoJsonName, markerColor);
           newGJ.addTo(markersGJ);
         }
