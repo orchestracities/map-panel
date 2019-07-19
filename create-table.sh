@@ -59,6 +59,143 @@ echo '\n\ninsert data 7\n'
     -d '{"stmt": "INSERT INTO example (address,availablespotnumber,entity_id,entity_type,fiware_servicepath,license,location,location_centroid,name,source,status,time_index,timeinstant) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", "bulk_args": [[{"addressCountry":"Switzerland","streetAddress":"Voltastrasse 40","addressLocality":"Zurich"}, 1, "urn:ngsi-ld:OffStreetParking:ultimobacio", "OffStreetParking", "/ParkingManagement", "https://creativecommons.org/publicdomain/zero/1.0/", {"coordinates":[8.5534266,47.3791918],"type":"Point"}, [8.5534266,47.3791918], "LUltimo Bacio", "https://test/", "open", 1551200630000, "2019-02-26T17:03:50Z"
 ]]}'
 
+echo '\n\ninsert data 8\n'
+
+  curl -sS -H 'Content-Type: application/json' \
+    -X POST 'localhost:4200/_sql' \
+    -H 'Default-Schema: doc' \
+    -d '{"stmt": "INSERT INTO example (address,availablespotnumber,entity_id,entity_type,fiware_servicepath,license,location,location_centroid,name,source,status,time_index,timeinstant) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", "bulk_args": [[{"addressCountry":"Switzerland","streetAddress":"Liedenhofstrasse 4","addressLocality":"Zurich"}, 1, "urn:ngsi-ld:EVChargingStation:EVChargingStation1", "EVChargingStation", "/ParkingManagement", "https://creativecommons.org/publicdomain/zero/1.0/", {"coordinates":[8.54098230600357, 47.37481948235262],"type":"Point"}, [8.54098230600357, 47.37481948235262], "EVChargingStation 1", "https://test/", "open", 1551200630000, "2019-02-26T17:03:50Z"
+]]}'
+
+echo '\n\ninsert data 9\n'
+
+  curl -sS -H 'Content-Type: application/json' \
+    -X POST 'localhost:4200/_sql' \
+    -H 'Default-Schema: doc' \
+    -d '{"stmt": "INSERT INTO example (address,availablespotnumber,entity_id,entity_type,fiware_servicepath,license,location,location_centroid,name,source,status,time_index,timeinstant) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", "bulk_args": [[{"addressCountry":"Switzerland","streetAddress":"Liedenhofstrasse 4","addressLocality":"Zurich"}, 1, "urn:ngsi-ld:EVChargingStation:EVChargingStation2", "EVChargingStation", "/ParkingManagement", "https://creativecommons.org/publicdomain/zero/1.0/", {"coordinates":[8.54112982749939,47.37481040040007],"type":"Point"}, [8.54112982749939,47.37481040040007], "EVChargingStation 2", "https://test/", "open", 1551200630000, "2019-02-26T17:03:50Z"
+]]}'
+
+echo '\n\ninsert data 10\n'
+
+  curl -sS -H 'Content-Type: application/json' \
+    -X POST 'localhost:4200/_sql' \
+    -H 'Default-Schema: doc' \
+    -d '{"stmt": "INSERT INTO example (address,availablespotnumber,entity_id,entity_type,fiware_servicepath,license,location,location_centroid,name,source,status,time_index,timeinstant) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", "bulk_args": [[{"addressCountry": "Switzerland","streetAddress": "Liedenhofstrasse 4","addressLocality": "Zurich"},1,"urn:ngsi-ld:OffStreetParking:l1","OffStreetParking","/ParkingManagement","https://creativecommons.org/publicdomain/zero/1.0/",{"coordinates":[
+          [
+            [
+              8.54087769985199,
+              47.374832197083556
+            ],
+            [
+              8.540968894958496,
+              47.374826747913545
+            ],
+            [
+              8.5409876704216,
+              47.3749084854048
+            ],
+            [
+              8.540893793106079,
+              47.37491575095346
+            ],
+            [
+              8.54087769985199,
+              47.374832197083556
+            ]
+          ]
+        ],"type": "Polygon"},[8.54087769985199,47.374832197083556],"Random Test in Zurich","https://test.ch","open",1552031070000,"2019-03-08T07:44:30Z"]]}'
+
+echo '\n\ninsert data 11\n'
+
+  curl -sS -H 'Content-Type: application/json' \
+    -X POST 'localhost:4200/_sql' \
+    -H 'Default-Schema: doc' \
+    -d '{"stmt": "INSERT INTO example (address,availablespotnumber,entity_id,entity_type,fiware_servicepath,license,location,location_centroid,name,source,status,time_index,timeinstant) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", "bulk_args": [[{"addressCountry": "Switzerland","streetAddress": "Liedenhofstrasse 4","addressLocality": "Zurich"},1,"urn:ngsi-ld:OffStreetParking:l2","OffStreetParking","/ParkingManagement","https://creativecommons.org/publicdomain/zero/1.0/",{"coordinates":[
+          [
+            [
+              8.541017174720764,
+              47.37482493152339
+            ],
+            [
+              8.5411137342453,
+              47.37481766596224
+            ],
+            [
+              8.54112982749939,
+              47.37489758707997
+            ],
+            [
+              8.541038632392883,
+              47.3749048526301
+            ],
+            [
+              8.541017174720764,
+              47.37482493152339
+            ]
+          ]
+        ],"type": "Polygon"},[8.541038632392883,47.3749048526301],"Random Test in Zurich","https://test.ch","open",1552031070000,"2019-03-08T07:44:30Z"]]}'
+
+echo '\n\ninsert data 12\n'
+
+  curl -sS -H 'Content-Type: application/json' \
+    -X POST 'localhost:4200/_sql' \
+    -H 'Default-Schema: doc' \
+    -d '{"stmt": "INSERT INTO example (address,availablespotnumber,entity_id,entity_type,fiware_servicepath,license,location,location_centroid,name,source,status,time_index,timeinstant) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", "bulk_args": [[{"addressCountry": "Switzerland","streetAddress": "Liedenhofstrasse 4","addressLocality": "Zurich"},1,"urn:ngsi-ld:OffStreetParking:l3","OffStreetParking","/ParkingManagement","https://creativecommons.org/publicdomain/zero/1.0/",{"coordinates":[
+          [
+            [
+              8.540861606597899,
+              47.374719580788586
+            ],
+            [
+              8.540947437286377,
+              47.37471594800088
+            ],
+            [
+              8.540960848331451,
+              47.37480131844597
+            ],
+            [
+              8.540880382061005,
+              47.374808584009386
+            ],
+            [
+              8.540861606597899,
+              47.374719580788586
+            ]
+          ]
+        ],"type": "Polygon"},[8.540960848331451,47.37480131844597],"Random Test in Zurich","https://test.ch","open",1552031070000,"2019-03-08T07:44:30Z"]]}'
+
+echo '\n\ninsert data 12\n'
+
+  curl -sS -H 'Content-Type: application/json' \
+    -X POST 'localhost:4200/_sql' \
+    -H 'Default-Schema: doc' \
+    -d '{"stmt": "INSERT INTO example (address,availablespotnumber,entity_id,entity_type,fiware_servicepath,license,location,location_centroid,name,source,status,time_index,timeinstant) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", "bulk_args": [[{"addressCountry": "Switzerland","streetAddress": "Liedenhofstrasse 4","addressLocality": "Zurich"},1,"urn:ngsi-ld:OffStreetParking:l4","OffStreetParking","/ParkingManagement","https://creativecommons.org/publicdomain/zero/1.0/",{"coordinates":[
+          [
+            [
+              8.54099839925766,
+              47.37471231521293
+            ],
+            [
+              8.541092276573181,
+              47.374708682424696
+            ],
+            [
+              8.5411137342453,
+              47.374799502054955
+            ],
+            [
+              8.541017174720764,
+              47.37480131844597
+            ],
+            [
+              8.54099839925766,
+              47.37471231521293
+            ]
+          ]
+        ],"type": "Polygon"},[8.541092276573181,47.374708682424696],"Random Test in Zurich","https://test.ch","open",1552031070000,"2019-03-08T07:44:30Z"]]}'
+
+
 echo '\n\ndone\n'
 
 
