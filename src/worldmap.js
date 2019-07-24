@@ -66,6 +66,7 @@ export default class WorldMap {
         center: location,
         zoomControl: false,
         minZoom: 3,
+        maxZoom: 20,
         attributionControl: false,
         layers: this.layers
       })
@@ -88,7 +89,7 @@ export default class WorldMap {
 
     const selectedTileServer = TILE_SERVERS[this.ctrl.tileServer];
     L.tileLayer(selectedTileServer.url, {
-      maxZoom: 18,
+      maxZoom: 20,
       subdomains: selectedTileServer.subdomains,
       reuseTiles: true,
       detectRetina: true,
@@ -116,7 +117,7 @@ export default class WorldMap {
   }
 
   updateGeoLayers(zoomLevel) {
-    const geoMarkersVisibilityZoomLevelThreshold = 13;
+    const geoMarkersVisibilityZoomLevelThreshold = 16;
 
     Object.keys(this.geoMarkers).forEach((layerKey) => {
       for (const layer of this.geoMarkers[layerKey]) {
@@ -145,6 +146,8 @@ export default class WorldMap {
   }
 
   drawPoints() {
+    this.geoMarkers = {};
+    
     Object.keys(this.ctrl.data).forEach((layerKey) => {
       let layer = this.ctrl.data[layerKey];
       
