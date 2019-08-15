@@ -21,6 +21,8 @@ import {
   getMapMarkerClassName
 } from './utils/map_utils';
 
+import * as turf from './vendor/turf/turf';
+
 const CIRCLE_RADIUS = 200
 const POLYGON_MAGNIFY_RATIO = 3
 
@@ -36,8 +38,11 @@ export default class WorldMap {
     this.currentTargetForChart = null;
     this.currentParameterForChart = null;
     this.map = null;
+    this.geoMarkers = {};
 
     this.ctrl.events.on('panel-size-changed', this.flagChartRefresh.bind(this));
+
+    this.setDefaultValues();
   }
 
   flagChartRefresh() {
@@ -61,6 +66,7 @@ export default class WorldMap {
         center: location,
         zoomControl: false,
         minZoom: 3,
+        maxZoom: 20,
         attributionControl: false,
         layers: this.layers
       })
@@ -76,9 +82,14 @@ export default class WorldMap {
       this.currentTargetForChart = null;
     });
 
+    this.map.on('zoomend', () => {
+      var zoomLevel = this.map.getZoom();
+      this.updateGeoLayers(zoomLevel);
+    });
+
     const selectedTileServer = TILE_SERVERS[this.ctrl.tileServer];
     L.tileLayer(selectedTileServer.url, {
-      maxZoom: 18,
+      maxZoom: 20,
       subdomains: selectedTileServer.subdomains,
       reuseTiles: true,
       detectRetina: true,
@@ -105,6 +116,25 @@ export default class WorldMap {
     this.layers.forEach((layer)=>layer.clearLayers())
   }
 
+  updateGeoLayers(zoomLevel) {
+    const geoMarkersVisibilityZoomLevelThreshold = 16;
+
+    Object.keys(this.geoMarkers).forEach((layerKey) => {
+      for (const layer of this.geoMarkers[layerKey]) {
+        if (zoomLevel < geoMarkersVisibilityZoomLevelThreshold) {
+          if (this.overlayMaps[layerKey].hasLayer(layer)) {
+            this.overlayMaps[layerKey].removeLayer(layer);
+          }
+        }
+        else {
+          if (!this.overlayMaps[layerKey].hasLayer(layer)) {
+            this.overlayMaps[layerKey].addLayer(layer);
+          }
+        }
+      }
+    })
+  }
+
   /* Validate metrics for a given target*/
   setMetrics() {
     try {
@@ -116,8 +146,11 @@ export default class WorldMap {
   }
 
   drawPoints() {
+    this.geoMarkers = {};
+    
     Object.keys(this.ctrl.data).forEach((layerKey) => {
       let layer = this.ctrl.data[layerKey];
+      
       let markersGJ = L.geoJSON();
       let markers = L.markerClusterGroup();
 
@@ -135,12 +168,20 @@ export default class WorldMap {
             }
         }
 
-        if(geoJsonName && lastObjectValues[geoJsonName]) {
-          let newGJ = this.createGeoJson(lastObjectValues, geoJsonName);
+        const markerColor = this.getGeoMarkerColor(lastObjectValues);
+
+        if (geoJsonName !== null && lastObjectValues.latitude === undefined && lastObjectValues.longitude === undefined) {
+          var centroid = turf.centroid(lastObjectValues[geoJsonName]);
+          lastObjectValues.longitude = centroid.geometry.coordinates[0];
+          lastObjectValues.latitude = centroid.geometry.coordinates[1];
+        }
+
+        if(geoJsonName && lastObjectValues[geoJsonName] && lastObjectValues[geoJsonName].type !== 'Point') {
+          let newGJ = this.createGeoJson(lastObjectValues, geoJsonName, markerColor);
           newGJ.addTo(markersGJ);
         }
         if (lastObjectValues.latitude && lastObjectValues.longitude) {
-          let newIcon = this.createIcon(lastObjectValues, geoJsonName);
+          let newIcon = this.createIcon(lastObjectValues, geoJsonName, markerColor);
           try {
             if(newIcon)
               markers.addLayer(newIcon);
@@ -151,22 +192,36 @@ export default class WorldMap {
       this.overlayMaps[layerKey].addLayer(markers);
       this.overlayMaps[layerKey].addLayer(markersGJ);
 
+      this.geoMarkers[layerKey] = this.geoMarkers[layerKey] || [];
+      this.geoMarkers[layerKey].push(markersGJ);
     });
   }
 
-  createGeoJson(dataPoint, geoJsonName) {
-    var geoColor = this.ctrl.panel.layersColors[dataPoint.type];
-    if (geoColor === 'lightred') {
-        geoColor = '#FF9898';
-    } else if (geoColor === 'darkpurple') {
-        geoColor = '#6813B2';
-    } else if (geoColor === 'black') {
-        geoColor = '#404040';
-    } else if (geoColor === null && this.ctrl.panel.layersIcons[dataPoint.type] !== null) {
-        geoColor = 'red';
+  getGeoMarkerColor(objectValues) {
+    const bindingValue = objectValues[this.ctrl.panel.geoMarkerColoringBinding];
+    const {medium, high} = this.getGeoMarkerColorThesholds();
+
+    if (bindingValue < medium) {
+      return this.ctrl.panel.geoMarkerColoringColorLow;
     }
+    if (bindingValue > high) {
+      return this.ctrl.panel.geoMarkerColoringColorHigh;
+    }
+    return this.ctrl.panel.geoMarkerColoringColorMedium;
+  }
+
+  getGeoMarkerColorThesholds() {
+    const thresholds = this.ctrl.panel.geoMarkerColoringThresholds || "";
+    const splitted = thresholds.split(",");
+    return {
+      medium: parseInt(splitted[0], 10),
+      high: parseInt(splitted[1], 10),
+    };
+  }
+
+  createGeoJson(dataPoint, geoJsonName, geoMarkerColor) {  
     var myStyle = {
-      "color": geoColor,
+      "color": geoMarkerColor,
       "weight": 5,
       "opacity": 0.65
     };
@@ -180,34 +235,25 @@ export default class WorldMap {
           style: myStyle
         });
     }
-    var dataInfoWithoutGeoJson = JSON.parse(JSON.stringify(dataPoint)); //creates clone of json
-    if (geoJsonName) {
-      delete dataInfoWithoutGeoJson[geoJsonName];
-    }
+
     this.createPopup(
         this.associateEvents(retVal),
-        getDataPointStickyInfo(dataInfoWithoutGeoJson, this.ctrl.panel.metrics)
+        getDataPointStickyInfo(dataPoint, this.ctrl.panel.metrics)
     );
     return retVal;
   }
 
-  createIcon(dataPoint, geoJsonName) {
+  createIcon(dataPoint, geoJsonName, markerColor) {
     //console.log(this.ctrl.panel.layersIcons)
     if(!dataPoint || !dataPoint.type)
       return null;
 
     let layerIcon = this.ctrl.panel.layersIcons[dataPoint.type];
-    let layerColor = this.ctrl.panel.layersColors[dataPoint.type];
-    let icon = layerIcon ? this.createMarker(dataPoint, layerIcon, layerColor) : this.createShape(dataPoint);
-
-    var dataInfoWithoutGeoJson = JSON.parse(JSON.stringify(dataPoint)); //creates clone of json
-    if (geoJsonName) {
-        delete dataInfoWithoutGeoJson[geoJsonName];
-    }
+    let icon = layerIcon ? this.createMarker(dataPoint, layerIcon, markerColor) : this.createShape(dataPoint);
 
     this.createPopup(
       this.associateEvents(icon),
-      getDataPointStickyInfo(dataInfoWithoutGeoJson, this.ctrl.panel.metrics)
+      getDataPointStickyInfo(dataPoint, this.ctrl.panel.metrics)
     );
 
     return icon;
@@ -369,6 +415,26 @@ export default class WorldMap {
       return false;
     this.currentChartData = chartData
     return true;
+  }
+
+  setDefaultValues() {
+    if (this.ctrl.panel.geoMarkerColoringBinding === undefined) {
+      this.ctrl.panel.geoMarkerColoringBinding = "value";
+    }
+
+    if (this.ctrl.panel.geoMarkerColoringThresholds === undefined) {
+      this.ctrl.panel.geoMarkerColoringThresholds = "30, 50";
+    }
+
+    if (this.ctrl.panel.geoMarkerColoringColorLow === undefined) {
+      this.ctrl.panel.geoMarkerColoringColorLow = "red";
+    }
+    if (this.ctrl.panel.geoMarkerColoringColorMedium === undefined) {
+      this.ctrl.panel.geoMarkerColoringColorMedium = "orange";
+    }
+    if (this.ctrl.panel.geoMarkerColoringColorHigh === undefined) {
+      this.ctrl.panel.geoMarkerColoringColorHigh = "green";
+    }
   }
 }
 
