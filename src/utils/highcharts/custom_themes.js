@@ -15,16 +15,16 @@ export const HIGHCHARTS_THEME_DARK = {
     }
   },
   subtitle: {
-      style: {
-        color: '#e0e0e3',
-        textTransform: 'uppercase'
-      }
+    style: {
+      color: '#e0e0e3',
+      textTransform: 'uppercase'
+    }
   },
   xAxis: {
     gridLineColor: '#707073',
     labels: {
       style: {
-          color: '#e0e0e3'
+        color: '#e0e0e3'
       }
     },
     lineColor: '#707073',

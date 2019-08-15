@@ -12,8 +12,12 @@ describe('DataFormatter', () => {
           valueName: 'total'
         },
         locations: [
-          {key: 'IE', name: 'Ireland', latitude: 1, longitude: 1},
-          {key: 'SE', name: 'Sweden', latitude: 2, longitude: 2},
+          {
+            key: 'IE', name: 'Ireland', latitude: 1, longitude: 1
+          },
+          {
+            key: 'SE', name: 'Sweden', latitude: 2, longitude: 2
+          },
         ],
         series: [
           {alias: 'IE', datapoints: [1, 2], stats: {total: 3}},
@@ -46,8 +50,12 @@ describe('DataFormatter', () => {
           valueName: 'total'
         },
         locations: [
-          {key: 'IE', name: 'Ireland', latitude: 1, longitude: 1},
-          {key: 'SE', name: 'Sweden', latitude: 2, longitude: 2},
+          {
+            key: 'IE', name: 'Ireland', latitude: 1, longitude: 1
+          },
+          {
+            key: 'SE', name: 'Sweden', latitude: 2, longitude: 2
+          },
         ],
         series: [
           {alias: 'ie', datapoints: [1, 2], stats: {total: 3}},
@@ -79,7 +87,9 @@ describe('DataFormatter', () => {
         panel: {
           valueName: 'total'
         },
-        locations: [{key: 'IE', name: 'Ireland', latitude: 1, longitude: 1}],
+        locations: [{
+          key: 'IE', name: 'Ireland', latitude: 1, longitude: 1
+        }],
         series: [
           {alias: 'SX', datapoints: [1, 2], stats: {total: 3}},
           {alias: 'IE', datapoints: [1, 2], stats: {total: 3}}
@@ -105,8 +115,12 @@ describe('DataFormatter', () => {
             decimals: 2
           },
           locations: [
-            {key: 'IE', name: 'Ireland', latitude: 1, longitude: 1},
-            {key: 'SE', name: 'Sweden', latitude: 2, longitude: 2},
+            {
+              key: 'IE', name: 'Ireland', latitude: 1, longitude: 1
+            },
+            {
+              key: 'SE', name: 'Sweden', latitude: 2, longitude: 2
+            },
           ],
           series: [
             {alias: 'IE', datapoints: [1.11, 2.22], stats: {total: 3.33}},
@@ -136,8 +150,12 @@ describe('DataFormatter', () => {
             decimals: '2'
           },
           locations: [
-            {key: 'IE', name: 'Ireland', latitude: 1, longitude: 1},
-            {key: 'SE', name: 'Sweden', latitude: 2, longitude: 2},
+            {
+              key: 'IE', name: 'Ireland', latitude: 1, longitude: 1
+            },
+            {
+              key: 'SE', name: 'Sweden', latitude: 2, longitude: 2
+            },
           ],
           series: [
             {alias: 'IE', datapoints: [1.11, 2.22], stats: {total: 3.33}},

@@ -3,12 +3,12 @@
 module.exports = (grunt) => {
   require('load-grunt-tasks')(grunt);
 
-  grunt.loadNpmTasks('grunt-execute');
+  // grunt.loadNpmTasks('grunt-exec');
   grunt.loadNpmTasks('grunt-contrib-clean');
-  //grunt.loadNpmTasks('grunt-postcss');
+  // grunt.loadNpmTasks('grunt-postcss');
 
   grunt.initConfig({
-    clean: ["dist"],
+    clean: ['dist'],
     copy: {
       srcToDist: {
         cwd: 'src',
@@ -28,45 +28,45 @@ module.exports = (grunt) => {
         src: ['img/**/*'],
         dest: 'dist/'
       },
-      
-      leaflet: { 
+
+      leaflet: {
         cwd: 'node_modules/leaflet/dist/',
         expand: true,
-        src: ['**/*'], 
+        src: ['**/*'],
         dest: 'dist/vendor/leaflet'
       },
-      
-      highcharts: { 
+
+      highcharts: {
         cwd: 'node_modules/highcharts/',
         expand: true,
-        src: ['highcharts.*', 'highstock.*', 'themes/dark-unica.*', 'themes/dark-unica.*', 'modules/exporting.*'], 
+        src: ['highcharts.*', 'highstock.*', 'themes/dark-unica.*', 'themes/dark-unica.*', 'modules/exporting.*'],
         dest: 'dist/vendor/highcharts'
       },
 
-      turf: { 
+      turf: {
         cwd: 'node_modules/turf',
         expand: true,
-        src: ['**/*'], 
+        src: ['**/*'],
         dest: 'dist/vendor/turf'
       },
 
-      leafletAwesomeMarkers: { 
+      leafletAwesomeMarkers: {
         cwd: 'node_modules/leaflet.awesome-markers/dist/',
         expand: true,
-        src: ['**/*'], 
+        src: ['**/*'],
         dest: 'dist/vendor/leaflet.awesome-markers'
       },
 
-      leafletMarkerCluster: { 
+      leafletMarkerCluster: {
         cwd: 'node_modules/leaflet.markercluster/dist/',
         expand: true,
-        src: ['**/*'], 
+        src: ['**/*'],
         dest: 'dist/vendor/leaflet.markercluster'
       },
-      leafletSleep: { 
+      leafletSleep: {
         cwd: 'node_modules/leaflet-sleep/',
         expand: true,
-        src: ['Leaflet.Sleep.js'], 
+        src: ['Leaflet.Sleep.js'],
         dest: 'dist/vendor/leaflet-sleep/'
       },
 
@@ -76,7 +76,7 @@ module.exports = (grunt) => {
     babel: {
       options: {
         sourceMap: true,
-        presets: ['env']
+        presets: ['@babel/preset-env']
       },
       dist: {
         files: [
@@ -97,7 +97,7 @@ module.exports = (grunt) => {
 
     //     processors: [
     //       require('pixrem')(), // add fallbacks for rem units
-    //       require('autoprefixer')({browsers: 'last 2 versions'}), // add vendor prefixes 
+    //       require('autoprefixer')({browsers: 'last 2 versions'}), // add vendor prefixes
     //       //require('cssnano')() // minify the result TO-DO: just for production
     //     ]
     //   },
@@ -112,19 +112,19 @@ module.exports = (grunt) => {
   });
 
   grunt.registerTask('default', [
-    'clean', 
-    'copy:srcToDist', 
-    'copy:pluginDef', 
-    'copy:imgToDist', 
-    'copy:leaflet', 
- 
+    'clean',
+    'copy:srcToDist',
+    'copy:pluginDef',
+    'copy:imgToDist',
+    'copy:leaflet',
+
     'copy:highcharts',
     'copy:turf',
     'copy:leafletAwesomeMarkers',
     'copy:leafletMarkerCluster',
     'copy:leafletSleep',
 
-//    'postcss',
+    //    'postcss',
     'babel'
   ]);
 };

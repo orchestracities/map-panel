@@ -45,7 +45,7 @@ module.exports = (config) => {
     },
 
     systemjs: {
-        // File patterns for application code, dependencies, and test suites
+      // File patterns for application code, dependencies, and test suites
       files: [
         'src/worldmap.js',
         'src/data_formatter.js',

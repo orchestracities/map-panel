@@ -23,11 +23,10 @@ import {
 
 import * as turf from './vendor/turf/turf';
 
-const CIRCLE_RADIUS = 200
-const POLYGON_MAGNIFY_RATIO = 3
+const CIRCLE_RADIUS = 200;
+const POLYGON_MAGNIFY_RATIO = 3;
 
 export default class WorldMap {
-
   constructor(ctrl, mapContainer) {
     this.ctrl = ctrl;
     this.mapContainer = mapContainer;
@@ -46,21 +45,22 @@ export default class WorldMap {
   }
 
   flagChartRefresh() {
-    this.refreshChart = true
+    this.refreshChart = true;
   }
+
   getLayers() {
-    return this.ctrl.layerNames.map(elem => L.layerGroup())
+    return this.ctrl.layerNames.map((elem) => L.layerGroup());
   }
 
   createMap() {
-    let location = [ parseFloat(this.ctrl.panel.mapCenterLatitude), parseFloat(this.ctrl.panel.mapCenterLongitude) ]
+    const location = [ parseFloat(this.ctrl.panel.mapCenterLatitude), parseFloat(this.ctrl.panel.mapCenterLongitude) ];
 
-    this.layers = this.getLayers()
+    this.layers = this.getLayers();
 
     this.map = L.map(this.mapContainer,
       {
         sleepNote: false,
-        sleepOpacity: .8,
+        sleepOpacity: 0.8,
         hoverToWake: false,
         worldCopyJump: true,
         center: location,
@@ -69,7 +69,7 @@ export default class WorldMap {
         maxZoom: 20,
         attributionControl: false,
         layers: this.layers
-      })
+      });
 
     this.map.setZoom(this.ctrl.panel.initialZoom);
     this.map.panTo(location);
@@ -83,7 +83,7 @@ export default class WorldMap {
     });
 
     this.map.on('zoomend', () => {
-      var zoomLevel = this.map.getZoom();
+      const zoomLevel = this.map.getZoom();
       this.updateGeoLayers(zoomLevel);
     });
 
@@ -96,24 +96,23 @@ export default class WorldMap {
       attribution: selectedTileServer.attribution
     }).addTo(this.map, true);
 
-    document.querySelector('#parameters_dropdown_'+this.ctrl.panel.id)
+    document.querySelector('#parameters_dropdown_' + this.ctrl.panel.id)
       .addEventListener('change', (event) => {
         this.currentParameterForChart = event.currentTarget.value;
-        console.debug('selecting point for measure:')
-        console.debug(this.currentParameterForChart)
+        console.debug('selecting point for measure:');
+        console.debug(this.currentParameterForChart);
         this.drawPointDetails();
-      }); //, {passive: true} <= to avoid blocking
+      }); // , {passive: true} <= to avoid blocking
   }
 
   addLayersToMap() {
     this.overlayMaps = {};
-    for (let i=0; i<this.ctrl.layerNames.length; i++)
-      this.overlayMaps[this.ctrl.layerNames[i]]=this.layers[i]
+    for (let i = 0; i < this.ctrl.layerNames.length; i++) this.overlayMaps[this.ctrl.layerNames[i]] = this.layers[i];
     L.control.layers({}, this.overlayMaps).addTo(this.map);
   }
 
   clearLayers() {
-    this.layers.forEach((layer)=>layer.clearLayers())
+    this.layers.forEach((layer) => layer.clearLayers());
   }
 
   updateGeoLayers(zoomLevel) {
@@ -125,69 +124,65 @@ export default class WorldMap {
           if (this.overlayMaps[layerKey].hasLayer(layer)) {
             this.overlayMaps[layerKey].removeLayer(layer);
           }
-        }
-        else {
-          if (!this.overlayMaps[layerKey].hasLayer(layer)) {
-            this.overlayMaps[layerKey].addLayer(layer);
-          }
+        } else if (!this.overlayMaps[layerKey].hasLayer(layer)) {
+          this.overlayMaps[layerKey].addLayer(layer);
         }
       }
-    })
+    });
   }
 
-  /* Validate metrics for a given target*/
+  /* Validate metrics for a given target */
   setMetrics() {
     try {
       this.validatedMetrics = this.ctrl.panel.metrics;
-    } catch(error) {
-      console.warn(error)
+    } catch (error) {
+      console.warn(error);
       throw new Error('Please insert a valid JSON in the Metrics field (Edit > Tab Worldmap > Section AirQualityObserved - Metrics field)');
     }
   }
 
   drawPoints() {
     this.geoMarkers = {};
-    
-    Object.keys(this.ctrl.data).forEach((layerKey) => {
-      let layer = this.ctrl.data[layerKey];
-      
-      let markersGJ = L.geoJSON();
-      let markers = L.markerClusterGroup();
 
-      //for each layer
+    Object.keys(this.ctrl.data).forEach((layerKey) => {
+      const layer = this.ctrl.data[layerKey];
+
+      const markersGJ = L.geoJSON();
+      const markers = L.markerClusterGroup();
+
+      // for each layer
       Object.keys(layer).forEach((objectKey) => {
-        let lastObjectValues = layer[objectKey][layer[objectKey].length-1];
+        const lastObjectValues = layer[objectKey][layer[objectKey].length - 1];
         lastObjectValues.type = layerKey;
 
-        var geoJsonName = null;
-        var keyArray = Object.keys(lastObjectValues);
-        for (var k = 0; k < keyArray.length; k++) {
-            if(keyArray[k].toLowerCase() === 'geojson'){
-                geoJsonName = keyArray[k];
-                break;
-            }
+        let geoJsonName = null;
+        const keyArray = Object.keys(lastObjectValues);
+        for (let k = 0; k < keyArray.length; k++) {
+          if (keyArray[k].toLowerCase() === 'geojson') {
+            geoJsonName = keyArray[k];
+            break;
+          }
         }
 
         const markerColor = this.getGeoMarkerColor(lastObjectValues);
 
         if (geoJsonName !== null && lastObjectValues.latitude === undefined && lastObjectValues.longitude === undefined) {
-          var centroid = turf.centroid(lastObjectValues[geoJsonName]);
+          const centroid = turf.centroid(lastObjectValues[geoJsonName]);
           lastObjectValues.longitude = centroid.geometry.coordinates[0];
           lastObjectValues.latitude = centroid.geometry.coordinates[1];
         }
 
-        if(geoJsonName && lastObjectValues[geoJsonName] && lastObjectValues[geoJsonName].type !== 'Point') {
-          let newGJ = this.createGeoJson(lastObjectValues, geoJsonName, markerColor);
+        if (geoJsonName && lastObjectValues[geoJsonName] && lastObjectValues[geoJsonName].type !== 'Point') {
+          const newGJ = this.createGeoJson(lastObjectValues, geoJsonName, markerColor);
           newGJ.addTo(markersGJ);
         }
         if (lastObjectValues.latitude && lastObjectValues.longitude) {
-          let newIcon = this.createIcon(lastObjectValues, geoJsonName, markerColor);
+          const newIcon = this.createIcon(lastObjectValues, geoJsonName, markerColor);
           try {
-            if(newIcon)
-              markers.addLayer(newIcon);
-          } catch(error) { console.warn(layerKey); console.warn(error); }
+            if (newIcon) markers.addLayer(newIcon);
+          } catch (error) { console.warn(layerKey); console.warn(error); }
         }
-      })
+      });
 
       this.overlayMaps[layerKey].addLayer(markers);
       this.overlayMaps[layerKey].addLayer(markersGJ);
@@ -211,45 +206,44 @@ export default class WorldMap {
   }
 
   getGeoMarkerColorThesholds() {
-    const thresholds = this.ctrl.panel.geoMarkerColoringThresholds || "";
-    const splitted = thresholds.split(",");
+    const thresholds = this.ctrl.panel.geoMarkerColoringThresholds || '';
+    const splitted = thresholds.split(',');
     return {
       medium: parseInt(splitted[0], 10),
       high: parseInt(splitted[1], 10),
     };
   }
 
-  createGeoJson(dataPoint, geoJsonName, geoMarkerColor) {  
-    var myStyle = {
-      "color": geoMarkerColor,
-      "weight": 5,
-      "opacity": 0.65
+  createGeoJson(dataPoint, geoJsonName, geoMarkerColor) {
+    const myStyle = {
+      'color': geoMarkerColor,
+      'weight': 5,
+      'opacity': 0.65
     };
-    var retVal;
-    if(typeof dataPoint[geoJsonName] === 'object') {
-        retVal = L.geoJSON(dataPoint[geoJsonName], {
-            style: myStyle
-        });
+    let retVal;
+    if (typeof dataPoint[geoJsonName] === 'object') {
+      retVal = L.geoJSON(dataPoint[geoJsonName], {
+        style: myStyle
+      });
     } else {
-        retVal = L.geoJSON(JSON.parse(dataPoint[geoJsonName]), {
-          style: myStyle
-        });
+      retVal = L.geoJSON(JSON.parse(dataPoint[geoJsonName]), {
+        style: myStyle
+      });
     }
 
     this.createPopup(
-        this.associateEvents(retVal),
-        getDataPointStickyInfo(dataPoint, this.ctrl.panel.metrics)
+      this.associateEvents(retVal),
+      getDataPointStickyInfo(dataPoint, this.ctrl.panel.metrics)
     );
     return retVal;
   }
 
   createIcon(dataPoint, geoJsonName, markerColor) {
-    //console.log(this.ctrl.panel.layersIcons)
-    if(!dataPoint || !dataPoint.type)
-      return null;
+    // console.log(this.ctrl.panel.layersIcons)
+    if (!dataPoint || !dataPoint.type) return null;
 
-    let layerIcon = this.ctrl.panel.layersIcons[dataPoint.type];
-    let icon = layerIcon ? this.createMarker(dataPoint, layerIcon, markerColor) : this.createShape(dataPoint);
+    const layerIcon = this.ctrl.panel.layersIcons[dataPoint.type];
+    const icon = layerIcon ? this.createMarker(dataPoint, layerIcon, markerColor) : this.createShape(dataPoint);
 
     this.createPopup(
       this.associateEvents(icon),
@@ -260,57 +254,57 @@ export default class WorldMap {
   }
 
   createShape(dataPoint) {
-    let dataPointExtraFields = getDataPointExtraFields(dataPoint);
+    const dataPointExtraFields = getDataPointExtraFields(dataPoint);
     let shape;
 
-    defaultsDeep(dataPointExtraFields, dataPoint)
+    defaultsDeep(dataPointExtraFields, dataPoint);
 
-    switch(dataPoint.type) {
+    switch (dataPoint.type) {
       case 'AirQualityObserved':
-        shape = L.circle([dataPoint.latitude, dataPoint.longitude], CIRCLE_RADIUS, dataPointExtraFields)
-      break;
+        shape = L.circle([dataPoint.latitude, dataPoint.longitude], CIRCLE_RADIUS, dataPointExtraFields);
+        break;
       case 'TrafficFlowObserved':
         shape = L.rectangle([
-            [dataPoint.latitude-(0.001*POLYGON_MAGNIFY_RATIO), dataPoint.longitude-(0.0015*POLYGON_MAGNIFY_RATIO)],
-            [dataPoint.latitude+(0.001*POLYGON_MAGNIFY_RATIO), dataPoint.longitude+(0.0015*POLYGON_MAGNIFY_RATIO)]
-          ], dataPointExtraFields)
-        //shape = L.circle([dataPoint.locationLatitude, dataPoint.locationLongitude], CIRCLE_RADIUS, dataPointExtraFields)
-      break;
+          [dataPoint.latitude - (0.001 * POLYGON_MAGNIFY_RATIO), dataPoint.longitude - (0.0015 * POLYGON_MAGNIFY_RATIO)],
+          [dataPoint.latitude + (0.001 * POLYGON_MAGNIFY_RATIO), dataPoint.longitude + (0.0015 * POLYGON_MAGNIFY_RATIO)]
+        ], dataPointExtraFields);
+        // shape = L.circle([dataPoint.locationLatitude, dataPoint.locationLongitude], CIRCLE_RADIUS, dataPointExtraFields)
+        break;
       default:
-        dataPointExtraFields.color='green'  //default color
+        dataPointExtraFields.color = 'green'; // default color
         shape = L.polygon([
-          [dataPoint.latitude-(0.001*POLYGON_MAGNIFY_RATIO), dataPoint.longitude-(0.0015*POLYGON_MAGNIFY_RATIO)],
-          [dataPoint.latitude+(0.001*POLYGON_MAGNIFY_RATIO), dataPoint.longitude],
-          [dataPoint.latitude-(0.001*POLYGON_MAGNIFY_RATIO), dataPoint.longitude+(0.0015*POLYGON_MAGNIFY_RATIO)],
-        ], dataPointExtraFields)
+          [dataPoint.latitude - (0.001 * POLYGON_MAGNIFY_RATIO), dataPoint.longitude - (0.0015 * POLYGON_MAGNIFY_RATIO)],
+          [dataPoint.latitude + (0.001 * POLYGON_MAGNIFY_RATIO), dataPoint.longitude],
+          [dataPoint.latitude - (0.001 * POLYGON_MAGNIFY_RATIO), dataPoint.longitude + (0.0015 * POLYGON_MAGNIFY_RATIO)],
+        ], dataPointExtraFields);
     }
 
     return shape;
   }
 
   createMarker(dataPoint, elementIcon, elementColor) {
-    let dataPointExtraFields = getDataPointExtraFields(dataPoint);
-    let location = [dataPoint.latitude, dataPoint.longitude];
+    const dataPointExtraFields = getDataPointExtraFields(dataPoint);
+    const location = [dataPoint.latitude, dataPoint.longitude];
 
-    let markerProperties = {
+    const markerProperties = {
       icon: L.AwesomeMarkers.icon(
         {
           icon: elementIcon,
           prefix: 'fa',
-          markerColor: (elementColor ? elementColor : dataPointExtraFields.markerColor),
-          //spin: true,
+          markerColor: (elementColor || dataPointExtraFields.markerColor),
+          // spin: true,
         }
       )
-    }
-    defaultsDeep(markerProperties, dataPoint)
+    };
+    defaultsDeep(markerProperties, dataPoint);
 
     return L.marker(location, markerProperties);
   }
 
   associateEvents(shape) {
     return shape
-      .on('click', (event) => {this.currentTargetForChart = event})
-      .on('click', () => this.drawPointDetails())
+      .on('click', (event) => { this.currentTargetForChart = event; })
+      .on('click', () => this.drawPointDetails());
   }
 
   createPopup(shape, stickyPopupInfo) {
@@ -319,12 +313,11 @@ export default class WorldMap {
         'offset': L.point(0, -2),
         'className': 'worldmap-popup',
         'closeButton': this.ctrl.panel.stickyLabels
-      }
-    );
+      });
 
     if (!this.ctrl.panel.stickyLabels) {
-      shape.on('mouseover', function () { this.openPopup() });
-      shape.on('mouseout', function () { this.closePopup() });
+      shape.on('mouseover', function () { this.openPopup(); });
+      shape.on('mouseout', function () { this.closePopup(); });
     }
   }
 
@@ -339,9 +332,9 @@ export default class WorldMap {
   }
 
   panToMapCenter() {
-    let location = [parseFloat(this.ctrl.panel.mapCenterLatitude), parseFloat(this.ctrl.panel.mapCenterLongitude)]
+    const location = [parseFloat(this.ctrl.panel.mapCenterLatitude), parseFloat(this.ctrl.panel.mapCenterLongitude)];
 
-/*    if ( 'Location Variable' === this.ctrl.panel.mapCenter && this.ctrl.isADiferentCity() ) {
+    /*    if ( 'Location Variable' === this.ctrl.panel.mapCenter && this.ctrl.isADiferentCity() ) {
       console.log('diferent city detected')
 
       this.ctrl.setNewCoords()
@@ -353,7 +346,7 @@ export default class WorldMap {
         })
         .catch(error => console.warn(error))
       return ;
-    }*/
+    } */
 
     this.map.flyTo(location);
     this.ctrl.mapCenterMoved = false;
@@ -370,28 +363,27 @@ export default class WorldMap {
 
   drawPointDetails() {
     console.debug('drawPointDetails');
-    if(this.currentTargetForChart==null){
+    if (this.currentTargetForChart == null) {
       console.debug('no point selected in map');
-      return ;
+      return;
     }
 
-    let currentParameterForChart = this.currentParameterForChart || 'value';
+    const currentParameterForChart = this.currentParameterForChart || 'value';
     if (!this.currentTargetForChart.target.options.type || this.currentTargetForChart.target.options.id) {
       return;
     }
-    let selectedPointValues = this.ctrl.data[this.currentTargetForChart.target.options.type][this.currentTargetForChart.target.options.id];
+    const selectedPointValues = this.ctrl.data[this.currentTargetForChart.target.options.type][this.currentTargetForChart.target.options.id];
     if (!selectedPointValues) {
-        return;
+      return;
     }
-    let lastValueMeasure = selectedPointValues[selectedPointValues.length - 1];
+    const lastValueMeasure = selectedPointValues[selectedPointValues.length - 1];
 
     drawSelect(this.ctrl.panel.id, lastValueMeasure, this.validatedMetrics, currentParameterForChart);
 
     drawPopups(this.ctrl.panel.id, lastValueMeasure, this.validatedMetrics);
 
-    //refresh chart only if new values arrived
-    if(!this.isToRefreshChart(selectedPointValues, currentParameterForChart))
-      return ;
+    // refresh chart only if new values arrived
+    if (!this.isToRefreshChart(selectedPointValues, currentParameterForChart)) return;
 
     renderChart(this.ctrl.panel.id, selectedPointValues,
       getTranslation(this.validatedMetrics, currentParameterForChart),
@@ -399,46 +391,43 @@ export default class WorldMap {
         this.currentTargetForChart.target.options.type,
         this.currentTargetForChart.target.options.id,
         currentParameterForChart
-      ]
-    )
+      ]);
 
-    this.refreshChart = false
+    this.refreshChart = false;
   }
 
 
   // helper method just to avoid unnecessary chart refresh
   isToRefreshChart(selectedPointValues, currentParameterForChart) {
-    if(this.refreshChart)
-      return true;
-    let chartData = selectedPointValues.map((elem)=>[ elem.created_at, elem[currentParameterForChart] ]);
-    if(isEqual(this.currentChartData, chartData))
-      return false;
-    this.currentChartData = chartData
+    if (this.refreshChart) return true;
+    const chartData = selectedPointValues.map((elem) => [ elem.created_at, elem[currentParameterForChart] ]);
+    if (isEqual(this.currentChartData, chartData)) return false;
+    this.currentChartData = chartData;
     return true;
   }
 
   setDefaultValues() {
     if (this.ctrl.panel.geoMarkerColoringBinding === undefined) {
-      this.ctrl.panel.geoMarkerColoringBinding = "value";
+      this.ctrl.panel.geoMarkerColoringBinding = 'value';
     }
 
     if (this.ctrl.panel.geoMarkerColoringThresholds === undefined) {
-      this.ctrl.panel.geoMarkerColoringThresholds = "30, 50";
+      this.ctrl.panel.geoMarkerColoringThresholds = '30, 50';
     }
 
     if (this.ctrl.panel.geoMarkerColoringColorLow === undefined) {
-      this.ctrl.panel.geoMarkerColoringColorLow = "red";
+      this.ctrl.panel.geoMarkerColoringColorLow = 'red';
     }
     if (this.ctrl.panel.geoMarkerColoringColorMedium === undefined) {
-      this.ctrl.panel.geoMarkerColoringColorMedium = "orange";
+      this.ctrl.panel.geoMarkerColoringColorMedium = 'orange';
     }
     if (this.ctrl.panel.geoMarkerColoringColorHigh === undefined) {
-      this.ctrl.panel.geoMarkerColoringColorHigh = "green";
+      this.ctrl.panel.geoMarkerColoringColorHigh = 'green';
     }
   }
 }
 
 function getTranslation(measuresMetaInfo, measure) {
-  let resp = measuresMetaInfo.filter((measure_)=>measure_[0].toLowerCase()===measure.toLowerCase())
-  return resp.length>0 ? resp[0] : [measure, measure, null]
+  const resp = measuresMetaInfo.filter((measure_) => measure_[0].toLowerCase() === measure.toLowerCase());
+  return resp.length > 0 ? resp[0] : [measure, measure, null];
 }

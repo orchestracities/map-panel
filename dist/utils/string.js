@@ -1,10 +1,11 @@
-'use strict';
+"use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.capitalize = capitalize;
 exports.titleize = titleize;
+
 function capitalize(str) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
@@ -18,6 +19,7 @@ function titleize(str) {
 String.prototype.capitalize = function () {
   this.charAt(0).toUpperCase() + this.slice(1);
 };
+
 String.prototype.titleize = function () {
   var _this = this;
 

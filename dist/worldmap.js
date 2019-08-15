@@ -1,53 +1,48 @@
-'use strict';
+"use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports["default"] = void 0;
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+var _lodash = require("lodash");
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /* eslint-disable id-length, no-unused-vars */
+require("./vendor/leaflet.awesome-markers/leaflet.awesome-markers.css!");
 
-/* Vendor specific */
+var L = _interopRequireWildcard(require("./vendor/leaflet/leaflet"));
 
+require("./vendor/leaflet.awesome-markers/leaflet.awesome-markers");
 
-/* App Specific */
+require("./vendor/leaflet-sleep/Leaflet.Sleep");
 
+require("./vendor/leaflet.markercluster/leaflet.markercluster");
 
-var _lodash = require('lodash');
+require("./vendor/leaflet.markercluster/MarkerCluster.Default.css!");
 
-require('./vendor/leaflet.awesome-markers/leaflet.awesome-markers.css!');
+require("./vendor/leaflet.markercluster/MarkerCluster.css!");
 
-var _leaflet = require('./vendor/leaflet/leaflet');
+var _definitions = require("./definitions");
 
-var L = _interopRequireWildcard(_leaflet);
+var _map_utils = require("./utils/map_utils");
 
-require('./vendor/leaflet.awesome-markers/leaflet.awesome-markers');
+var turf = _interopRequireWildcard(require("./vendor/turf/turf"));
 
-require('./vendor/leaflet-sleep/Leaflet.Sleep');
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj["default"] = obj; return newObj; } }
 
-require('./vendor/leaflet.markercluster/leaflet.markercluster');
-
-require('./vendor/leaflet.markercluster/MarkerCluster.Default.css!');
-
-require('./vendor/leaflet.markercluster/MarkerCluster.css!');
-
-var _definitions = require('./definitions');
-
-var _map_utils = require('./utils/map_utils');
-
-var _turf = require('./vendor/turf/turf');
-
-var turf = _interopRequireWildcard(_turf);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
 var CIRCLE_RADIUS = 200;
 var POLYGON_MAGNIFY_RATIO = 3;
 
-var WorldMap = function () {
+var WorldMap =
+/*#__PURE__*/
+function () {
   function WorldMap(ctrl, mapContainer) {
     _classCallCheck(this, WorldMap);
 
@@ -61,36 +56,32 @@ var WorldMap = function () {
     this.currentParameterForChart = null;
     this.map = null;
     this.geoMarkers = {};
-
     this.ctrl.events.on('panel-size-changed', this.flagChartRefresh.bind(this));
-
     this.setDefaultValues();
   }
 
   _createClass(WorldMap, [{
-    key: 'flagChartRefresh',
+    key: "flagChartRefresh",
     value: function flagChartRefresh() {
       this.refreshChart = true;
     }
   }, {
-    key: 'getLayers',
+    key: "getLayers",
     value: function getLayers() {
       return this.ctrl.layerNames.map(function (elem) {
         return L.layerGroup();
       });
     }
   }, {
-    key: 'createMap',
+    key: "createMap",
     value: function createMap() {
       var _this = this;
 
       var location = [parseFloat(this.ctrl.panel.mapCenterLatitude), parseFloat(this.ctrl.panel.mapCenterLongitude)];
-
       this.layers = this.getLayers();
-
       this.map = L.map(this.mapContainer, {
         sleepNote: false,
-        sleepOpacity: .8,
+        sleepOpacity: 0.8,
         hoverToWake: false,
         worldCopyJump: true,
         center: location,
@@ -100,23 +91,22 @@ var WorldMap = function () {
         attributionControl: false,
         layers: this.layers
       });
-
       this.map.setZoom(this.ctrl.panel.initialZoom);
       this.map.panTo(location);
-      L.control.zoom({ position: 'topright' }).addTo(this.map);
-      this.addLayersToMap();
+      L.control.zoom({
+        position: 'topright'
+      }).addTo(this.map);
+      this.addLayersToMap(); // this.map.on('zoomstart', (e) => { mapZoom = this.map.getZoom() });
 
-      // this.map.on('zoomstart', (e) => { mapZoom = this.map.getZoom() });
       this.map.on('click', function () {
         (0, _map_utils.hideAllGraphPopups)(_this.ctrl.panel.id);
         _this.currentTargetForChart = null;
       });
-
       this.map.on('zoomend', function () {
         var zoomLevel = _this.map.getZoom();
+
         _this.updateGeoLayers(zoomLevel);
       });
-
       var selectedTileServer = _definitions.TILE_SERVERS[this.ctrl.tileServer];
       L.tileLayer(selectedTileServer.url, {
         maxZoom: 20,
@@ -125,36 +115,38 @@ var WorldMap = function () {
         detectRetina: true,
         attribution: selectedTileServer.attribution
       }).addTo(this.map, true);
-
       document.querySelector('#parameters_dropdown_' + this.ctrl.panel.id).addEventListener('change', function (event) {
         _this.currentParameterForChart = event.currentTarget.value;
         console.debug('selecting point for measure:');
         console.debug(_this.currentParameterForChart);
+
         _this.drawPointDetails();
-      }); //, {passive: true} <= to avoid blocking
+      }); // , {passive: true} <= to avoid blocking
     }
   }, {
-    key: 'addLayersToMap',
+    key: "addLayersToMap",
     value: function addLayersToMap() {
       this.overlayMaps = {};
+
       for (var i = 0; i < this.ctrl.layerNames.length; i++) {
         this.overlayMaps[this.ctrl.layerNames[i]] = this.layers[i];
-      }L.control.layers({}, this.overlayMaps).addTo(this.map);
+      }
+
+      L.control.layers({}, this.overlayMaps).addTo(this.map);
     }
   }, {
-    key: 'clearLayers',
+    key: "clearLayers",
     value: function clearLayers() {
       this.layers.forEach(function (layer) {
         return layer.clearLayers();
       });
     }
   }, {
-    key: 'updateGeoLayers',
+    key: "updateGeoLayers",
     value: function updateGeoLayers(zoomLevel) {
       var _this2 = this;
 
       var geoMarkersVisibilityZoomLevelThreshold = 16;
-
       Object.keys(this.geoMarkers).forEach(function (layerKey) {
         var _iteratorNormalCompletion = true;
         var _didIteratorError = false;
@@ -168,10 +160,8 @@ var WorldMap = function () {
               if (_this2.overlayMaps[layerKey].hasLayer(layer)) {
                 _this2.overlayMaps[layerKey].removeLayer(layer);
               }
-            } else {
-              if (!_this2.overlayMaps[layerKey].hasLayer(layer)) {
-                _this2.overlayMaps[layerKey].addLayer(layer);
-              }
+            } else if (!_this2.overlayMaps[layerKey].hasLayer(layer)) {
+              _this2.overlayMaps[layerKey].addLayer(layer);
             }
           }
         } catch (err) {
@@ -179,8 +169,8 @@ var WorldMap = function () {
           _iteratorError = err;
         } finally {
           try {
-            if (!_iteratorNormalCompletion && _iterator.return) {
-              _iterator.return();
+            if (!_iteratorNormalCompletion && _iterator["return"] != null) {
+              _iterator["return"]();
             }
           } finally {
             if (_didIteratorError) {
@@ -190,11 +180,10 @@ var WorldMap = function () {
         }
       });
     }
-
-    /* Validate metrics for a given target*/
+    /* Validate metrics for a given target */
 
   }, {
-    key: 'setMetrics',
+    key: "setMetrics",
     value: function setMetrics() {
       try {
         this.validatedMetrics = this.ctrl.panel.metrics;
@@ -204,25 +193,22 @@ var WorldMap = function () {
       }
     }
   }, {
-    key: 'drawPoints',
+    key: "drawPoints",
     value: function drawPoints() {
       var _this3 = this;
 
       this.geoMarkers = {};
-
       Object.keys(this.ctrl.data).forEach(function (layerKey) {
         var layer = _this3.ctrl.data[layerKey];
-
         var markersGJ = L.geoJSON();
-        var markers = L.markerClusterGroup();
+        var markers = L.markerClusterGroup(); // for each layer
 
-        //for each layer
         Object.keys(layer).forEach(function (objectKey) {
           var lastObjectValues = layer[objectKey][layer[objectKey].length - 1];
           lastObjectValues.type = layerKey;
-
           var geoJsonName = null;
           var keyArray = Object.keys(lastObjectValues);
+
           for (var k = 0; k < keyArray.length; k++) {
             if (keyArray[k].toLowerCase() === 'geojson') {
               geoJsonName = keyArray[k];
@@ -240,61 +226,70 @@ var WorldMap = function () {
 
           if (geoJsonName && lastObjectValues[geoJsonName] && lastObjectValues[geoJsonName].type !== 'Point') {
             var newGJ = _this3.createGeoJson(lastObjectValues, geoJsonName, markerColor);
+
             newGJ.addTo(markersGJ);
           }
+
           if (lastObjectValues.latitude && lastObjectValues.longitude) {
             var newIcon = _this3.createIcon(lastObjectValues, geoJsonName, markerColor);
+
             try {
               if (newIcon) markers.addLayer(newIcon);
             } catch (error) {
-              console.warn(layerKey);console.warn(error);
+              console.warn(layerKey);
+              console.warn(error);
             }
           }
         });
 
         _this3.overlayMaps[layerKey].addLayer(markers);
+
         _this3.overlayMaps[layerKey].addLayer(markersGJ);
 
         _this3.geoMarkers[layerKey] = _this3.geoMarkers[layerKey] || [];
+
         _this3.geoMarkers[layerKey].push(markersGJ);
       });
     }
   }, {
-    key: 'getGeoMarkerColor',
+    key: "getGeoMarkerColor",
     value: function getGeoMarkerColor(objectValues) {
       var bindingValue = objectValues[this.ctrl.panel.geoMarkerColoringBinding];
 
-      var _getGeoMarkerColorThe = this.getGeoMarkerColorThesholds(),
-          medium = _getGeoMarkerColorThe.medium,
-          high = _getGeoMarkerColorThe.high;
+      var _this$getGeoMarkerCol = this.getGeoMarkerColorThesholds(),
+          medium = _this$getGeoMarkerCol.medium,
+          high = _this$getGeoMarkerCol.high;
 
       if (bindingValue < medium) {
         return this.ctrl.panel.geoMarkerColoringColorLow;
       }
+
       if (bindingValue > high) {
         return this.ctrl.panel.geoMarkerColoringColorHigh;
       }
+
       return this.ctrl.panel.geoMarkerColoringColorMedium;
     }
   }, {
-    key: 'getGeoMarkerColorThesholds',
+    key: "getGeoMarkerColorThesholds",
     value: function getGeoMarkerColorThesholds() {
-      var thresholds = this.ctrl.panel.geoMarkerColoringThresholds || "";
-      var splitted = thresholds.split(",");
+      var thresholds = this.ctrl.panel.geoMarkerColoringThresholds || '';
+      var splitted = thresholds.split(',');
       return {
         medium: parseInt(splitted[0], 10),
         high: parseInt(splitted[1], 10)
       };
     }
   }, {
-    key: 'createGeoJson',
+    key: "createGeoJson",
     value: function createGeoJson(dataPoint, geoJsonName, geoMarkerColor) {
       var myStyle = {
-        "color": geoMarkerColor,
-        "weight": 5,
-        "opacity": 0.65
+        'color': geoMarkerColor,
+        'weight': 5,
+        'opacity': 0.65
       };
       var retVal;
+
       if (_typeof(dataPoint[geoJsonName]) === 'object') {
         retVal = L.geoJSON(dataPoint[geoJsonName], {
           style: myStyle
@@ -309,61 +304,58 @@ var WorldMap = function () {
       return retVal;
     }
   }, {
-    key: 'createIcon',
+    key: "createIcon",
     value: function createIcon(dataPoint, geoJsonName, markerColor) {
-      //console.log(this.ctrl.panel.layersIcons)
+      // console.log(this.ctrl.panel.layersIcons)
       if (!dataPoint || !dataPoint.type) return null;
-
       var layerIcon = this.ctrl.panel.layersIcons[dataPoint.type];
       var icon = layerIcon ? this.createMarker(dataPoint, layerIcon, markerColor) : this.createShape(dataPoint);
-
       this.createPopup(this.associateEvents(icon), (0, _map_utils.getDataPointStickyInfo)(dataPoint, this.ctrl.panel.metrics));
-
       return icon;
     }
   }, {
-    key: 'createShape',
+    key: "createShape",
     value: function createShape(dataPoint) {
       var dataPointExtraFields = (0, _map_utils.getDataPointExtraFields)(dataPoint);
-      var shape = void 0;
-
+      var shape;
       (0, _lodash.defaultsDeep)(dataPointExtraFields, dataPoint);
 
       switch (dataPoint.type) {
         case 'AirQualityObserved':
           shape = L.circle([dataPoint.latitude, dataPoint.longitude], CIRCLE_RADIUS, dataPointExtraFields);
           break;
+
         case 'TrafficFlowObserved':
-          shape = L.rectangle([[dataPoint.latitude - 0.001 * POLYGON_MAGNIFY_RATIO, dataPoint.longitude - 0.0015 * POLYGON_MAGNIFY_RATIO], [dataPoint.latitude + 0.001 * POLYGON_MAGNIFY_RATIO, dataPoint.longitude + 0.0015 * POLYGON_MAGNIFY_RATIO]], dataPointExtraFields);
-          //shape = L.circle([dataPoint.locationLatitude, dataPoint.locationLongitude], CIRCLE_RADIUS, dataPointExtraFields)
+          shape = L.rectangle([[dataPoint.latitude - 0.001 * POLYGON_MAGNIFY_RATIO, dataPoint.longitude - 0.0015 * POLYGON_MAGNIFY_RATIO], [dataPoint.latitude + 0.001 * POLYGON_MAGNIFY_RATIO, dataPoint.longitude + 0.0015 * POLYGON_MAGNIFY_RATIO]], dataPointExtraFields); // shape = L.circle([dataPoint.locationLatitude, dataPoint.locationLongitude], CIRCLE_RADIUS, dataPointExtraFields)
+
           break;
+
         default:
-          dataPointExtraFields.color = 'green'; //default color
+          dataPointExtraFields.color = 'green'; // default color
+
           shape = L.polygon([[dataPoint.latitude - 0.001 * POLYGON_MAGNIFY_RATIO, dataPoint.longitude - 0.0015 * POLYGON_MAGNIFY_RATIO], [dataPoint.latitude + 0.001 * POLYGON_MAGNIFY_RATIO, dataPoint.longitude], [dataPoint.latitude - 0.001 * POLYGON_MAGNIFY_RATIO, dataPoint.longitude + 0.0015 * POLYGON_MAGNIFY_RATIO]], dataPointExtraFields);
       }
 
       return shape;
     }
   }, {
-    key: 'createMarker',
+    key: "createMarker",
     value: function createMarker(dataPoint, elementIcon, elementColor) {
       var dataPointExtraFields = (0, _map_utils.getDataPointExtraFields)(dataPoint);
       var location = [dataPoint.latitude, dataPoint.longitude];
-
       var markerProperties = {
         icon: L.AwesomeMarkers.icon({
           icon: elementIcon,
           prefix: 'fa',
-          markerColor: elementColor ? elementColor : dataPointExtraFields.markerColor
-          //spin: true,
+          markerColor: elementColor || dataPointExtraFields.markerColor // spin: true,
+
         })
       };
       (0, _lodash.defaultsDeep)(markerProperties, dataPoint);
-
       return L.marker(location, markerProperties);
     }
   }, {
-    key: 'associateEvents',
+    key: "associateEvents",
     value: function associateEvents(shape) {
       var _this4 = this;
 
@@ -374,7 +366,7 @@ var WorldMap = function () {
       });
     }
   }, {
-    key: 'createPopup',
+    key: "createPopup",
     value: function createPopup(shape, stickyPopupInfo) {
       shape.bindPopup(stickyPopupInfo, {
         'offset': L.point(0, -2),
@@ -392,12 +384,12 @@ var WorldMap = function () {
       }
     }
   }, {
-    key: 'setTarget',
+    key: "setTarget",
     value: function setTarget(event) {
       this.currentTargetForChart = event;
     }
   }, {
-    key: 'resize',
+    key: "resize",
     value: function resize() {
       var _this5 = this;
 
@@ -406,73 +398,69 @@ var WorldMap = function () {
       }, 0);
     }
   }, {
-    key: 'panToMapCenter',
+    key: "panToMapCenter",
     value: function panToMapCenter() {
       var location = [parseFloat(this.ctrl.panel.mapCenterLatitude), parseFloat(this.ctrl.panel.mapCenterLongitude)];
-
       /*    if ( 'Location Variable' === this.ctrl.panel.mapCenter && this.ctrl.isADiferentCity() ) {
-            console.log('diferent city detected')
-      
-            this.ctrl.setNewCoords()
-              .then(() => {
-                console.debug('flying to a new location')
-                console.debug(location)
-                this.map.flyTo(location)
-                this.ctrl.refresh();
-              })
-              .catch(error => console.warn(error))
-            return ;
-          }*/
+        console.log('diferent city detected')
+         this.ctrl.setNewCoords()
+          .then(() => {
+            console.debug('flying to a new location')
+            console.debug(location)
+            this.map.flyTo(location)
+            this.ctrl.refresh();
+          })
+          .catch(error => console.warn(error))
+        return ;
+      } */
 
       this.map.flyTo(location);
       this.ctrl.mapCenterMoved = false;
     }
   }, {
-    key: 'removeLegend',
+    key: "removeLegend",
     value: function removeLegend() {
       this.legend.removeFrom(this.map);
       this.legend = null;
     }
   }, {
-    key: 'setZoom',
+    key: "setZoom",
     value: function setZoom(zoomFactor) {
       this.map.setZoom(parseInt(zoomFactor, 10));
     }
   }, {
-    key: 'drawPointDetails',
+    key: "drawPointDetails",
     value: function drawPointDetails() {
       console.debug('drawPointDetails');
+
       if (this.currentTargetForChart == null) {
         console.debug('no point selected in map');
         return;
       }
 
       var currentParameterForChart = this.currentParameterForChart || 'value';
+
       if (!this.currentTargetForChart.target.options.type || this.currentTargetForChart.target.options.id) {
         return;
       }
+
       var selectedPointValues = this.ctrl.data[this.currentTargetForChart.target.options.type][this.currentTargetForChart.target.options.id];
+
       if (!selectedPointValues) {
         return;
       }
+
       var lastValueMeasure = selectedPointValues[selectedPointValues.length - 1];
-
       (0, _map_utils.drawSelect)(this.ctrl.panel.id, lastValueMeasure, this.validatedMetrics, currentParameterForChart);
+      (0, _map_utils.drawPopups)(this.ctrl.panel.id, lastValueMeasure, this.validatedMetrics); // refresh chart only if new values arrived
 
-      (0, _map_utils.drawPopups)(this.ctrl.panel.id, lastValueMeasure, this.validatedMetrics);
-
-      //refresh chart only if new values arrived
       if (!this.isToRefreshChart(selectedPointValues, currentParameterForChart)) return;
-
       (0, _map_utils.renderChart)(this.ctrl.panel.id, selectedPointValues, getTranslation(this.validatedMetrics, currentParameterForChart), [this.currentTargetForChart.target.options.type, this.currentTargetForChart.target.options.id, currentParameterForChart]);
-
       this.refreshChart = false;
-    }
-
-    // helper method just to avoid unnecessary chart refresh
+    } // helper method just to avoid unnecessary chart refresh
 
   }, {
-    key: 'isToRefreshChart',
+    key: "isToRefreshChart",
     value: function isToRefreshChart(selectedPointValues, currentParameterForChart) {
       if (this.refreshChart) return true;
       var chartData = selectedPointValues.map(function (elem) {
@@ -483,24 +471,26 @@ var WorldMap = function () {
       return true;
     }
   }, {
-    key: 'setDefaultValues',
+    key: "setDefaultValues",
     value: function setDefaultValues() {
       if (this.ctrl.panel.geoMarkerColoringBinding === undefined) {
-        this.ctrl.panel.geoMarkerColoringBinding = "value";
+        this.ctrl.panel.geoMarkerColoringBinding = 'value';
       }
 
       if (this.ctrl.panel.geoMarkerColoringThresholds === undefined) {
-        this.ctrl.panel.geoMarkerColoringThresholds = "30, 50";
+        this.ctrl.panel.geoMarkerColoringThresholds = '30, 50';
       }
 
       if (this.ctrl.panel.geoMarkerColoringColorLow === undefined) {
-        this.ctrl.panel.geoMarkerColoringColorLow = "red";
+        this.ctrl.panel.geoMarkerColoringColorLow = 'red';
       }
+
       if (this.ctrl.panel.geoMarkerColoringColorMedium === undefined) {
-        this.ctrl.panel.geoMarkerColoringColorMedium = "orange";
+        this.ctrl.panel.geoMarkerColoringColorMedium = 'orange';
       }
+
       if (this.ctrl.panel.geoMarkerColoringColorHigh === undefined) {
-        this.ctrl.panel.geoMarkerColoringColorHigh = "green";
+        this.ctrl.panel.geoMarkerColoringColorHigh = 'green';
       }
     }
   }]);
@@ -508,8 +498,7 @@ var WorldMap = function () {
   return WorldMap;
 }();
 
-exports.default = WorldMap;
-
+exports["default"] = WorldMap;
 
 function getTranslation(measuresMetaInfo, measure) {
   var resp = measuresMetaInfo.filter(function (measure_) {
