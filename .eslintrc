@@ -5,7 +5,9 @@
     "browser": true
   },
   "parser": "babel-eslint",
-  "ecmaVersion": 6,
+  "parserOptions": {
+    "ecmaVersion": 6
+  },
   "rules": {
     "array-bracket-spacing": 0,
     "arrow-body-style": 0,

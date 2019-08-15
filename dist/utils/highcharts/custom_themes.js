@@ -1,9 +1,10 @@
-'use strict';
+"use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-var HIGHCHARTS_THEME_DARK = exports.HIGHCHARTS_THEME_DARK = {
+exports.HIGHCHARTS_THEME_DARK = void 0;
+var HIGHCHARTS_THEME_DARK = {
   colors: ['#2b908f', '#90ee7e', '#f45b5b', '#7798BF', '#aaeeee', '#ff0066', '#eeaaee', '#55bf3b', '#df5353', '#7798bf', '#aaeeee'],
   chart: {
     backgroundColor: 'transparent',
@@ -112,15 +113,12 @@ var HIGHCHARTS_THEME_DARK = exports.HIGHCHARTS_THEME_DARK = {
       }
     }
   },
-
   rangeSelector: {
     enabled: false
   },
-
   navigator: {
     enabled: false
   },
-
   scrollbar: {
     barBackgroundColor: '#808083',
     barBorderColor: '#808083',
@@ -131,7 +129,6 @@ var HIGHCHARTS_THEME_DARK = exports.HIGHCHARTS_THEME_DARK = {
     trackBackgroundColor: '#404043',
     trackBorderColor: '#404043'
   },
-
   exporting: {
     buttons: {
       contextButton: {
@@ -142,7 +139,6 @@ var HIGHCHARTS_THEME_DARK = exports.HIGHCHARTS_THEME_DARK = {
       }
     }
   },
-
   // special colors for some of the
   legendBackgroundColor: 'rgba(0, 0, 0, 0.5)',
   background2: '#505053',
@@ -151,4 +147,5 @@ var HIGHCHARTS_THEME_DARK = exports.HIGHCHARTS_THEME_DARK = {
   contrastTextColor: '#f0f0f3',
   maskColor: 'rgba(255,255,255,0.3)'
 };
+exports.HIGHCHARTS_THEME_DARK = HIGHCHARTS_THEME_DARK;
 //# sourceMappingURL=custom_themes.js.map

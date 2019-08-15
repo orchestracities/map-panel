@@ -10,53 +10,51 @@ export default function link(scope, elem, attrs, ctrl) {
   function render() {
     if (!ctrl.data) return;
 
-    //map is initializing
+    // map is initializing
     if (!ctrl.worldMap) {
       ctrl.worldMap = new WorldMap(ctrl, mapContainer);
       console.debug('creating worldMap');
 
-      if('User Geolocation'===ctrl.panel.mapCenter) {
+      if (ctrl.panel.mapCenter === 'User Geolocation') {
         ctrl.setLocationByUserGeolocation();
       } else
-      //detect city change when using Location Variable
-      if ('Location Variable'===ctrl.panel.mapCenter) {// && this.ctrl.isADiferentCity()
+      // detect city change when using Location Variable
+      if (ctrl.panel.mapCenter === 'Location Variable') { // && this.ctrl.isADiferentCity()
         console.log('centering at city');
         ctrl.setNewCoords();
-      }
-      else
-        ctrl.mapCenterMoved=true;
+      } else ctrl.mapCenterMoved = true;
 
-      ctrl.worldMap.createMap();      
+      ctrl.worldMap.createMap();
     } else
-    if ('Location Variable'===ctrl.panel.mapCenter && ctrl.isADiferentCity()) {
+    if (ctrl.panel.mapCenter === 'Location Variable' && ctrl.isADiferentCity()) {
       console.log('centering at new city');
       ctrl.setNewCoords();
     }
 
-    if(layersChanged()){
+    if (layersChanged()) {
       console.log('layers had changed!');
       ctrl.worldMap.map.remove();
       ctrl.worldMap.createMap();
     }
-    
+
     ctrl.worldMap.resize();
 
-    if(ctrl.mapCenterMoved) {
+    if (ctrl.mapCenterMoved) {
       ctrl.worldMap.panToMapCenter();
     }
 
     ctrl.worldMap.clearLayers();
-    ctrl.worldMap.setMetrics()
+    ctrl.worldMap.setMetrics();
 
 
-    //ctrl.worldMap.filterEmptyData();
+    // ctrl.worldMap.filterEmptyData();
     ctrl.worldMap.drawPoints();
 
     /**
     * popups and graph display
     */
     // draw all info associated with selected point but when redrawing the chart just update information related
-    ctrl.worldMap.drawPointDetails(); 
+    ctrl.worldMap.drawPointDetails();
 
     ctrl.renderingCompleted();
   }

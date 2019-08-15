@@ -1,49 +1,42 @@
-'use strict';
+"use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.default = link;
+exports["default"] = link;
 
-var _lodash = require('lodash');
+var _lodash = _interopRequireDefault(require("lodash"));
 
-var _lodash2 = _interopRequireDefault(_lodash);
+var _worldmap = _interopRequireDefault(require("./worldmap"));
 
-var _worldmap = require('./worldmap');
+var _map_utils = require("./utils/map_utils");
 
-var _worldmap2 = _interopRequireDefault(_worldmap);
-
-var _map_utils = require('./utils/map_utils');
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function link(scope, elem, attrs, ctrl) {
   var mapContainer = elem.find('.map-container')[0];
-
   ctrl.events.on('render', function () {
     return render();
   });
 
   function render() {
-    if (!ctrl.data) return;
+    if (!ctrl.data) return; // map is initializing
 
-    //map is initializing
     if (!ctrl.worldMap) {
-      ctrl.worldMap = new _worldmap2.default(ctrl, mapContainer);
+      ctrl.worldMap = new _worldmap["default"](ctrl, mapContainer);
       console.debug('creating worldMap');
 
-      if ('User Geolocation' === ctrl.panel.mapCenter) {
+      if (ctrl.panel.mapCenter === 'User Geolocation') {
         ctrl.setLocationByUserGeolocation();
-      } else
-        //detect city change when using Location Variable
-        if ('Location Variable' === ctrl.panel.mapCenter) {
+      } else // detect city change when using Location Variable
+        if (ctrl.panel.mapCenter === 'Location Variable') {
           // && this.ctrl.isADiferentCity()
           console.log('centering at city');
           ctrl.setNewCoords();
         } else ctrl.mapCenterMoved = true;
 
       ctrl.worldMap.createMap();
-    } else if ('Location Variable' === ctrl.panel.mapCenter && ctrl.isADiferentCity()) {
+    } else if (ctrl.panel.mapCenter === 'Location Variable' && ctrl.isADiferentCity()) {
       console.log('centering at new city');
       ctrl.setNewCoords();
     }
@@ -61,23 +54,21 @@ function link(scope, elem, attrs, ctrl) {
     }
 
     ctrl.worldMap.clearLayers();
-    ctrl.worldMap.setMetrics();
+    ctrl.worldMap.setMetrics(); // ctrl.worldMap.filterEmptyData();
 
-    //ctrl.worldMap.filterEmptyData();
     ctrl.worldMap.drawPoints();
-
     /**
     * popups and graph display
     */
     // draw all info associated with selected point but when redrawing the chart just update information related
+
     ctrl.worldMap.drawPointDetails();
-
     ctrl.renderingCompleted();
-  }
+  } // if users add new metrics we must verify if layers are the same or if we must recreate the map
 
-  // if users add new metrics we must verify if layers are the same or if we must recreate the map
+
   function layersChanged() {
-    return !_lodash2.default.isEqual(ctrl.layerNames, Object.keys(ctrl.worldMap.overlayMaps));
+    return !_lodash["default"].isEqual(ctrl.layerNames, Object.keys(ctrl.worldMap.overlayMaps));
   }
 }
 //# sourceMappingURL=map_renderer.js.map
