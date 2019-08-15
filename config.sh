@@ -1,1 +1,1 @@
-CRATE_URL="172.16.8.159:4200"
+CRATE_URL="localhost:4200"
