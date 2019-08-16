@@ -79,7 +79,12 @@ function (_MetricsPanelCtrl) {
     _this.markerColors = _definitions.MARKER_COLORS;
     _this.environmentVars = _this.templateSrv.variables.map(function (elem) {
       return elem.name;
-    }); // bind grafana events
+    });
+    _this.panel.geoMarkerColoringColorHigh = [];
+    _this.panel.geoMarkerColoringColorMedium = [];
+    _this.panel.geoMarkerColoringColorLow = [];
+    _this.panel.geoMarkerColoringThresholds = [];
+    _this.panel.geoMarkerColoringBinding = []; // bind grafana events
 
     _this.events.on('init-edit-mode', _this.onInitEditMode.bind(_assertThisInitialized(_this)));
 

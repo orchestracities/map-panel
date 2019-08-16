@@ -35,6 +35,12 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
     this.markerColors = MARKER_COLORS;
     this.environmentVars = this.templateSrv.variables.map((elem) => elem.name);
 
+    this.panel.geoMarkerColoringColorHigh = [];
+    this.panel.geoMarkerColoringColorMedium = [];
+    this.panel.geoMarkerColoringColorLow = [];
+    this.panel.geoMarkerColoringThresholds = [];
+    this.panel.geoMarkerColoringBinding = [];
+
     // bind grafana events
     this.events.on('init-edit-mode', this.onInitEditMode.bind(this));
     this.events.on('data-error', this.onDataError.bind(this));

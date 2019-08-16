@@ -254,26 +254,26 @@ function () {
   }, {
     key: "getGeoMarkerColor",
     value: function getGeoMarkerColor(objectValues) {
-      var bindingValue = objectValues[this.ctrl.panel.geoMarkerColoringBinding];
+      var bindingValue = objectValues[this.ctrl.panel.geoMarkerColoringBinding[objectValues.type]];
 
-      var _this$getGeoMarkerCol = this.getGeoMarkerColorThesholds(),
+      var _this$getGeoMarkerCol = this.getGeoMarkerColorThesholds(objectValues),
           medium = _this$getGeoMarkerCol.medium,
           high = _this$getGeoMarkerCol.high;
 
       if (bindingValue < medium) {
-        return this.ctrl.panel.geoMarkerColoringColorLow;
+        return this.ctrl.panel.geoMarkerColoringColorLow[objectValues.type];
       }
 
       if (bindingValue > high) {
-        return this.ctrl.panel.geoMarkerColoringColorHigh;
+        return this.ctrl.panel.geoMarkerColoringColorHigh[objectValues.type];
       }
 
-      return this.ctrl.panel.geoMarkerColoringColorMedium;
+      return this.ctrl.panel.geoMarkerColoringColorMedium[objectValues.type];
     }
   }, {
     key: "getGeoMarkerColorThesholds",
-    value: function getGeoMarkerColorThesholds() {
-      var thresholds = this.ctrl.panel.geoMarkerColoringThresholds || '';
+    value: function getGeoMarkerColorThesholds(objectValues) {
+      var thresholds = this.ctrl.panel.geoMarkerColoringThresholds[objectValues.type] || '';
       var splitted = thresholds.split(',');
       return {
         medium: parseInt(splitted[0], 10),
@@ -473,25 +473,29 @@ function () {
   }, {
     key: "setDefaultValues",
     value: function setDefaultValues() {
-      if (this.ctrl.panel.geoMarkerColoringBinding === undefined) {
-        this.ctrl.panel.geoMarkerColoringBinding = 'value';
-      }
+      var _this6 = this;
 
-      if (this.ctrl.panel.geoMarkerColoringThresholds === undefined) {
-        this.ctrl.panel.geoMarkerColoringThresholds = '30, 50';
-      }
+      Object.keys(this.ctrl.data).forEach(function (layerKey) {
+        if (_this6.ctrl.panel.geoMarkerColoringBinding[layerKey] === undefined) {
+          _this6.ctrl.panel.geoMarkerColoringBinding[layerKey] = 'value';
+        }
 
-      if (this.ctrl.panel.geoMarkerColoringColorLow === undefined) {
-        this.ctrl.panel.geoMarkerColoringColorLow = 'red';
-      }
+        if (_this6.ctrl.panel.geoMarkerColoringThresholds[layerKey] === undefined) {
+          _this6.ctrl.panel.geoMarkerColoringThresholds[layerKey] = '30, 50';
+        }
 
-      if (this.ctrl.panel.geoMarkerColoringColorMedium === undefined) {
-        this.ctrl.panel.geoMarkerColoringColorMedium = 'orange';
-      }
+        if (_this6.ctrl.panel.geoMarkerColoringColorLow[layerKey] === undefined) {
+          _this6.ctrl.panel.geoMarkerColoringColorLow[layerKey] = 'red';
+        }
 
-      if (this.ctrl.panel.geoMarkerColoringColorHigh === undefined) {
-        this.ctrl.panel.geoMarkerColoringColorHigh = 'green';
-      }
+        if (_this6.ctrl.panel.geoMarkerColoringColorMedium[layerKey] === undefined) {
+          _this6.ctrl.panel.geoMarkerColoringColorMedium[layerKey] = 'orange';
+        }
+
+        if (_this6.ctrl.panel.geoMarkerColoringColorHigh[layerKey] === undefined) {
+          _this6.ctrl.panel.geoMarkerColoringColorHigh[layerKey] = 'green';
+        }
+      });
     }
   }]);
 
