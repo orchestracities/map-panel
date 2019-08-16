@@ -50,8 +50,6 @@ function () {
     this.mapContainer = mapContainer;
     this.validatedMetrics = {};
     this.timeSeries = {};
-    this.chartSeries = {};
-    this.chartData = [];
     this.currentTargetForChart = null;
     this.currentParameterForChart = null;
     this.map = null;
@@ -115,13 +113,6 @@ function () {
         detectRetina: true,
         attribution: selectedTileServer.attribution
       }).addTo(this.map, true);
-      document.querySelector('#parameters_dropdown_' + this.ctrl.panel.id).addEventListener('change', function (event) {
-        _this.currentParameterForChart = event.currentTarget.value;
-        console.debug('selecting point for measure:');
-        console.debug(_this.currentParameterForChart);
-
-        _this.drawPointDetails();
-      }); // , {passive: true} <= to avoid blocking
     }
   }, {
     key: "addLayersToMap",
@@ -146,7 +137,6 @@ function () {
     value: function updateGeoLayers(zoomLevel) {
       var _this2 = this;
 
-      var geoMarkersVisibilityZoomLevelThreshold = 16;
       Object.keys(this.geoMarkers).forEach(function (layerKey) {
         var _iteratorNormalCompletion = true;
         var _didIteratorError = false;
@@ -156,7 +146,7 @@ function () {
           for (var _iterator = _this2.geoMarkers[layerKey][Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
             var layer = _step.value;
 
-            if (zoomLevel < geoMarkersVisibilityZoomLevelThreshold) {
+            if (zoomLevel < _this2.ctrl.panel.minZoomShapes) {
               if (_this2.overlayMaps[layerKey].hasLayer(layer)) {
                 _this2.overlayMaps[layerKey].removeLayer(layer);
               }
@@ -230,8 +220,8 @@ function () {
             newGJ.addTo(markersGJ);
           }
 
-          if (lastObjectValues.latitude && lastObjectValues.longitude) {
-            var newIcon = _this3.createIcon(lastObjectValues, geoJsonName, markerColor);
+          if (lastObjectValues.latitude && lastObjectValues.longitude && _this3.ctrl.panel.layersIcons[layerKey]) {
+            var newIcon = _this3.createIcon(lastObjectValues, geoJsonName);
 
             try {
               if (newIcon) markers.addLayer(newIcon);
@@ -254,26 +244,30 @@ function () {
   }, {
     key: "getGeoMarkerColor",
     value: function getGeoMarkerColor(objectValues) {
-      var bindingValue = objectValues[this.ctrl.panel.geoMarkerColoringBinding[objectValues.type]];
+      if (this.ctrl.panel.layersColorType[objectValues.type] === 'fix') {
+        return this.ctrl.panel.layersColors[objectValues.type];
+      } else {
+        var bindingValue = objectValues[this.ctrl.panel.layersColorsBinding[objectValues.type]];
 
-      var _this$getGeoMarkerCol = this.getGeoMarkerColorThesholds(objectValues),
-          medium = _this$getGeoMarkerCol.medium,
-          high = _this$getGeoMarkerCol.high;
+        var _this$getGeoMarkerCol = this.getGeoMarkerColorThesholds(objectValues),
+            medium = _this$getGeoMarkerCol.medium,
+            high = _this$getGeoMarkerCol.high;
 
-      if (bindingValue < medium) {
-        return this.ctrl.panel.geoMarkerColoringColorLow[objectValues.type];
+        if (bindingValue < medium) {
+          return this.ctrl.panel.layersColorsLow[objectValues.type];
+        }
+
+        if (bindingValue > high) {
+          return this.ctrl.panel.layersColorsHigh[objectValues.type];
+        }
+
+        return this.ctrl.panel.layersColorsMedium[objectValues.type];
       }
-
-      if (bindingValue > high) {
-        return this.ctrl.panel.geoMarkerColoringColorHigh[objectValues.type];
-      }
-
-      return this.ctrl.panel.geoMarkerColoringColorMedium[objectValues.type];
     }
   }, {
     key: "getGeoMarkerColorThesholds",
     value: function getGeoMarkerColorThesholds(objectValues) {
-      var thresholds = this.ctrl.panel.geoMarkerColoringThresholds[objectValues.type] || '';
+      var thresholds = this.ctrl.panel.layersColorsThresholds[objectValues.type] || '';
       var splitted = thresholds.split(',');
       return {
         medium: parseInt(splitted[0], 10),
@@ -305,11 +299,11 @@ function () {
     }
   }, {
     key: "createIcon",
-    value: function createIcon(dataPoint, geoJsonName, markerColor) {
+    value: function createIcon(dataPoint, geoJsonName) {
       // console.log(this.ctrl.panel.layersIcons)
       if (!dataPoint || !dataPoint.type) return null;
       var layerIcon = this.ctrl.panel.layersIcons[dataPoint.type];
-      var icon = layerIcon ? this.createMarker(dataPoint, layerIcon, markerColor) : this.createShape(dataPoint);
+      var icon = layerIcon ? this.createMarker(dataPoint, layerIcon, this.ctrl.panel.layersColors[dataPoint.type]) : this.createShape(dataPoint);
       this.createPopup(this.associateEvents(icon), (0, _map_utils.getDataPointStickyInfo)(dataPoint, this.ctrl.panel.metrics));
       return icon;
     }
@@ -450,12 +444,9 @@ function () {
         return;
       }
 
-      var lastValueMeasure = selectedPointValues[selectedPointValues.length - 1];
-      (0, _map_utils.drawSelect)(this.ctrl.panel.id, lastValueMeasure, this.validatedMetrics, currentParameterForChart);
-      (0, _map_utils.drawPopups)(this.ctrl.panel.id, lastValueMeasure, this.validatedMetrics); // refresh chart only if new values arrived
+      var lastValueMeasure = selectedPointValues[selectedPointValues.length - 1]; // refresh chart only if new values arrived
 
       if (!this.isToRefreshChart(selectedPointValues, currentParameterForChart)) return;
-      (0, _map_utils.renderChart)(this.ctrl.panel.id, selectedPointValues, getTranslation(this.validatedMetrics, currentParameterForChart), [this.currentTargetForChart.target.options.type, this.currentTargetForChart.target.options.id, currentParameterForChart]);
       this.refreshChart = false;
     } // helper method just to avoid unnecessary chart refresh
 
@@ -476,24 +467,24 @@ function () {
       var _this6 = this;
 
       Object.keys(this.ctrl.data).forEach(function (layerKey) {
-        if (_this6.ctrl.panel.geoMarkerColoringBinding[layerKey] === undefined) {
-          _this6.ctrl.panel.geoMarkerColoringBinding[layerKey] = 'value';
+        if (_this6.ctrl.panel.layersColorsBinding[layerKey] === undefined) {
+          _this6.ctrl.panel.layersColorsBinding[layerKey] = 'value';
         }
 
-        if (_this6.ctrl.panel.geoMarkerColoringThresholds[layerKey] === undefined) {
-          _this6.ctrl.panel.geoMarkerColoringThresholds[layerKey] = '30, 50';
+        if (_this6.ctrl.panel.layersColorsThresholds[layerKey] === undefined) {
+          _this6.ctrl.panel.layersColorsThresholds[layerKey] = '30, 50';
         }
 
-        if (_this6.ctrl.panel.geoMarkerColoringColorLow[layerKey] === undefined) {
-          _this6.ctrl.panel.geoMarkerColoringColorLow[layerKey] = 'red';
+        if (_this6.ctrl.panel.layersColorsLow[layerKey] === undefined) {
+          _this6.ctrl.panel.layersColorsLow[layerKey] = 'red';
         }
 
-        if (_this6.ctrl.panel.geoMarkerColoringColorMedium[layerKey] === undefined) {
-          _this6.ctrl.panel.geoMarkerColoringColorMedium[layerKey] = 'orange';
+        if (_this6.ctrl.panel.layersColorsMedium[layerKey] === undefined) {
+          _this6.ctrl.panel.layersColorsMedium[layerKey] = 'orange';
         }
 
-        if (_this6.ctrl.panel.geoMarkerColoringColorHigh[layerKey] === undefined) {
-          _this6.ctrl.panel.geoMarkerColoringColorHigh[layerKey] = 'green';
+        if (_this6.ctrl.panel.layersColorsHigh[layerKey] === undefined) {
+          _this6.ctrl.panel.layersColorsHigh[layerKey] = 'green';
         }
       });
     }

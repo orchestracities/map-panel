@@ -3,8 +3,6 @@
 import { defaults, isEqual } from 'lodash';
 
 import config from 'app/core/config';
-import Highcharts from '../vendor/highcharts/highcharts';
-import Exporting from '../vendor/highcharts/modules/exporting';
 
 /* Grafana Specific */
 
@@ -12,10 +10,6 @@ import { titleize } from './string';
 
 /* App specific */
 import { AQI, CARS_COUNT, NOMINATIM_ADDRESS } from '../definitions';
-import { HIGHCHARTS_THEME_DARK } from './highcharts/custom_themes';
-// Initialize exporting module.
-Exporting(Highcharts);
-
 
 /*
 * Primary functions
@@ -58,121 +52,6 @@ function drawPopups(panelId, lastValueMeasure, validatedMetrics) {
     console.log(lastValueMeasure);
   }
 }
-/*
-* Draw the select box in the specific panel, with the specif metrics and select the option
-*/
-function drawSelect(panelId, metricsToShow, providedMetrics, currentParameterForChart) {
-  // Remove air paramters from dropdown
-  const el = document.querySelector('#parameters_dropdown_' + panelId);
-  while (el.firstChild) {
-    el.removeChild(el.firstChild);
-  }
-
-  const metricsKeys = Object.keys(metricsToShow);
-
-  // default option
-  const emptyOption = document.createElement('option');
-  emptyOption.id = 'metricsOption_' + panelId;
-  emptyOption.value = 'value';
-  emptyOption.title = 'Select this to see the default field values';
-  emptyOption.innerHTML = 'Select Metric';
-  if (metricsKeys.length === 0) emptyOption.selected = 'selected';
-  el.appendChild(emptyOption);
-
-  // select population
-  metricsKeys.forEach((metric) => {
-    providedMetrics.forEach((elem) => {
-      if (elem[0] == metric) {
-        const newMetric = document.createElement('option');
-        newMetric.id = 'metricsOption_' + panelId;
-        newMetric.value = metric.toUpperCase();
-
-        if (currentParameterForChart === newMetric.value) newMetric.selected = 'selected';
-
-        newMetric.innerHTML = elem[1] ? elem[1] : titleize(elem[0]);
-
-        el.appendChild(newMetric);
-      }
-    });
-  });
-
-  const selectBox = document.querySelector('#parameters_dropdown_' + panelId);
-  if (selectBox.options.length > 0) selectBox.style.display = 'block';
-}
-/**
-* Render's the chart in panel
-*/
-function renderChart(panelId, selectedPointData, measurementUnits, chartDetails) {
-  console.debug('renderChart');
-  const [type, pointId, fieldName] = chartDetails;
-
-  drawChartCointainer(panelId);
-
-  // prepare data to chart
-  let chartData = selectedPointData.map((elem) => [ convertDate(elem.created_at), elem[fieldName.toLowerCase()] ]);
-
-  function getChartMetaInfo() {
-    const props = {
-      AirQualityObserved: 'Air Quality',
-      TrafficFlowObserved: 'Cars'
-    };
-
-    return {
-      title: `${props[type] || type}: Device ${pointId} - ${measurementUnits[1] ? measurementUnits[1] : titleize(measurementUnits[0])}`,
-      units: (measurementUnits[2] ? `${measurementUnits[1]} (${measurementUnits[2]})` : measurementUnits[1])
-    };
-  }
-
-  const chartInfo = getChartMetaInfo();
-
-  // config highchart acording with grafana theme
-  if (!config.bootData.user.lightTheme) {
-    Highcharts.theme = HIGHCHARTS_THEME_DARK;
-
-    // Apply the theme
-    Highcharts.setOptions(Highcharts.theme);
-  }
-
-  // let chart = angular.element(
-  //     document.getElementById('graph_container_'+panelId)
-  // ).highcharts();
-
-  Highcharts.chart('graph_container_' + panelId,
-    {
-      chart: {
-        type: 'line',
-        height: 200,
-        zoomType: 'x',
-        events: {
-          load: function () {
-            chartData = this.series[0]; // set up the updating of the chart each second
-          }
-        }
-      },
-      title: {
-        text: chartInfo.title
-      },
-      subtitle: {
-        text: ''
-      },
-      xAxis: {
-        type: 'datetime'
-      },
-      yAxis: {
-        title: {
-          text: chartInfo.units
-        }
-      },
-      legend: {
-        enabled: false
-      },
-      series: [{
-        name: chartInfo.units,
-        data: chartData
-      }]
-    });
-}
-
 
 /**
 * private functions
@@ -338,13 +217,6 @@ function drawMeasuresPopup(panelId, metricsToShow, providedMetrics) {
 
   document.getElementById('measures_table_' + panelId).style.display = 'block';
 }
-/*
-* Draw Chart
-*/
-function drawChartCointainer(panelId) {
-  document.querySelector('#data_details_' + panelId).style.display = 'block';
-  document.getElementById('data_chart_' + panelId).style.display = 'block';
-}
 
 // Access remote api and gives the coordinates from a city center based on NOMINATIM url server
 function getCityCoordinates(city_name) {
@@ -400,9 +272,6 @@ const geolocationOptions = {
 export {
 
   hideAllGraphPopups,
-  drawPopups,
-  drawSelect,
-  renderChart,
 
   getCityCoordinates,
 

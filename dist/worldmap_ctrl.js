@@ -76,15 +76,11 @@ function (_MetricsPanelCtrl) {
     _this.mapLocationsLabels = [].concat(_toConsumableArray(Object.keys(_definitions.MAP_LOCATIONS)), ['Location Variable', 'Custom', 'User Geolocation']);
     _this.iconTypes = _definitions.ICON_TYPES;
     _this.defaultMetrics = _definitions.DEFAULT_METRICS;
+    _this.colorTypes = _definitions.COLOR_TYPES;
     _this.markerColors = _definitions.MARKER_COLORS;
     _this.environmentVars = _this.templateSrv.variables.map(function (elem) {
       return elem.name;
-    });
-    _this.panel.geoMarkerColoringColorHigh = [];
-    _this.panel.geoMarkerColoringColorMedium = [];
-    _this.panel.geoMarkerColoringColorLow = [];
-    _this.panel.geoMarkerColoringThresholds = [];
-    _this.panel.geoMarkerColoringBinding = []; // bind grafana events
+    }); // bind grafana events
 
     _this.events.on('init-edit-mode', _this.onInitEditMode.bind(_assertThisInitialized(_this)));
 

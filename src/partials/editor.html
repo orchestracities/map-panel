@@ -1,14 +1,6 @@
 <div class="section gf-form-group">
   <h5 class="section-heading">Map Layout</h5>
 
-  <gf-form-switch 
-    class="gf-form"
-    label="Render Chart" label-class="width-10"
-    checked="ctrl.panel.renderChart"
-    on-change="this.render();"
-    >
-  </gf-form-switch>
-
   <div class="gf-form">
     <label class="gf-form-label width-10">Center</label>
     <div class="gf-form-select-wrapper max-width-12">
@@ -64,6 +56,16 @@
       placeholder="1"
       ng-model="ctrl.panel.initialZoom" 
       ng-change="ctrl.setZoom()"
+      ng-model-onblur />
+  </div>
+
+  <div class="gf-form">
+    <label class="gf-form-label width-10">GeoJSON Zoom Level</label>
+    <input type="text" 
+      class="input-small gf-form-input width-12" 
+      placeholder="1"
+      ng-model="ctrl.panel.minZoomShapes" 
+      ng-change="ctrl.render()"
       ng-model-onblur />
   </div>
 
@@ -152,43 +154,45 @@
         <option value=""></option>
       </select>
 
-
-      <label class="gf-form-label width-10">Column</label>
-      <input type="text" 
-        class="input-small gf-form-input width-12" 
-        ng-model="ctrl.panel.geoMarkerColoringBinding[layerName]"
-        ng-change="ctrl.render()" />
-
-      <label class="gf-form-label width-10">Color Thresholds</label>
-      <input type="text" 
-        class="input-small gf-form-input width-12" 
-        placeholder="50, 100"
-        ng-model="ctrl.panel.geoMarkerColoringThresholds[layerName]" 
-        ng-change="ctrl.render()" />
-
-      <label class="gf-form-label width-10">Colors</label>
-
-      <select class="gf-form-input width-12"
-        ng-model="ctrl.panel.geoMarkerColoringColorLow[layerName]"
-        ng-options="markerColor for markerColor in ctrl.markerColors"
-        ng-change="ctrl.render()" 
-        title="Color low">
+      <span class="gf-form-label width-10">Color Type</span>
+      <select class="gf-form-input"
+        ng-model="ctrl.panel.layersColorType[layerName]"
+        ng-options="colorType for colorType in ctrl.colorTypes"
+        ng-change="ctrl.render()" title="Select fix color or threshold based colouring"
+        >
+        <option value=""></option>
       </select>
-
-      <select class="gf-form-input width-12"
-        ng-model="ctrl.panel.geoMarkerColoringColorMedium[layerName]"
-        ng-options="markerColor for markerColor in ctrl.markerColors"
-        ng-change="ctrl.render()" 
-        title="Color medium">
+      <label class="gf-form-label width-9">Marker Color</label>
+      <select class="gf-form-input"
+        ng-model="ctrl.panel.layersColors[layerName]"
+        ng-options="color for color in ctrl.markerColors"
+        ng-change="ctrl.render()" title="Select fix color or threshold based colouring"
+        >
+        <option value=""></option>
       </select>
+      <div class="gf-form" ng-if="ctrl.panel.layersColorType[layerName]=='threshold'">
+        <label class="gf-form-label width-10">Column</label>
+        <input type="text" 
+          class="input-small gf-form-input width-12" 
+          ng-model="ctrl.panel.layersColorsBinding[layerName]"
+          ng-change="ctrl.render()" ng-model-onblur />
 
-      <select class="gf-form-input width-12"
-        ng-model="ctrl.panel.geoMarkerColoringColorHigh[layerName]"
-        ng-options="markerColor for markerColor in ctrl.markerColors"
-        ng-change="ctrl.render()" 
-        title="Color high">
-      </select>
+        <label class="gf-form-label width-10">Color Thresholds</label>
+        <input type="text" 
+          class="input-small gf-form-input width-12" 
+          placeholder="50, 100"
+          ng-model="ctrl.panel.layersColorsThresholds[layerName]" 
+          ng-change="ctrl.render()" ng-model-onblur />
 
+        <label class="gf-form-label width-9">Low Color</label>
+        <spectrum-picker class="gf-form-input width-6" ng-model="ctrl.panel.layersColorsLow[layerName]" ng-change="ctrl.render()" ></spectrum-picker>
+        
+        <label class="gf-form-label width-9">Medium Color</label>
+        <spectrum-picker class="gf-form-input width-6" ng-model="ctrl.panel.layersColorsMedium[layerName]" ng-change="ctrl.render()" ></spectrum-picker>
+
+        <label class="gf-form-label width-9">High Color</label>
+        <spectrum-picker class="gf-form-input width-6" ng-model="ctrl.panel.layersColorsHigh[layerName]" ng-change="ctrl.render()" ></spectrum-picker>
+      </div>
     </div>
   </div>
 </div>
