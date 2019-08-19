@@ -116,11 +116,7 @@ function getDataPointStickyInfo(dataPoint, metricsTranslations) {
   var dataPointExtraFields = getDataPointExtraFields(dataPoint);
   var stickyInfo = '<div class="stycky-popup-info">';
 
-  if (dataPoint.type === 'AirQualityObserved') {
-    stickyInfo += '<div class="head air-quality">Air Quality</div>';
-  } else if (dataPoint.type === 'TrafficFlowObserved') {
-    stickyInfo += '<div class="head traffic-flow">Cars Intensity</div>';
-  } else if (dataPoint.name) {
+  if (dataPoint.name) {
     stickyInfo += '<div class="head">' + dataPoint.name + '</div>';
   } else {
     stickyInfo += '<div class="head">' + dataPoint.id + '</div>';
