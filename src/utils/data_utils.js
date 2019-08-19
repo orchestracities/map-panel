@@ -16,22 +16,36 @@ class DataFormatter {
 
     series.forEach((series_elem) => {
       const columns = series_elem.columns.map((elem) => elem.text);
+      var type_index = columns.length - 1;
+      var id_index = 1;
+
+      if(columns.indexOf("type") < 0){
+        console.warn("Missing type alias in the query (required to define layers)");
+      } else {
+        type_index = columns.indexOf("type");
+      }
+
+      if(columns.indexOf("id") < 0 ){
+        console.warn("Missing id alias in the query");
+      } else {
+        id_index = columns.indexOf("id");
+      }
 
       series_elem.rows.forEach((series_elem_row) => {
-        seriesLayer = series_elem_row[series_elem_row.length - 1];
+        seriesLayer = series_elem_row[type_index];
 
         if (!(hashSeriesByLayerByKey[seriesLayer])) {
           hashSeriesByLayerByKey[seriesLayer] = {};
         }
 
-        id = series_elem_row[1];
+        id = series_elem_row[id_index];
         if (!(hashSeriesByLayerByKey[seriesLayer][id])) {
           hashSeriesByLayerByKey[seriesLayer][id] = [];
         }
 
         const hashWithValues = {};
         columns.forEach((elem, i) => {
-          if (i !== 0 && i !== columns.length - 1) // do not insert grafana field 'time' and the group by field
+          if (i !== columns.indexOf("time") && i !== columns.length - 1) // do not insert grafana field 'time' and the group by field
           { hashWithValues[elem] = series_elem_row[i]; }
         });
         hashSeriesByLayerByKey[seriesLayer][id].push(hashWithValues);
