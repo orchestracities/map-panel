@@ -173,10 +173,6 @@
   background-color: #00e400;
 }
 
-.stycky-popup-info .body .popup-single-value .name {
-  display: none !important;
-}
-
 .stycky-popup-info .body .popup-single-value .value {
   font-size: 50px;
   display: inline-block !important;
