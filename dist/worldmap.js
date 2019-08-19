@@ -21,6 +21,8 @@ require("./vendor/leaflet.markercluster/MarkerCluster.Default.css!");
 
 require("./vendor/leaflet.markercluster/MarkerCluster.css!");
 
+require("./vendor/osmbuildings/OSMBuildings-Leaflet");
+
 var _definitions = require("./definitions");
 
 var _map_utils = require("./utils/map_utils");
@@ -113,6 +115,7 @@ function () {
         detectRetina: true,
         attribution: selectedTileServer.attribution
       }).addTo(this.map, true);
+      if (this.ctrl.panel.buildings) new OSMBuildings(this.map).load();
     }
   }, {
     key: "addLayersToMap",
@@ -341,8 +344,7 @@ function () {
         icon: L.AwesomeMarkers.icon({
           icon: elementIcon,
           prefix: 'fa',
-          markerColor: elementColor || dataPointExtraFields.markerColor // spin: true,
-
+          markerColor: elementColor || dataPointExtraFields.markerColor
         })
       };
       (0, _lodash.defaultsDeep)(markerProperties, dataPoint);
@@ -356,7 +358,29 @@ function () {
       return shape.on('click', function (event) {
         _this4.currentTargetForChart = event;
       }).on('click', function () {
+        return _this4.updateVariable(shape);
+      }).on('click', function () {
         return _this4.drawPointDetails();
+      });
+    }
+  }, {
+    key: "updateVariable",
+    value: function updateVariable(shape) {
+      var _this5 = this;
+
+      var variable = _.find(this.ctrl.variables, {
+        'name': this.ctrl.panel.layersVariables[shape.options.type]
+      });
+
+      console.debug(variable);
+      variable.current.text = shape.options.id;
+      variable.current.value = shape.options.id;
+      this.ctrl.variableSrv.updateOptions(variable).then(function () {
+        _this5.ctrl.variableSrv.variableUpdated(variable).then(function () {
+          _this5.ctrl.$scope.$emit('template-variable-value-updated');
+
+          _this5.ctrl.$scope.$root.$broadcast('refresh');
+        });
       });
     }
   }, {
@@ -385,10 +409,10 @@ function () {
   }, {
     key: "resize",
     value: function resize() {
-      var _this5 = this;
+      var _this6 = this;
 
       setTimeout(function () {
-        _this5.map.invalidateSize();
+        _this6.map.invalidateSize();
       }, 0);
     }
   }, {
@@ -464,27 +488,27 @@ function () {
   }, {
     key: "setDefaultValues",
     value: function setDefaultValues() {
-      var _this6 = this;
+      var _this7 = this;
 
       Object.keys(this.ctrl.data).forEach(function (layerKey) {
-        if (_this6.ctrl.panel.layersColorsBinding[layerKey] === undefined) {
-          _this6.ctrl.panel.layersColorsBinding[layerKey] = 'value';
+        if (_this7.ctrl.panel.layersColorsBinding[layerKey] === undefined) {
+          _this7.ctrl.panel.layersColorsBinding[layerKey] = 'value';
         }
 
-        if (_this6.ctrl.panel.layersColorsThresholds[layerKey] === undefined) {
-          _this6.ctrl.panel.layersColorsThresholds[layerKey] = '30, 50';
+        if (_this7.ctrl.panel.layersColorsThresholds[layerKey] === undefined) {
+          _this7.ctrl.panel.layersColorsThresholds[layerKey] = '30, 50';
         }
 
-        if (_this6.ctrl.panel.layersColorsLow[layerKey] === undefined) {
-          _this6.ctrl.panel.layersColorsLow[layerKey] = 'red';
+        if (_this7.ctrl.panel.layersColorsLow[layerKey] === undefined) {
+          _this7.ctrl.panel.layersColorsLow[layerKey] = 'red';
         }
 
-        if (_this6.ctrl.panel.layersColorsMedium[layerKey] === undefined) {
-          _this6.ctrl.panel.layersColorsMedium[layerKey] = 'orange';
+        if (_this7.ctrl.panel.layersColorsMedium[layerKey] === undefined) {
+          _this7.ctrl.panel.layersColorsMedium[layerKey] = 'orange';
         }
 
-        if (_this6.ctrl.panel.layersColorsHigh[layerKey] === undefined) {
-          _this6.ctrl.panel.layersColorsHigh[layerKey] = 'green';
+        if (_this7.ctrl.panel.layersColorsHigh[layerKey] === undefined) {
+          _this7.ctrl.panel.layersColorsHigh[layerKey] = 'green';
         }
       });
     }

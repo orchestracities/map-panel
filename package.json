@@ -62,6 +62,7 @@
     "leaflet.awesome-markers": "^2.0.4",
     "leaflet.markercluster": "^1.4.0",
     "lodash": "^4.17.15",
+    "osmbuildings": "^0.2.0-b",
     "turf": "^3.0.14",
     "yarn": "^1.17.3"
   }

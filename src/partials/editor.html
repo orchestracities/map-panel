@@ -49,6 +49,14 @@
     </div>
   </div>
 
+  <gf-form-switch 
+    class="gf-form"
+    label="Render Buildings" label-class="width-10"
+    checked="ctrl.panel.buildings"
+    on-change="this.render();"
+    >
+  </gf-form-switch>
+
   <div class="gf-form">
     <label class="gf-form-label width-10">Initial Zoom</label>
     <input type="text" 
@@ -153,6 +161,15 @@
         >
         <option value=""></option>
       </select>
+
+      <select class="gf-form-input"
+        ng-model="ctrl.panel.layersVariables[layerName]"
+        ng-options="variable for variable in ctrl.environmentVars"
+        ng-change="ctrl.render()" title="Choose the variable to set on click"
+        >
+        <option value=""></option>
+      </select>
+
 
       <span class="gf-form-label width-10">Color Type</span>
       <select class="gf-form-input"

@@ -2608,10 +2608,6 @@ graceful-fs@^4.1.2, graceful-fs@^4.1.6, graceful-fs@^4.1.9:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/graceful-readlink/-/graceful-readlink-1.0.1.tgz#4cafad76bc62f02fa039b2f94e9a3dd3a391a725"
 
-grafana-sdk-test@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/grafana-sdk-test/-/grafana-sdk-test-1.0.0.tgz#95765da66ba9605061fb21bf910b47237d7fd41c"
-
 growl@1.10.3:
   version "1.10.3"
   resolved "https://registry.yarnpkg.com/growl/-/growl-1.10.3.tgz#1926ba90cf3edfe2adb4927f5880bc22c66c790f"
@@ -2830,11 +2826,6 @@ hawk@~6.0.2:
 he@1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/he/-/he-1.1.1.tgz#93410fd21b009735151f8868c2f271f3427e23fd"
-
-highcharts@^5.0.15:
-  version "5.0.15"
-  resolved "https://registry.yarnpkg.com/highcharts/-/highcharts-5.0.15.tgz#a9af11538a85b85f300e66f7a0e048a7ef8ab381"
-  integrity sha512-+LTe57ntLyWgkjsHzLmvRspM3FVKtds7iDswOTwuTAmZD3FtG1I/DqHiVSRjX92RQmQMZ1M7dcoRb7T648m1xA==
 
 hoek@2.x.x:
   version "2.16.3"
@@ -3401,6 +3392,11 @@ leaflet-sleep@^0.5.1:
 leaflet.awesome-markers@^2.0.4:
   version "2.0.4"
   resolved "https://registry.yarnpkg.com/leaflet.awesome-markers/-/leaflet.awesome-markers-2.0.4.tgz#66fea2090c9c8a0ab6d1f3b6bdd02fb37cf4ba1a"
+
+leaflet.marker.highlight@0.0.3:
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/leaflet.marker.highlight/-/leaflet.marker.highlight-0.0.3.tgz#c7881866c52b708c8eedcf54082acf62dfdd78d4"
+  integrity sha1-x4gYZsUrcIyO7c9UCCrPYt/deNQ=
 
 leaflet.markercluster@^1.4.0:
   version "1.4.0"

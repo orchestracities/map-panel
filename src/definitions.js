@@ -38,7 +38,8 @@ const TILE_SERVERS = {
 
 const COLOR_TYPES = [
   'fix',
-  'threshold'
+  'threshold',
+  'highlight'
 ];
 
 const ICON_TYPES = [
@@ -872,7 +873,9 @@ const PANEL_DEFAULTS = {
   layersColorsLow: {},
   layersColorsThresholds: {},
   layersColorsBinding: {},
-  cityEnvVariable: ''
+  layersVariables: {},
+  cityEnvVariable: '',
+  buildings: false
 };
 
 const DEFAULT_METRICS = {

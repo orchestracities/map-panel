@@ -62,7 +62,7 @@ var WorldmapCtrl =
 function (_MetricsPanelCtrl) {
   _inherits(WorldmapCtrl, _MetricsPanelCtrl);
 
-  function WorldmapCtrl($scope, $injector, contextSrv) {
+  function WorldmapCtrl($scope, $injector, contextSrv, variableSrv) {
     var _this;
 
     _classCallCheck(this, WorldmapCtrl);
@@ -80,7 +80,9 @@ function (_MetricsPanelCtrl) {
     _this.markerColors = _definitions.MARKER_COLORS;
     _this.environmentVars = _this.templateSrv.variables.map(function (elem) {
       return elem.name;
-    }); // bind grafana events
+    });
+    _this.variables = _this.templateSrv.variables;
+    _this.variableSrv = variableSrv; // bind grafana events
 
     _this.events.on('init-edit-mode', _this.onInitEditMode.bind(_assertThisInitialized(_this)));
 

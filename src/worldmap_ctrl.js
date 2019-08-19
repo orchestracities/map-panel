@@ -23,7 +23,7 @@ import './vendor/leaflet/leaflet.css!';
 const dataFormatter = new DataFormatter();
 
 export default class WorldmapCtrl extends MetricsPanelCtrl {
-  constructor($scope, $injector, contextSrv) {
+  constructor($scope, $injector, contextSrv, variableSrv) {
     super($scope, $injector);
     this.setMapProvider(contextSrv);
     defaultsDeep(this.panel, PANEL_DEFAULTS);
@@ -36,6 +36,8 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
     this.markerColors = MARKER_COLORS;
     this.environmentVars = this.templateSrv.variables.map((elem) => elem.name);
 
+    this.variables = this.templateSrv.variables;
+    this.variableSrv = variableSrv;
     // bind grafana events
     this.events.on('init-edit-mode', this.onInitEditMode.bind(this));
     this.events.on('data-error', this.onDataError.bind(this));

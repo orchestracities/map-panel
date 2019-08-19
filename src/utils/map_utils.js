@@ -107,7 +107,7 @@ function getDataPointStickyInfo(dataPoint, metricsTranslations) {
   } else if (dataPoint.type === 'TrafficFlowObserved') {
     stickyInfo += '<div class="head traffic-flow">Cars Intensity</div>';
   } else {
-    stickyInfo += '<div class="head">' + dataPoint.type + '</div>';
+    stickyInfo += '<div class="head">' + dataPoint.id + '</div>';
   }
 
   // body

@@ -11,6 +11,8 @@ import './vendor/leaflet-sleep/Leaflet.Sleep';
 import './vendor/leaflet.markercluster/leaflet.markercluster';
 import './vendor/leaflet.markercluster/MarkerCluster.Default.css!';
 import './vendor/leaflet.markercluster/MarkerCluster.css!';
+import './vendor/osmbuildings/OSMBuildings-Leaflet';
+
 
 /* App Specific */
 import { TILE_SERVERS, PLUGIN_PATH } from './definitions';
@@ -67,7 +69,6 @@ export default class WorldMap {
         attributionControl: false,
         layers: this.layers
       });
-
     this.map.setZoom(this.ctrl.panel.initialZoom);
     this.map.panTo(location);
     L.control.zoom({position: 'topright'}).addTo(this.map);
@@ -92,6 +93,8 @@ export default class WorldMap {
       detectRetina: true,
       attribution: selectedTileServer.attribution
     }).addTo(this.map, true);
+
+    if (this.ctrl.panel.buildings) new OSMBuildings(this.map).load();
 
   }
 
@@ -237,7 +240,7 @@ export default class WorldMap {
 
     const layerIcon = this.ctrl.panel.layersIcons[dataPoint.type];
     const icon = layerIcon ? this.createMarker(dataPoint, layerIcon, this.ctrl.panel.layersColors[dataPoint.type]) : this.createShape(dataPoint);
-
+    
     this.createPopup(
       this.associateEvents(icon),
       getDataPointStickyInfo(dataPoint, this.ctrl.panel.metrics)
@@ -284,8 +287,7 @@ export default class WorldMap {
         {
           icon: elementIcon,
           prefix: 'fa',
-          markerColor: (elementColor || dataPointExtraFields.markerColor),
-          // spin: true,
+          markerColor: (elementColor || dataPointExtraFields.markerColor)
         }
       )
     };
@@ -297,7 +299,23 @@ export default class WorldMap {
   associateEvents(shape) {
     return shape
       .on('click', (event) => { this.currentTargetForChart = event; })
+      .on('click', () => this.updateVariable(shape))
       .on('click', () => this.drawPointDetails());
+  }
+
+  updateVariable(shape){
+    const variable = _.find(this.ctrl.variables, {'name': this.ctrl.panel.layersVariables[shape.options.type]});
+    console.debug(variable);
+    
+    variable.current.text = shape.options.id;
+    variable.current.value = shape.options.id;
+
+    this.ctrl.variableSrv.updateOptions(variable).then(() => {
+      this.ctrl.variableSrv.variableUpdated(variable).then(() => {
+        this.ctrl.$scope.$emit('template-variable-value-updated');
+        this.ctrl.$scope.$root.$broadcast('refresh');
+      });
+    });
   }
 
   createPopup(shape, stickyPopupInfo) {
