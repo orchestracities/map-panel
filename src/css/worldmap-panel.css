@@ -49,7 +49,6 @@
 
 .map-container .worldmap-popup .stycky-popup-info .head {
   font-weight: bolder;
-  border-bottom: 1px solid;
   margin-bottom: 5px;
 }
 
@@ -174,6 +173,53 @@
   background-color: #00e400;
 }
 
+.stycky-popup-info .body .popup-single-value .name {
+  display: none !important;
+}
+
+.stycky-popup-info .body .popup-single-value .value {
+  font-size: 50px;
+  display: inline-block !important;
+}
+
+.stycky-popup-info .body .popup-single-value .unit {
+  font-size: 20px;
+  display: inline-block !important;
+}
+
+.stycky-popup-info .body .name {
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+.stycky-popup-info .body .value {
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+.stycky-popup-info .body  .unit {
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+.stycky-popup-info .body .popup-single-value {
+  text-align: center;
+  display: block !important;
+}
+
+.map-container .worldmap-popup .stycky-popup-info .foot {
+  font-weight: bolder;
+  text-align: right;
+  margin-top: 5px;
+}
+
+.stycky-popup-info .foot .name {
+  display: none !important;
+}
+
+.stycky-popup-info .foot .unit {
+  display: none !important;
+}
 
 .chart-container {
   width: 100%;

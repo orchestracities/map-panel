@@ -106,29 +106,47 @@ function getDataPointStickyInfo(dataPoint, metricsTranslations) {
     stickyInfo += '<div class="head air-quality">Air Quality</div>';
   } else if (dataPoint.type === 'TrafficFlowObserved') {
     stickyInfo += '<div class="head traffic-flow">Cars Intensity</div>';
+  } else if (dataPoint.name){
+    stickyInfo += '<div class="head">' + dataPoint.name + '</div>';
   } else {
     stickyInfo += '<div class="head">' + dataPoint.id + '</div>';
   }
 
+  var bodyData = getDataPointDetails(dataPoint, ['geojson', 'id', 'type', 'created_at', 'longitude', 'latitude'], false);
+
+  var bodyClass = 'popup-single-value';
+  if (bodyData.length > 1){
+    bodyClass = 'popup-multiple-value';
+  }
+
   // body
   stickyInfo += '<div class="body">';
-  stickyInfo += getDataPointDetails(dataPoint, metricsTranslations).join('');
-  stickyInfo += '</div>';
+  stickyInfo += translate(bodyData, metricsTranslations, bodyClass).join('');
   stickyInfo += '</div>';
 
-  // console.debug(dataPoint)
+  // foot
+  var footData = getDataPointDetails(dataPoint, ['created_at'], true);
+
+  var footClass = '';
+
+  stickyInfo += '<div class="foot">';
+  stickyInfo+= translate(footData, metricsTranslations, footClass).join('');
+  stickyInfo += '</div>';
   return stickyInfo;
 }
 
-function getDataPointDetails(dataPoint, metricsTranslations) {
-  const withoutGeojson = Object.keys(dataPoint).filter((key) => key !== 'geojson');
-  const translatedValues = withoutGeojson.map((dpKey) => {
-    const dP = (dpKey === 'created_at' ? new Date(dataPoint[dpKey]).toLocaleString() : dataPoint[dpKey]);
+function getDataPointDetails(dataPoint, skipkey, include) {
+  return include? Object.keys(dataPoint).filter(key => skipkey.includes(key)).reduce((obj, key) => { obj[key] = dataPoint[key]; return obj; }, {}) : Object.keys(dataPoint).filter(key => !skipkey.includes(key)).reduce((obj, key) => { obj[key] = dataPoint[key]; return obj; }, {});
+}
+
+function translate(filteredData, metricsTranslations, cssClass){
+  const keys = Object.keys(filteredData);
+  const translatedValues =   keys.map((dpKey) => {
+    const dP = (dpKey === 'created_at' ? new Date(filteredData[dpKey]).toLocaleString() : filteredData[dpKey]);
     const trans = metricsTranslations.filter((elem) => elem[0] === dpKey);
     return { 'name': (trans.length > 0 && trans[0][1] ? trans[0][1] : titleize(dpKey)), 'value': dP || '-', 'unit': (trans.length > 0 ? trans[0][2] : '') };
   });
-  // creation of html row
-  return translatedValues.map((translatedValue) => `<div><span>${translatedValue.name}</span><span>${translatedValue.value} ${translatedValue.unit || ''}</span></div>`);
+  return translatedValues.map((translatedValue) => `<div class='${cssClass}'><span class='name'>${translatedValue.name}</span><span class='value'>${translatedValue.value}</span><span class ='unit'>${translatedValue.unit || ''}</span></div>`);
 }
 
 // show all accepted metrics for a specific point id
