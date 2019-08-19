@@ -36,6 +36,12 @@ const TILE_SERVERS = {
   'CartoDB Dark': {url: 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png', attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>', subdomains: 'abcd'}
 };
 
+const COLOR_TYPES = [
+  'fix',
+  'threshold',
+  'highlight'
+];
+
 const ICON_TYPES = [
   'none',
   'address-book',
@@ -506,6 +512,7 @@ const ICON_TYPES = [
   'music',
   'navicon',
   'neuter',
+  'number',
   'newspaper-o',
   'object-group',
   'object-ungroup',
@@ -842,6 +849,7 @@ const PANEL_DEFAULTS = {
   hideEmpty: false,
   hideZero: false,
   stickyLabels: false,
+  minZoomShapes: 12,
 
   metrics: [],
   targets: [{
@@ -859,8 +867,15 @@ const PANEL_DEFAULTS = {
   }],
   layersIcons: {},
   layersColors: {},
+  layersColorType: {},
+  layersColorsHigh: {},
+  layersColorsMedium: {},
+  layersColorsLow: {},
+  layersColorsThresholds: {},
+  layersColorsBinding: {},
+  layersVariables: {},
   cityEnvVariable: '',
-  renderChart: false
+  buildings: false
 };
 
 const DEFAULT_METRICS = {
@@ -889,5 +904,5 @@ export {
   PLUGIN_PATH, PANEL_DEFAULTS,
   NOMINATIM_ADDRESS, TILE_SERVERS,
   AQI, CARS_COUNT,
-  DEFAULT_METRICS, MAP_LOCATIONS, ICON_TYPES, MARKER_COLORS
+  DEFAULT_METRICS, MAP_LOCATIONS, ICON_TYPES, MARKER_COLORS, COLOR_TYPES
 };

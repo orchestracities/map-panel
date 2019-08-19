@@ -36,18 +36,18 @@ module.exports = (grunt) => {
         dest: 'dist/vendor/leaflet'
       },
 
-      highcharts: {
-        cwd: 'node_modules/highcharts/',
-        expand: true,
-        src: ['highcharts.*', 'highstock.*', 'themes/dark-unica.*', 'themes/dark-unica.*', 'modules/exporting.*'],
-        dest: 'dist/vendor/highcharts'
-      },
-
       turf: {
         cwd: 'node_modules/turf',
         expand: true,
         src: ['**/*'],
         dest: 'dist/vendor/turf'
+      },
+
+      osmbuildings: {
+        cwd: 'node_modules/osmbuildings/dist/',
+        expand: true,
+        src: ['**/*'],
+        dest: 'dist/vendor/osmbuildings'
       },
 
       leafletAwesomeMarkers: {
@@ -117,9 +117,8 @@ module.exports = (grunt) => {
     'copy:pluginDef',
     'copy:imgToDist',
     'copy:leaflet',
-
-    'copy:highcharts',
     'copy:turf',
+    'copy:osmbuildings',
     'copy:leafletAwesomeMarkers',
     'copy:leafletMarkerCluster',
     'copy:leafletSleep',

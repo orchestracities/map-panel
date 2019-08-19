@@ -1,7 +1,7 @@
 <div id="map_panel_{{ctrl.panel.id}}" class="map-panel">
   <div id="mapid_{{ctrl.panel.id}}" 
         class="map-container {{ctrl.saturationClass}} {{ctrl.width}}" 
-        ng-style="{'height':ctrl.height-(ctrl.panel.renderChart?270:0)}">
+        ng-style="{'height':ctrl.height-0}">
     <div class="map-container-popups" ng-show="ctrl.worldMap.map.getSize().x >= 640">      
       <!-- Global detials -->
       <div id="measures_table_{{ctrl.panel.id}}" class="measures-table hidden info-container">
@@ -82,11 +82,4 @@
     </div>
   </div>
 
-  <!-- The chart -->
-  <div id="data_chart_{{ctrl.panel.id}}" class="chart-container">
-    <div id="data_details_{{ctrl.panel.id}}" class="data-details p-t-1">
-      <select id="parameters_dropdown_{{ctrl.panel.id}}" class="parameters-dropdown hidden"></select>
-    </div>
-    <div id="graph_container_{{ctrl.panel.id}}"></div>
-  </div>
 </div>

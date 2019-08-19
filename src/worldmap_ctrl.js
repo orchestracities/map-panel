@@ -8,7 +8,7 @@ import kbn from 'app/core/utils/kbn';
 import { defaultsDeep } from 'lodash';
 /* App specific */
 import {
-  PLUGIN_PATH, PANEL_DEFAULTS, DEFAULT_METRICS, MAP_LOCATIONS, ICON_TYPES, MARKER_COLORS
+  PLUGIN_PATH, PANEL_DEFAULTS, DEFAULT_METRICS, MAP_LOCATIONS, ICON_TYPES, MARKER_COLORS, COLOR_TYPES
 } from './definitions';
 import { getDatasources, getValidDatasources } from './utils/datasource';
 
@@ -23,7 +23,7 @@ import './vendor/leaflet/leaflet.css!';
 const dataFormatter = new DataFormatter();
 
 export default class WorldmapCtrl extends MetricsPanelCtrl {
-  constructor($scope, $injector, contextSrv) {
+  constructor($scope, $injector, contextSrv, variableSrv) {
     super($scope, $injector);
     this.setMapProvider(contextSrv);
     defaultsDeep(this.panel, PANEL_DEFAULTS);
@@ -32,15 +32,12 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
     this.mapLocationsLabels = [...Object.keys(MAP_LOCATIONS), 'Location Variable', 'Custom', 'User Geolocation'];
     this.iconTypes = ICON_TYPES;
     this.defaultMetrics = DEFAULT_METRICS;
+    this.colorTypes = COLOR_TYPES;
     this.markerColors = MARKER_COLORS;
     this.environmentVars = this.templateSrv.variables.map((elem) => elem.name);
 
-    this.panel.geoMarkerColoringColorHigh = [];
-    this.panel.geoMarkerColoringColorMedium = [];
-    this.panel.geoMarkerColoringColorLow = [];
-    this.panel.geoMarkerColoringThresholds = [];
-    this.panel.geoMarkerColoringBinding = [];
-
+    this.variables = this.templateSrv.variables;
+    this.variableSrv = variableSrv;
     // bind grafana events
     this.events.on('init-edit-mode', this.onInitEditMode.bind(this));
     this.events.on('data-error', this.onDataError.bind(this));
