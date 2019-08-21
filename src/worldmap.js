@@ -33,18 +33,10 @@ export default class WorldMap {
     this.mapContainer = mapContainer;
     this.validatedMetrics = {};
     this.timeSeries = {};
-    this.currentTargetForChart = null;
-    this.currentParameterForChart = null;
     this.map = null;
     this.geoMarkers = {};
 
-    this.ctrl.events.on('panel-size-changed', this.flagChartRefresh.bind(this));
-
     this.setDefaultValues();
-  }
-
-  flagChartRefresh() {
-    this.refreshChart = true;
   }
 
   getLayers() {
@@ -77,7 +69,6 @@ export default class WorldMap {
     // this.map.on('zoomstart', (e) => { mapZoom = this.map.getZoom() });
     this.map.on('click', () => {
       hideAllGraphPopups(this.ctrl.panel.id);
-      this.currentTargetForChart = null;
     });
 
     this.map.on('zoomend', () => {
@@ -94,7 +85,7 @@ export default class WorldMap {
       attribution: selectedTileServer.attribution
     }).addTo(this.map, true);
 
-    if (this.ctrl.panel.buildings) new OSMBuildings(this.map).load();
+    if (this.ctrl.panel.buildings) new OSMBuildings(this.map).load('https://{s}.data.osmbuildings.org/0.2/anonymous/tile/{z}/{x}/{y}.json');
 
   }
 
@@ -140,7 +131,7 @@ export default class WorldMap {
       const layer = this.ctrl.data[layerKey];
 
       const markersGJ = L.geoJSON();
-      const markers = L.markerClusterGroup();
+      const markers = L.markerClusterGroup({disableClusteringAtZoom: 19});
 
       // for each layer
       Object.keys(layer).forEach((objectKey) => {
@@ -298,24 +289,24 @@ export default class WorldMap {
 
   associateEvents(shape) {
     return shape
-      .on('click', (event) => { this.currentTargetForChart = event; })
-      .on('click', () => this.updateVariable(shape))
-      .on('click', () => this.drawPointDetails());
+     .on('click', () => this.updateVariable(shape))
   }
 
   updateVariable(shape){
-    const variable = _.find(this.ctrl.variables, {'name': this.ctrl.panel.layersVariables[shape.options.type]});
+    let variable = _.find(this.ctrl.variables, {'name': this.ctrl.panel.layersVariables[shape.options.type]});
     console.debug(variable);
     
-    variable.current.text = shape.options.id;
-    variable.current.value = shape.options.id;
+    if(variable) {
+      variable.current.text = shape.options.id;
+      variable.current.value = shape.options.id;
 
-    this.ctrl.variableSrv.updateOptions(variable).then(() => {
-      this.ctrl.variableSrv.variableUpdated(variable).then(() => {
-        this.ctrl.$scope.$emit('template-variable-value-updated');
-        this.ctrl.$scope.$root.$broadcast('refresh');
+      this.ctrl.variableSrv.updateOptions(variable).then(() => {
+        this.ctrl.variableSrv.variableUpdated(variable).then(() => {
+          this.ctrl.$scope.$emit('template-variable-value-updated');
+          this.ctrl.$scope.$root.$broadcast('refresh');
+        });
       });
-    });
+    }
   }
 
   createPopup(shape, stickyPopupInfo) {
@@ -370,39 +361,6 @@ export default class WorldMap {
 
   setZoom(zoomFactor) {
     this.map.setZoom(parseInt(zoomFactor, 10));
-  }
-
-  drawPointDetails() {
-    console.debug('drawPointDetails');
-    if (this.currentTargetForChart == null) {
-      console.debug('no point selected in map');
-      return;
-    }
-
-    const currentParameterForChart = this.currentParameterForChart || 'value';
-    if (!this.currentTargetForChart.target.options.type || this.currentTargetForChart.target.options.id) {
-      return;
-    }
-    const selectedPointValues = this.ctrl.data[this.currentTargetForChart.target.options.type][this.currentTargetForChart.target.options.id];
-    if (!selectedPointValues) {
-      return;
-    }
-    const lastValueMeasure = selectedPointValues[selectedPointValues.length - 1];
-
-    // refresh chart only if new values arrived
-    if (!this.isToRefreshChart(selectedPointValues, currentParameterForChart)) return;
-
-    this.refreshChart = false;
-  }
-
-
-  // helper method just to avoid unnecessary chart refresh
-  isToRefreshChart(selectedPointValues, currentParameterForChart) {
-    if (this.refreshChart) return true;
-    const chartData = selectedPointValues.map((elem) => [ elem.created_at, elem[currentParameterForChart] ]);
-    if (isEqual(this.currentChartData, chartData)) return false;
-    this.currentChartData = chartData;
-    return true;
   }
 
   setDefaultValues() {
