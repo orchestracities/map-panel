@@ -60,9 +60,7 @@ function link(scope, elem, attrs, ctrl) {
     /**
     * popups and graph display
     */
-    // draw all info associated with selected point but when redrawing the chart just update information related
 
-    ctrl.worldMap.drawPointDetails();
     ctrl.renderingCompleted();
   } // if users add new metrics we must verify if layers are the same or if we must recreate the map
 

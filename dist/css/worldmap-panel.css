@@ -50,6 +50,8 @@
 .map-container .worldmap-popup .stycky-popup-info .head {
   font-weight: bolder;
   margin-bottom: 5px;
+  font-size: 15px;
+  text-align: center;
 }
 
 .map-container .worldmap-popup .stycky-popup-info .body div {
@@ -173,13 +175,22 @@
   background-color: #00e400;
 }
 
+.stycky-popup-info .body{
+  display: table;
+  width: 100%;
+}
+
+.stycky-popup-info .body .popup-single-value .name {
+  display: none !important;
+}
+
 .stycky-popup-info .body .popup-single-value .value {
-  font-size: 50px;
+  font-size: 40px;
   display: inline-block !important;
 }
 
 .stycky-popup-info .body .popup-single-value .unit {
-  font-size: 20px;
+  font-size: 15px;
   display: inline-block !important;
 }
 
@@ -201,6 +212,10 @@
 .stycky-popup-info .body .popup-single-value {
   text-align: center;
   display: block !important;
+}
+
+.stycky-popup-info .body .popup-multi-value {
+  text-align: center;
 }
 
 .map-container .worldmap-popup .stycky-popup-info .foot {

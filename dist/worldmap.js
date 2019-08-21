@@ -52,20 +52,12 @@ function () {
     this.mapContainer = mapContainer;
     this.validatedMetrics = {};
     this.timeSeries = {};
-    this.currentTargetForChart = null;
-    this.currentParameterForChart = null;
     this.map = null;
     this.geoMarkers = {};
-    this.ctrl.events.on('panel-size-changed', this.flagChartRefresh.bind(this));
     this.setDefaultValues();
   }
 
   _createClass(WorldMap, [{
-    key: "flagChartRefresh",
-    value: function flagChartRefresh() {
-      this.refreshChart = true;
-    }
-  }, {
     key: "getLayers",
     value: function getLayers() {
       return this.ctrl.layerNames.map(function (elem) {
@@ -100,7 +92,6 @@ function () {
 
       this.map.on('click', function () {
         (0, _map_utils.hideAllGraphPopups)(_this.ctrl.panel.id);
-        _this.currentTargetForChart = null;
       });
       this.map.on('zoomend', function () {
         var zoomLevel = _this.map.getZoom();
@@ -115,7 +106,7 @@ function () {
         detectRetina: true,
         attribution: selectedTileServer.attribution
       }).addTo(this.map, true);
-      if (this.ctrl.panel.buildings) new OSMBuildings(this.map).load();
+      if (this.ctrl.panel.buildings) new OSMBuildings(this.map).load('https://{s}.data.osmbuildings.org/0.2/anonymous/tile/{z}/{x}/{y}.json');
     }
   }, {
     key: "addLayersToMap",
@@ -194,7 +185,9 @@ function () {
       Object.keys(this.ctrl.data).forEach(function (layerKey) {
         var layer = _this3.ctrl.data[layerKey];
         var markersGJ = L.geoJSON();
-        var markers = L.markerClusterGroup(); // for each layer
+        var markers = L.markerClusterGroup({
+          disableClusteringAtZoom: 19
+        }); // for each layer
 
         Object.keys(layer).forEach(function (objectKey) {
           var lastObjectValues = layer[objectKey][layer[objectKey].length - 1];
@@ -355,12 +348,8 @@ function () {
     value: function associateEvents(shape) {
       var _this4 = this;
 
-      return shape.on('click', function (event) {
-        _this4.currentTargetForChart = event;
-      }).on('click', function () {
+      return shape.on('click', function () {
         return _this4.updateVariable(shape);
-      }).on('click', function () {
-        return _this4.drawPointDetails();
       });
     }
   }, {
@@ -373,15 +362,18 @@ function () {
       });
 
       console.debug(variable);
-      variable.current.text = shape.options.id;
-      variable.current.value = shape.options.id;
-      this.ctrl.variableSrv.updateOptions(variable).then(function () {
-        _this5.ctrl.variableSrv.variableUpdated(variable).then(function () {
-          _this5.ctrl.$scope.$emit('template-variable-value-updated');
 
-          _this5.ctrl.$scope.$root.$broadcast('refresh');
+      if (variable) {
+        variable.current.text = shape.options.id;
+        variable.current.value = shape.options.id;
+        this.ctrl.variableSrv.updateOptions(variable).then(function () {
+          _this5.ctrl.variableSrv.variableUpdated(variable).then(function () {
+            _this5.ctrl.$scope.$emit('template-variable-value-updated');
+
+            _this5.ctrl.$scope.$root.$broadcast('refresh');
+          });
         });
-      });
+      }
     }
   }, {
     key: "createPopup",
@@ -445,45 +437,6 @@ function () {
     key: "setZoom",
     value: function setZoom(zoomFactor) {
       this.map.setZoom(parseInt(zoomFactor, 10));
-    }
-  }, {
-    key: "drawPointDetails",
-    value: function drawPointDetails() {
-      console.debug('drawPointDetails');
-
-      if (this.currentTargetForChart == null) {
-        console.debug('no point selected in map');
-        return;
-      }
-
-      var currentParameterForChart = this.currentParameterForChart || 'value';
-
-      if (!this.currentTargetForChart.target.options.type || this.currentTargetForChart.target.options.id) {
-        return;
-      }
-
-      var selectedPointValues = this.ctrl.data[this.currentTargetForChart.target.options.type][this.currentTargetForChart.target.options.id];
-
-      if (!selectedPointValues) {
-        return;
-      }
-
-      var lastValueMeasure = selectedPointValues[selectedPointValues.length - 1]; // refresh chart only if new values arrived
-
-      if (!this.isToRefreshChart(selectedPointValues, currentParameterForChart)) return;
-      this.refreshChart = false;
-    } // helper method just to avoid unnecessary chart refresh
-
-  }, {
-    key: "isToRefreshChart",
-    value: function isToRefreshChart(selectedPointValues, currentParameterForChart) {
-      if (this.refreshChart) return true;
-      var chartData = selectedPointValues.map(function (elem) {
-        return [elem.created_at, elem[currentParameterForChart]];
-      });
-      if ((0, _lodash.isEqual)(this.currentChartData, chartData)) return false;
-      this.currentChartData = chartData;
-      return true;
     }
   }, {
     key: "setDefaultValues",

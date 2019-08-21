@@ -115,17 +115,19 @@ function getMapMarkerClassName(type, value) {
 function getDataPointStickyInfo(dataPoint, metricsTranslations) {
   var dataPointExtraFields = getDataPointExtraFields(dataPoint);
   var stickyInfo = '<div class="stycky-popup-info">';
+  var bodyData = getDataPointDetails(dataPoint, ['geojson', 'id', 'type', 'created_at', 'longitude', 'latitude', 'name'], false);
 
-  if (dataPoint.name) {
+  if (dataPoint.name && Object.keys(bodyData).length > 1) {
     stickyInfo += '<div class="head">' + dataPoint.name + '</div>';
-  } else {
+  } else if (dataPoint.id && Object.keys(bodyData).length > 1) {
     stickyInfo += '<div class="head">' + dataPoint.id + '</div>';
+  } else if (Object.keys(bodyData).length === 1) {
+    stickyInfo += '<div class="head">' + Object.keys(bodyData)[0] + '</div>';
   }
 
-  var bodyData = getDataPointDetails(dataPoint, ['geojson', 'id', 'type', 'created_at', 'longitude', 'latitude'], false);
   var bodyClass = 'popup-single-value';
 
-  if (bodyData.length > 1) {
+  if (Object.keys(bodyData).length > 1) {
     bodyClass = 'popup-multiple-value';
   } // body
 
@@ -134,7 +136,14 @@ function getDataPointStickyInfo(dataPoint, metricsTranslations) {
   stickyInfo += translate(bodyData, metricsTranslations, bodyClass).join('');
   stickyInfo += '</div>'; // foot
 
-  var footData = getDataPointDetails(dataPoint, ['created_at'], true);
+  var footData;
+
+  if (Object.keys(bodyData).length === 1 && dataPoint.name) {
+    footData = getDataPointDetails(dataPoint, ['created_at', 'name'], true);
+  } else {
+    footData = getDataPointDetails(dataPoint, ['created_at'], true);
+  }
+
   var footClass = '';
   stickyInfo += '<div class="foot">';
   stickyInfo += translate(footData, metricsTranslations, footClass).join('');
