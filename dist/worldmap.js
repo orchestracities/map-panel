@@ -266,8 +266,8 @@ function () {
       var thresholds = this.ctrl.panel.layersColorsThresholds[objectValues.type] || '';
       var splitted = thresholds.split(',');
       return {
-        medium: parseInt(splitted[0], 10),
-        high: parseInt(splitted[1], 10)
+        medium: parseFloat(splitted[0]),
+        high: parseFloat(splitted[1])
       };
     }
   }, {
