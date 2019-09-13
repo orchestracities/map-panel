@@ -228,9 +228,9 @@ export default class WorldMap {
   createIcon(dataPoint, geoJsonName) {
     // console.log(this.ctrl.panel.layersIcons)
     if (!dataPoint || !dataPoint.type) return null;
-
+    const markerColor = this.getGeoMarkerColor(dataPoint);
     const layerIcon = this.ctrl.panel.layersIcons[dataPoint.type];
-    const icon = layerIcon ? this.createMarker(dataPoint, layerIcon, this.ctrl.panel.layersColors[dataPoint.type]) : this.createShape(dataPoint);
+    const icon = layerIcon ? this.createMarker(dataPoint, layerIcon, markerColor) : this.createShape(dataPoint);
     
     this.createPopup(
       this.associateEvents(icon),

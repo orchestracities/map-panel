@@ -3393,11 +3393,6 @@ leaflet.awesome-markers@^2.0.4:
   version "2.0.4"
   resolved "https://registry.yarnpkg.com/leaflet.awesome-markers/-/leaflet.awesome-markers-2.0.4.tgz#66fea2090c9c8a0ab6d1f3b6bdd02fb37cf4ba1a"
 
-leaflet.marker.highlight@0.0.3:
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/leaflet.marker.highlight/-/leaflet.marker.highlight-0.0.3.tgz#c7881866c52b708c8eedcf54082acf62dfdd78d4"
-  integrity sha1-x4gYZsUrcIyO7c9UCCrPYt/deNQ=
-
 leaflet.markercluster@^1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/leaflet.markercluster/-/leaflet.markercluster-1.4.0.tgz#82d1892e2dfa6d3b2da262d9ed373c12411ba861"
@@ -3894,6 +3889,11 @@ osenv@^0.1.4:
   dependencies:
     os-homedir "^1.0.0"
     os-tmpdir "^1.0.0"
+
+osmbuildings@^0.2.0-b:
+  version "0.2.0-b"
+  resolved "https://registry.yarnpkg.com/osmbuildings/-/osmbuildings-0.2.0-b.tgz#fb81997962f8b4050568e9815690cf897d7e23e7"
+  integrity sha1-+4GZeWL4tAUFaOmBVpDPiX1+I+c=
 
 p-limit@^1.1.0:
   version "1.3.0"

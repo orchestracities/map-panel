@@ -298,8 +298,9 @@ function () {
     value: function createIcon(dataPoint, geoJsonName) {
       // console.log(this.ctrl.panel.layersIcons)
       if (!dataPoint || !dataPoint.type) return null;
+      var markerColor = this.getGeoMarkerColor(dataPoint);
       var layerIcon = this.ctrl.panel.layersIcons[dataPoint.type];
-      var icon = layerIcon ? this.createMarker(dataPoint, layerIcon, this.ctrl.panel.layersColors[dataPoint.type]) : this.createShape(dataPoint);
+      var icon = layerIcon ? this.createMarker(dataPoint, layerIcon, markerColor) : this.createShape(dataPoint);
       this.createPopup(this.associateEvents(icon), (0, _map_utils.getDataPointStickyInfo)(dataPoint, this.ctrl.panel.metrics));
       return icon;
     }
