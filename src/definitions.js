@@ -38,8 +38,7 @@ const TILE_SERVERS = {
 
 const COLOR_TYPES = [
   'fix',
-  'threshold',
-  'highlight'
+  'threshold'
 ];
 
 const ICON_TYPES = [

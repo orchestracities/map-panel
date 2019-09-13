@@ -143,10 +143,26 @@ function getDataPointDetails(dataPoint, skipkey, include) {
   return include? Object.keys(dataPoint).filter(key => skipkey.includes(key)).reduce((obj, key) => { obj[key] = dataPoint[key]; return obj; }, {}) : Object.keys(dataPoint).filter(key => !skipkey.includes(key)).reduce((obj, key) => { obj[key] = dataPoint[key]; return obj; }, {});
 }
 
+
+function objToString (obj) {
+    var str = '<div>';
+    for (var p in obj) {
+        if (obj.hasOwnProperty(p)) {
+            if(typeof obj[p] === 'string'){
+              str += p + ': ' + obj[p] + '<br/>';
+            } else {
+              str += p + ': ' + objToString(obj[p]) + '<br/>';
+            }
+        }
+    }
+    str += '</div>';
+    return str;
+}
+
 function translate(filteredData, metricsTranslations, cssClass){
   const keys = Object.keys(filteredData);
   const translatedValues =   keys.map((dpKey) => {
-    const dP = (dpKey === 'created_at' ? new Date(filteredData[dpKey]).toLocaleString() : filteredData[dpKey]);
+    const dP = (dpKey === 'created_at' ? new Date(filteredData[dpKey]).toLocaleString() : typeof filteredData[dpKey] === 'object' ? objToString(filteredData[dpKey]) : filteredData[dpKey]);
     const trans = metricsTranslations.filter((elem) => elem[0] === dpKey);
     return { 'name': (trans.length > 0 && trans[0][1] ? trans[0][1] : titleize(dpKey)), 'value': dP || '-', 'unit': (trans.length > 0 ? trans[0][2] : '') };
   });

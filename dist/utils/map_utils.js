@@ -21,13 +21,7 @@ var _definitions = require("../definitions");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
-// draw components in the map
-
-/* Vendor specific */
-
-/* Grafana Specific */
-
-/* App specific */
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 /*
 * Primary functions
@@ -165,10 +159,27 @@ function getDataPointDetails(dataPoint, skipkey, include) {
   }, {});
 }
 
+function objToString(obj) {
+  var str = '<div>';
+
+  for (var p in obj) {
+    if (obj.hasOwnProperty(p)) {
+      if (typeof obj[p] === 'string') {
+        str += p + ': ' + obj[p] + '<br/>';
+      } else {
+        str += p + ': ' + objToString(obj[p]) + '<br/>';
+      }
+    }
+  }
+
+  str += '</div>';
+  return str;
+}
+
 function translate(filteredData, metricsTranslations, cssClass) {
   var keys = Object.keys(filteredData);
   var translatedValues = keys.map(function (dpKey) {
-    var dP = dpKey === 'created_at' ? new Date(filteredData[dpKey]).toLocaleString() : filteredData[dpKey];
+    var dP = dpKey === 'created_at' ? new Date(filteredData[dpKey]).toLocaleString() : _typeof(filteredData[dpKey]) === 'object' ? objToString(filteredData[dpKey]) : filteredData[dpKey];
     var trans = metricsTranslations.filter(function (elem) {
       return elem[0] === dpKey;
     });
