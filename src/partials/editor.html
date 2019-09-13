@@ -146,61 +146,73 @@
   <div ng-repeat="layerName in ctrl.layerNames" class="m-b-1">
     <h5 class="section-heading">{{layerName}}</h5>
     <div class="gf-form">
-      <span class="gf-form-label width-10">Icon
-        <info-popover mode="right-normal">
-          <div ng-repeat="iconType in ctrl.iconTypes">
-            <i class="fa fa-{{iconType}}"></i> - {{iconType}}
-          </div>
-        </info-popover>
-      </span>
+      <div class="row">
+        <span class="gf-form-label width-10">Icon
+          <info-popover mode="right-normal">
+            <div ng-repeat="iconType in ctrl.iconTypes">
+              <i class="fa fa-{{iconType}}"></i> - {{iconType}}
+            </div>
+          </info-popover>
+        </span>
 
-      <select class="gf-form-input"
-        ng-model="ctrl.panel.layersIcons[layerName]"
-        ng-options="iconType for iconType in ctrl.iconTypes"
-        ng-change="ctrl.render()" title="Choose the marker icon for this layer"
-        >
-        <option value=""></option>
-      </select>
-
-      <select class="gf-form-input"
-        ng-model="ctrl.panel.layersVariables[layerName]"
-        ng-options="variable for variable in ctrl.environmentVars"
-        ng-change="ctrl.render()" title="Choose the variable to set on click"
-        >
-        <option value=""></option>
-      </select>
-
-
-      <span class="gf-form-label width-10">Color Type</span>
-      <select class="gf-form-input"
-        ng-model="ctrl.panel.layersColorType[layerName]"
-        ng-options="colorType for colorType in ctrl.colorTypes"
-        ng-change="ctrl.render()" title="Select fix color or threshold based colouring"
-        >
-        <option value=""></option>
-      </select>
-      <label class="gf-form-label width-9">Marker Color</label>
-      <select class="gf-form-input"
-        ng-model="ctrl.panel.layersColors[layerName]"
-        ng-options="color for color in ctrl.markerColors"
-        ng-change="ctrl.render()" title="Select fix color or threshold based colouring"
-        >
-        <option value=""></option>
-      </select>
-      <div class="gf-form" ng-if="ctrl.panel.layersColorType[layerName]=='threshold'">
+        <select class="gf-form-input"
+          ng-model="ctrl.panel.layersIcons[layerName]"
+          ng-options="iconType for iconType in ctrl.iconTypes"
+          ng-change="ctrl.render()" title="Choose the marker icon for this layer"
+          >
+          <option value=""></option>
+        </select>
+      </div>
+      <div class="row">
+        <span class="gf-form-label width-10">Variable
+          <info-popover mode="right-normal">
+            This is the variable that will be set when you click on a map object.
+          </info-popover>
+        </span>
+        <select class="gf-form-input"
+          ng-model="ctrl.panel.layersVariables[layerName]"
+          ng-options="variable for variable in ctrl.environmentVars"
+          ng-change="ctrl.render()" title="Choose the variable to set on click"
+          >
+          <option value=""></option>
+        </select>
+      </div>
+      <div class="row">
+        <span class="gf-form-label width-10">Color Type</span>
+        <select class="gf-form-input"
+          ng-model="ctrl.panel.layersColorType[layerName]"
+          ng-options="colorType for colorType in ctrl.colorTypes"
+          ng-change="ctrl.render()" title="Select fix color or threshold based colouring"
+          >
+          <option value=""></option>
+        </select>
+      </div>
+      <div class="row" ng-if="ctrl.panel.layersColorType[layerName]=='fix'">
+        <label class="gf-form-label width-9">Marker Color</label>
+        <select class="gf-form-input"
+          ng-model="ctrl.panel.layersColors[layerName]"
+          ng-options="color for color in ctrl.markerColors"
+          ng-change="ctrl.render()" title="Select fix color or threshold based colouring"
+          >
+          <option value=""></option>
+        </select>
+      </div>
+      <div class="row" ng-if="ctrl.panel.layersColorType[layerName]=='threshold'">
         <label class="gf-form-label width-10">Column</label>
         <input type="text" 
           class="input-small gf-form-input width-12" 
           ng-model="ctrl.panel.layersColorsBinding[layerName]"
           ng-change="ctrl.render()" ng-model-onblur />
-
+      </div>
+      <div class="row" ng-if="ctrl.panel.layersColorType[layerName]=='threshold'">
         <label class="gf-form-label width-10">Color Thresholds</label>
         <input type="text" 
           class="input-small gf-form-input width-12" 
           placeholder="50, 100"
           ng-model="ctrl.panel.layersColorsThresholds[layerName]" 
           ng-change="ctrl.render()" ng-model-onblur />
-
+      </div>
+      <div class="row" ng-if="ctrl.panel.layersColorType[layerName]=='threshold'">
         <label class="gf-form-label width-9">Low Color</label>
         <spectrum-picker class="gf-form-input width-6" ng-model="ctrl.panel.layersColorsLow[layerName]" ng-change="ctrl.render()" ></spectrum-picker>
         

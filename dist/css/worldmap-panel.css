@@ -246,3 +246,15 @@
 .empty-space-margin {
   margin-right:3px;
 }
+
+.gf-form {
+  display: table;
+}
+
+.row {
+  display: table-row;
+}
+
+.gf-form-label, .gf-form-input {
+  display: table-cell;
+}

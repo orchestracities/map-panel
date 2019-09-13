@@ -186,7 +186,7 @@ function () {
         var layer = _this3.ctrl.data[layerKey];
         var markersGJ = L.geoJSON();
         var markers = L.markerClusterGroup({
-          disableClusteringAtZoom: 19
+          disableClusteringAtZoom: 21
         }); // for each layer
 
         Object.keys(layer).forEach(function (objectKey) {
@@ -307,38 +307,18 @@ function () {
   }, {
     key: "createShape",
     value: function createShape(dataPoint) {
-      var dataPointExtraFields = (0, _map_utils.getDataPointExtraFields)(dataPoint);
-      var shape;
-      (0, _lodash.defaultsDeep)(dataPointExtraFields, dataPoint);
-
-      switch (dataPoint.type) {
-        case 'AirQualityObserved':
-          shape = L.circle([dataPoint.latitude, dataPoint.longitude], CIRCLE_RADIUS, dataPointExtraFields);
-          break;
-
-        case 'TrafficFlowObserved':
-          shape = L.rectangle([[dataPoint.latitude - 0.001 * POLYGON_MAGNIFY_RATIO, dataPoint.longitude - 0.0015 * POLYGON_MAGNIFY_RATIO], [dataPoint.latitude + 0.001 * POLYGON_MAGNIFY_RATIO, dataPoint.longitude + 0.0015 * POLYGON_MAGNIFY_RATIO]], dataPointExtraFields); // shape = L.circle([dataPoint.locationLatitude, dataPoint.locationLongitude], CIRCLE_RADIUS, dataPointExtraFields)
-
-          break;
-
-        default:
-          dataPointExtraFields.color = 'green'; // default color
-
-          shape = L.polygon([[dataPoint.latitude - 0.001 * POLYGON_MAGNIFY_RATIO, dataPoint.longitude - 0.0015 * POLYGON_MAGNIFY_RATIO], [dataPoint.latitude + 0.001 * POLYGON_MAGNIFY_RATIO, dataPoint.longitude], [dataPoint.latitude - 0.001 * POLYGON_MAGNIFY_RATIO, dataPoint.longitude + 0.0015 * POLYGON_MAGNIFY_RATIO]], dataPointExtraFields);
-      }
-
+      var shape = L.polygon([[dataPoint.latitude - 0.001 * POLYGON_MAGNIFY_RATIO, dataPoint.longitude - 0.0015 * POLYGON_MAGNIFY_RATIO], [dataPoint.latitude + 0.001 * POLYGON_MAGNIFY_RATIO, dataPoint.longitude], [dataPoint.latitude - 0.001 * POLYGON_MAGNIFY_RATIO, dataPoint.longitude + 0.0015 * POLYGON_MAGNIFY_RATIO]], {});
       return shape;
     }
   }, {
     key: "createMarker",
     value: function createMarker(dataPoint, elementIcon, elementColor) {
-      var dataPointExtraFields = (0, _map_utils.getDataPointExtraFields)(dataPoint);
       var location = [dataPoint.latitude, dataPoint.longitude];
       var markerProperties = {
         icon: L.AwesomeMarkers.icon({
           icon: elementIcon,
           prefix: 'fa',
-          markerColor: elementColor || dataPointExtraFields.markerColor
+          markerColor: elementColor
         })
       };
       (0, _lodash.defaultsDeep)(markerProperties, dataPoint);

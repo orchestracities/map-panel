@@ -56,50 +56,8 @@ function drawPopups(panelId, lastValueMeasure, validatedMetrics) {
 /**
 * private functions
 */
-function getDataPointExtraFields(dataPoint) {
-  const values = {
-    fillOpacity: 0.5
-  };
-
-  if (dataPoint.type === 'AirQualityObserved') {
-    const aqiIndex = calculateAQIIndex(dataPoint.value);
-    const aqiColor = AQI.color[aqiIndex];
-
-    defaults(values, {
-      color: aqiColor,
-      fillColor: aqiColor,
-
-      aqiColor: aqiColor,
-      aqiMeaning: AQI.meaning[aqiIndex],
-      aqiRisk: AQI.risks[aqiIndex],
-      aqi: dataPoint.value,
-
-      markerColor: AQI.markerColor[aqiIndex]
-    });
-  } else if (dataPoint.type === 'TrafficFlowObserved') {
-    const colorIndex = calculateCarsIntensityIndex(dataPoint.value);
-
-    defaults(values, {
-      color: CARS_COUNT.color[colorIndex],
-      fillColor: CARS_COUNT.color[colorIndex],
-
-      markerColor: CARS_COUNT.markerColor[colorIndex]
-    });
-  }
-
-  return values;
-}
-
-function getMapMarkerClassName(type, value) {
-  const resp = 'map-marker-';
-  if (type === 'AirQualityObserved') {
-    return resp + AQI.classColor[calculateAQIIndex(value)];
-  } if (type === 'TrafficFlowObserved') return resp + CARS_COUNT.classColor[calculateCarsIntensityIndex(value)];
-  return resp + 'default';
-}
 
 function getDataPointStickyInfo(dataPoint, metricsTranslations) {
-  const dataPointExtraFields = getDataPointExtraFields(dataPoint);
   let stickyInfo = '<div class="stycky-popup-info">';
 
   var bodyData = getDataPointDetails(dataPoint, ['geojson', 'id', 'type', 'created_at', 'longitude', 'latitude' , 'name'], false);
@@ -313,12 +271,9 @@ export {
 
   getCityCoordinates,
 
-  getDataPointExtraFields,
   getDataPointStickyInfo,
 
   getSelectedCity,
-
-  getMapMarkerClassName,
 
   geolocationOptions
 };
