@@ -5,10 +5,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.hideAllGraphPopups = hideAllGraphPopups;
 exports.getCityCoordinates = getCityCoordinates;
-exports.getDataPointExtraFields = getDataPointExtraFields;
 exports.getDataPointStickyInfo = getDataPointStickyInfo;
 exports.getSelectedCity = getSelectedCity;
-exports.getMapMarkerClassName = getMapMarkerClassName;
 exports.geolocationOptions = void 0;
 
 var _lodash = require("lodash");
@@ -66,48 +64,7 @@ function drawPopups(panelId, lastValueMeasure, validatedMetrics) {
 */
 
 
-function getDataPointExtraFields(dataPoint) {
-  var values = {
-    fillOpacity: 0.5
-  };
-
-  if (dataPoint.type === 'AirQualityObserved') {
-    var aqiIndex = calculateAQIIndex(dataPoint.value);
-    var aqiColor = _definitions.AQI.color[aqiIndex];
-    (0, _lodash.defaults)(values, {
-      color: aqiColor,
-      fillColor: aqiColor,
-      aqiColor: aqiColor,
-      aqiMeaning: _definitions.AQI.meaning[aqiIndex],
-      aqiRisk: _definitions.AQI.risks[aqiIndex],
-      aqi: dataPoint.value,
-      markerColor: _definitions.AQI.markerColor[aqiIndex]
-    });
-  } else if (dataPoint.type === 'TrafficFlowObserved') {
-    var colorIndex = calculateCarsIntensityIndex(dataPoint.value);
-    (0, _lodash.defaults)(values, {
-      color: _definitions.CARS_COUNT.color[colorIndex],
-      fillColor: _definitions.CARS_COUNT.color[colorIndex],
-      markerColor: _definitions.CARS_COUNT.markerColor[colorIndex]
-    });
-  }
-
-  return values;
-}
-
-function getMapMarkerClassName(type, value) {
-  var resp = 'map-marker-';
-
-  if (type === 'AirQualityObserved') {
-    return resp + _definitions.AQI.classColor[calculateAQIIndex(value)];
-  }
-
-  if (type === 'TrafficFlowObserved') return resp + _definitions.CARS_COUNT.classColor[calculateCarsIntensityIndex(value)];
-  return resp + 'default';
-}
-
 function getDataPointStickyInfo(dataPoint, metricsTranslations) {
-  var dataPointExtraFields = getDataPointExtraFields(dataPoint);
   var stickyInfo = '<div class="stycky-popup-info">';
   var bodyData = getDataPointDetails(dataPoint, ['geojson', 'id', 'type', 'created_at', 'longitude', 'latitude', 'name'], false);
 

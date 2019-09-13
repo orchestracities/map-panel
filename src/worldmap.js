@@ -18,8 +18,7 @@ import './vendor/osmbuildings/OSMBuildings-Leaflet';
 import { TILE_SERVERS, PLUGIN_PATH } from './definitions';
 import {
   dataTreatment, processData, getTimeSeries, getUpdatedChartSeries,
-  hideAllGraphPopups, getDataPointExtraFields, getDataPointStickyInfo,
-  getMapMarkerClassName
+  hideAllGraphPopups, getDataPointStickyInfo
 } from './utils/map_utils';
 
 import * as turf from './vendor/turf/turf';
@@ -131,7 +130,7 @@ export default class WorldMap {
       const layer = this.ctrl.data[layerKey];
 
       const markersGJ = L.geoJSON();
-      const markers = L.markerClusterGroup({disableClusteringAtZoom: 19});
+      const markers = L.markerClusterGroup({disableClusteringAtZoom: 21});
 
       // for each layer
       Object.keys(layer).forEach((objectKey) => {
@@ -241,36 +240,16 @@ export default class WorldMap {
   }
 
   createShape(dataPoint) {
-    const dataPointExtraFields = getDataPointExtraFields(dataPoint);
-    let shape;
-
-    defaultsDeep(dataPointExtraFields, dataPoint);
-
-    switch (dataPoint.type) {
-      case 'AirQualityObserved':
-        shape = L.circle([dataPoint.latitude, dataPoint.longitude], CIRCLE_RADIUS, dataPointExtraFields);
-        break;
-      case 'TrafficFlowObserved':
-        shape = L.rectangle([
-          [dataPoint.latitude - (0.001 * POLYGON_MAGNIFY_RATIO), dataPoint.longitude - (0.0015 * POLYGON_MAGNIFY_RATIO)],
-          [dataPoint.latitude + (0.001 * POLYGON_MAGNIFY_RATIO), dataPoint.longitude + (0.0015 * POLYGON_MAGNIFY_RATIO)]
-        ], dataPointExtraFields);
-        // shape = L.circle([dataPoint.locationLatitude, dataPoint.locationLongitude], CIRCLE_RADIUS, dataPointExtraFields)
-        break;
-      default:
-        dataPointExtraFields.color = 'green'; // default color
-        shape = L.polygon([
+    let shape = L.polygon([
           [dataPoint.latitude - (0.001 * POLYGON_MAGNIFY_RATIO), dataPoint.longitude - (0.0015 * POLYGON_MAGNIFY_RATIO)],
           [dataPoint.latitude + (0.001 * POLYGON_MAGNIFY_RATIO), dataPoint.longitude],
           [dataPoint.latitude - (0.001 * POLYGON_MAGNIFY_RATIO), dataPoint.longitude + (0.0015 * POLYGON_MAGNIFY_RATIO)],
-        ], dataPointExtraFields);
-    }
+        ], {});
 
     return shape;
   }
 
   createMarker(dataPoint, elementIcon, elementColor) {
-    const dataPointExtraFields = getDataPointExtraFields(dataPoint);
     const location = [dataPoint.latitude, dataPoint.longitude];
 
     const markerProperties = {
@@ -278,7 +257,7 @@ export default class WorldMap {
         {
           icon: elementIcon,
           prefix: 'fa',
-          markerColor: (elementColor || dataPointExtraFields.markerColor)
+          markerColor: (elementColor)
         }
       )
     };
