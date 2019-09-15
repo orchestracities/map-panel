@@ -131,8 +131,8 @@ export default class WorldMap {
         var value = 'NA';
 
         var valueId = "value";
-        if (panel.ctrl.panel.layersColorsBinding[type] !== undefined) {
-          valueId = panel.ctrl.panel.layersColorsBinding[type];
+        if (panel.ctrl.panel.layersColorsBinding[layerKey] !== undefined) {
+          valueId = panel.ctrl.panel.layersColorsBinding[layerKey];
         }
 
         switch(type) {
