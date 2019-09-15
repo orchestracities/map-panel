@@ -196,6 +196,8 @@ function () {
               break;
 
             case 'total':
+              var n = 0;
+
               for (var i = 0; i < markers.length; i++) {
                 n += isNaN(markers[i].options[valueId]) ? 0 : markers[i].options[valueId];
               }
