@@ -247,24 +247,27 @@
   margin-right:3px;
 }
 
-
 .oc-cluster {
-	background-clip: padding-box;
-	border-radius: 20px;
-	}
-.oc-cluster div {
-	width: 40px;
-	height: 40px;
-	margin-left: 5px;
-	margin-top: 5px;
-
-	text-align: center;
-	border-radius: 20px;
-	font: 12px "Helvetica Neue", Arial, Helvetica, sans-serif;
-	}
-.oc-cluster span.double {
-	line-height: 20px;
+  background-clip: padding-box;
+  border-radius: 20px;
 }
+
+.oc-cluster div {
+  width: 40px;
+  height: 40px;
+  margin-left: 5px;
+  margin-top: 5px;
+
+  text-align: center;
+  border-radius: 20px;
+  font: 12px "Helvetica Neue", Arial, Helvetica, sans-serif;
+  color: white;
+}
+
+.oc-cluster span.double {
+  line-height: 20px;
+}
+
 .oc-cluster span.single {
-	line-height: 40px;
+  line-height: 40px;
 }

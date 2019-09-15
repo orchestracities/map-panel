@@ -76,7 +76,7 @@ function objToString (obj) {
 function translate(filteredData, metricsTranslations, cssClass){
   const keys = Object.keys(filteredData);
   const translatedValues =   keys.map((dpKey) => {
-    const dP = (dpKey === 'created_at' ? new Date(filteredData[dpKey]).toLocaleString() : typeof filteredData[dpKey] === 'object' ? objToString(filteredData[dpKey]) : filteredData[dpKey]);
+    const dP = (dpKey === 'created_at' ? new Date(filteredData[dpKey]).toLocaleString() : typeof filteredData[dpKey] === 'object' ? objToString(filteredData[dpKey]) : isNaN(filteredData[dpKey]) ? filteredData[dpKey] : Number.isInteger(filteredData[dpKey]) ? filteredData[dpKey] : filteredData[dpKey].toFixed(2) );
     const trans = metricsTranslations.filter((elem) => elem[0] === dpKey);
     return { 'name': (trans.length > 0 && trans[0][1] ? trans[0][1] : titleize(dpKey)), 'value': dP || '-', 'unit': (trans.length > 0 ? trans[0][2] : '') };
   });
