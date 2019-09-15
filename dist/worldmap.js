@@ -178,13 +178,18 @@ function () {
         var createIcon = function createIcon(cluster) {
           var markers = cluster.getAllChildMarkers();
           var value = 'NA';
+          var valueId = "value";
+
+          if (panel.ctrl.panel.layersColorsBinding[type] !== undefined) {
+            valueId = panel.ctrl.panel.layersColorsBinding[type];
+          }
 
           switch (type) {
             case 'average':
               var n = 0;
 
               for (var i = 0; i < markers.length; i++) {
-                n += markers[i].options.value;
+                n += markers[i].options[valueId];
               }
 
               value = Math.round(n / markers.length * 10) / 10;
@@ -192,7 +197,7 @@ function () {
 
             case 'total':
               for (var i = 0; i < markers.length; i++) {
-                n += markers[i].options.value;
+                n += markers[i].options[valueId];
               }
 
               value = n;
@@ -202,7 +207,6 @@ function () {
               value = cluster.getChildCount();
           }
 
-          var valueId = panel.ctrl.panel.layersColorsBinding[type];
           var object = {
             type: layerKey
           };
