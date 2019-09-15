@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import WorldMap from './worldmap';
-import { hideAllGraphPopups, getUserLocation } from './utils/map_utils';
+import { getUserLocation } from './utils/map_utils';
 
 export default function link(scope, elem, attrs, ctrl) {
   const mapContainer = elem.find('.map-container')[0];
@@ -44,7 +44,6 @@ export default function link(scope, elem, attrs, ctrl) {
     }
 
     ctrl.worldMap.clearLayers();
-    ctrl.worldMap.setMetrics();
 
 
     // ctrl.worldMap.filterEmptyData();

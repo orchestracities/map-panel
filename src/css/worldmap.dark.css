@@ -37,9 +37,7 @@
   background-color: #212124;
 }
 
-.map-container .info-container, 
-.map-container .aqi_legend, 
-.map-container .traffic_table {
+.map-container .info-container {
   border: grey solid 1px;
 }
 

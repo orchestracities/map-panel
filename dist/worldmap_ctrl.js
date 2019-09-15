@@ -77,6 +77,7 @@ function (_MetricsPanelCtrl) {
     _this.iconTypes = _definitions.ICON_TYPES;
     _this.defaultMetrics = _definitions.DEFAULT_METRICS;
     _this.colorTypes = _definitions.COLOR_TYPES;
+    _this.clusterTypes = _definitions.CLUSTER_TYPES;
     _this.markerColors = _definitions.MARKER_COLORS;
     _this.environmentVars = _this.templateSrv.variables.map(function (elem) {
       return elem.name;

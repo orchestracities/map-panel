@@ -88,11 +88,7 @@ function () {
       L.control.zoom({
         position: 'topright'
       }).addTo(this.map);
-      this.addLayersToMap(); // this.map.on('zoomstart', (e) => { mapZoom = this.map.getZoom() });
-
-      this.map.on('click', function () {
-        (0, _map_utils.hideAllGraphPopups)(_this.ctrl.panel.id);
-      });
+      this.addLayersToMap();
       this.map.on('zoomend', function () {
         var zoomLevel = _this.map.getZoom();
 
@@ -164,18 +160,6 @@ function () {
         }
       });
     }
-    /* Validate metrics for a given target */
-
-  }, {
-    key: "setMetrics",
-    value: function setMetrics() {
-      try {
-        this.validatedMetrics = this.ctrl.panel.metrics;
-      } catch (error) {
-        console.warn(error);
-        throw new Error('Please insert a valid JSON in the Metrics field (Edit > Tab Worldmap > Section AirQualityObserved - Metrics field)');
-      }
-    }
   }, {
     key: "drawPoints",
     value: function drawPoints() {
@@ -184,8 +168,67 @@ function () {
       this.geoMarkers = {};
       Object.keys(this.ctrl.data).forEach(function (layerKey) {
         var layer = _this3.ctrl.data[layerKey];
+        var type = _this3.ctrl.panel.layersClusterType[layerKey];
+        var faIcon = _this3.ctrl.panel.layersIcons[layerKey];
+        var panel = _this3;
+        var getGeoMarkerColorThesholds = _this3.getGeoMarkerColorThesholds;
+        var getGeoMarkerColor = _this3.getGeoMarkerColor;
+        var convertHex = _this3.convertHex;
+
+        var createIcon = function createIcon(cluster) {
+          var markers = cluster.getAllChildMarkers();
+          var value = 'NA';
+
+          switch (type) {
+            case 'average':
+              var n = 0;
+
+              for (var i = 0; i < markers.length; i++) {
+                n += markers[i].options.value;
+              }
+
+              value = Math.round(n / markers.length * 10) / 10;
+              break;
+
+            case 'total':
+              for (var i = 0; i < markers.length; i++) {
+                n += markers[i].options.value;
+              }
+
+              value = n;
+              break;
+
+            default:
+              value = cluster.getChildCount();
+          }
+
+          var valueId = panel.ctrl.panel.layersColorsBinding[type];
+          var object = {
+            type: layerKey
+          };
+          object[valueId] = value;
+          var hex = getGeoMarkerColor(object, panel);
+          var color = "background-color: " + hex + "; opacity: 0.6";
+
+          if (faIcon !== undefined) {
+            var icon = "<i class='fa fa-" + faIcon + " icon-white'></i><br/>";
+            return new L.DivIcon({
+              html: '<div style="' + color + '"><span class="double">' + icon + value + '</span></div>',
+              className: 'oc-cluster',
+              iconSize: new L.Point(40, 40)
+            });
+          }
+
+          return new L.DivIcon({
+            html: '<div style="' + color + '"><span class="single">' + value + '</span></div>',
+            className: 'oc-cluster',
+            iconSize: new L.Point(40, 40)
+          });
+        };
+
         var markersGJ = L.geoJSON();
         var markers = L.markerClusterGroup({
+          iconCreateFunction: createIcon,
           disableClusteringAtZoom: 21
         }); // for each layer
 
@@ -202,7 +245,7 @@ function () {
             }
           }
 
-          var markerColor = _this3.getGeoMarkerColor(lastObjectValues);
+          var markerColor = _this3.getGeoMarkerColor(lastObjectValues, _this3);
 
           if (geoJsonName !== null && lastObjectValues.latitude === undefined && lastObjectValues.longitude === undefined) {
             var centroid = turf.centroid(lastObjectValues[geoJsonName]);
@@ -238,32 +281,41 @@ function () {
       });
     }
   }, {
+    key: "convertHex",
+    value: function convertHex(hex, opacity) {
+      hex = hex.replace('#', '');
+      var r = parseInt(hex.substring(0, 2), 16);
+      var g = parseInt(hex.substring(2, 4), 16);
+      var b = parseInt(hex.substring(4, 6), 16);
+      return 'rgba(' + r + ',' + g + ',' + b + ',' + opacity / 100 + ')';
+    }
+  }, {
     key: "getGeoMarkerColor",
-    value: function getGeoMarkerColor(objectValues) {
-      if (this.ctrl.panel.layersColorType[objectValues.type] === 'fix') {
-        return this.ctrl.panel.layersColors[objectValues.type];
+    value: function getGeoMarkerColor(objectValues, obj) {
+      if (obj.ctrl.panel.layersColorType[objectValues.type] === 'fix') {
+        return obj.ctrl.panel.layersColors[objectValues.type];
       } else {
-        var bindingValue = objectValues[this.ctrl.panel.layersColorsBinding[objectValues.type]];
+        var bindingValue = objectValues[obj.ctrl.panel.layersColorsBinding[objectValues.type]];
 
-        var _this$getGeoMarkerCol = this.getGeoMarkerColorThesholds(objectValues),
-            medium = _this$getGeoMarkerCol.medium,
-            high = _this$getGeoMarkerCol.high;
+        var _obj$getGeoMarkerColo = obj.getGeoMarkerColorThesholds(objectValues, obj),
+            medium = _obj$getGeoMarkerColo.medium,
+            high = _obj$getGeoMarkerColo.high;
 
         if (bindingValue < medium) {
-          return this.ctrl.panel.layersColorsLow[objectValues.type];
+          return obj.ctrl.panel.layersColorsLow[objectValues.type];
         }
 
         if (bindingValue > high) {
-          return this.ctrl.panel.layersColorsHigh[objectValues.type];
+          return obj.ctrl.panel.layersColorsHigh[objectValues.type];
         }
 
-        return this.ctrl.panel.layersColorsMedium[objectValues.type];
+        return obj.ctrl.panel.layersColorsMedium[objectValues.type];
       }
     }
   }, {
     key: "getGeoMarkerColorThesholds",
-    value: function getGeoMarkerColorThesholds(objectValues) {
-      var thresholds = this.ctrl.panel.layersColorsThresholds[objectValues.type] || '';
+    value: function getGeoMarkerColorThesholds(objectValues, obj) {
+      var thresholds = obj.ctrl.panel.layersColorsThresholds[objectValues.type] || '';
       var splitted = thresholds.split(',');
       return {
         medium: parseFloat(splitted[0]),
@@ -298,7 +350,7 @@ function () {
     value: function createIcon(dataPoint, geoJsonName) {
       // console.log(this.ctrl.panel.layersIcons)
       if (!dataPoint || !dataPoint.type) return null;
-      var markerColor = this.getGeoMarkerColor(dataPoint);
+      var markerColor = this.getGeoMarkerColor(dataPoint, this);
       var layerIcon = this.ctrl.panel.layersIcons[dataPoint.type];
       var icon = layerIcon ? this.createMarker(dataPoint, layerIcon, markerColor) : this.createShape(dataPoint);
       this.createPopup(this.associateEvents(icon), (0, _map_utils.getDataPointStickyInfo)(dataPoint, this.ctrl.panel.metrics));
@@ -431,6 +483,10 @@ function () {
 
         if (_this7.ctrl.panel.layersColorsThresholds[layerKey] === undefined) {
           _this7.ctrl.panel.layersColorsThresholds[layerKey] = '30, 50';
+        }
+
+        if (_this7.ctrl.panel.layersClusterType[layerKey] === undefined) {
+          _this7.ctrl.panel.layersClusterType[layerKey] = 'count';
         }
 
         if (_this7.ctrl.panel.layersColorsLow[layerKey] === undefined) {

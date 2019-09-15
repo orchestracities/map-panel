@@ -8,7 +8,7 @@ import kbn from 'app/core/utils/kbn';
 import { defaultsDeep } from 'lodash';
 /* App specific */
 import {
-  PLUGIN_PATH, PANEL_DEFAULTS, DEFAULT_METRICS, MAP_LOCATIONS, ICON_TYPES, MARKER_COLORS, COLOR_TYPES
+  PLUGIN_PATH, PANEL_DEFAULTS, DEFAULT_METRICS, MAP_LOCATIONS, ICON_TYPES, MARKER_COLORS, COLOR_TYPES, CLUSTER_TYPES
 } from './definitions';
 import { getDatasources, getValidDatasources } from './utils/datasource';
 
@@ -33,6 +33,7 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
     this.iconTypes = ICON_TYPES;
     this.defaultMetrics = DEFAULT_METRICS;
     this.colorTypes = COLOR_TYPES;
+    this.clusterTypes = CLUSTER_TYPES;
     this.markerColors = MARKER_COLORS;
     this.environmentVars = this.templateSrv.variables.map((elem) => elem.name);
 

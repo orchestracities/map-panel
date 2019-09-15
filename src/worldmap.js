@@ -18,7 +18,7 @@ import './vendor/osmbuildings/OSMBuildings-Leaflet';
 import { TILE_SERVERS, PLUGIN_PATH } from './definitions';
 import {
   dataTreatment, processData, getTimeSeries, getUpdatedChartSeries,
-  hideAllGraphPopups, getDataPointStickyInfo
+  getDataPointStickyInfo
 } from './utils/map_utils';
 
 import * as turf from './vendor/turf/turf';
@@ -65,11 +65,6 @@ export default class WorldMap {
     L.control.zoom({position: 'topright'}).addTo(this.map);
     this.addLayersToMap();
 
-    // this.map.on('zoomstart', (e) => { mapZoom = this.map.getZoom() });
-    this.map.on('click', () => {
-      hideAllGraphPopups(this.ctrl.panel.id);
-    });
-
     this.map.on('zoomend', () => {
       const zoomLevel = this.map.getZoom();
       this.updateGeoLayers(zoomLevel);
@@ -113,15 +108,6 @@ export default class WorldMap {
     });
   }
 
-  /* Validate metrics for a given target */
-  setMetrics() {
-    try {
-      this.validatedMetrics = this.ctrl.panel.metrics;
-    } catch (error) {
-      console.warn(error);
-      throw new Error('Please insert a valid JSON in the Metrics field (Edit > Tab Worldmap > Section AirQualityObserved - Metrics field)');
-    }
-  }
 
   drawPoints() {
     this.geoMarkers = {};
@@ -129,8 +115,59 @@ export default class WorldMap {
     Object.keys(this.ctrl.data).forEach((layerKey) => {
       const layer = this.ctrl.data[layerKey];
 
+      var type = this.ctrl.panel.layersClusterType[layerKey];
+      var faIcon = this.ctrl.panel.layersIcons[layerKey];
+
+      var panel = this;
+
+      var getGeoMarkerColorThesholds = this.getGeoMarkerColorThesholds;
+      var getGeoMarkerColor = this.getGeoMarkerColor;
+      var convertHex = this.convertHex;
+
+      var createIcon = function (cluster) {
+        
+        var markers = cluster.getAllChildMarkers();
+
+        var value = 'NA';
+
+        switch(type) {
+          case 'average':
+            var n = 0;
+            for (var i = 0; i < markers.length; i++) {
+            	n += markers[i].options.value;
+            }
+            value = Math.round( n / markers.length * 10 ) / 10;
+            break;
+          case 'total':
+            for (var i = 0; i < markers.length; i++) {
+              n += markers[i].options.value;
+            }
+            value = n;
+            break;
+          default:
+             value = cluster.getChildCount();
+        }
+
+        var valueId = panel.ctrl.panel.layersColorsBinding[type];
+
+        var object = {
+          type: layerKey
+        }
+  
+        object[valueId] = value;
+
+        var hex = getGeoMarkerColor(object, panel);
+
+        var color = "background-color: " + hex + "; opacity: 0.6";
+        if (faIcon !== undefined){
+          var icon = "<i class='fa fa-" + faIcon + " icon-white'></i><br/>";
+          return new L.DivIcon({ html: '<div style="'+color+'"><span class="double">' + icon + value + '</span></div>', className: 'oc-cluster', iconSize: new L.Point(40, 40) });
+        }
+        return new L.DivIcon({ html: '<div style="'+color+'"><span class="single">' + value + '</span></div>', className: 'oc-cluster', iconSize: new L.Point(40, 40) });
+      }
+
       const markersGJ = L.geoJSON();
-      const markers = L.markerClusterGroup({disableClusteringAtZoom: 21});
+      const markers = L.markerClusterGroup({iconCreateFunction: createIcon, disableClusteringAtZoom: 21});
 
       // for each layer
       Object.keys(layer).forEach((objectKey) => {
@@ -146,7 +183,7 @@ export default class WorldMap {
           }
         }
 
-        const markerColor = this.getGeoMarkerColor(lastObjectValues);
+        const markerColor = this.getGeoMarkerColor(lastObjectValues, this);
 
         if (geoJsonName !== null && lastObjectValues.latitude === undefined && lastObjectValues.longitude === undefined) {
           const centroid = turf.centroid(lastObjectValues[geoJsonName]);
@@ -174,25 +211,35 @@ export default class WorldMap {
     });
   }
 
-  getGeoMarkerColor(objectValues) {
-    if (this.ctrl.panel.layersColorType[objectValues.type] === 'fix'){
-      return this.ctrl.panel.layersColors[objectValues.type];
+
+  convertHex(hex,opacity) {
+      hex = hex.replace('#','');
+      var r = parseInt(hex.substring(0,2), 16);
+      var g = parseInt(hex.substring(2,4), 16);
+      var b = parseInt(hex.substring(4,6), 16);
+
+      return 'rgba('+r+','+g+','+b+','+opacity/100+')';
+  }
+
+  getGeoMarkerColor(objectValues, obj) {
+    if (obj.ctrl.panel.layersColorType[objectValues.type] === 'fix'){
+      return obj.ctrl.panel.layersColors[objectValues.type];
     } else {  
-      const bindingValue = objectValues[this.ctrl.panel.layersColorsBinding[objectValues.type]];
-      const {medium, high} = this.getGeoMarkerColorThesholds(objectValues);
+      const bindingValue = objectValues[obj.ctrl.panel.layersColorsBinding[objectValues.type]];
+      const {medium, high} = obj.getGeoMarkerColorThesholds(objectValues, obj);
 
       if (bindingValue < medium) {
-        return this.ctrl.panel.layersColorsLow[objectValues.type];
+        return obj.ctrl.panel.layersColorsLow[objectValues.type];
       }
       if (bindingValue > high) {
-        return this.ctrl.panel.layersColorsHigh[objectValues.type];
+        return obj.ctrl.panel.layersColorsHigh[objectValues.type];
       }
-      return this.ctrl.panel.layersColorsMedium[objectValues.type];
+      return obj.ctrl.panel.layersColorsMedium[objectValues.type];
     }
   }
 
-  getGeoMarkerColorThesholds(objectValues) {
-    const thresholds = this.ctrl.panel.layersColorsThresholds[objectValues.type] || '';
+  getGeoMarkerColorThesholds(objectValues, obj) {
+    const thresholds = obj.ctrl.panel.layersColorsThresholds[objectValues.type] || '';
     const splitted = thresholds.split(',');
     return {
       medium: parseFloat(splitted[0]),
@@ -227,7 +274,7 @@ export default class WorldMap {
   createIcon(dataPoint, geoJsonName) {
     // console.log(this.ctrl.panel.layersIcons)
     if (!dataPoint || !dataPoint.type) return null;
-    const markerColor = this.getGeoMarkerColor(dataPoint);
+    const markerColor = this.getGeoMarkerColor(dataPoint, this);
     const layerIcon = this.ctrl.panel.layersIcons[dataPoint.type];
     const icon = layerIcon ? this.createMarker(dataPoint, layerIcon, markerColor) : this.createShape(dataPoint);
     
@@ -349,6 +396,10 @@ export default class WorldMap {
       }
       if (this.ctrl.panel.layersColorsThresholds[layerKey] === undefined) {
         this.ctrl.panel.layersColorsThresholds[layerKey] = '30, 50';
+      }
+
+      if (this.ctrl.panel.layersClusterType[layerKey] === undefined) {
+        this.ctrl.panel.layersClusterType[layerKey] = 'count';
       }
     
       if (this.ctrl.panel.layersColorsLow[layerKey] === undefined) {

@@ -1,28 +1,5 @@
 const PLUGIN_PATH = 'public/plugins/grafana-traffic-env-panel/';
 
-const AQI = {
-  'range': [0, 50, 100, 150, 200, 300, 500],
-  'meaning': ['Good', 'Moderate', 'Unhealthy for Sensitive Groups', 'Unhealthy', 'Very Unhealthy', 'Hazardous'],
-  'markerColor': ['green', 'beige', 'orange', 'red', 'darkred', 'purple'],
-  'color': ['#00e400', '#fdca92', '#ff7e00', '#d41c32', '#7e0023', '#8f3f97'],
-  'classColor': ['level-0', 'level-1', 'level-2', 'level-3', 'level-4', 'level-5', 'level-6'],
-  'risks': [
-    'Air quality is considered satisfactory, and air pollution poses little or no risk.',
-    'Air quality is acceptable; however, for some pollutants there may be a moderate health concern for a very small number of people who are unusually sensitive to air pollution.',
-    'Members of sensitive groups may experience health effects. The general public is not likely to be affected.',
-    'Everyone may begin to experience health effects; members of sensitive groups may experience more serious health effects.',
-    'Health alert: everyone may experience more serious health effects.',
-    'Health warnings of emergency conditions. The entire population is more likely to be affected.'
-  ]
-};
-
-const CARS_COUNT = {
-  'range': [0, 15, 30, 45, 70, 85, 100],
-  'color': ['#00e400', '#fdca92', '#ff7e00', '#d41c32', '#7e0023', '#8f3f97'],
-  'markerColor': ['green', 'beige', 'orange', 'red', 'darkred', 'purple'],
-  'classColor': ['level-0', 'level-1', 'level-2', 'level-3', 'level-4', 'level-5', 'level-6']
-};
-
 const MARKER_COLORS = ['red', 'blue', 'green', 'purple', 'orange', 'darkred', 'lightred', 'beige',
   'darkblue', 'darkgreen', 'cadetblue', 'darkpurple', 'white', 'pink', 'lightblue', 'lightgreen', 'gray', 'black', 'lightgray'];
 
@@ -39,6 +16,12 @@ const TILE_SERVERS = {
 const COLOR_TYPES = [
   'fix',
   'threshold'
+];
+
+const CLUSTER_TYPES = [
+  'count',
+  'average',
+  'total'
 ];
 
 const ICON_TYPES = [
@@ -867,6 +850,7 @@ const PANEL_DEFAULTS = {
   layersIcons: {},
   layersColors: {},
   layersColorType: {},
+  layersClusterType: {},
   layersColorsHigh: {},
   layersColorsMedium: {},
   layersColorsLow: {},
@@ -902,6 +886,5 @@ const NOMINATIM_ADDRESS = 'https://nominatim.openstreetmap.org/search/<city_name
 export {
   PLUGIN_PATH, PANEL_DEFAULTS,
   NOMINATIM_ADDRESS, TILE_SERVERS,
-  AQI, CARS_COUNT,
-  DEFAULT_METRICS, MAP_LOCATIONS, ICON_TYPES, MARKER_COLORS, COLOR_TYPES
+  DEFAULT_METRICS, MAP_LOCATIONS, ICON_TYPES, MARKER_COLORS, COLOR_TYPES, CLUSTER_TYPES
 };
