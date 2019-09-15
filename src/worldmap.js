@@ -124,7 +124,7 @@ export default class WorldMap {
       var getGeoMarkerColor = this.getGeoMarkerColor;
       var convertHex = this.convertHex;
 
-      var createIcon = function (cluster) {
+      var createClusterIcon = function (cluster) {
         
         var markers = cluster.getAllChildMarkers();
 
@@ -170,7 +170,7 @@ export default class WorldMap {
       }
 
       const markersGJ = L.geoJSON();
-      const markers = L.markerClusterGroup({iconCreateFunction: createIcon, disableClusteringAtZoom: 21});
+      const markers = L.markerClusterGroup({iconCreateFunction: createClusterIcon, disableClusteringAtZoom: 21});
 
       // for each layer
       Object.keys(layer).forEach((objectKey) => {
@@ -199,7 +199,7 @@ export default class WorldMap {
           newGJ.addTo(markersGJ);
         }
         if (lastObjectValues.latitude && lastObjectValues.longitude && this.ctrl.panel.layersIcons[layerKey]) {
-          const newIcon = this.createIcon(lastObjectValues, geoJsonName);
+          const newIcon = this.createIcon(lastObjectValues, markerColor);
           try {
             if (newIcon) markers.addLayer(newIcon);
           } catch (error) { console.warn(layerKey); console.warn(error); }
@@ -274,10 +274,9 @@ export default class WorldMap {
     return retVal;
   }
 
-  createIcon(dataPoint, geoJsonName) {
+  createIcon(dataPoint, markerColor) {
     // console.log(this.ctrl.panel.layersIcons)
     if (!dataPoint || !dataPoint.type) return null;
-    const markerColor = this.getGeoMarkerColor(dataPoint, this);
     const layerIcon = this.ctrl.panel.layersIcons[dataPoint.type];
     const icon = layerIcon ? this.createMarker(dataPoint, layerIcon, markerColor) : this.createShape(dataPoint);
     
@@ -301,6 +300,72 @@ export default class WorldMap {
 
   createMarker(dataPoint, elementIcon, elementColor) {
     const location = [dataPoint.latitude, dataPoint.longitude];
+
+    switch (elementColor)
+    {
+      case "#56A64B":
+      case "#73BF69":
+        elementColor = 'green';
+        break;
+      case "#19730E":
+      case "#37872D":
+        elementColor = 'darkgreen';
+        break;
+      case "#96D98D":
+      case "#C8F2C2":
+        elementColor = 'lightgreen';
+        break;
+      case "#F2CC0C":
+      case "#FADE2A":
+      case "#CC9D00":
+      case "#E0B400":
+      case "#FFEE52":
+      case "#FFF899":
+        elementColor = 'yellow';
+        break;
+      case "#E02F44":
+      case "#F2495C":
+        elementColor = 'red';
+        break;
+      case "#AD0317":
+      case "#C4162A":
+        elementColor = 'darkred';
+        break;
+      case "#FF7383":
+      case "#FFA6B0":
+        elementColor = 'lightred';
+        break;
+      case "#3274D9":
+      case "#5794F2":
+        elementColor = 'blue';
+        break;
+      case "#1250B0":
+      case "#1F60C4":
+        elementColor = 'darkblue';
+        break;
+      case "#8AB8FF":
+      case "#C0D8FF":
+        elementColor = 'lightblue';
+        break;
+      case "#FF780A":
+      case "#FF9830":
+      case "#E55400":
+      case "#FA6400":
+      case "#FFB357":
+      case "#FFCB7D":
+        elementColor = 'orange';
+        break;
+      case "#A352CC":
+      case "#B877D9":
+      case "#7C2EA3":
+      case "#8F3BB8":
+      case "#CA95E5":
+      case "#DEB6F2":
+        elementColor = 'purple';
+        break;
+      default:
+         elementColor = 'green';
+    }
 
     const markerProperties = {
       icon: L.AwesomeMarkers.icon(
