@@ -9,7 +9,7 @@
   background-color: white;
 }
 
-.map-container .info-container, #aqi_legend, .traffic_table {
+.map-container .info-container {
   border: grey solid 1px;
 }
 

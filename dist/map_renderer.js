@@ -53,8 +53,7 @@ function link(scope, elem, attrs, ctrl) {
       ctrl.worldMap.panToMapCenter();
     }
 
-    ctrl.worldMap.clearLayers();
-    ctrl.worldMap.setMetrics(); // ctrl.worldMap.filterEmptyData();
+    ctrl.worldMap.clearLayers(); // ctrl.worldMap.filterEmptyData();
 
     ctrl.worldMap.drawPoints();
     /**

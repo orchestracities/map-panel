@@ -155,7 +155,7 @@
           </info-popover>
         </span>
 
-        <select class="gf-form-input"
+        <select class="gf-form-input width-10"
           ng-model="ctrl.panel.layersIcons[layerName]"
           ng-options="iconType for iconType in ctrl.iconTypes"
           ng-change="ctrl.render()" title="Choose the marker icon for this layer"
@@ -169,7 +169,7 @@
             This is the variable that will be set when you click on a map object.
           </info-popover>
         </span>
-        <select class="gf-form-input"
+        <select class="gf-form-input width-10"
           ng-model="ctrl.panel.layersVariables[layerName]"
           ng-options="variable for variable in ctrl.environmentVars"
           ng-change="ctrl.render()" title="Choose the variable to set on click"
@@ -178,8 +178,18 @@
         </select>
       </div>
       <div class="row">
+        <span class="gf-form-label width-10">Cluster Type</span>
+        <select class="gf-form-input width-10"
+          ng-model="ctrl.panel.layersClusterType[layerName]"
+          ng-options="clusterType for clusterType in ctrl.clusterTypes"
+          ng-change="ctrl.render()" title="Select cluster numberig behaviour: count, total, average"
+          >
+          <option value=""></option>
+        </select>
+      </div>
+      <div class="row">
         <span class="gf-form-label width-10">Color Type</span>
-        <select class="gf-form-input"
+        <select class="gf-form-input width-10"
           ng-model="ctrl.panel.layersColorType[layerName]"
           ng-options="colorType for colorType in ctrl.colorTypes"
           ng-change="ctrl.render()" title="Select fix color or threshold based colouring"
@@ -188,8 +198,8 @@
         </select>
       </div>
       <div class="row" ng-if="ctrl.panel.layersColorType[layerName]=='fix'">
-        <label class="gf-form-label width-9">Marker Color</label>
-        <select class="gf-form-input"
+        <label class="gf-form-label width-10">Marker Color</label>
+        <select class="gf-form-input width-10"
           ng-model="ctrl.panel.layersColors[layerName]"
           ng-options="color for color in ctrl.markerColors"
           ng-change="ctrl.render()" title="Select fix color or threshold based colouring"
@@ -200,27 +210,29 @@
       <div class="row" ng-if="ctrl.panel.layersColorType[layerName]=='threshold'">
         <label class="gf-form-label width-10">Column</label>
         <input type="text" 
-          class="input-small gf-form-input width-12" 
+          class="input-small gf-form-input width-10" 
           ng-model="ctrl.panel.layersColorsBinding[layerName]"
           ng-change="ctrl.render()" ng-model-onblur />
       </div>
       <div class="row" ng-if="ctrl.panel.layersColorType[layerName]=='threshold'">
         <label class="gf-form-label width-10">Color Thresholds</label>
         <input type="text" 
-          class="input-small gf-form-input width-12" 
+          class="input-small gf-form-input width-10" 
           placeholder="50, 100"
           ng-model="ctrl.panel.layersColorsThresholds[layerName]" 
           ng-change="ctrl.render()" ng-model-onblur />
       </div>
       <div class="row" ng-if="ctrl.panel.layersColorType[layerName]=='threshold'">
         <label class="gf-form-label width-9">Low Color</label>
-        <spectrum-picker class="gf-form-input width-6" ng-model="ctrl.panel.layersColorsLow[layerName]" ng-change="ctrl.render()" ></spectrum-picker>
-        
+        <spectrum-picker class="gf-form-input width-9" ng-model="ctrl.panel.layersColorsLow[layerName]" ng-change="ctrl.render()" ></spectrum-picker>
+      </div>
+      <div class="row" ng-if="ctrl.panel.layersColorType[layerName]=='threshold'">
         <label class="gf-form-label width-9">Medium Color</label>
-        <spectrum-picker class="gf-form-input width-6" ng-model="ctrl.panel.layersColorsMedium[layerName]" ng-change="ctrl.render()" ></spectrum-picker>
-
+        <spectrum-picker class="gf-form-input width-9" ng-model="ctrl.panel.layersColorsMedium[layerName]" ng-change="ctrl.render()" ></spectrum-picker>
+      </div>
+      <div class="row" ng-if="ctrl.panel.layersColorType[layerName]=='threshold'">
         <label class="gf-form-label width-9">High Color</label>
-        <spectrum-picker class="gf-form-input width-6" ng-model="ctrl.panel.layersColorsHigh[layerName]" ng-change="ctrl.render()" ></spectrum-picker>
+        <spectrum-picker class="gf-form-input width-9" ng-model="ctrl.panel.layersColorsHigh[layerName]" ng-change="ctrl.render()" ></spectrum-picker>
       </div>
     </div>
   </div>

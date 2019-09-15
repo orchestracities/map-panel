@@ -3,7 +3,6 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.hideAllGraphPopups = hideAllGraphPopups;
 exports.getCityCoordinates = getCityCoordinates;
 exports.getDataPointStickyInfo = getDataPointStickyInfo;
 exports.getSelectedCity = getSelectedCity;
@@ -15,55 +14,13 @@ var _config = _interopRequireDefault(require("app/core/config"));
 
 var _string = require("./string");
 
-var _definitions = require("../definitions");
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
-/*
-* Primary functions
-*/
-
-/**
-* Display popups based in the click in map's marker
-*/
-function drawPopups(panelId, lastValueMeasure, validatedMetrics) {
-  // render popups
-  try {
-    // Show Metrics Legend (MAP)
-    // draw select
-    if (validatedMetrics) {
-      hideAllGraphPopups(panelId);
-      if (document.querySelector('#parameters_dropdown_' + panelId).options.length > 1) drawMeasuresPopup(panelId, lastValueMeasure, validatedMetrics);
-
-      switch (lastValueMeasure.type) {
-        case 'AirQualityObserved':
-          var aqiIndex = calculateAQIIndex(lastValueMeasure.value);
-          document.getElementById('environment_table_' + panelId).style.display = 'block';
-          drawHealthConcernsPopup(panelId, _definitions.AQI.risks[aqiIndex], _definitions.AQI.color[aqiIndex], _definitions.AQI.meaning[aqiIndex]);
-          break;
-
-        case 'TrafficFlowObserved':
-          drawTrafficFlowPopup(panelId);
-          break;
-
-        default:
-          drawDefaultPopups(panelId);
-      }
-    }
-  } catch (error) {
-    console.log('Error:');
-    console.log(error);
-    console.log('lastValueMeasure: ');
-    console.log(lastValueMeasure);
-  }
-}
 /**
 * private functions
 */
-
-
 function getDataPointStickyInfo(dataPoint, metricsTranslations) {
   var stickyInfo = '<div class="stycky-popup-info">';
   var bodyData = getDataPointDetails(dataPoint, ['geojson', 'id', 'type', 'created_at', 'longitude', 'latitude', 'name'], false);
@@ -149,25 +106,7 @@ function translate(filteredData, metricsTranslations, cssClass) {
   return translatedValues.map(function (translatedValue) {
     return "<div class='".concat(cssClass, "'><span class='name'>").concat(translatedValue.name, "</span><span class='value'>").concat(translatedValue.value, "</span><span class ='unit'>").concat(translatedValue.unit || '', "</span></div>");
   });
-} // show all accepted metrics for a specific point id
-// function getMetricsToShow(allMetrics, id) {
-//   const metricsToShow = {};
-//   for (const key in allMetrics) {
-//     allMetrics[key].forEach((_value) => {
-//       if (_value.id === id) {
-//         if (_value.value) {
-//           if (!(metricsToShow[key])){
-//             metricsToShow[key] = 0;
-//           }
-//           metricsToShow[key] = _value.value;
-//         }
-//       }
-//     });
-//   }
-//   //  metricsToShow['aqi'] = aqi;
-//   return metricsToShow
-// }
-// Given vars passed as param, retrieves the selected city
+} // Given vars passed as param, retrieves the selected city
 
 
 function getSelectedCity(vars, selectedVarName) {
@@ -177,76 +116,11 @@ function getSelectedCity(vars, selectedVarName) {
   var city = null;
   if (cityEnv && cityEnv.length === 1) city = cityEnv[0].current.value;
   return city;
-}
-
-function hideAllGraphPopups(panelId) {
-  var map_table_popups = ['measures_table', 'health_concerns_wrapper', 'environment_table', 'traffic_table'];
-
-  for (var _i = 0, _map_table_popups = map_table_popups; _i < _map_table_popups.length; _i++) {
-    var map_table_popup = _map_table_popups[_i];
-    var popup = document.getElementById(map_table_popup + '_' + panelId);
-    if (popup) popup.style.display = 'none';
-  }
-}
-
-function drawDefaultPopups() {}
-/*
-* Draw Traffic Flow Popup
-*/
-
-
-function drawTrafficFlowPopup(panelId) {
-  document.getElementById('traffic_table_' + panelId).style.display = 'block';
-}
-/*
-* Draw Health Concerns Popup
-*/
-
-
-function drawHealthConcernsPopup(panelId, risk, color, meaning, map_size) {
-  var healthConcernsWrapper = document.getElementById('health_concerns_wrapper_' + panelId);
-  var healthConcerns = document.querySelector('#health_concerns_wrapper_' + panelId + '>div');
-  var healthConcernsColor = document.querySelector('#health_concerns_wrapper_' + panelId + '>div>span>span.color');
-  var healthRisk = document.getElementById('health_risk_' + panelId);
-  healthConcernsWrapper.style.display = 'block';
-  healthConcernsColor.style.backgroundColor = color;
-  healthRisk.innerHTML = risk;
-}
-/*
-* Draw Measures Popup - The popup info is related with the choosed value
-*  from select box and with the metrics that came from result set
-*  and from a list of what to show metrics
-*/
-
-
-function drawMeasuresPopup(panelId, metricsToShow, providedMetrics) {
-  var measuresTable = document.querySelector('#measures_table_' + panelId + ' > table > tbody');
-
-  while (measuresTable.rows[0]) {
-    measuresTable.deleteRow(0);
-  }
-
-  Object.keys(metricsToShow).forEach(function (metric) {
-    providedMetrics.forEach(function (elem) {
-      if (elem[0] == metric) {
-        var row = measuresTable.insertRow(); // -1 for inserting bottom
-
-        var innerCell0 = elem[1] ? elem[1] : (0, _string.titleize)(elem[0]);
-        var innerCell1 = (metricsToShow[metric] ? metricsToShow[metric] : '-') + (elem[2] ? " ".concat(elem[2]) : '');
-        var cell0 = row.insertCell(0);
-        var cell1 = row.insertCell(1);
-        cell0.innerHTML = innerCell0;
-        cell1.innerHTML = innerCell1;
-      }
-    });
-  });
-  document.getElementById('measures_table_' + panelId).style.display = 'block';
 } // Access remote api and gives the coordinates from a city center based on NOMINATIM url server
 
 
 function getCityCoordinates(city_name) {
-  var url = _definitions.NOMINATIM_ADDRESS.replace('<city_name>', city_name);
-
+  var url = NOMINATIM_ADDRESS.replace('<city_name>', city_name);
   return fetch(url).then(function (response) {
     return response.json();
   }).then(function (data) {
@@ -257,30 +131,6 @@ function getCityCoordinates(city_name) {
   })["catch"](function (error) {
     return console.error(error);
   });
-} // gets the aqi index from the AQI var
-
-
-function calculateAQIIndex(value) {
-  var aqiIndex;
-
-  _definitions.AQI.range.forEach(function (elem, index) {
-    if (value >= elem) {
-      aqiIndex = index;
-    }
-  });
-
-  return aqiIndex;
-} // gets the index from the CARS_COUNT const var
-
-
-function calculateCarsIntensityIndex(value) {
-  _definitions.CARS_COUNT.range.forEach(function (elem, index) {
-    if (value >= elem) {
-      return index;
-    }
-  });
-
-  return 0;
 }
 /*
 * Auxiliar functions
