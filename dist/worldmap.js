@@ -189,7 +189,7 @@ function () {
               var n = 0;
 
               for (var i = 0; i < markers.length; i++) {
-                n += markers[i].options[valueId];
+                n += isNaN(markers[i].options[valueId]) ? 0 : markers[i].options[valueId];
               }
 
               value = Math.round(n / markers.length * 10) / 10;
@@ -197,7 +197,7 @@ function () {
 
             case 'total':
               for (var i = 0; i < markers.length; i++) {
-                n += markers[i].options[valueId];
+                n += isNaN(markers[i].options[valueId]) ? 0 : markers[i].options[valueId];
               }
 
               value = n;
