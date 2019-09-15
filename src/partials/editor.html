@@ -197,6 +197,13 @@
           <option value=""></option>
         </select>
       </div>
+      <div class="row">
+        <label class="gf-form-label width-10">Column for value</label>
+        <input type="text" 
+          class="input-small gf-form-input width-10" 
+          ng-model="ctrl.panel.layersColorsBinding[layerName]"
+          ng-change="ctrl.render()" ng-model-onblur />
+      </div>
       <div class="row" ng-if="ctrl.panel.layersColorType[layerName]=='fix'">
         <label class="gf-form-label width-10">Marker Color</label>
         <select class="gf-form-input width-10"
@@ -206,13 +213,6 @@
           >
           <option value=""></option>
         </select>
-      </div>
-      <div class="row" ng-if="ctrl.panel.layersColorType[layerName]=='threshold'">
-        <label class="gf-form-label width-10">Column</label>
-        <input type="text" 
-          class="input-small gf-form-input width-10" 
-          ng-model="ctrl.panel.layersColorsBinding[layerName]"
-          ng-change="ctrl.render()" ng-model-onblur />
       </div>
       <div class="row" ng-if="ctrl.panel.layersColorType[layerName]=='threshold'">
         <label class="gf-form-label width-10">Color Thresholds</label>
