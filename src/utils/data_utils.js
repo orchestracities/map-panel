@@ -9,6 +9,33 @@ class DataFormatter {
     return (seriesType === 'table') ? this._getSeries(series) : this._getSeriesTimeSeries(series);
   }
 
+
+  isJson(item) {
+    item = typeof item !== "string"
+        ? JSON.stringify(item)
+        : item;
+
+    try {
+        item = JSON.parse(item);
+    } catch (e) {
+        return false;
+    }
+
+    if (typeof item === "object" && item !== null) {
+        return true;
+    }
+
+    return false;
+  }
+
+  fixType(item) {
+    if (this.isJson(item)) {
+      return JSON.parse(item);
+    } else {
+      return item;
+    }
+  }
+
   _getSeries(series) {
     const hashSeriesByLayerByKey = {};
     let seriesLayer = null;
@@ -46,7 +73,7 @@ class DataFormatter {
         const hashWithValues = {};
         columns.forEach((elem, i) => {
           if (i !== columns.indexOf("time") && i !== columns.length - 1) // do not insert grafana field 'time' and the group by field
-          { hashWithValues[elem] = series_elem_row[i]; }
+          { hashWithValues[elem] = this.fixType(series_elem_row[i]); }
         });
         hashSeriesByLayerByKey[seriesLayer][id].push(hashWithValues);
       });
