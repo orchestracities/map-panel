@@ -12,7 +12,8 @@ import './vendor/leaflet.markercluster/leaflet.markercluster';
 import './vendor/leaflet.markercluster/MarkerCluster.Default.css!';
 import './vendor/leaflet.markercluster/MarkerCluster.css!';
 import './vendor/osmbuildings/OSMBuildings-Leaflet';
-
+import './vendor/fontawesome-free/css/fontawesome.min.css!';
+import './vendor/fontawesome-free/css/v4-shims.min.css!';
 
 /* App Specific */
 import { TILE_SERVERS, PLUGIN_PATH } from './definitions';
@@ -124,6 +125,10 @@ export default class WorldMap {
       var getGeoMarkerColor = this.getGeoMarkerColor;
       var convertHex = this.convertHex;
 
+      var disableClusterLevel = 21;
+      if (type === 'none')
+        disableClusterLevel = 0;
+
       var createClusterIcon = function (cluster) {
         
         var markers = cluster.getAllChildMarkers();
@@ -164,14 +169,17 @@ export default class WorldMap {
 
         var color = "background-color: " + hex + "; opacity: 0.6";
         if (faIcon !== undefined){
-          var icon = "<i class='fa fa-" + faIcon + " icon-white'></i><br/>";
+          var icon = "<i class='fas fa-" + faIcon + " icon-white'></i><br/>";
           return new L.DivIcon({ html: '<div style="'+color+'"><span class="double">' + icon + value + '</span></div>', className: 'oc-cluster', iconSize: new L.Point(40, 40) });
         }
         return new L.DivIcon({ html: '<div style="'+color+'"><span class="single">' + value + '</span></div>', className: 'oc-cluster', iconSize: new L.Point(40, 40) });
       }
 
+
+      
+
       const markersGJ = L.geoJSON();
-      const markers = L.markerClusterGroup({iconCreateFunction: createClusterIcon, disableClusteringAtZoom: 21});
+      const markers = L.markerClusterGroup({iconCreateFunction: createClusterIcon, disableClusteringAtZoom: disableClusterLevel});
 
       // for each layer
       Object.keys(layer).forEach((objectKey) => {
@@ -372,7 +380,7 @@ export default class WorldMap {
       icon: L.AwesomeMarkers.icon(
         {
           icon: elementIcon,
-          prefix: 'fa',
+          prefix: 'fas',
           markerColor: (elementColor)
         }
       )

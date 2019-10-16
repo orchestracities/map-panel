@@ -27,6 +27,7 @@
   "devDependencies": {
     "@babel/core": "^7.5.5",
     "@babel/preset-env": "^7.5.5",
+    "@fortawesome/fontawesome-free": "^5.11.2",
     "babel-eslint": "8",
     "babel-plugin-transform-es2015-modules-systemjs": "^6.24.1",
     "es6-shim": "^0.35.3",

@@ -63,6 +63,7 @@ module.exports = (grunt) => {
         src: ['**/*'],
         dest: 'dist/vendor/leaflet.markercluster'
       },
+
       leafletSleep: {
         cwd: 'node_modules/leaflet-sleep/',
         expand: true,
@@ -70,6 +71,12 @@ module.exports = (grunt) => {
         dest: 'dist/vendor/leaflet-sleep/'
       },
 
+      fontawesome: {
+        cwd: 'node_modules/@fortawesome/fontawesome-free/',
+        expand: true,
+        src: ['css/*.css','webfonts/*.woff2'],
+        dest: 'dist/vendor/fontawesome-free'
+      },
 
     },
 
@@ -122,6 +129,7 @@ module.exports = (grunt) => {
     'copy:leafletAwesomeMarkers',
     'copy:leafletMarkerCluster',
     'copy:leafletSleep',
+    'copy:fontawesome',
 
     //    'postcss',
     'babel'

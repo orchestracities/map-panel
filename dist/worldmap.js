@@ -23,6 +23,10 @@ require("./vendor/leaflet.markercluster/MarkerCluster.css!");
 
 require("./vendor/osmbuildings/OSMBuildings-Leaflet");
 
+require("./vendor/fontawesome-free/css/fontawesome.min.css!");
+
+require("./vendor/fontawesome-free/css/v4-shims.min.css!");
+
 var _definitions = require("./definitions");
 
 var _map_utils = require("./utils/map_utils");
@@ -174,6 +178,8 @@ function () {
         var getGeoMarkerColorThesholds = _this3.getGeoMarkerColorThesholds;
         var getGeoMarkerColor = _this3.getGeoMarkerColor;
         var convertHex = _this3.convertHex;
+        var disableClusterLevel = 21;
+        if (type === 'none') disableClusterLevel = 0;
 
         var createClusterIcon = function createClusterIcon(cluster) {
           var markers = cluster.getAllChildMarkers();
@@ -217,7 +223,7 @@ function () {
           var color = "background-color: " + hex + "; opacity: 0.6";
 
           if (faIcon !== undefined) {
-            var icon = "<i class='fa fa-" + faIcon + " icon-white'></i><br/>";
+            var icon = "<i class='fas fa-" + faIcon + " icon-white'></i><br/>";
             return new L.DivIcon({
               html: '<div style="' + color + '"><span class="double">' + icon + value + '</span></div>',
               className: 'oc-cluster',
@@ -235,7 +241,7 @@ function () {
         var markersGJ = L.geoJSON();
         var markers = L.markerClusterGroup({
           iconCreateFunction: createClusterIcon,
-          disableClusteringAtZoom: 21
+          disableClusteringAtZoom: disableClusterLevel
         }); // for each layer
 
         Object.keys(layer).forEach(function (objectKey) {
@@ -452,7 +458,7 @@ function () {
       var markerProperties = {
         icon: L.AwesomeMarkers.icon({
           icon: elementIcon,
-          prefix: 'fa',
+          prefix: 'fas',
           markerColor: elementColor
         })
       };

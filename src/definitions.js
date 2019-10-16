@@ -19,6 +19,7 @@ const COLOR_TYPES = [
 ];
 
 const CLUSTER_TYPES = [
+  'none',
   'count',
   'average',
   'total'
