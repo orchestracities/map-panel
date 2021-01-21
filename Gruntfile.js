@@ -74,7 +74,7 @@ module.exports = (grunt) => {
       fontawesome: {
         cwd: 'node_modules/@fortawesome/fontawesome-free/',
         expand: true,
-        src: ['css/*.css','webfonts/*.woff2'],
+        src: ['css/*.css','webfonts/*'],
         dest: 'dist/vendor/fontawesome-free'
       },
 

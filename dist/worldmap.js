@@ -33,9 +33,11 @@ var _map_utils = require("./utils/map_utils");
 
 var turf = _interopRequireWildcard(require("./vendor/turf/turf"));
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj["default"] = obj; return newObj; } }
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
 
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -381,16 +383,19 @@ function () {
       switch (elementColor) {
         case "#56A64B":
         case "#73BF69":
+        case "green":
           elementColor = 'green';
           break;
 
         case "#19730E":
         case "#37872D":
+        case "darkgreen":
           elementColor = 'darkgreen';
           break;
 
         case "#96D98D":
         case "#C8F2C2":
+        case "lightgreen":
           elementColor = 'lightgreen';
           break;
 
@@ -400,36 +405,43 @@ function () {
         case "#E0B400":
         case "#FFEE52":
         case "#FFF899":
+        case "yellow":
           elementColor = 'yellow';
           break;
 
         case "#E02F44":
         case "#F2495C":
+        case "red":
           elementColor = 'red';
           break;
 
         case "#AD0317":
         case "#C4162A":
+        case "darkred":
           elementColor = 'darkred';
           break;
 
         case "#FF7383":
         case "#FFA6B0":
+        case "lightred":
           elementColor = 'lightred';
           break;
 
         case "#3274D9":
         case "#5794F2":
+        case "blue":
           elementColor = 'blue';
           break;
 
         case "#1250B0":
         case "#1F60C4":
+        case "darkblue":
           elementColor = 'darkblue';
           break;
 
         case "#8AB8FF":
         case "#C0D8FF":
+        case "lightblue":
           elementColor = 'lightblue';
           break;
 
@@ -439,6 +451,7 @@ function () {
         case "#FA6400":
         case "#FFB357":
         case "#FFCB7D":
+        case "orange":
           elementColor = 'orange';
           break;
 
@@ -448,6 +461,7 @@ function () {
         case "#8F3BB8":
         case "#CA95E5":
         case "#DEB6F2":
+        case "purple":
           elementColor = 'purple';
           break;
 
@@ -458,7 +472,7 @@ function () {
       var markerProperties = {
         icon: L.AwesomeMarkers.icon({
           icon: elementIcon,
-          prefix: 'fas',
+          prefix: 'fa',
           markerColor: elementColor
         })
       };

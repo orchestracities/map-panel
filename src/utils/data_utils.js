@@ -10,10 +10,10 @@ class DataFormatter {
   }
 
 
-  isJson(item) {
-    item = typeof item !== "string"
-        ? JSON.stringify(item)
-        : item;
+  isJsonString(item) {
+    if (typeof item !== "string") {
+        return false;
+    }
 
     try {
         item = JSON.parse(item);
@@ -29,7 +29,7 @@ class DataFormatter {
   }
 
   fixType(item) {
-    if (this.isJson(item)) {
+    if (this.isJsonString(item)) {
       return JSON.parse(item);
     } else {
       return item;

@@ -5,14 +5,21 @@
 
 
 @font-face {
-  font-family: "Font Awesome 5 Free";
-  src: url("/public/plugins/grafana-traffic-env-panel/vendor/fontawesome-free/webfonts/fa-solid-900.woff2") format("woff")
-  font-weight: 900;
+  font-family:Font Awesome\ 5 Free;
+  font-style:normal;
+  font-weight:900;
+  src:url(../vendor/fontawesome-free/webfonts/fa-solid-900.eot?v=5.11.2);
+  src:url(../vendor/fontawesome-free/webfonts/fa-solid-900.eot?#iefix&v=5.11.2) format("embedded-opentype"),
+  url(../vendor/fontawesome-free/webfonts/fa-solid-900.woff2?v=5.11.2) format("woff2"),
+  url(../vendor/fontawesome-free/webfonts/fa-solid-900.woff?v=5.11.2) format("woff"),
+  url(../vendor/fontawesome-free/webfonts/fa-solid-900.ttf?v=5.11.2) format("truetype"),
+  url(../vendor/fontawesome-free/webfonts/fa-solid-900.svg?v=5.11.2#fontawesomeregular) format("svg");
 }
 
 .fas {
-  font-family: "Font Awesome 5 Free";
-  font-weight: 900;
+  font-family:Font Awesome\ 5 Free;
+  font-weight:900;
+  font-style:normal;
 }
 
 .map-container {

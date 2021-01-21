@@ -314,14 +314,17 @@ export default class WorldMap {
     {
       case "#56A64B":
       case "#73BF69":
+      case "green":
         elementColor = 'green';
         break;
       case "#19730E":
       case "#37872D":
+      case "darkgreen":
         elementColor = 'darkgreen';
         break;
       case "#96D98D":
       case "#C8F2C2":
+      case "lightgreen":
         elementColor = 'lightgreen';
         break;
       case "#F2CC0C":
@@ -330,30 +333,37 @@ export default class WorldMap {
       case "#E0B400":
       case "#FFEE52":
       case "#FFF899":
+      case "yellow":
         elementColor = 'yellow';
         break;
       case "#E02F44":
       case "#F2495C":
+      case "red":
         elementColor = 'red';
         break;
       case "#AD0317":
       case "#C4162A":
+      case "darkred":
         elementColor = 'darkred';
         break;
       case "#FF7383":
       case "#FFA6B0":
+      case "lightred":
         elementColor = 'lightred';
         break;
       case "#3274D9":
       case "#5794F2":
+      case "blue":
         elementColor = 'blue';
         break;
       case "#1250B0":
       case "#1F60C4":
+      case "darkblue":
         elementColor = 'darkblue';
         break;
       case "#8AB8FF":
       case "#C0D8FF":
+      case "lightblue":
         elementColor = 'lightblue';
         break;
       case "#FF780A":
@@ -362,6 +372,7 @@ export default class WorldMap {
       case "#FA6400":
       case "#FFB357":
       case "#FFCB7D":
+      case "orange":
         elementColor = 'orange';
         break;
       case "#A352CC":
@@ -370,6 +381,7 @@ export default class WorldMap {
       case "#8F3BB8":
       case "#CA95E5":
       case "#DEB6F2":
+      case "purple":
         elementColor = 'purple';
         break;
       default:
@@ -380,7 +392,7 @@ export default class WorldMap {
       icon: L.AwesomeMarkers.icon(
         {
           icon: elementIcon,
-          prefix: 'fas',
+          prefix: 'fa',
           markerColor: (elementColor)
         }
       )
