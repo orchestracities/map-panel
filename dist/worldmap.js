@@ -482,35 +482,26 @@ function () {
   }, {
     key: "associateEvents",
     value: function associateEvents(shape) {
-      var _this4 = this;
-
-      return shape.on('click', function () {
-        return _this4.updateVariable(shape);
-      });
+      return shape; //.on('click', () => this.updateVariable(shape))
     }
-  }, {
-    key: "updateVariable",
-    value: function updateVariable(shape) {
-      var _this5 = this;
-
-      var variable = _.find(this.ctrl.variables, {
-        'name': this.ctrl.panel.layersVariables[shape.options.type]
-      });
-
-      console.debug(variable);
-
-      if (variable) {
-        variable.current.text = shape.options.id;
-        variable.current.value = shape.options.id;
-        this.ctrl.variableSrv.updateOptions(variable).then(function () {
-          _this5.ctrl.variableSrv.variableUpdated(variable).then(function () {
-            _this5.ctrl.$scope.$emit('template-variable-value-updated');
-
-            _this5.ctrl.$scope.$root.$broadcast('refresh');
-          });
+    /*
+    updateVariable(shape){
+    let variable = _.find(this.ctrl.variables, {'name': this.ctrl.panel.layersVariables[shape.options.type]});
+    console.debug(variable);
+    
+    if(variable) {
+      variable.current.text = shape.options.id;
+      variable.current.value = shape.options.id;
+       this.ctrl.variableSrv.updateOptions(variable).then(() => {
+        this.ctrl.variableSrv.variableUpdated(variable).then(() => {
+          this.ctrl.$scope.$emit('template-variable-value-updated');
+          this.ctrl.$scope.$root.$broadcast('refresh');
         });
-      }
+      });
     }
+    }
+    */
+
   }, {
     key: "createPopup",
     value: function createPopup(shape, stickyPopupInfo) {
@@ -537,10 +528,10 @@ function () {
   }, {
     key: "resize",
     value: function resize() {
-      var _this6 = this;
+      var _this4 = this;
 
       setTimeout(function () {
-        _this6.map.invalidateSize();
+        _this4.map.invalidateSize();
       }, 0);
     }
   }, {
@@ -577,31 +568,31 @@ function () {
   }, {
     key: "setDefaultValues",
     value: function setDefaultValues() {
-      var _this7 = this;
+      var _this5 = this;
 
       Object.keys(this.ctrl.data).forEach(function (layerKey) {
-        if (_this7.ctrl.panel.layersColorsBinding[layerKey] === undefined) {
-          _this7.ctrl.panel.layersColorsBinding[layerKey] = 'value';
+        if (_this5.ctrl.panel.layersColorsBinding[layerKey] === undefined) {
+          _this5.ctrl.panel.layersColorsBinding[layerKey] = 'value';
         }
 
-        if (_this7.ctrl.panel.layersColorsThresholds[layerKey] === undefined) {
-          _this7.ctrl.panel.layersColorsThresholds[layerKey] = '30, 50';
+        if (_this5.ctrl.panel.layersColorsThresholds[layerKey] === undefined) {
+          _this5.ctrl.panel.layersColorsThresholds[layerKey] = '30, 50';
         }
 
-        if (_this7.ctrl.panel.layersClusterType[layerKey] === undefined) {
-          _this7.ctrl.panel.layersClusterType[layerKey] = 'count';
+        if (_this5.ctrl.panel.layersClusterType[layerKey] === undefined) {
+          _this5.ctrl.panel.layersClusterType[layerKey] = 'count';
         }
 
-        if (_this7.ctrl.panel.layersColorsLow[layerKey] === undefined) {
-          _this7.ctrl.panel.layersColorsLow[layerKey] = 'red';
+        if (_this5.ctrl.panel.layersColorsLow[layerKey] === undefined) {
+          _this5.ctrl.panel.layersColorsLow[layerKey] = 'red';
         }
 
-        if (_this7.ctrl.panel.layersColorsMedium[layerKey] === undefined) {
-          _this7.ctrl.panel.layersColorsMedium[layerKey] = 'orange';
+        if (_this5.ctrl.panel.layersColorsMedium[layerKey] === undefined) {
+          _this5.ctrl.panel.layersColorsMedium[layerKey] = 'orange';
         }
 
-        if (_this7.ctrl.panel.layersColorsHigh[layerKey] === undefined) {
-          _this7.ctrl.panel.layersColorsHigh[layerKey] = 'green';
+        if (_this5.ctrl.panel.layersColorsHigh[layerKey] === undefined) {
+          _this5.ctrl.panel.layersColorsHigh[layerKey] = 'green';
         }
       });
     }

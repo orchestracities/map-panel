@@ -404,9 +404,9 @@ export default class WorldMap {
 
   associateEvents(shape) {
     return shape
-     .on('click', () => this.updateVariable(shape))
+     //.on('click', () => this.updateVariable(shape))
   }
-
+    /*
   updateVariable(shape){
     let variable = _.find(this.ctrl.variables, {'name': this.ctrl.panel.layersVariables[shape.options.type]});
     console.debug(variable);
@@ -423,7 +423,7 @@ export default class WorldMap {
       });
     }
   }
-
+*/
   createPopup(shape, stickyPopupInfo) {
     shape.bindPopup(stickyPopupInfo,
       {
