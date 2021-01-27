@@ -125,7 +125,7 @@ export default class WorldMap {
       var getGeoMarkerColor = this.getGeoMarkerColor;
       var convertHex = this.convertHex;
 
-      var disableClusterLevel = 21;
+      var disableClusterLevel = this.ctrl.panel.disableClusterLevel;
       if (type === 'none')
         disableClusterLevel = 0;
 
