@@ -37,6 +37,7 @@ var PANEL_DEFAULTS = {
   mapCenterLatitude: 0,
   mapCenterLongitude: 0,
   initialZoom: 1,
+  disableClusterLevel: 21,
   valueName: 'total',
   circleMinSize: 2,
   circleMaxSize: 30,

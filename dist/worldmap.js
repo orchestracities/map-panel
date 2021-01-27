@@ -180,7 +180,7 @@ function () {
         var getGeoMarkerColorThesholds = _this3.getGeoMarkerColorThesholds;
         var getGeoMarkerColor = _this3.getGeoMarkerColor;
         var convertHex = _this3.convertHex;
-        var disableClusterLevel = 21;
+        var disableClusterLevel = _this3.ctrl.panel.disableClusterLevel;
         if (type === 'none') disableClusterLevel = 0;
 
         var createClusterIcon = function createClusterIcon(cluster) {

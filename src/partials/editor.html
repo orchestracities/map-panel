@@ -77,6 +77,16 @@
       ng-model-onblur />
   </div>
 
+  <div class="gf-form">
+    <label class="gf-form-label width-10">Clustering Zoom Level</label>
+    <input type="text" 
+      class="input-small gf-form-input width-12" 
+      placeholder="1"
+      ng-model="ctrl.panel.disableClusterLevel" 
+      ng-change="ctrl.render()"
+      ng-model-onblur />
+  </div>
+
   <gf-form-switch 
     class="gf-form"
     label="Sticky Labels" label-class="width-10"
