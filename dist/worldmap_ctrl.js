@@ -29,7 +29,7 @@ require("./vendor/leaflet/leaflet.css!");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
 
@@ -62,7 +62,7 @@ var WorldmapCtrl =
 function (_MetricsPanelCtrl) {
   _inherits(WorldmapCtrl, _MetricsPanelCtrl);
 
-  function WorldmapCtrl($scope, $injector, contextSrv, variableSrv) {
+  function WorldmapCtrl($scope, $injector, contextSrv) {
     var _this;
 
     _classCallCheck(this, WorldmapCtrl);
@@ -78,12 +78,10 @@ function (_MetricsPanelCtrl) {
     _this.defaultMetrics = _definitions.DEFAULT_METRICS;
     _this.colorTypes = _definitions.COLOR_TYPES;
     _this.clusterTypes = _definitions.CLUSTER_TYPES;
-    _this.markerColors = _definitions.MARKER_COLORS;
-    _this.environmentVars = _this.templateSrv.variables.map(function (elem) {
-      return elem.name;
-    });
-    _this.variables = _this.templateSrv.variables;
-    _this.variableSrv = variableSrv; // bind grafana events
+    _this.markerColors = _definitions.MARKER_COLORS; //this.environmentVars = this.templateSrv.variables.map((elem) => elem.name);
+    //this.variables = this.templateSrv.variables;
+    //this.variableSrv = variableSrv;
+    // bind grafana events
 
     _this.events.on('init-edit-mode', _this.onInitEditMode.bind(_assertThisInitialized(_this)));
 
@@ -204,47 +202,44 @@ function (_MetricsPanelCtrl) {
 
       if (this.panel.mapCenter === 'User Geolocation') {
         this.setLocationByUserGeolocation(true);
-      } else if (this.panel.mapCenter === 'Location Variable') {
-        // && this.isADiferentCity()
-        this.setNewCoords();
-      } else if (this.panel.mapCenter === 'Custom') {
-        this.mapCenterMoved = true;
-        this.render();
-      } else {
-        // center at continent or area
-        // console.info('centering at City/Continent location')
-        var coordinates = {
-          latitude: _definitions.MAP_LOCATIONS[this.panel.mapCenter].mapCenterLatitude,
-          longitude: _definitions.MAP_LOCATIONS[this.panel.mapCenter].mapCenterLongitude
-        };
-        this.recenterMap(coordinates);
-        this.render();
-      }
+      } else
+        /* if (this.panel.mapCenter === 'Location Variable') { // && this.isADiferentCity()
+          this.setNewCoords();
+        } else */
+        if (this.panel.mapCenter === 'Custom') {
+          this.mapCenterMoved = true;
+          this.render();
+        } else {
+          // center at continent or area
+          // console.info('centering at City/Continent location')
+          var coordinates = {
+            latitude: _definitions.MAP_LOCATIONS[this.panel.mapCenter].mapCenterLatitude,
+            longitude: _definitions.MAP_LOCATIONS[this.panel.mapCenter].mapCenterLongitude
+          };
+          this.recenterMap(coordinates);
+          this.render();
+        }
     }
-  }, {
-    key: "isADiferentCity",
-    value: function isADiferentCity() {
-      return (0, _map_utils.getSelectedCity)(this.templateSrv.variables, this.panel.cityEnvVariable) !== this.panel.city;
-    }
-  }, {
-    key: "setNewCoords",
-    value: function setNewCoords() {
-      var _this3 = this;
+    /*isADiferentCity() {
+      return (getSelectedCity(this.templateSrv.variables, this.panel.cityEnvVariable) !== this.panel.city);
+    }*/
 
-      var city = (0, _map_utils.getSelectedCity)(this.templateSrv.variables, this.panel.cityEnvVariable);
+    /*
+      setNewCoords() {
+      const city = getSelectedCity(this.templateSrv.variables, this.panel.cityEnvVariable);
       console.debug('selecting new city: ' + city);
-      return (0, _map_utils.getCityCoordinates)(city).then(function (coordinates) {
-        _this3.panel.city = city;
-
-        if (coordinates) {
-          _this3.recenterMap(coordinates);
-
-          _this3.render();
-        } else console.log('Coordinates not available for the selected location ' + city);
-      })["catch"](function (error) {
-        return console.warn(error);
-      });
+      return getCityCoordinates(city)
+        .then((coordinates) => {
+          this.panel.city = city;
+          if (coordinates) {
+            this.recenterMap(coordinates);
+            this.render();
+          } else console.log('Coordinates not available for the selected location ' + city);
+        })
+        .catch((error) => console.warn(error));
     }
+    */
+
   }, {
     key: "recenterMap",
     value: function recenterMap(coordinates) {

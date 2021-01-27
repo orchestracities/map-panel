@@ -28,18 +28,23 @@ function link(scope, elem, attrs, ctrl) {
 
       if (ctrl.panel.mapCenter === 'User Geolocation') {
         ctrl.setLocationByUserGeolocation();
-      } else // detect city change when using Location Variable
-        if (ctrl.panel.mapCenter === 'Location Variable') {
-          // && this.ctrl.isADiferentCity()
-          console.log('centering at city');
-          ctrl.setNewCoords();
-        } else ctrl.mapCenterMoved = true;
+      }
+      /* else
+      detect city change when using Location Variable
+      if (ctrl.panel.mapCenter === 'Location Variable') { // && this.ctrl.isADiferentCity()
+      console.log('centering at city');
+      ctrl.setNewCoords();
+      } */
+      else ctrl.mapCenterMoved = true;
 
       ctrl.worldMap.createMap();
-    } else if (ctrl.panel.mapCenter === 'Location Variable' && ctrl.isADiferentCity()) {
-      console.log('centering at new city');
-      ctrl.setNewCoords();
     }
+    /* else
+    if (ctrl.panel.mapCenter === 'Location Variable' && ctrl.isADiferentCity()) {
+    console.log('centering at new city');
+    ctrl.setNewCoords();
+    } */
+
 
     if (layersChanged()) {
       console.log('layers had changed!');

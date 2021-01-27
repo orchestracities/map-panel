@@ -2,18 +2,19 @@
 version: '2'
 services:
   grafana:
-    image: grafana/grafana:6.2.5
+    image: grafana/grafana:7.3.7
     ports:
       - '3000:3000'
     volumes:
       - grafana-storage:/var/lib/grafana
       - .:/var/lib/grafana/plugins/map-panel/
       - ./crate-datasource:/var/lib/grafana/plugins/crate-datasource/
+      - ./etc/grafana/grafana.ini:/etc/grafana/grafana.ini
     environment:
       - GF_SECURITY_ADMIN_USER=${GRAFANA_USERNAME}
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
   crate:
-    image: crate:3.3.3
+    image: crate:4.1.4
     ports:
       - "4200:4200"
       - "5432:5432"

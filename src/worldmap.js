@@ -12,7 +12,8 @@ import './vendor/leaflet.markercluster/leaflet.markercluster';
 import './vendor/leaflet.markercluster/MarkerCluster.Default.css!';
 import './vendor/leaflet.markercluster/MarkerCluster.css!';
 import './vendor/osmbuildings/OSMBuildings-Leaflet';
-
+import './vendor/fontawesome-free/css/fontawesome.min.css!';
+import './vendor/fontawesome-free/css/v4-shims.min.css!';
 
 /* App Specific */
 import { TILE_SERVERS, PLUGIN_PATH } from './definitions';
@@ -124,28 +125,33 @@ export default class WorldMap {
       var getGeoMarkerColor = this.getGeoMarkerColor;
       var convertHex = this.convertHex;
 
-      var createIcon = function (cluster) {
+      var disableClusterLevel = 21;
+      if (type === 'none')
+        disableClusterLevel = 0;
+
+      var createClusterIcon = function (cluster) {
         
         var markers = cluster.getAllChildMarkers();
 
         var value = 'NA';
 
         var valueId = "value";
-        if (panel.ctrl.panel.layersColorsBinding[type] !== undefined) {
-          valueId = panel.ctrl.panel.layersColorsBinding[type];
+        if (panel.ctrl.panel.layersColorsBinding[layerKey] !== undefined) {
+          valueId = panel.ctrl.panel.layersColorsBinding[layerKey];
         }
 
         switch(type) {
           case 'average':
             var n = 0;
             for (var i = 0; i < markers.length; i++) {
-            	n += markers[i].options[valueId];
+            	n += isNaN(markers[i].options[valueId])? 0 : markers[i].options[valueId];
             }
             value = Math.round( n / markers.length * 10 ) / 10;
             break;
           case 'total':
+            var n = 0;
             for (var i = 0; i < markers.length; i++) {
-              n += markers[i].options[valueId];
+              n += isNaN(markers[i].options[valueId])? 0 : markers[i].options[valueId];
             }
             value = n;
             break;
@@ -163,14 +169,17 @@ export default class WorldMap {
 
         var color = "background-color: " + hex + "; opacity: 0.6";
         if (faIcon !== undefined){
-          var icon = "<i class='fa fa-" + faIcon + " icon-white'></i><br/>";
+          var icon = "<i class='fas fa-" + faIcon + " icon-white'></i><br/>";
           return new L.DivIcon({ html: '<div style="'+color+'"><span class="double">' + icon + value + '</span></div>', className: 'oc-cluster', iconSize: new L.Point(40, 40) });
         }
         return new L.DivIcon({ html: '<div style="'+color+'"><span class="single">' + value + '</span></div>', className: 'oc-cluster', iconSize: new L.Point(40, 40) });
       }
 
+
+      
+
       const markersGJ = L.geoJSON();
-      const markers = L.markerClusterGroup({iconCreateFunction: createIcon, disableClusteringAtZoom: 21});
+      const markers = L.markerClusterGroup({iconCreateFunction: createClusterIcon, disableClusteringAtZoom: disableClusterLevel});
 
       // for each layer
       Object.keys(layer).forEach((objectKey) => {
@@ -199,7 +208,7 @@ export default class WorldMap {
           newGJ.addTo(markersGJ);
         }
         if (lastObjectValues.latitude && lastObjectValues.longitude && this.ctrl.panel.layersIcons[layerKey]) {
-          const newIcon = this.createIcon(lastObjectValues, geoJsonName);
+          const newIcon = this.createIcon(lastObjectValues, markerColor);
           try {
             if (newIcon) markers.addLayer(newIcon);
           } catch (error) { console.warn(layerKey); console.warn(error); }
@@ -274,10 +283,9 @@ export default class WorldMap {
     return retVal;
   }
 
-  createIcon(dataPoint, geoJsonName) {
+  createIcon(dataPoint, markerColor) {
     // console.log(this.ctrl.panel.layersIcons)
     if (!dataPoint || !dataPoint.type) return null;
-    const markerColor = this.getGeoMarkerColor(dataPoint, this);
     const layerIcon = this.ctrl.panel.layersIcons[dataPoint.type];
     const icon = layerIcon ? this.createMarker(dataPoint, layerIcon, markerColor) : this.createShape(dataPoint);
     
@@ -302,6 +310,84 @@ export default class WorldMap {
   createMarker(dataPoint, elementIcon, elementColor) {
     const location = [dataPoint.latitude, dataPoint.longitude];
 
+    switch (elementColor)
+    {
+      case "#56A64B":
+      case "#73BF69":
+      case "green":
+        elementColor = 'green';
+        break;
+      case "#19730E":
+      case "#37872D":
+      case "darkgreen":
+        elementColor = 'darkgreen';
+        break;
+      case "#96D98D":
+      case "#C8F2C2":
+      case "lightgreen":
+        elementColor = 'lightgreen';
+        break;
+      case "#F2CC0C":
+      case "#FADE2A":
+      case "#CC9D00":
+      case "#E0B400":
+      case "#FFEE52":
+      case "#FFF899":
+      case "yellow":
+        elementColor = 'yellow';
+        break;
+      case "#E02F44":
+      case "#F2495C":
+      case "red":
+        elementColor = 'red';
+        break;
+      case "#AD0317":
+      case "#C4162A":
+      case "darkred":
+        elementColor = 'darkred';
+        break;
+      case "#FF7383":
+      case "#FFA6B0":
+      case "lightred":
+        elementColor = 'lightred';
+        break;
+      case "#3274D9":
+      case "#5794F2":
+      case "blue":
+        elementColor = 'blue';
+        break;
+      case "#1250B0":
+      case "#1F60C4":
+      case "darkblue":
+        elementColor = 'darkblue';
+        break;
+      case "#8AB8FF":
+      case "#C0D8FF":
+      case "lightblue":
+        elementColor = 'lightblue';
+        break;
+      case "#FF780A":
+      case "#FF9830":
+      case "#E55400":
+      case "#FA6400":
+      case "#FFB357":
+      case "#FFCB7D":
+      case "orange":
+        elementColor = 'orange';
+        break;
+      case "#A352CC":
+      case "#B877D9":
+      case "#7C2EA3":
+      case "#8F3BB8":
+      case "#CA95E5":
+      case "#DEB6F2":
+      case "purple":
+        elementColor = 'purple';
+        break;
+      default:
+         elementColor = 'green';
+    }
+
     const markerProperties = {
       icon: L.AwesomeMarkers.icon(
         {
@@ -318,9 +404,9 @@ export default class WorldMap {
 
   associateEvents(shape) {
     return shape
-     .on('click', () => this.updateVariable(shape))
+     //.on('click', () => this.updateVariable(shape))
   }
-
+    /*
   updateVariable(shape){
     let variable = _.find(this.ctrl.variables, {'name': this.ctrl.panel.layersVariables[shape.options.type]});
     console.debug(variable);
@@ -337,7 +423,7 @@ export default class WorldMap {
       });
     }
   }
-
+*/
   createPopup(shape, stickyPopupInfo) {
     shape.bindPopup(stickyPopupInfo,
       {

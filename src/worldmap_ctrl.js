@@ -23,7 +23,7 @@ import './vendor/leaflet/leaflet.css!';
 const dataFormatter = new DataFormatter();
 
 export default class WorldmapCtrl extends MetricsPanelCtrl {
-  constructor($scope, $injector, contextSrv, variableSrv) {
+  constructor($scope, $injector, contextSrv) {
     super($scope, $injector);
     this.setMapProvider(contextSrv);
     defaultsDeep(this.panel, PANEL_DEFAULTS);
@@ -35,10 +35,10 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
     this.colorTypes = COLOR_TYPES;
     this.clusterTypes = CLUSTER_TYPES;
     this.markerColors = MARKER_COLORS;
-    this.environmentVars = this.templateSrv.variables.map((elem) => elem.name);
+    //this.environmentVars = this.templateSrv.variables.map((elem) => elem.name);
 
-    this.variables = this.templateSrv.variables;
-    this.variableSrv = variableSrv;
+    //this.variables = this.templateSrv.variables;
+    //this.variableSrv = variableSrv;
     // bind grafana events
     this.events.on('init-edit-mode', this.onInitEditMode.bind(this));
     this.events.on('data-error', this.onDataError.bind(this));
@@ -136,9 +136,9 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
     if (this.panel.mapCenter === 'User Geolocation') {
       this.setLocationByUserGeolocation(true);
     } else
-    if (this.panel.mapCenter === 'Location Variable') { // && this.isADiferentCity()
+    /* if (this.panel.mapCenter === 'Location Variable') { // && this.isADiferentCity()
       this.setNewCoords();
-    } else
+    } else */
     if (this.panel.mapCenter === 'Custom') {
       this.mapCenterMoved = true;
       this.render();
@@ -150,11 +150,12 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
     }
   }
 
-  isADiferentCity() {
+  /*isADiferentCity() {
     return (getSelectedCity(this.templateSrv.variables, this.panel.cityEnvVariable) !== this.panel.city);
-  }
+  }*/
 
-  setNewCoords() {
+  /*
+    setNewCoords() {
     const city = getSelectedCity(this.templateSrv.variables, this.panel.cityEnvVariable);
     console.debug('selecting new city: ' + city);
     return getCityCoordinates(city)
@@ -167,7 +168,7 @@ export default class WorldmapCtrl extends MetricsPanelCtrl {
       })
       .catch((error) => console.warn(error));
   }
-
+  */
   recenterMap(coordinates) {
     console.debug('recentering at new coordinates');
     // console.debug(coordinates)

@@ -23,15 +23,21 @@ require("./vendor/leaflet.markercluster/MarkerCluster.css!");
 
 require("./vendor/osmbuildings/OSMBuildings-Leaflet");
 
+require("./vendor/fontawesome-free/css/fontawesome.min.css!");
+
+require("./vendor/fontawesome-free/css/v4-shims.min.css!");
+
 var _definitions = require("./definitions");
 
 var _map_utils = require("./utils/map_utils");
 
 var turf = _interopRequireWildcard(require("./vendor/turf/turf"));
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj["default"] = obj; return newObj; } }
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
 
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -174,14 +180,16 @@ function () {
         var getGeoMarkerColorThesholds = _this3.getGeoMarkerColorThesholds;
         var getGeoMarkerColor = _this3.getGeoMarkerColor;
         var convertHex = _this3.convertHex;
+        var disableClusterLevel = 21;
+        if (type === 'none') disableClusterLevel = 0;
 
-        var createIcon = function createIcon(cluster) {
+        var createClusterIcon = function createClusterIcon(cluster) {
           var markers = cluster.getAllChildMarkers();
           var value = 'NA';
           var valueId = "value";
 
-          if (panel.ctrl.panel.layersColorsBinding[type] !== undefined) {
-            valueId = panel.ctrl.panel.layersColorsBinding[type];
+          if (panel.ctrl.panel.layersColorsBinding[layerKey] !== undefined) {
+            valueId = panel.ctrl.panel.layersColorsBinding[layerKey];
           }
 
           switch (type) {
@@ -189,15 +197,17 @@ function () {
               var n = 0;
 
               for (var i = 0; i < markers.length; i++) {
-                n += markers[i].options[valueId];
+                n += isNaN(markers[i].options[valueId]) ? 0 : markers[i].options[valueId];
               }
 
               value = Math.round(n / markers.length * 10) / 10;
               break;
 
             case 'total':
+              var n = 0;
+
               for (var i = 0; i < markers.length; i++) {
-                n += markers[i].options[valueId];
+                n += isNaN(markers[i].options[valueId]) ? 0 : markers[i].options[valueId];
               }
 
               value = n;
@@ -215,7 +225,7 @@ function () {
           var color = "background-color: " + hex + "; opacity: 0.6";
 
           if (faIcon !== undefined) {
-            var icon = "<i class='fa fa-" + faIcon + " icon-white'></i><br/>";
+            var icon = "<i class='fas fa-" + faIcon + " icon-white'></i><br/>";
             return new L.DivIcon({
               html: '<div style="' + color + '"><span class="double">' + icon + value + '</span></div>',
               className: 'oc-cluster',
@@ -232,8 +242,8 @@ function () {
 
         var markersGJ = L.geoJSON();
         var markers = L.markerClusterGroup({
-          iconCreateFunction: createIcon,
-          disableClusteringAtZoom: 21
+          iconCreateFunction: createClusterIcon,
+          disableClusteringAtZoom: disableClusterLevel
         }); // for each layer
 
         Object.keys(layer).forEach(function (objectKey) {
@@ -264,7 +274,7 @@ function () {
           }
 
           if (lastObjectValues.latitude && lastObjectValues.longitude && _this3.ctrl.panel.layersIcons[layerKey]) {
-            var newIcon = _this3.createIcon(lastObjectValues, geoJsonName);
+            var newIcon = _this3.createIcon(lastObjectValues, markerColor);
 
             try {
               if (newIcon) markers.addLayer(newIcon);
@@ -351,10 +361,9 @@ function () {
     }
   }, {
     key: "createIcon",
-    value: function createIcon(dataPoint, geoJsonName) {
+    value: function createIcon(dataPoint, markerColor) {
       // console.log(this.ctrl.panel.layersIcons)
       if (!dataPoint || !dataPoint.type) return null;
-      var markerColor = this.getGeoMarkerColor(dataPoint, this);
       var layerIcon = this.ctrl.panel.layersIcons[dataPoint.type];
       var icon = layerIcon ? this.createMarker(dataPoint, layerIcon, markerColor) : this.createShape(dataPoint);
       this.createPopup(this.associateEvents(icon), (0, _map_utils.getDataPointStickyInfo)(dataPoint, this.ctrl.panel.metrics));
@@ -370,6 +379,96 @@ function () {
     key: "createMarker",
     value: function createMarker(dataPoint, elementIcon, elementColor) {
       var location = [dataPoint.latitude, dataPoint.longitude];
+
+      switch (elementColor) {
+        case "#56A64B":
+        case "#73BF69":
+        case "green":
+          elementColor = 'green';
+          break;
+
+        case "#19730E":
+        case "#37872D":
+        case "darkgreen":
+          elementColor = 'darkgreen';
+          break;
+
+        case "#96D98D":
+        case "#C8F2C2":
+        case "lightgreen":
+          elementColor = 'lightgreen';
+          break;
+
+        case "#F2CC0C":
+        case "#FADE2A":
+        case "#CC9D00":
+        case "#E0B400":
+        case "#FFEE52":
+        case "#FFF899":
+        case "yellow":
+          elementColor = 'yellow';
+          break;
+
+        case "#E02F44":
+        case "#F2495C":
+        case "red":
+          elementColor = 'red';
+          break;
+
+        case "#AD0317":
+        case "#C4162A":
+        case "darkred":
+          elementColor = 'darkred';
+          break;
+
+        case "#FF7383":
+        case "#FFA6B0":
+        case "lightred":
+          elementColor = 'lightred';
+          break;
+
+        case "#3274D9":
+        case "#5794F2":
+        case "blue":
+          elementColor = 'blue';
+          break;
+
+        case "#1250B0":
+        case "#1F60C4":
+        case "darkblue":
+          elementColor = 'darkblue';
+          break;
+
+        case "#8AB8FF":
+        case "#C0D8FF":
+        case "lightblue":
+          elementColor = 'lightblue';
+          break;
+
+        case "#FF780A":
+        case "#FF9830":
+        case "#E55400":
+        case "#FA6400":
+        case "#FFB357":
+        case "#FFCB7D":
+        case "orange":
+          elementColor = 'orange';
+          break;
+
+        case "#A352CC":
+        case "#B877D9":
+        case "#7C2EA3":
+        case "#8F3BB8":
+        case "#CA95E5":
+        case "#DEB6F2":
+        case "purple":
+          elementColor = 'purple';
+          break;
+
+        default:
+          elementColor = 'green';
+      }
+
       var markerProperties = {
         icon: L.AwesomeMarkers.icon({
           icon: elementIcon,
@@ -383,35 +482,26 @@ function () {
   }, {
     key: "associateEvents",
     value: function associateEvents(shape) {
-      var _this4 = this;
-
-      return shape.on('click', function () {
-        return _this4.updateVariable(shape);
-      });
+      return shape; //.on('click', () => this.updateVariable(shape))
     }
-  }, {
-    key: "updateVariable",
-    value: function updateVariable(shape) {
-      var _this5 = this;
-
-      var variable = _.find(this.ctrl.variables, {
-        'name': this.ctrl.panel.layersVariables[shape.options.type]
-      });
-
-      console.debug(variable);
-
-      if (variable) {
-        variable.current.text = shape.options.id;
-        variable.current.value = shape.options.id;
-        this.ctrl.variableSrv.updateOptions(variable).then(function () {
-          _this5.ctrl.variableSrv.variableUpdated(variable).then(function () {
-            _this5.ctrl.$scope.$emit('template-variable-value-updated');
-
-            _this5.ctrl.$scope.$root.$broadcast('refresh');
-          });
+    /*
+    updateVariable(shape){
+    let variable = _.find(this.ctrl.variables, {'name': this.ctrl.panel.layersVariables[shape.options.type]});
+    console.debug(variable);
+    
+    if(variable) {
+      variable.current.text = shape.options.id;
+      variable.current.value = shape.options.id;
+       this.ctrl.variableSrv.updateOptions(variable).then(() => {
+        this.ctrl.variableSrv.variableUpdated(variable).then(() => {
+          this.ctrl.$scope.$emit('template-variable-value-updated');
+          this.ctrl.$scope.$root.$broadcast('refresh');
         });
-      }
+      });
     }
+    }
+    */
+
   }, {
     key: "createPopup",
     value: function createPopup(shape, stickyPopupInfo) {
@@ -438,10 +528,10 @@ function () {
   }, {
     key: "resize",
     value: function resize() {
-      var _this6 = this;
+      var _this4 = this;
 
       setTimeout(function () {
-        _this6.map.invalidateSize();
+        _this4.map.invalidateSize();
       }, 0);
     }
   }, {
@@ -478,31 +568,31 @@ function () {
   }, {
     key: "setDefaultValues",
     value: function setDefaultValues() {
-      var _this7 = this;
+      var _this5 = this;
 
       Object.keys(this.ctrl.data).forEach(function (layerKey) {
-        if (_this7.ctrl.panel.layersColorsBinding[layerKey] === undefined) {
-          _this7.ctrl.panel.layersColorsBinding[layerKey] = 'value';
+        if (_this5.ctrl.panel.layersColorsBinding[layerKey] === undefined) {
+          _this5.ctrl.panel.layersColorsBinding[layerKey] = 'value';
         }
 
-        if (_this7.ctrl.panel.layersColorsThresholds[layerKey] === undefined) {
-          _this7.ctrl.panel.layersColorsThresholds[layerKey] = '30, 50';
+        if (_this5.ctrl.panel.layersColorsThresholds[layerKey] === undefined) {
+          _this5.ctrl.panel.layersColorsThresholds[layerKey] = '30, 50';
         }
 
-        if (_this7.ctrl.panel.layersClusterType[layerKey] === undefined) {
-          _this7.ctrl.panel.layersClusterType[layerKey] = 'count';
+        if (_this5.ctrl.panel.layersClusterType[layerKey] === undefined) {
+          _this5.ctrl.panel.layersClusterType[layerKey] = 'count';
         }
 
-        if (_this7.ctrl.panel.layersColorsLow[layerKey] === undefined) {
-          _this7.ctrl.panel.layersColorsLow[layerKey] = 'red';
+        if (_this5.ctrl.panel.layersColorsLow[layerKey] === undefined) {
+          _this5.ctrl.panel.layersColorsLow[layerKey] = 'red';
         }
 
-        if (_this7.ctrl.panel.layersColorsMedium[layerKey] === undefined) {
-          _this7.ctrl.panel.layersColorsMedium[layerKey] = 'orange';
+        if (_this5.ctrl.panel.layersColorsMedium[layerKey] === undefined) {
+          _this5.ctrl.panel.layersColorsMedium[layerKey] = 'orange';
         }
 
-        if (_this7.ctrl.panel.layersColorsHigh[layerKey] === undefined) {
-          _this7.ctrl.panel.layersColorsHigh[layerKey] = 'green';
+        if (_this5.ctrl.panel.layersColorsHigh[layerKey] === undefined) {
+          _this5.ctrl.panel.layersColorsHigh[layerKey] = 'green';
         }
       });
     }

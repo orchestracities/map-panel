@@ -16,7 +16,7 @@ var _string = require("./string");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 /**
 * private functions
@@ -78,10 +78,10 @@ function objToString(obj) {
 
   for (var p in obj) {
     if (obj.hasOwnProperty(p)) {
-      if (typeof obj[p] === 'string') {
-        str += p + ': ' + obj[p] + '<br/>';
-      } else {
+      if (_typeof(obj[p]) === 'object') {
         str += p + ': ' + objToString(obj[p]) + '<br/>';
+      } else {
+        str += p + ': ' + obj[p] + '<br/>';
       }
     }
   }
@@ -93,7 +93,7 @@ function objToString(obj) {
 function translate(filteredData, metricsTranslations, cssClass) {
   var keys = Object.keys(filteredData);
   var translatedValues = keys.map(function (dpKey) {
-    var dP = dpKey === 'created_at' ? new Date(filteredData[dpKey]).toLocaleString() : _typeof(filteredData[dpKey]) === 'object' ? objToString(filteredData[dpKey]) : isNaN(filteredData[dpKey]) ? filteredData[dpKey] : Number.isInteger(filteredData[dpKey]) ? filteredData[dpKey] : parseFloat(filteredData[dpKey]).toFixed(2);
+    var dP = dpKey === 'created_at' ? new Date(filteredData[dpKey]).toLocaleString() : _typeof(filteredData[dpKey]) === 'object' ? objToString(filteredData[dpKey]) : typeof filteredData[dpKey] === 'boolean' ? filteredData[dpKey] : isNaN(filteredData[dpKey]) ? filteredData[dpKey] : Number.isInteger(filteredData[dpKey]) ? filteredData[dpKey] : parseFloat(filteredData[dpKey].toFixed(2));
     var trans = metricsTranslations.filter(function (elem) {
       return elem[0] === dpKey;
     });
