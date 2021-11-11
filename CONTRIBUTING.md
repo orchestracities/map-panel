@@ -27,12 +27,6 @@ docker run -it --rm -v "$PWD":/usr/src/app -w /usr/src/app node:8 yarn install
 
 ## Test / Run
 
-- clone the crated data source.
-
-    ```sh
-    $ sh get-crate-plugin.sh
-    ```
-
 - Start docker-compose.
 
     ```sh

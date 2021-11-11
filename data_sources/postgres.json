@@ -1,0 +1,25 @@
+{
+    "id": 2,
+    "uid": "lQqrenFnk",
+    "orgId": 1,
+    "name": "cratedb",
+    "type": "postgres",
+    "typeName": "PostgreSQL",
+    "typeLogoUrl": "public/app/plugins/datasource/postgres/img/postgresql_logo.svg",
+    "access": "proxy",
+    "url": "crate:5432",
+    "password": "",
+    "user": "crate",
+    "database": "doc",
+    "basicAuth": false,
+    "isDefault": true,
+    "jsonData": {
+        "postgresVersion": 904,
+        "sslmode": "disable",
+        "tlsAuth": false,
+        "tlsAuthWithCACert": false,
+        "tlsConfigurationMethod": "file-path",
+        "tlsSkipVerify": true
+    },
+    "readOnly": false
+}
