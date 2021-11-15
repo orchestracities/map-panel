@@ -14,13 +14,8 @@ import * as source from 'ol/source';
 
 import tinycolor from 'tinycolor2';
 import { dataFrameToPoints, getLocationMatchers } from '../../utils/location';
-import {
-  ColorDimensionConfig,
-  ScaleDimensionConfig,
-  getScaledDimension,
-  getColorDimension,
-} from 'app/features/dimensions';
-import { ScaleDimensionEditor, ColorDimensionEditor } from 'app/features/dimensions/editors';
+import { ColorDimensionConfig, ScaleDimensionConfig, getScaledDimension, getColorDimension } from '../../dimensions';
+import { ScaleDimensionEditor, ColorDimensionEditor } from '../../dimensions/editors';
 import { ObservablePropsWrapper } from '../../components/ObservablePropsWrapper';
 import { MarkersLegend, MarkersLegendProps } from './MarkersLegend';
 import { circleMarker, markerMakers } from '../../utils/regularShapes';

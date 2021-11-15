@@ -3,9 +3,12 @@ import { StandardEditorProps, SelectableValue } from '@grafana/data';
 import { Button, InlineField, InlineFieldRow, Select, VerticalGroup } from '@grafana/ui';
 import { GeomapPanelOptions, MapViewConfig } from '../types';
 import { centerPointRegistry, MapCenterID } from '../view';
-import { NumberInput } from 'app/features/dimensions/editors/NumberInput';
+import { NumberInput } from '../dimensions/editors/NumberInput';
 import { lastGeomapPanelInstance } from '../GeomapPanel';
 import { toLonLat } from 'ol/proj';
+import { createEmpty, extend, getCenter } from 'ol/extent';
+import VectorLayer from 'ol/layer/Vector';
+import { Vector } from 'ol/source';
 
 export const MapViewEditor: FC<StandardEditorProps<MapViewConfig, any, GeomapPanelOptions>> = ({
   value,
@@ -45,7 +48,7 @@ export const MapViewEditor: FC<StandardEditorProps<MapViewConfig, any, GeomapPan
   const onSelectView = useCallback(
     (selection: SelectableValue<string>) => {
       const v = centerPointRegistry.getIfExists(selection.value);
-      if (v) {
+      if (v && v.id !== MapCenterID.Auto) {
         onChange({
           ...value,
           id: v.id,
@@ -53,6 +56,41 @@ export const MapViewEditor: FC<StandardEditorProps<MapViewConfig, any, GeomapPan
           lon: v.lon ?? value?.lon,
           zoom: v.zoom ?? value?.zoom,
         });
+      } else if (v && v.id === MapCenterID.Auto) {
+        const map = lastGeomapPanelInstance?.map;
+        if (map) {
+          let extent = createEmpty();
+          const layers = map.getLayers().getArray();
+          for (var layer of layers) {
+            if (layer instanceof VectorLayer) {
+              let source = layer.getSource();
+              if (source !== undefined && source instanceof Vector) {
+                let features = source.getFeatures()
+                for (var feature of features) {
+                  let geo = feature.getGeometry();
+                  if(geo){
+                    extend(extent, geo.getExtent());
+                  }
+                }
+              }
+            }
+          }
+          let view = map.getView();
+          let coords = view.getCenter();
+          coords = getCenter(extent);
+          view.fit(extent)
+          let zoom = view.getZoom()
+          if (coords && zoom){
+            const center = toLonLat(coords, view.getProjection());
+            onChange({
+              ...value,
+              id: v.id,
+              lon: +center[0].toFixed(6),
+              lat: +center[1].toFixed(6),
+              zoom: +zoom.toFixed(0),
+            });
+          }
+        }
       }
     },
     [value, onChange]

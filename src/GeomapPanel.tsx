@@ -7,6 +7,10 @@ import ScaleLine from 'ol/control/ScaleLine';
 import BaseLayer from 'ol/layer/Base';
 import { defaults as interactionDefaults } from 'ol/interaction';
 import MouseWheelZoom from 'ol/interaction/MouseWheelZoom';
+import { createEmpty, extend } from 'ol/extent';
+import VectorLayer from 'ol/layer/Vector';
+import { Vector } from 'ol/source';
+import { isEqual } from 'lodash';
 
 import {
   PanelData,
@@ -29,7 +33,7 @@ import { Portal, stylesFactory, VizTooltipContainer } from '@grafana/ui';
 import { GeomapOverlay, OverlayProps } from './GeomapOverlay';
 import { DebugOverlay } from './components/DebugOverlay';
 import { getGlobalStyles } from './globalStyles';
-import { Global } from '@emotion/react';
+//import { Global } from '@emotion/react';
 import { GeomapHoverFeature, GeomapHoverPayload } from './event';
 import { DataHoverView } from './components/DataHoverView';
 
@@ -132,6 +136,31 @@ export class GeomapPanel extends Component<Props, State> {
     for (const state of this.layers) {
       if (state.handler.update) {
         state.handler.update(data);
+      }
+    }
+    if (this.props.options.view.id === MapCenterID.Auto && this.map){
+    let extent = createEmpty();
+      const layers = this.map.getLayers().getArray();
+      for (var layer of layers) {
+        if (layer instanceof VectorLayer) {
+          let source = layer.getSource();
+          if (source !== undefined && source instanceof Vector) {
+            let features = source.getFeatures()
+            for (var feature of features) {
+              let geo = feature.getGeometry();
+              if(geo){
+                extend(extent, geo.getExtent());
+              }
+            }
+          }
+        }
+      }
+      if(!isEqual(extent, createEmpty())){
+        this.map.getView().fit(extent);
+        let zoom = this.map.getView().getZoom();
+        if(zoom){
+          this.map.getView().setZoom(zoom - 0.5);
+        }
       }
     }
   }
@@ -290,7 +319,7 @@ export class GeomapPanel extends Component<Props, State> {
     if (v) {
       let coord: Coordinate | undefined = undefined;
       if (v.lat == null) {
-        if (v.id === MapCenterID.Coordinates) {
+        if (v.id === MapCenterID.Coordinates || v.id === MapCenterID.Auto) {
           coord = [config.lon ?? 0, config.lat ?? 0];
         } else {
           console.log('TODO, view requires special handling', v);
@@ -354,7 +383,9 @@ export class GeomapPanel extends Component<Props, State> {
 
     return (
       <>
-        <Global styles={this.globalCSS} />
+        {
+          //<Global styles={this.globalCSS} />
+        }
         <div className={this.style.wrap}>
           <div className={this.style.map} ref={this.initMapRef}></div>
           <GeomapOverlay bottomLeft={bottomLeft} topRight={topRight} />

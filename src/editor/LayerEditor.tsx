@@ -11,9 +11,9 @@ import {
   Field,
 } from '@grafana/data';
 import { DEFAULT_BASEMAP_CONFIG, geomapLayerRegistry } from '../layers/registry';
-import { OptionsPaneCategoryDescriptor } from 'app/features/dashboard/components/PanelEditor/OptionsPaneCategoryDescriptor';
-import { setOptionImmutably } from 'app/features/dashboard/components/PanelEditor/utils';
-import { fillOptionsPaneItems } from 'app/features/dashboard/components/PanelEditor/getVizualizationOptions';
+import { OptionsPaneCategoryDescriptor } from './PanelEditor/OptionsPaneCategoryDescriptor';
+import { setOptionImmutably } from './PanelEditor/utils';
+import { fillOptionsPaneItems } from './PanelEditor/getVizualizationOptions';
 import { GazetteerPathEditor } from './GazetteerPathEditor';
 
 export interface LayerEditorProps<TConfig = any> {

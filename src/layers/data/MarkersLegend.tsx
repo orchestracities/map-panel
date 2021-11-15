@@ -1,11 +1,11 @@
 import React from 'react';
 import { Label, stylesFactory, useTheme2, VizLegendItem } from '@grafana/ui';
-import { formattedValueToString, getFieldColorModeForField, GrafanaTheme2 } from '@grafana/data';
+//* formattedValueToString, *//
+import { getFieldColorModeForField, GrafanaTheme2 } from '@grafana/data';
 import { css } from '@emotion/css';
 import { config } from '../../config';
-import { DimensionSupplier } from 'app/features/dimensions';
-import { getThresholdItems } from 'app/plugins/panel/state-timeline/utils';
-import { getMinMaxAndDelta } from '../../../../../../../packages/grafana-data/src/field/scale';
+import { DimensionSupplier } from '../../dimensions';
+import { getThresholdItems } from './utils';
 
 export interface MarkersLegendProps {
   color?: DimensionSupplier<string>;
@@ -21,12 +21,12 @@ export function MarkersLegend(props: MarkersLegendProps) {
   }
 
   const style = getStyles(theme);
-  const fmt = (v: any) => `${formattedValueToString(color.field!.display!(v))}`;
+  //const fmt = (v: any) => `${formattedValueToString(color.field!.display!(v))}`;
   const colorMode = getFieldColorModeForField(color!.field!);
 
   if (colorMode.isContinuous && colorMode.getColors) {
     const colors = colorMode.getColors(config.theme2);
-    const colorRange = getMinMaxAndDelta(color.field!);
+    //const colorRange = color.field!;
     // TODO: explore showing mean on the gradiant scale
     // const stats = reduceField({
     //   field: color.field!,
@@ -45,8 +45,10 @@ export function MarkersLegend(props: MarkersLegendProps) {
           className={style.gradientContainer}
           style={{ backgroundImage: `linear-gradient(to right, ${colors.map((c) => c).join(', ')}` }}
         >
-          <div style={{ color: theme.colors.getContrastText(colors[0]) }}>{fmt(colorRange.min)}</div>
-          <div style={{ color: theme.colors.getContrastText(colors[colors.length - 1]) }}>{fmt(colorRange.max)}</div>
+          {
+            //<div style={{ color: theme.colors.getContrastText(colors[0]) }}>{fmt(colorRange.min)}</div>
+            //<div style={{ color: theme.colors.getContrastText(colors[colors.length - 1]) }}>{fmt(colorRange.max)}</div>
+          }
         </div>
       </>
     );

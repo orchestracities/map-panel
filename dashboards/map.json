@@ -8,14 +8,15 @@
         "slug": "map-dashboard",
         "url": "/d/QFqeHd57z/map-dashboard",
         "expires": "0001-01-01T00:00:00Z",
-        "created": "2021-11-11T12:49:33Z",
-        "updated": "2021-11-11T13:12:50Z",
+        "created": "2021-11-11T13:21:22Z",
+        "updated": "2021-11-11T13:47:47Z",
         "updatedBy": "admin",
         "createdBy": "admin",
-        "version": 8,
+        "version": 6,
         "hasAcl": false,
         "isFolder": false,
         "folderId": 0,
+        "folderUid": "",
         "folderTitle": "General",
         "folderUrl": "",
         "provisioned": false,
@@ -31,15 +32,23 @@
                     "hide": true,
                     "iconColor": "rgba(0, 211, 255, 1)",
                     "name": "Annotations & Alerts",
+                    "target": {
+                        "limit": 100,
+                        "matchAny": false,
+                        "tags": [],
+                        "type": "dashboard"
+                    },
                     "type": "dashboard"
                 }
             ]
         },
         "editable": true,
+        "fiscalYearStartMonth": 0,
         "gnetId": null,
         "graphTooltip": 0,
         "id": null,
         "links": [],
+        "liveNow": false,
         "panels": [
             {
                 "buildings": false,
@@ -55,15 +64,9 @@
                 "decimals": 0,
                 "disableClusterLevel": 21,
                 "esMetric": "Count",
-                "fieldConfig": {
-                    "defaults": {
-                        "custom": {}
-                    },
-                    "overrides": []
-                },
                 "gridPos": {
-                    "h": 9,
-                    "w": 24,
+                    "h": 13,
+                    "w": 12,
                     "x": 0,
                     "y": 0
                 },
@@ -257,7 +260,7 @@
                     }
                 ],
                 "thresholds": "0,10",
-                "title": "Map Points (crate-postgresql driver)",
+                "title": "OLD Map Points",
                 "type": "grafana-traffic-env-panel",
                 "unitPlural": "",
                 "unitSingle": "",
@@ -278,17 +281,11 @@
                 "description": "",
                 "disableClusterLevel": 21,
                 "esMetric": "Count",
-                "fieldConfig": {
-                    "defaults": {
-                        "custom": {}
-                    },
-                    "overrides": []
-                },
                 "gridPos": {
-                    "h": 9,
-                    "w": 24,
-                    "x": 0,
-                    "y": 9
+                    "h": 13,
+                    "w": 12,
+                    "x": 12,
+                    "y": 0
                 },
                 "hideEmpty": false,
                 "hideZero": false,
@@ -344,7 +341,7 @@
                 "mapCenterLongitude": "8.546587188888887",
                 "maxDataPoints": 1,
                 "metrics": [],
-                "minZoomShapes": 12,
+                "minZoomShapes": "11",
                 "renderChart": false,
                 "showLegend": true,
                 "stickyLabels": false,
@@ -466,14 +463,221 @@
                     }
                 ],
                 "thresholds": "0,10",
-                "title": "Map Geojson (crate-postgresql driver)",
+                "title": "OLD Map Geojson",
                 "type": "grafana-traffic-env-panel",
                 "unitPlural": "",
                 "unitSingle": "",
                 "valueName": "total"
+            },
+            {
+                "datasource": null,
+                "fieldConfig": {
+                    "defaults": {
+                        "color": {
+                            "mode": "thresholds"
+                        },
+                        "mappings": [],
+                        "thresholds": {
+                            "mode": "absolute",
+                            "steps": [
+                                {
+                                    "color": "green",
+                                    "value": null
+                                },
+                                {
+                                    "color": "red",
+                                    "value": 40
+                                }
+                            ]
+                        }
+                    },
+                    "overrides": []
+                },
+                "gridPos": {
+                    "h": 9,
+                    "w": 24,
+                    "x": 0,
+                    "y": 13
+                },
+                "id": 6,
+                "links": [],
+                "maxDataPoints": 1,
+                "options": {
+                    "basemap": {
+                        "config": {},
+                        "type": "default"
+                    },
+                    "controls": {
+                        "mouseWheelZoom": true,
+                        "showAttribution": true,
+                        "showDebug": false,
+                        "showScale": false,
+                        "showZoom": true
+                    },
+                    "layers": [
+                        {
+                            "config": {
+                                "color": {
+                                    "fixed": "dark-green"
+                                },
+                                "fillOpacity": 0.4,
+                                "shape": "circle",
+                                "showLegend": true,
+                                "size": {
+                                    "fixed": 5,
+                                    "max": 15,
+                                    "min": 2
+                                }
+                            },
+                            "location": {
+                                "mode": "auto"
+                            },
+                            "type": "markers"
+                        }
+                    ],
+                    "view": {
+                        "id": "coords",
+                        "lat": 47.4,
+                        "lon": 8.5,
+                        "zoom": 11
+                    }
+                },
+                "targets": [
+                    {
+                        "format": "table",
+                        "group": [],
+                        "groupByAliases": [
+                            "type"
+                        ],
+                        "groupByColumns": [
+                            "entity_type"
+                        ],
+                        "metricAggs": [
+                            {
+                                "alias": "id",
+                                "column": "entity_id",
+                                "type": "raw"
+                            },
+                            {
+                                "alias": "value",
+                                "column": "availablespotnumber",
+                                "type": "raw"
+                            },
+                            {
+                                "alias": "geojson",
+                                "column": "location",
+                                "type": "raw"
+                            },
+                            {
+                                "alias": "created_at",
+                                "column": "time_index",
+                                "type": "raw"
+                            }
+                        ],
+                        "metricColumn": "none",
+                        "queryType": "randomWalk",
+                        "rawQuery": false,
+                        "rawSql": "SELECT\n  time_index AS \"time\",\n  availablespotnumber AS \"availablespotnumber\",\n  longitude(location_centroid) AS \"longitude\",\n  latitude(location_centroid) AS \"latitude\",\n  entity_id AS \"id\",\n  time_index AS \"created_at\",\n  entity_type\nFROM doc.example\nWHERE\n  $__timeFilter(time_index)\nORDER BY 1",
+                        "refId": "A",
+                        "resultFormat": "table",
+                        "select": [
+                            [
+                                {
+                                    "params": [
+                                        "availablespotnumber"
+                                    ],
+                                    "type": "column"
+                                },
+                                {
+                                    "params": [
+                                        "availablespotnumber"
+                                    ],
+                                    "type": "alias"
+                                }
+                            ],
+                            [
+                                {
+                                    "params": [
+                                        "longitude(location_centroid)"
+                                    ],
+                                    "type": "column"
+                                },
+                                {
+                                    "params": [
+                                        "longitude"
+                                    ],
+                                    "type": "alias"
+                                }
+                            ],
+                            [
+                                {
+                                    "params": [
+                                        "latitude(location_centroid)"
+                                    ],
+                                    "type": "column"
+                                },
+                                {
+                                    "params": [
+                                        "latitude"
+                                    ],
+                                    "type": "alias"
+                                }
+                            ],
+                            [
+                                {
+                                    "params": [
+                                        "entity_id"
+                                    ],
+                                    "type": "column"
+                                },
+                                {
+                                    "params": [
+                                        "id"
+                                    ],
+                                    "type": "alias"
+                                }
+                            ],
+                            [
+                                {
+                                    "params": [
+                                        "time_index"
+                                    ],
+                                    "type": "column"
+                                },
+                                {
+                                    "params": [
+                                        "created_at"
+                                    ],
+                                    "type": "alias"
+                                }
+                            ],
+                            [
+                                {
+                                    "params": [
+                                        "entity_type"
+                                    ],
+                                    "type": "column"
+                                }
+                            ]
+                        ],
+                        "table": "doc.example",
+                        "timeColumn": "time_index",
+                        "timeColumnType": null,
+                        "where": [
+                            {
+                                "name": "$__timeFilter",
+                                "params": [],
+                                "type": "macro"
+                            }
+                        ],
+                        "whereClauses": []
+                    }
+                ],
+                "title": "Original",
+                "type": "geomap"
             }
         ],
-        "schemaVersion": 26,
+        "schemaVersion": 31,
         "style": "dark",
         "tags": [],
         "templating": {
@@ -511,6 +715,6 @@
         "timezone": "",
         "title": "Map Dashboard",
         "uid": "QFqeHd57z",
-        "version": 8
+        "version": 6
     }
 }

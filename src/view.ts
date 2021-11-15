@@ -9,6 +9,7 @@ interface MapCenterItems extends RegistryItem {
 export enum MapCenterID {
   Zero = 'zero',
   Coordinates = 'coords',
+  Auto = 'auto',
 }
 
 export const centerPointRegistry = new Registry<MapCenterItems>(() => [
@@ -49,5 +50,9 @@ export const centerPointRegistry = new Registry<MapCenterItems>(() => [
   {
     id: MapCenterID.Coordinates as string,
     name: 'Coordinates',
+  },
+  {
+    id: MapCenterID.Auto as string,
+    name: 'Auto center',
   },
 ]);
