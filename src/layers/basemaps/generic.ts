@@ -1,7 +1,8 @@
-import { MapLayerRegistryItem, MapLayerOptions, GrafanaTheme2 } from '@grafana/data';
+import { GrafanaTheme2 } from '@grafana/data';
 import Map from 'ol/Map';
 import XYZ from 'ol/source/XYZ';
 import TileLayer from 'ol/layer/Tile';
+import { ExtendMapLayerOptions, ExtendMapLayerRegistryItem } from 'extension';
 
 export interface XYZConfig {
   url: string;
@@ -16,12 +17,12 @@ export const defaultXYZConfig: XYZConfig = {
   attribution: `Tiles © <a href="${sampleURL}">ArcGIS</a>`,
 };
 
-export const xyzTiles: MapLayerRegistryItem<XYZConfig> = {
+export const xyzTiles: ExtendMapLayerRegistryItem<XYZConfig> = {
   id: 'xyz',
   name: 'XYZ Tile layer',
   isBaseMap: true,
 
-  create: async (map: Map, options: MapLayerOptions<XYZConfig>, theme: GrafanaTheme2) => ({
+  create: async (map: Map, options: ExtendMapLayerOptions<XYZConfig>, theme: GrafanaTheme2) => ({
     init: () => {
       const cfg = { ...options.config };
       if (!cfg.url) {

@@ -1,10 +1,11 @@
-import { MapLayerRegistryItem, MapLayerOptions, PanelData, GrafanaTheme2, PluginState } from '@grafana/data';
+import { PanelData, GrafanaTheme2, PluginState } from '@grafana/data';
 import Map from 'ol/Map';
 import Feature from 'ol/Feature';
 import * as style from 'ol/style';
 import * as source from 'ol/source';
 import * as layer from 'ol/layer';
 import { dataFrameToPoints, getLocationMatchers } from '../../utils/location';
+import { ExtendMapLayerRegistryItem, ExtendMapLayerOptions } from 'extension';
 
 export interface LastPointConfig {
   icon?: string;
@@ -14,7 +15,7 @@ const defaultOptions: LastPointConfig = {
   icon: 'https://openlayers.org/en/latest/examples/data/icon.png',
 };
 
-export const lastPointTracker: MapLayerRegistryItem<LastPointConfig> = {
+export const lastPointTracker: ExtendMapLayerRegistryItem<LastPointConfig> = {
   id: 'last-point-tracker',
   name: 'Icon at last point',
   description: 'Show an icon at the last point',
@@ -26,7 +27,7 @@ export const lastPointTracker: MapLayerRegistryItem<LastPointConfig> = {
    * Function that configures transformation and returns a transformer
    * @param options
    */
-  create: async (map: Map, options: MapLayerOptions<LastPointConfig>, theme: GrafanaTheme2) => {
+  create: async (map: Map, options: ExtendMapLayerOptions<LastPointConfig>, theme: GrafanaTheme2) => {
     const point = new Feature({});
     const config = { ...defaultOptions, ...options.config };
 

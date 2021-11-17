@@ -10,12 +10,13 @@ import MouseWheelZoom from 'ol/interaction/MouseWheelZoom';
 import { createEmpty, extend } from 'ol/extent';
 import VectorLayer from 'ol/layer/Vector';
 import { Vector } from 'ol/source';
+import LayerSwitcher from 'ol-layerswitcher';
 import { isEqual } from 'lodash';
+import './GeomapPanel.css';
 
 import {
   PanelData,
   MapLayerHandler,
-  MapLayerOptions,
   PanelProps,
   GrafanaTheme,
   DataHoverClearEvent,
@@ -36,9 +37,10 @@ import { getGlobalStyles } from './globalStyles';
 //import { Global } from '@emotion/react';
 import { GeomapHoverFeature, GeomapHoverPayload } from './event';
 import { DataHoverView } from './components/DataHoverView';
+import { ExtendMapLayerOptions } from './extension';
 
 interface MapLayerState {
-  config: MapLayerOptions;
+  config: ExtendMapLayerOptions;
   handler: MapLayerHandler;
   layer: BaseLayer; // used to add|remove
 }
@@ -112,7 +114,7 @@ export class GeomapPanel extends Component<Props, State> {
 
     if (options.controls !== oldOptions.controls) {
       console.log('Controls changed');
-      this.initControls(options.controls ?? { showZoom: true, showAttribution: true });
+      this.initControls(options.controls ?? { showZoom: true, showAttribution: true, showLayercontrol: true });
     }
 
     if (options.basemap !== oldOptions.basemap) {
@@ -138,27 +140,27 @@ export class GeomapPanel extends Component<Props, State> {
         state.handler.update(data);
       }
     }
-    if (this.props.options.view.id === MapCenterID.Auto && this.map){
-    let extent = createEmpty();
+    if (this.props.options.view.id === MapCenterID.Auto && this.map) {
+      let extent = createEmpty();
       const layers = this.map.getLayers().getArray();
       for (var layer of layers) {
         if (layer instanceof VectorLayer) {
           let source = layer.getSource();
           if (source !== undefined && source instanceof Vector) {
-            let features = source.getFeatures()
+            let features = source.getFeatures();
             for (var feature of features) {
               let geo = feature.getGeometry();
-              if(geo){
+              if (geo) {
                 extend(extent, geo.getExtent());
               }
             }
           }
         }
       }
-      if(!isEqual(extent, createEmpty())){
+      if (!isEqual(extent, createEmpty())) {
         this.map.getView().fit(extent);
         let zoom = this.map.getView().getZoom();
-        if(zoom){
+        if (zoom) {
           this.map.getView().setZoom(zoom - 0.5);
         }
       }
@@ -240,7 +242,7 @@ export class GeomapPanel extends Component<Props, State> {
     }
   };
 
-  async initBasemap(cfg: MapLayerOptions) {
+  async initBasemap(cfg: ExtendMapLayerOptions) {
     if (!this.map) {
       return;
     }
@@ -259,7 +261,7 @@ export class GeomapPanel extends Component<Props, State> {
     this.map.getLayers().insertAt(0, this.basemap);
   }
 
-  async initLayers(layers: MapLayerOptions[]) {
+  async initLayers(layers: ExtendMapLayerOptions[]) {
     // 1st remove existing layers
     for (const state of this.layers) {
       this.map!.removeLayer(state.layer);
@@ -319,7 +321,7 @@ export class GeomapPanel extends Component<Props, State> {
     if (v) {
       let coord: Coordinate | undefined = undefined;
       if (v.lat == null) {
-        if (v.id === MapCenterID.Coordinates || v.id === MapCenterID.Auto) {
+        if (v.id === MapCenterID.Coordinates || v.id === MapCenterID.Auto) {
           coord = [config.lon ?? 0, config.lat ?? 0];
         } else {
           console.log('TODO, view requires special handling', v);
@@ -359,6 +361,17 @@ export class GeomapPanel extends Component<Props, State> {
         new ScaleLine({
           units: options.scaleUnits,
           minWidth: 100,
+        })
+      );
+    }
+
+    if (options.showLayercontrol) {
+      this.map.addControl(
+        new LayerSwitcher({
+          label: 'L',
+          tipLabel: 'Select layers',
+          groupSelectStyle: 'none',
+          //activationMode: 'click'
         })
       );
     }

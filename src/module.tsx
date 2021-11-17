@@ -75,6 +75,13 @@ export const plugin = new PanelPlugin<GeomapPanelOptions>(GeomapPanel)
       })
       .addBooleanSwitch({
         category,
+        path: 'controls.showLayercontrol',
+        name: 'Show layer control',
+        description: 'Allow to select layers',
+        defaultValue: true,
+      })
+      .addBooleanSwitch({
+        category,
         path: 'controls.showScale',
         name: 'Show scale',
         description: 'Indicate map scale',

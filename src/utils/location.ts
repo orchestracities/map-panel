@@ -1,17 +1,10 @@
-import {
-  FrameGeometrySource,
-  FrameGeometrySourceMode,
-  FieldMatcher,
-  getFieldMatcher,
-  FieldMatcherID,
-  DataFrame,
-  Field,
-  getFieldDisplayName,
-} from '@grafana/data';
-import { Point } from 'ol/geom';
+import { FieldMatcher, getFieldMatcher, FieldMatcherID, DataFrame, Field, getFieldDisplayName } from '@grafana/data';
+import { Geometry, Point } from 'ol/geom';
 import { fromLonLat } from 'ol/proj';
 import { getGazetteer, Gazetteer } from '../gazetteer/gazetteer';
 import { decodeGeohash } from './geohash';
+import GeoJSON from 'ol/format/GeoJSON';
+import { ExtendFrameGeometrySource, ExtendFrameGeometrySourceMode } from '../extension';
 
 export type FieldFinder = (frame: DataFrame) => Field | undefined;
 
@@ -42,9 +35,10 @@ function matchLowerNames(names: Set<string>): FieldFinder {
 }
 
 export interface LocationFieldMatchers {
-  mode: FrameGeometrySourceMode;
+  mode: ExtendFrameGeometrySourceMode;
 
   // Field mappings
+  geojson: FieldFinder;
   geohash: FieldFinder;
   latitude: FieldFinder;
   longitude: FieldFinder;
@@ -55,7 +49,8 @@ export interface LocationFieldMatchers {
 }
 
 const defaultMatchers: LocationFieldMatchers = {
-  mode: FrameGeometrySourceMode.Auto,
+  mode: ExtendFrameGeometrySourceMode.Auto,
+  geojson: matchLowerNames(new Set(['location', 'geojson'])),
   geohash: matchLowerNames(new Set(['geohash'])),
   latitude: matchLowerNames(new Set(['latitude', 'lat'])),
   longitude: matchLowerNames(new Set(['longitude', 'lon', 'lng'])),
@@ -64,24 +59,24 @@ const defaultMatchers: LocationFieldMatchers = {
   lookup: matchLowerNames(new Set(['lookup'])),
 };
 
-export async function getLocationMatchers(src?: FrameGeometrySource): Promise<LocationFieldMatchers> {
+export async function getLocationMatchers(src?: ExtendFrameGeometrySource): Promise<LocationFieldMatchers> {
   const info: LocationFieldMatchers = {
     ...defaultMatchers,
-    mode: src?.mode ?? FrameGeometrySourceMode.Auto,
+    mode: src?.mode ?? ExtendFrameGeometrySourceMode.Auto,
   };
   switch (info.mode) {
-    case FrameGeometrySourceMode.Geohash:
+    case ExtendFrameGeometrySourceMode.Geohash:
       if (src?.geohash) {
         info.geohash = getFieldFinder(getFieldMatcher({ id: FieldMatcherID.byName, options: src.geohash }));
       }
       break;
-    case FrameGeometrySourceMode.Lookup:
+    case ExtendFrameGeometrySourceMode.Lookup:
       if (src?.lookup) {
         info.lookup = getFieldFinder(getFieldMatcher({ id: FieldMatcherID.byName, options: src.lookup }));
       }
       info.gazetteer = await getGazetteer(src?.gazetteer);
       break;
-    case FrameGeometrySourceMode.Coords:
+    case ExtendFrameGeometrySourceMode.Coords:
       if (src?.latitude) {
         info.latitude = getFieldFinder(getFieldMatcher({ id: FieldMatcherID.byName, options: src.latitude }));
       }
@@ -89,13 +84,19 @@ export async function getLocationMatchers(src?: FrameGeometrySource): Promise<Lo
         info.longitude = getFieldFinder(getFieldMatcher({ id: FieldMatcherID.byName, options: src.longitude }));
       }
       break;
+    case ExtendFrameGeometrySourceMode.Geojson:
+      if (src?.geojson) {
+        info.geojson = getFieldFinder(getFieldMatcher({ id: FieldMatcherID.byName, options: src.geojson }));
+      }
+      break;
   }
   return info;
 }
 export interface LocationFields {
-  mode: FrameGeometrySourceMode;
+  mode: ExtendFrameGeometrySourceMode;
 
   // Field mappings
+  geojson?: Field;
   geohash?: Field;
   latitude?: Field;
   longitude?: Field;
@@ -106,38 +107,46 @@ export interface LocationFields {
 
 export function getLocationFields(frame: DataFrame, location: LocationFieldMatchers): LocationFields {
   const fields: LocationFields = {
-    mode: location.mode ?? FrameGeometrySourceMode.Auto,
+    mode: location.mode ?? ExtendFrameGeometrySourceMode.Auto,
   };
 
   // Find the best option
-  if (fields.mode === FrameGeometrySourceMode.Auto) {
+  if (fields.mode === ExtendFrameGeometrySourceMode.Auto) {
+    fields.geojson = location.geojson(frame);
+    if (fields.geojson) {
+      fields.mode = ExtendFrameGeometrySourceMode.Geojson;
+      return fields;
+    }
     fields.latitude = location.latitude(frame);
     fields.longitude = location.longitude(frame);
     if (fields.latitude && fields.longitude) {
-      fields.mode = FrameGeometrySourceMode.Coords;
+      fields.mode = ExtendFrameGeometrySourceMode.Coords;
       return fields;
     }
     fields.geohash = location.geohash(frame);
     if (fields.geohash) {
-      fields.mode = FrameGeometrySourceMode.Geohash;
+      fields.mode = ExtendFrameGeometrySourceMode.Geohash;
       return fields;
     }
     fields.lookup = location.geohash(frame);
     if (fields.lookup) {
-      fields.mode = FrameGeometrySourceMode.Lookup;
+      fields.mode = ExtendFrameGeometrySourceMode.Lookup;
       return fields;
     }
   }
 
   switch (fields.mode) {
-    case FrameGeometrySourceMode.Coords:
+    case ExtendFrameGeometrySourceMode.Geojson:
+      fields.geojson = location.geojson(frame);
+      break;
+    case ExtendFrameGeometrySourceMode.Coords:
       fields.latitude = location.latitude(frame);
       fields.longitude = location.longitude(frame);
       break;
-    case FrameGeometrySourceMode.Geohash:
+    case ExtendFrameGeometrySourceMode.Geohash:
       fields.geohash = location.geohash(frame);
       break;
-    case FrameGeometrySourceMode.Lookup:
+    case ExtendFrameGeometrySourceMode.Lookup:
       fields.lookup = location.lookup(frame);
       break;
   }
@@ -147,7 +156,7 @@ export function getLocationFields(frame: DataFrame, location: LocationFieldMatch
 
 export interface LocationInfo {
   warning?: string;
-  points: Point[];
+  points: Geometry[];
 }
 
 export function dataFrameToPoints(frame: DataFrame, location: LocationFieldMatchers): LocationInfo {
@@ -159,7 +168,14 @@ export function dataFrameToPoints(frame: DataFrame, location: LocationFieldMatch
   }
   const fields = getLocationFields(frame, location);
   switch (fields.mode) {
-    case FrameGeometrySourceMode.Coords:
+    case ExtendFrameGeometrySourceMode.Geojson:
+      if (fields.geojson) {
+        info.points = getGeometryFromGeoJSON(fields.geojson);
+      } else {
+        info.warning = 'Missing latitude/longitude fields';
+      }
+      break;
+    case ExtendFrameGeometrySourceMode.Coords:
       if (fields.latitude && fields.longitude) {
         info.points = getPointsFromLonLat(fields.longitude, fields.latitude);
       } else {
@@ -167,7 +183,7 @@ export function dataFrameToPoints(frame: DataFrame, location: LocationFieldMatch
       }
       break;
 
-    case FrameGeometrySourceMode.Geohash:
+    case ExtendFrameGeometrySourceMode.Geohash:
       if (fields.geohash) {
         info.points = getPointsFromGeohash(fields.geohash);
       } else {
@@ -175,7 +191,7 @@ export function dataFrameToPoints(frame: DataFrame, location: LocationFieldMatch
       }
       break;
 
-    case FrameGeometrySourceMode.Lookup:
+    case ExtendFrameGeometrySourceMode.Lookup:
       if (fields.lookup) {
         if (location.gazetteer) {
           info.points = getPointsFromGazetteer(location.gazetteer, fields.lookup);
@@ -187,11 +203,20 @@ export function dataFrameToPoints(frame: DataFrame, location: LocationFieldMatch
       }
       break;
 
-    case FrameGeometrySourceMode.Auto:
+    case ExtendFrameGeometrySourceMode.Auto:
       info.warning = 'Unable to find location fields';
   }
 
   return info;
+}
+
+function getGeometryFromGeoJSON(geojson: Field<String>): Geometry[] {
+  const count = geojson.values.length;
+  const points = new Array<Geometry>(count);
+  for (let i = 0; i < count; i++) {
+    points[i] = new GeoJSON().readGeometry(geojson.values.get(i), { featureProjection: 'EPSG:3857' });
+  }
+  return points;
 }
 
 function getPointsFromLonLat(lon: Field<number>, lat: Field<number>): Point[] {

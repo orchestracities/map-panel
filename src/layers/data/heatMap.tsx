@@ -1,11 +1,4 @@
-import {
-  FieldType,
-  getFieldColorModeForField,
-  GrafanaTheme2,
-  MapLayerOptions,
-  MapLayerRegistryItem,
-  PanelData,
-} from '@grafana/data';
+import { FieldType, getFieldColorModeForField, GrafanaTheme2, PanelData } from '@grafana/data';
 import Map from 'ol/Map';
 import Feature from 'ol/Feature';
 import * as layer from 'ol/layer';
@@ -13,6 +6,7 @@ import * as source from 'ol/source';
 import { dataFrameToPoints, getLocationMatchers } from '../../utils/location';
 import { ScaleDimensionConfig, getScaledDimension } from '../../dimensions';
 import { ScaleDimensionEditor } from '../../dimensions/editors';
+import { ExtendMapLayerRegistryItem, ExtendMapLayerOptions } from 'extension';
 
 // Configuration options for Heatmap overlays
 export interface HeatmapConfig {
@@ -34,7 +28,7 @@ const defaultOptions: HeatmapConfig = {
 /**
  * Map layer configuration for heatmap overlay
  */
-export const heatmapLayer: MapLayerRegistryItem<HeatmapConfig> = {
+export const heatmapLayer: ExtendMapLayerRegistryItem<HeatmapConfig> = {
   id: 'heatmap',
   name: 'Heatmap',
   description: 'visualizes a heatmap of the data',
@@ -45,7 +39,7 @@ export const heatmapLayer: MapLayerRegistryItem<HeatmapConfig> = {
    * Function that configures transformation and returns a transformer
    * @param options
    */
-  create: async (map: Map, options: MapLayerOptions<HeatmapConfig>, theme: GrafanaTheme2) => {
+  create: async (map: Map, options: ExtendMapLayerOptions<HeatmapConfig>, theme: GrafanaTheme2) => {
     const config = { ...defaultOptions, ...options.config };
     const matchers = await getLocationMatchers(options.location);
 

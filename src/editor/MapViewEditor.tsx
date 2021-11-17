@@ -65,10 +65,10 @@ export const MapViewEditor: FC<StandardEditorProps<MapViewConfig, any, GeomapPan
             if (layer instanceof VectorLayer) {
               let source = layer.getSource();
               if (source !== undefined && source instanceof Vector) {
-                let features = source.getFeatures()
+                let features = source.getFeatures();
                 for (var feature of features) {
                   let geo = feature.getGeometry();
-                  if(geo){
+                  if (geo) {
                     extend(extent, geo.getExtent());
                   }
                 }
@@ -78,9 +78,9 @@ export const MapViewEditor: FC<StandardEditorProps<MapViewConfig, any, GeomapPan
           let view = map.getView();
           let coords = view.getCenter();
           coords = getCenter(extent);
-          view.fit(extent)
-          let zoom = view.getZoom()
-          if (coords && zoom){
+          view.fit(extent);
+          let zoom = view.getZoom();
+          if (coords && zoom) {
             const center = toLonLat(coords, view.getProjection());
             onChange({
               ...value,

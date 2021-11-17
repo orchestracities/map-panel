@@ -1,12 +1,11 @@
 import React, { FC, useMemo } from 'react';
 import { Select } from '@grafana/ui';
 import {
-  MapLayerOptions,
   DataFrame,
-  MapLayerRegistryItem,
   PanelOptionsEditorBuilder,
   StandardEditorContext,
-  FrameGeometrySourceMode,
+  FieldOverrideContext,
+  getFieldDisplayName,
   FieldType,
   Field,
 } from '@grafana/data';
@@ -15,12 +14,14 @@ import { OptionsPaneCategoryDescriptor } from './PanelEditor/OptionsPaneCategory
 import { setOptionImmutably } from './PanelEditor/utils';
 import { fillOptionsPaneItems } from './PanelEditor/getVizualizationOptions';
 import { GazetteerPathEditor } from './GazetteerPathEditor';
+import { ExtendMapLayerRegistryItem, ExtendMapLayerOptions, ExtendFrameGeometrySourceMode } from '../extension';
+import { QuerySelector } from './PanelEditor/QuerySelector';
 
 export interface LayerEditorProps<TConfig = any> {
-  options?: MapLayerOptions<TConfig>;
+  options?: ExtendMapLayerOptions<TConfig>;
   data: DataFrame[]; // All results
-  onChange: (options: MapLayerOptions<TConfig>) => void;
-  filter: (item: MapLayerRegistryItem) => boolean;
+  onChange: (options: ExtendMapLayerOptions<TConfig>) => void;
+  filter: (item: ExtendMapLayerRegistryItem) => boolean;
 }
 
 export const LayerEditor: FC<LayerEditorProps> = ({ options, onChange, data, filter }) => {
@@ -41,22 +42,53 @@ export const LayerEditor: FC<LayerEditorProps> = ({ options, onChange, data, fil
       return null;
     }
 
-    const builder = new PanelOptionsEditorBuilder<MapLayerOptions>();
+    let propertiesValues: any = [];
+    if (data && data.length > 0) {
+      let filterProperties = data.filter((data) => data.refId === options?.query)[0];
+      if (filterProperties?.fields) {
+        filterProperties.fields.map((n) => propertiesValues.push({ value: n.name, label: n.name, type: n.type }));
+      }
+    }
+
+    const builder = new PanelOptionsEditorBuilder<ExtendMapLayerOptions>();
     if (layer.showLocation) {
       builder
+        .addTextInput({
+          path: 'name',
+          name: 'Name',
+          description: 'Layer name',
+          settings: {},
+        })
+        .addCustomEditor({
+          id: 'query',
+          path: 'query',
+          name: 'Query',
+          editor: QuerySelector,
+          settings: {},
+        })
         .addRadio({
           path: 'location.mode',
           name: 'Location',
           description: '',
-          defaultValue: FrameGeometrySourceMode.Auto,
+          defaultValue: ExtendFrameGeometrySourceMode.Auto,
           settings: {
             options: [
-              { value: FrameGeometrySourceMode.Auto, label: 'Auto' },
-              { value: FrameGeometrySourceMode.Coords, label: 'Coords' },
-              { value: FrameGeometrySourceMode.Geohash, label: 'Geohash' },
-              { value: FrameGeometrySourceMode.Lookup, label: 'Lookup' },
+              { value: ExtendFrameGeometrySourceMode.Auto, label: 'Auto' },
+              { value: ExtendFrameGeometrySourceMode.Coords, label: 'Coords' },
+              { value: ExtendFrameGeometrySourceMode.Geohash, label: 'Geohash' },
+              { value: ExtendFrameGeometrySourceMode.Lookup, label: 'Lookup' },
+              // { value: ExtendFrameGeometrySourceMode.Geojson, label: 'Geojson' },
             ],
           },
+        })
+        .addFieldNamePicker({
+          path: 'location.geojson',
+          name: 'Geojson field',
+          // settings: {
+          //   filter: (f: Field) => f.type === FieldType.other,
+          //   noFieldsMessage: 'No strings fields found',
+          // },
+          showIf: (opts) => opts.location?.mode === ExtendFrameGeometrySourceMode.Geojson,
         })
         .addFieldNamePicker({
           path: 'location.latitude',
@@ -65,7 +97,7 @@ export const LayerEditor: FC<LayerEditorProps> = ({ options, onChange, data, fil
             filter: (f: Field) => f.type === FieldType.number,
             noFieldsMessage: 'No numeric fields found',
           },
-          showIf: (opts) => opts.location?.mode === FrameGeometrySourceMode.Coords,
+          showIf: (opts) => opts.location?.mode === ExtendFrameGeometrySourceMode.Coords,
         })
         .addFieldNamePicker({
           path: 'location.longitude',
@@ -74,7 +106,7 @@ export const LayerEditor: FC<LayerEditorProps> = ({ options, onChange, data, fil
             filter: (f: Field) => f.type === FieldType.number,
             noFieldsMessage: 'No numeric fields found',
           },
-          showIf: (opts) => opts.location?.mode === FrameGeometrySourceMode.Coords,
+          showIf: (opts) => opts.location?.mode === ExtendFrameGeometrySourceMode.Coords,
         })
         .addFieldNamePicker({
           path: 'location.geohash',
@@ -83,7 +115,7 @@ export const LayerEditor: FC<LayerEditorProps> = ({ options, onChange, data, fil
             filter: (f: Field) => f.type === FieldType.string,
             noFieldsMessage: 'No strings fields found',
           },
-          showIf: (opts) => opts.location?.mode === FrameGeometrySourceMode.Geohash,
+          showIf: (opts) => opts.location?.mode === ExtendFrameGeometrySourceMode.Geohash,
           // eslint-disable-next-line react/display-name
           // info: (props) => <div>HELLO</div>,
         })
@@ -94,14 +126,42 @@ export const LayerEditor: FC<LayerEditorProps> = ({ options, onChange, data, fil
             filter: (f: Field) => f.type === FieldType.string,
             noFieldsMessage: 'No strings fields found',
           },
-          showIf: (opts) => opts.location?.mode === FrameGeometrySourceMode.Lookup,
+          showIf: (opts) => opts.location?.mode === ExtendFrameGeometrySourceMode.Lookup,
         })
         .addCustomEditor({
           id: 'gazetteer',
           path: 'location.gazetteer',
           name: 'Gazetteer',
           editor: GazetteerPathEditor,
-          showIf: (opts) => opts.location?.mode === FrameGeometrySourceMode.Lookup,
+          showIf: (opts) => opts.location?.mode === ExtendFrameGeometrySourceMode.Lookup,
+        })
+        .addMultiSelect({
+          path: 'displayProperties',
+          name: 'Properties',
+          description: 'Select properties to be displayed',
+          settings: {
+            allowCustomValue: false,
+            options: [],
+            placeholder: 'All Properties',
+            getOptions: async (context: FieldOverrideContext) => {
+              const options = [];
+              if (context && context.data && context.data.length > 0 && context.options && context.options.query) {
+                const frames = context.data;
+                for (let i = 0; i < frames.length; i++) {
+                  if (frames[i].refId && frames[i].refId === context.options.query) {
+                    const frame = context.data[i];
+                    for (const field of frame.fields) {
+                      const name = getFieldDisplayName(field, frame, context.data);
+                      const value = field.name;
+                      options.push({ value, label: name } as any);
+                    }
+                  }
+                }
+              }
+              return options;
+            },
+          },
+          defaultValue: '',
         });
     }
     if (layer.registerOptionsUI) {

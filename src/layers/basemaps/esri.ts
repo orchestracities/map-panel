@@ -1,6 +1,7 @@
-import { MapLayerRegistryItem, MapLayerOptions, GrafanaTheme2, RegistryItem, Registry } from '@grafana/data';
+import { GrafanaTheme2, RegistryItem, Registry } from '@grafana/data';
 import Map from 'ol/Map';
 import { xyzTiles, defaultXYZConfig, XYZConfig } from './generic';
+import { ExtendMapLayerOptions, ExtendMapLayerRegistryItem } from 'extension';
 
 interface PublicServiceItem extends RegistryItem {
   slug: string;
@@ -52,12 +53,12 @@ export interface ESRIXYZConfig extends XYZConfig {
   server: string;
 }
 
-export const esriXYZTiles: MapLayerRegistryItem<ESRIXYZConfig> = {
+export const esriXYZTiles: ExtendMapLayerRegistryItem<ESRIXYZConfig> = {
   id: 'esri-xyz',
   name: 'ArcGIS MapServer',
   isBaseMap: true,
 
-  create: async (map: Map, options: MapLayerOptions<ESRIXYZConfig>, theme: GrafanaTheme2) => {
+  create: async (map: Map, options: ExtendMapLayerOptions<ESRIXYZConfig>, theme: GrafanaTheme2) => {
     const cfg = { ...options.config };
     const svc = publicServiceRegistry.getIfExists(cfg.server ?? DEFAULT_SERVICE)!;
     if (svc.id !== CUSTOM_SERVICE) {

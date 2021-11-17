@@ -1,8 +1,9 @@
-import { MapLayerRegistryItem, MapLayerOptions, PanelData, GrafanaTheme2, PluginState } from '@grafana/data';
+import { PanelData, GrafanaTheme2, PluginState } from '@grafana/data';
 import Map from 'ol/Map';
 import VectorLayer from 'ol/layer/Vector';
 import VectorSource from 'ol/source/Vector';
 import GeoJSON from 'ol/format/GeoJSON';
+import { ExtendMapLayerOptions, ExtendMapLayerRegistryItem } from 'extension';
 
 export interface GeoJSONMapperConfig {
   // URL for a geojson file
@@ -19,7 +20,7 @@ const defaultOptions: GeoJSONMapperConfig = {
   src: 'public/maps/countries.geojson',
 };
 
-export const geojsonMapper: MapLayerRegistryItem<GeoJSONMapperConfig> = {
+export const geojsonMapper: ExtendMapLayerRegistryItem<GeoJSONMapperConfig> = {
   id: 'geojson-value-mapper',
   name: 'Map values to GeoJSON file',
   description: 'color features based on query results',
@@ -30,7 +31,7 @@ export const geojsonMapper: MapLayerRegistryItem<GeoJSONMapperConfig> = {
    * Function that configures transformation and returns a transformer
    * @param options
    */
-  create: async (map: Map, options: MapLayerOptions<GeoJSONMapperConfig>, theme: GrafanaTheme2) => {
+  create: async (map: Map, options: ExtendMapLayerOptions<GeoJSONMapperConfig>, theme: GrafanaTheme2) => {
     const config = { ...defaultOptions, ...options.config };
 
     const source = new VectorSource({

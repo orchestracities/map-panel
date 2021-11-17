@@ -1,6 +1,6 @@
-import { MapLayerOptions } from '@grafana/data';
 import { Units } from 'ol/proj/Units';
 import { MapCenterID } from './view';
+import { ExtendMapLayerOptions } from 'extension';
 
 export interface ControlsOptions {
   // Zoom (upper left)
@@ -15,6 +15,9 @@ export interface ControlsOptions {
   // Scale options
   showScale?: boolean;
   scaleUnits?: Units;
+
+  // Layer options
+  showLayercontrol?: boolean;
 
   // Show debug
   showDebug?: boolean;
@@ -40,6 +43,6 @@ export const defaultView: MapViewConfig = {
 export interface GeomapPanelOptions {
   view: MapViewConfig;
   controls: ControlsOptions;
-  basemap: MapLayerOptions;
-  layers: MapLayerOptions[];
+  basemap: ExtendMapLayerOptions;
+  layers: ExtendMapLayerOptions[];
 }

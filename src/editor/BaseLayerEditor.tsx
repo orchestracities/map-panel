@@ -1,10 +1,11 @@
 import React, { FC } from 'react';
-import { StandardEditorProps, MapLayerOptions, MapLayerRegistryItem, PluginState } from '@grafana/data';
+import { StandardEditorProps, PluginState } from '@grafana/data';
 import { GeomapPanelOptions } from '../types';
 import { LayerEditor } from './LayerEditor';
 import { config, hasAlphaPanels } from '../config';
+import { ExtendMapLayerRegistryItem, ExtendMapLayerOptions } from 'extension';
 
-function baseMapFilter(layer: MapLayerRegistryItem): boolean {
+function baseMapFilter(layer: ExtendMapLayerRegistryItem): boolean {
   if (!layer.isBaseMap) {
     return false;
   }
@@ -14,7 +15,7 @@ function baseMapFilter(layer: MapLayerRegistryItem): boolean {
   return true;
 }
 
-export const BaseLayerEditor: FC<StandardEditorProps<MapLayerOptions, any, GeomapPanelOptions>> = ({
+export const BaseLayerEditor: FC<StandardEditorProps<ExtendMapLayerOptions, any, GeomapPanelOptions>> = ({
   value,
   onChange,
   context,

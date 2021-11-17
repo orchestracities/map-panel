@@ -1,10 +1,11 @@
 import React, { FC } from 'react';
-import { StandardEditorProps, MapLayerOptions, PluginState, MapLayerRegistryItem } from '@grafana/data';
+import { StandardEditorProps, PluginState } from '@grafana/data';
 import { GeomapPanelOptions } from '../types';
 import { LayerEditor } from './LayerEditor';
 import { hasAlphaPanels } from '../config';
+import { ExtendMapLayerRegistryItem, ExtendMapLayerOptions } from 'extension';
 
-function dataLayerFilter(layer: MapLayerRegistryItem): boolean {
+function dataLayerFilter(layer: ExtendMapLayerRegistryItem): boolean {
   if (layer.isBaseMap) {
     return false;
   }
@@ -15,7 +16,7 @@ function dataLayerFilter(layer: MapLayerRegistryItem): boolean {
 }
 
 // For now this supports a *single* data layer -- eventually we should support more than one
-export const DataLayersEditor: FC<StandardEditorProps<MapLayerOptions[], any, GeomapPanelOptions>> = ({
+export const DataLayersEditor: FC<StandardEditorProps<ExtendMapLayerOptions[], any, GeomapPanelOptions>> = ({
   value,
   onChange,
   context,

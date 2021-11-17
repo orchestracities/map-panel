@@ -1,22 +1,23 @@
-import { MapLayerRegistryItem, Registry, MapLayerOptions, GrafanaTheme2 } from '@grafana/data';
+import { Registry, GrafanaTheme2 } from '@grafana/data';
 import Map from 'ol/Map';
 import { carto } from './basemaps/carto';
 import { config } from '../config';
 import { basemapLayers } from './basemaps';
 import { dataLayers } from './data';
+import { ExtendMapLayerRegistryItem, ExtendMapLayerOptions } from '../extension';
 
-export const DEFAULT_BASEMAP_CONFIG: MapLayerOptions = {
+export const DEFAULT_BASEMAP_CONFIG: ExtendMapLayerOptions = {
   type: 'default',
   config: {},
 };
 
 // Default base layer depending on the server setting
-export const defaultBaseLayer: MapLayerRegistryItem = {
+export const defaultBaseLayer: ExtendMapLayerRegistryItem = {
   id: DEFAULT_BASEMAP_CONFIG.type,
   name: 'Default base layer',
   isBaseMap: true,
 
-  create: (map: Map, options: MapLayerOptions, theme: GrafanaTheme2) => {
+  create: (map: Map, options: ExtendMapLayerOptions, theme: GrafanaTheme2) => {
     const serverLayerType = config?.geomapDefaultBaseLayerConfig?.type;
     if (serverLayerType) {
       const layer = geomapLayerRegistry.getIfExists(serverLayerType);
@@ -34,7 +35,7 @@ export const defaultBaseLayer: MapLayerRegistryItem = {
 /**
  * Registry for layer handlers
  */
-export const geomapLayerRegistry = new Registry<MapLayerRegistryItem<any>>(() => [
+export const geomapLayerRegistry = new Registry<ExtendMapLayerRegistryItem<any>>(() => [
   defaultBaseLayer,
   ...basemapLayers, // simple basemaps
   ...dataLayers, // Layers with update functions
