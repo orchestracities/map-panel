@@ -6,7 +6,7 @@ import { Geometry, Point } from 'ol/geom';
 import GeometryType from 'ol/geom/GeometryType';
 import { Fill, Stroke, Style } from 'ol/style';
 import { BaseLayerOptions } from 'ol-layerswitcher';
-//import { FontSymbol } from 'ol-ext';
+import { FontSymbol } from 'ol-ext';
 
 import {} from 'ol';
 import * as layer from 'ol/layer';
@@ -170,7 +170,7 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
                 const pin = new Feature(new Point(center));
                 pin.setStyle(
                   new Style({
-                    /* image: new FontSymbol({
+                    image: new FontSymbol({
                       form: options.config?.pinShape, //"hexagone",
                       //gradient: $("#gradient").prop('checked'),
                       //glyph: theGlyph,
@@ -198,7 +198,7 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
                     }),
                     fill: new Fill({
                       color: [255, 136, 0, 0.6],
-                    }), */
+                    }), 
                   })
                 );
                 pin.setProperties({
