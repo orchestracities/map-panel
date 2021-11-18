@@ -77,7 +77,7 @@ export const LayerEditor: FC<LayerEditorProps> = ({ options, onChange, data, fil
               { value: ExtendFrameGeometrySourceMode.Coords, label: 'Coords' },
               { value: ExtendFrameGeometrySourceMode.Geohash, label: 'Geohash' },
               { value: ExtendFrameGeometrySourceMode.Lookup, label: 'Lookup' },
-              // { value: ExtendFrameGeometrySourceMode.Geojson, label: 'Geojson' },
+              { value: ExtendFrameGeometrySourceMode.Geojson, label: 'Geojson' },
             ],
           },
         })

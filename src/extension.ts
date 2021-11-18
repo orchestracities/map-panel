@@ -10,6 +10,10 @@ import Map from 'ol/Map';
 
 export enum GeojsonFrameGeometrySourceMode {
   Geojson = 'geojson',
+  Auto = 'auto',
+  Geohash = 'geohash',
+  Coords = 'coords',
+  Lookup = 'lookup',
 }
 
 export interface ExtendFrameGeometrySource {
@@ -27,7 +31,6 @@ export interface ExtendFrameGeometrySource {
 // eslint-disable-next-line
 export const ExtendFrameGeometrySourceMode = {
   ...GeojsonFrameGeometrySourceMode,
-  ...FrameGeometrySourceMode,
 };
 // eslint-disable-next-line
 export type ExtendFrameGeometrySourceMode = FrameGeometrySourceMode | GeojsonFrameGeometrySourceMode;
