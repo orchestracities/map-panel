@@ -38,19 +38,20 @@ export const LayerEditor: FC<LayerEditorProps> = ({ options, onChange, data, fil
   // The options change with each layer type
   const optionsEditorBuilder = useMemo(() => {
     const layer = geomapLayerRegistry.getIfExists(options?.type);
-    if (!layer || !(layer.registerOptionsUI || layer.showLocation || layer.showOpacity)) {
+    if (!layer || !(layer.registerOptionsUI || layer.showLocation || layer.showOpacity || layer.id === 'nextzen')) {
       return null;
     }
 
-    let propertiesValues: any = [];
-    if (data && data.length > 0) {
-      let filterProperties = data.filter((data) => data.refId === options?.query)[0];
-      if (filterProperties?.fields) {
-        filterProperties.fields.map((n) => propertiesValues.push({ value: n.name, label: n.name, type: n.type }));
-      }
+    const builder = new PanelOptionsEditorBuilder<ExtendMapLayerOptions>();
+    if (layer.id === 'nextzen') {
+      builder.addTextInput({
+        path: 'apiKey',
+        name: 'API key',
+        description: 'API key for nextzen',
+        settings: {},
+      });
     }
 
-    const builder = new PanelOptionsEditorBuilder<ExtendMapLayerOptions>();
     if (layer.showLocation) {
       builder
         .addTextInput({
