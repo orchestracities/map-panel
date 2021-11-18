@@ -40,6 +40,7 @@ export interface ExtendMapLayerOptions<TConfig = any> {
   opacity?: number;
   query?: string;
   displayProperties?: string[];
+  apiKey?: string;
 }
 
 export interface ExtendMapLayerRegistryItem<TConfig = ExtendMapLayerOptions> extends RegistryItemWithOptions {
