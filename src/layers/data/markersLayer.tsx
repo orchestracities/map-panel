@@ -7,14 +7,14 @@ import GeometryType from 'ol/geom/GeometryType';
 import { Fill, Stroke, Style } from 'ol/style';
 import { BaseLayerOptions } from 'ol-layerswitcher';
 import FontSymbol from 'ol-ext/style/FontSymbol';
+import Shadow from 'ol-ext/style/Shadow';
 import 'ol-ext/style/FontAwesomeDef.js';
 import 'ol-ext/style/FontMaki2Def.js';
 import 'ol-ext/style/FontMakiDef.js';
-import {} from 'ol';
+
 import * as layer from 'ol/layer';
 import * as source from 'ol/source';
 import { getCenter } from 'ol/extent';
-import { library } from '@fortawesome/fontawesome-svg-core';
 
 import tinycolor from 'tinycolor2';
 import { dataFrameToPoints, getLocationMatchers } from '../../utils/location';
@@ -25,7 +25,6 @@ import { ObservablePropsWrapper } from '../../components/ObservablePropsWrapper'
 import { MarkersLegend, MarkersLegendProps } from './MarkersLegend';
 import { circleMarker, markerMakers } from '../../utils/regularShapes';
 import { ReplaySubject } from 'rxjs';
-import { fas } from '@fortawesome/free-solid-svg-icons';
 
 // Configuration options for Circle overlays
 export interface MarkersConfig {
@@ -36,6 +35,8 @@ export interface MarkersConfig {
   showLegend?: boolean;
   showPin?: boolean;
   iconSize?: number;
+  enableGradient?: boolean;
+  enableShadow?: boolean;
   pinShape?: any;
   cluster?: boolean;
   clusterDistance?: number;
@@ -43,8 +44,6 @@ export interface MarkersConfig {
   selectIcon?: any;
 }
 
-const myLibrary: any = library;
-myLibrary.add(fas);
 const defaultOptions: MarkersConfig = {
   size: {
     fixed: 5,
@@ -58,6 +57,8 @@ const defaultOptions: MarkersConfig = {
   shape: 'circle',
   showLegend: true,
   showPin: false,
+  enableGradient: false,
+  enableShadow: false,
   pinShape: 'marker',
   iconSize: 20,
   cluster: false,
@@ -148,7 +149,9 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
             const sizeDim = getScaledDimension(frame, config.size);
             const opacity = options.config?.fillOpacity ?? defaultOptions.fillOpacity;
 
-            const showPin = options.config?.showPin ?? defaultOptions.showLegend;
+            const showPin = options.config?.showPin ?? defaultOptions.showPin;
+            const enableShadow = options.config?.enableShadow ?? defaultOptions.enableShadow;
+            const enableGradient = options.config?.enableGradient ?? defaultOptions.enableGradient;
 
             // Map each data value into new points
             for (let i = 0; i < frame.length; i++) {
@@ -181,20 +184,38 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
                 if (showPin) {
                   const center = getCenter(info.points[i].getExtent());
                   const pin = new Feature(new Point(center));
-                  pin.setStyle(
+                  const styles: Style[] = [];
+                  if (enableShadow) {
+                    styles.push(
+                      new Style({
+                        image: new Shadow({
+                          radius: 10,
+                          blur: 5,
+                          offsetX: 0,
+                          offsetY: 0,
+                          fill: new Fill({
+                            color: 'rgba(255,255,255,0.4)',
+                          }),
+                        }),
+                      })
+                    );
+                  }
+                  styles.push(
                     new Style({
                       image: new FontSymbol({
                         form: config.pinShape,
-                        fontSize: 0.8,
+                        fontSize: 0.5,
                         color: '#fff',
                         radius: config.iconSize,
                         glyph: config.selectIcon,
-                        offsetY: 10,
-                        fill: new Fill({ color: fillColor }),
+                        offsetY: enableShadow ? -Number(config.iconSize) : 0,
+                        gradient: enableGradient,
+                        fill: new Fill({ color: color }),
                         stroke: new Stroke({ color: '#fff', width: 1 }),
                       }),
                     })
                   );
+                  pin.setStyle(styles);
                   pin.setProperties({
                     frame,
                     rowIndex: i,
@@ -302,7 +323,10 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
             { value: pinshape.lozenge, label: 'lozenge' },
             { value: pinshape.marker, label: 'marker' },
             { value: pinshape.poi, label: 'poi' },
-            //TODO complete
+            { value: pinshape.square, label: 'square' },
+            { value: pinshape.triangle, label: 'triangle' },
+            { value: pinshape.shield, label: 'shield' },
+            { value: pinshape.sign, label: 'sign' },
           ],
         },
         defaultValue: pinshape.marker,
@@ -321,6 +345,18 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
           options: iconValues,
         },
         defaultValue: 'none',
+        showIf: (cfg) => cfg.config?.showPin === true,
+      })
+      .addBooleanSwitch({
+        path: 'config.enableShadow',
+        name: 'Enable shadow for the pin',
+        defaultValue: false,
+        showIf: (cfg) => cfg.config?.showPin === true,
+      })
+      .addBooleanSwitch({
+        path: 'config.enableGradient',
+        name: 'Enable gradient for the pin',
+        defaultValue: false,
         showIf: (cfg) => cfg.config?.showPin === true,
       })
       .addBooleanSwitch({
