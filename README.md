@@ -26,8 +26,7 @@ For more information about panels, refer to the documentation on [Panels](https:
 2. Import database
 
     ```bash
-    sh config.sh
-    sh create-table.sh
+    sh populate_db.sh
     ```
 
 
@@ -36,7 +35,6 @@ For more information about panels, refer to the documentation on [Panels](https:
     ```bash
     sh set-up-grafana.sh
     ```
-
 
 4. In case of changes to code to restart grafana
 
