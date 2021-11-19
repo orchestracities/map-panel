@@ -15,6 +15,26 @@ Panels are the building blocks of Grafana. They allow you to visualize data in d
 
 For more information about panels, refer to the documentation on [Panels](https://grafana.com/docs/grafana/latest/features/panels/panels/)
 
+
+## Usage with PostGis
+
+To use the plugin with PostGis, you need either to query longitude and latitude from a stored `Point`, e.g.:
+* `ST_X(ST_GeomFromEWKT(location_centroid)) AS \"longitude\"`
+* `ST_Y(ST_GeomFromEWKT(location_centroid)) AS \"latitude\"`
+
+Or query the GeoJSON shape, e.g.:
+* `ST_AsGeoJSON(ST_GeomFromEWKT(location)) AS \"geojson\"`
+
+
+## Usage with CrateDB
+
+To use the plugin with CrateDB, you need either to query longitude and latitude from a stored `Point`, e.g.:
+* `longitude(location_centroid) AS \"longitude\"`
+* `latitude(location_centroid) AS \"latitude\"`
+
+Or query the GeoJSON field, e.g.:
+* `location AS \"geojson\"`
+
 ## Set up dev environment
 
 1. Launch services
