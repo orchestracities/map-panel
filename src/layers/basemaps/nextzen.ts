@@ -103,7 +103,7 @@ function createOLStyle() {
         stroke.setWidth(0.5);
         styles[length++] = line;
 
-      // transit
+        // transit
       } else if (layer === 'transit' && kind === 'train') {
         stroke.setColor('#ffffcc');
         stroke.setWidth(1);

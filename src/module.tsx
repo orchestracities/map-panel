@@ -5,7 +5,6 @@ import { GeomapPanel } from './GeomapPanel';
 import { MapViewEditor } from './editor/MapViewEditor';
 import { defaultView, GeomapPanelOptions } from './types';
 import { mapPanelChangedHandler } from './migrations';
-import { defaultMarkersConfig } from './layers/data/markersLayer';
 import { DEFAULT_BASEMAP_CONFIG } from './layers/registry';
 
 export const plugin = new PanelPlugin<GeomapPanelOptions>(GeomapPanel)
@@ -47,7 +46,6 @@ export const plugin = new PanelPlugin<GeomapPanelOptions>(GeomapPanel)
       path: 'layers',
       name: 'Data layer',
       editor: DataLayersEditor,
-      defaultValue: [defaultMarkersConfig],
     });
 
     // The controls section
