@@ -149,70 +149,75 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
               const radius = sizeDim.get(i);
 
               // Create a new Feature for each point returned from dataFrameToPoints
-              const dot = new Feature(info.points[i]);
-              if (info.points[i].getType() === GeometryType.POINT) {
-                dot.setStyle(shape!.make(color, fillColor, radius));
-              } else {
-                dot.setStyle(
-                  new Style({
-                    stroke: new Stroke({
-                      color: color,
-                      width: 3,
-                    }),
-                    fill: new Fill({
-                      color: fillColor,
-                    }),
-                  })
-                );
-              }
-              if (showPin) {
-                const center = getCenter(info.points[i].getExtent());
-                const pin = new Feature(new Point(center));
-                pin.setStyle(
-                  new Style({
-                    /* image: new FontSymbol({
-                      form: options.config?.pinShape, //"hexagone",
-                      //gradient: $("#gradient").prop('checked'),
-                      //glyph: theGlyph,
-                      //text: theText,    // text to use if no glyph is defined
-                      font: 'sans-serif',
-                      //fontSize: Number($("#fontsize").val()),
-                      //fontStyle: $("#style").val(),
-                      //radius: Number($("#radius").val()),
-                      //offsetX: -15,
-                      //rotation: Number($("#rotation").val())*Math.PI/180,
-                      //rotateWithView: $("#rwview").prop('checked'),
-                      //offsetY: $("#offset").prop('checked') ? -Number($("#radius").val()):0 ,
-                      color: color,
+              try {
+                const geoType = info.points[i].getType();
+                const dot = new Feature(info.points[i]);
+                if (geoType === GeometryType.POINT) {
+                  dot.setStyle(shape!.make(color, fillColor, radius));
+                } else {
+                  dot.setStyle(
+                    new Style({
+                      stroke: new Stroke({
+                        color: color,
+                        width: 3,
+                      }),
                       fill: new Fill({
                         color: fillColor,
+                      }),
+                    })
+                  );
+                }
+                if (showPin) {
+                  const center = getCenter(info.points[i].getExtent());
+                  const pin = new Feature(new Point(center));
+                  pin.setStyle(
+                    new Style({
+                      /* image: new FontSymbol({
+                        form: options.config?.pinShape, //"hexagone",
+                        //gradient: $("#gradient").prop('checked'),
+                        //glyph: theGlyph,
+                        //text: theText,    // text to use if no glyph is defined
+                        font: 'sans-serif',
+                        //fontSize: Number($("#fontsize").val()),
+                        //fontStyle: $("#style").val(),
+                        //radius: Number($("#radius").val()),
+                        //offsetX: -15,
+                        //rotation: Number($("#rotation").val())*Math.PI/180,
+                        //rotateWithView: $("#rwview").prop('checked'),
+                        //offsetY: $("#offset").prop('checked') ? -Number($("#radius").val()):0 ,
+                        color: color,
+                        fill: new Fill({
+                          color: fillColor,
+                        }),
+                        stroke: new Stroke({
+                          color: color,
+                          width: 1,
+                        }),
                       }),
                       stroke: new Stroke({
                         color: color,
                         width: 1,
                       }),
-                    }),
-                    stroke: new Stroke({
-                      color: color,
-                      width: 1,
-                    }),
-                    fill: new Fill({
-                      color: [255, 136, 0, 0.6],
-                    }),  */
-                  })
-                );
-                pin.setProperties({
-                  frame,
-                  rowIndex: i,
-                });
-                features.push(pin);
-              } else {
-                dot.setProperties({
-                  frame,
-                  rowIndex: i,
-                });
+                      fill: new Fill({
+                        color: [255, 136, 0, 0.6],
+                      }),  */
+                    })
+                  );
+                  pin.setProperties({
+                    frame,
+                    rowIndex: i,
+                  });
+                  features.push(pin);
+                } else {
+                  dot.setProperties({
+                    frame,
+                    rowIndex: i,
+                  });
+                }
+                features.push(dot);
+              } catch (error) {
+                console.log('empty geometry passed from the db');
               }
-              features.push(dot);
             }
 
             // Post updates to the legend component

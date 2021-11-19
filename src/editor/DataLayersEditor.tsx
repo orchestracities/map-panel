@@ -24,12 +24,12 @@ export const DataLayersEditor: React.FC<StandardEditorProps<ExtendMapLayerOption
   context,
 }) => {
   const onAddLayer = () => {
-    let newData = _.cloneDeep(value);
+    let newData: ExtendMapLayerOptions[] = value ? _.cloneDeep(value) : [];
     newData.push(defaultMarkersConfig);
     onChange(newData);
   };
   const onDeleteLayer = (index: number) => {
-    let newData = _.cloneDeep(value);
+    let newData: ExtendMapLayerOptions[] = value ? _.cloneDeep(value) : [];
     newData.splice(index, 1);
     onChange(newData);
   };
@@ -48,7 +48,7 @@ export const DataLayersEditor: React.FC<StandardEditorProps<ExtendMapLayerOption
                 options={v ? v : undefined}
                 data={context.data}
                 onChange={(cfg) => {
-                  let newData = _.cloneDeep(value);
+                  let newData: ExtendMapLayerOptions[] = value ? _.cloneDeep(value) : [];
                   newData[index] = cfg;
                   console.log('Change overlays:', newData);
                   onChange(newData);

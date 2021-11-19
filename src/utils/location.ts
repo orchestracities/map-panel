@@ -213,8 +213,10 @@ export function dataFrameToPoints(frame: DataFrame, location: LocationFieldMatch
 function getGeometryFromGeoJSON(geojson: Field<String>): Geometry[] {
   const count = geojson.values.length;
   const points = new Array<Geometry>(count);
-  for (let i = 0; i < count; i++) {
-    points[i] = new GeoJSON().readGeometry(geojson.values.get(i), { featureProjection: 'EPSG:3857' });
+  for (let i = 0; i < geojson.values.length; i++) {
+    points[i] = geojson.values.get(i)
+      ? new GeoJSON().readGeometry(geojson.values.get(i), { featureProjection: 'EPSG:3857' })
+      : new Geometry();
   }
   return points;
 }
