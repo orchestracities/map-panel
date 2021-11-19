@@ -33,7 +33,7 @@
     "@types/react-highlight-words": "^0.16.3",
     "@types/tinycolor2": "^1.4.3",
     "ol": "^6.9.0",
-    "ol-ext": "^3.2.14",
+    "ol-ext": "^3.2.16",
     "ol-layerswitcher": "^3.8.3",
     "react-highlight-words": "^0.17.0",
     "react-use": "^17.3.1",

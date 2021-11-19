@@ -6,12 +6,15 @@ import { Geometry, Point } from 'ol/geom';
 import GeometryType from 'ol/geom/GeometryType';
 import { Fill, Stroke, Style } from 'ol/style';
 import { BaseLayerOptions } from 'ol-layerswitcher';
-//import { FontSymbol } from 'ol-ext';
-
+import FontSymbol from 'ol-ext/style/FontSymbol';
+import 'ol-ext/style/FontAwesomeDef.js';
+import 'ol-ext/style/FontMaki2Def.js';
+import 'ol-ext/style/FontMakiDef.js';
 import {} from 'ol';
 import * as layer from 'ol/layer';
 import * as source from 'ol/source';
 import { getCenter } from 'ol/extent';
+import { library } from '@fortawesome/fontawesome-svg-core';
 
 import tinycolor from 'tinycolor2';
 import { dataFrameToPoints, getLocationMatchers } from '../../utils/location';
@@ -22,6 +25,7 @@ import { ObservablePropsWrapper } from '../../components/ObservablePropsWrapper'
 import { MarkersLegend, MarkersLegendProps } from './MarkersLegend';
 import { circleMarker, markerMakers } from '../../utils/regularShapes';
 import { ReplaySubject } from 'rxjs';
+import { fas } from '@fortawesome/free-solid-svg-icons';
 
 // Configuration options for Circle overlays
 export interface MarkersConfig {
@@ -31,12 +35,16 @@ export interface MarkersConfig {
   shape?: string;
   showLegend?: boolean;
   showPin?: boolean;
-  pinShape?: string;
+  iconSize?: number;
+  pinShape?: any;
   cluster?: boolean;
   clusterDistance?: number;
   clusterMinDistance?: number;
+  selectIcon?: any;
 }
 
+const myLibrary: any = library;
+myLibrary.add(fas);
 const defaultOptions: MarkersConfig = {
   size: {
     fixed: 5,
@@ -51,6 +59,7 @@ const defaultOptions: MarkersConfig = {
   showLegend: true,
   showPin: false,
   pinShape: 'marker',
+  iconSize: 20,
   cluster: false,
   clusterDistance: 20,
   clusterMinDistance: 0,
@@ -102,6 +111,7 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
   create: async (map: Map, options: ExtendMapLayerOptions<MarkersConfig>, theme: GrafanaTheme2) => {
     const matchers = await getLocationMatchers(options.location);
     const vectorLayer = new layer.Vector({ title: options.name } as BaseLayerOptions);
+
     // Assert default values
     const config = {
       ...defaultOptions,
@@ -109,6 +119,7 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
     };
 
     const legendProps = new ReplaySubject<MarkersLegendProps>(1);
+
     let legend: ReactNode = null;
     if (config.showLegend) {
       legend = <ObservablePropsWrapper watch={legendProps} initialSubProps={{}} child={MarkersLegend} />;
@@ -172,35 +183,16 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
                   const pin = new Feature(new Point(center));
                   pin.setStyle(
                     new Style({
-                      /* image: new FontSymbol({
-                        form: options.config?.pinShape, //"hexagone",
-                        //gradient: $("#gradient").prop('checked'),
-                        //glyph: theGlyph,
-                        //text: theText,    // text to use if no glyph is defined
-                        font: 'sans-serif',
-                        //fontSize: Number($("#fontsize").val()),
-                        //fontStyle: $("#style").val(),
-                        //radius: Number($("#radius").val()),
-                        //offsetX: -15,
-                        //rotation: Number($("#rotation").val())*Math.PI/180,
-                        //rotateWithView: $("#rwview").prop('checked'),
-                        //offsetY: $("#offset").prop('checked') ? -Number($("#radius").val()):0 ,
-                        color: color,
-                        fill: new Fill({
-                          color: fillColor,
-                        }),
-                        stroke: new Stroke({
-                          color: color,
-                          width: 1,
-                        }),
+                      image: new FontSymbol({
+                        form: config.pinShape,
+                        fontSize: 0.8,
+                        color: '#fff',
+                        radius: config.iconSize,
+                        glyph: config.selectIcon,
+                        offsetY: 10,
+                        fill: new Fill({ color: fillColor }),
+                        stroke: new Stroke({ color: '#fff', width: 1 }),
                       }),
-                      stroke: new Stroke({
-                        color: color,
-                        width: 1,
-                      }),
-                      fill: new Fill({
-                        color: [255, 136, 0, 0.6],
-                      }),  */
                     })
                   );
                   pin.setProperties({
@@ -239,6 +231,11 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
   },
   // Marker overlay options
   registerOptionsUI: (builder) => {
+    const iconType = Object.getOwnPropertyNames(FontSymbol.prototype.defs.glyphs);
+    let iconValues: any = [];
+    iconValues.push({ value: '', label: 'none' });
+    iconType.map((n) => iconValues.push({ value: n, label: n.replace('fa-', '') }));
+
     builder
       .addCustomEditor({
         id: 'config.color',
@@ -309,6 +306,21 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
           ],
         },
         defaultValue: pinshape.marker,
+        showIf: (cfg) => cfg.config?.showPin === true,
+      })
+      .addNumberInput({
+        path: 'config.iconSize',
+        name: 'Pin size',
+        defaultValue: defaultOptions.iconSize,
+        showIf: (cfg) => cfg.config?.showPin === true,
+      })
+      .addSelect({
+        path: 'config.selectIcon',
+        name: 'Select icon for the pin',
+        settings: {
+          options: iconValues,
+        },
+        defaultValue: 'none',
         showIf: (cfg) => cfg.config?.showPin === true,
       })
       .addBooleanSwitch({
