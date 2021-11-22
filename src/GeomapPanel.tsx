@@ -371,7 +371,7 @@ export class GeomapPanel extends Component<Props, State> {
           label: 'L',
           tipLabel: 'Select layers',
           groupSelectStyle: 'none',
-          //activationMode: 'click'
+          activationMode: 'click',
         })
       );
     }
