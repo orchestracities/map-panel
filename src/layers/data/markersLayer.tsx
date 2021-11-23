@@ -9,8 +9,10 @@ import Shadow from 'ol-ext/style/Shadow';
 import 'ol-ext/style/FontAwesomeDef.js';
 import 'ol-ext/style/FontMaki2Def.js';
 import 'ol-ext/style/FontMakiDef.js';
-import { Vector as VectorLayer } from 'ol/layer.js';
-import { Cluster, Vector as VectorSource } from 'ol/source.js';
+import { Cluster } from 'ol/source.js';
+import * as layer from 'ol/layer';
+import * as source from 'ol/source';
+import { BaseLayerOptions } from 'ol-layerswitcher';
 
 import { getCenter } from 'ol/extent';
 
@@ -112,13 +114,14 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
     const matchers = await getLocationMatchers(options.location);
     const styleCache: any = {};
 
-    const vectorLayer = new VectorLayer({
-      style: function (feature) {
+    const vectorLayer = new layer.Vector({
+      title: options.name,
+      style: function (feature: any) {
         let size = feature.get('features').length;
         let newStyle = styleDecider(size, feature);
         return newStyle;
       },
-    });
+    } as BaseLayerOptions);
 
     const styleDecider = (size: number, elements: any) => {
       let style = styleCache[size];
@@ -285,12 +288,12 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
         }
 
         // Source reads the data and provides a set of features to visualize
-        const source = new VectorSource({
+        const vectorSource = new source.Vector({
           features: features,
         });
         const clusterSource = new Cluster({
           distance: 40,
-          source: source,
+          source: vectorSource,
           geometryFunction: function (feature) {
             let geom = feature.getGeometry();
             let individualStyle = feature.getStyle();
