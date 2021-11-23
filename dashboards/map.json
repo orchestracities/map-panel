@@ -8,11 +8,11 @@
         "slug": "map-dashboard",
         "url": "/d/QFqeHd57z/map-dashboard",
         "expires": "0001-01-01T00:00:00Z",
-        "created": "2021-11-12T15:00:14Z",
-        "updated": "2021-11-17T16:35:29Z",
+        "created": "2021-11-23T10:35:32Z",
+        "updated": "2021-11-23T10:52:28Z",
         "updatedBy": "admin",
         "createdBy": "admin",
-        "version": 26,
+        "version": 2,
         "hasAcl": false,
         "isFolder": false,
         "folderId": 0,
@@ -733,17 +733,25 @@
                                 "color": {
                                     "fixed": "dark-green"
                                 },
+                                "enableGradient": false,
+                                "enableShadow": false,
                                 "fillOpacity": 0.4,
+                                "iconSize": 20,
                                 "pinShape": "marker",
+                                "selectIcon": "fa-glass",
                                 "shape": "circle",
                                 "showLegend": true,
-                                "showPin": false,
+                                "showPin": true,
                                 "size": {
+                                    "field": "availablespotnumber",
                                     "fixed": 1,
                                     "max": 35,
                                     "min": 2
                                 }
                             },
+                            "displayProperties": [
+                                "availablespotnumber"
+                            ],
                             "location": {
                                 "geojson": "location",
                                 "latitude": "latitude",
@@ -752,6 +760,35 @@
                             },
                             "name": "OffStreetParking",
                             "query": "A",
+                            "type": "markers"
+                        },
+                        {
+                            "config": {
+                                "cluster": false,
+                                "clusterDistance": 20,
+                                "clusterMinDistance": 0,
+                                "color": {
+                                    "fixed": "red"
+                                },
+                                "enableGradient": false,
+                                "enableShadow": false,
+                                "fillOpacity": 0.4,
+                                "iconSize": 20,
+                                "pinShape": "marker",
+                                "shape": "circle",
+                                "showLegend": true,
+                                "showPin": true,
+                                "size": {
+                                    "fixed": 5,
+                                    "max": 15,
+                                    "min": 2
+                                }
+                            },
+                            "location": {
+                                "mode": "coords"
+                            },
+                            "name": "2nd layer",
+                            "query": "B",
                             "type": "markers"
                         }
                     ],
@@ -772,6 +809,7 @@
                         "groupByColumns": [
                             "entity_type"
                         ],
+                        "hide": false,
                         "metricAggs": [
                             {
                                 "alias": "id",
@@ -945,7 +983,7 @@
                         "metricColumn": "none",
                         "queryType": "randomWalk",
                         "rawQuery": false,
-                        "rawSql": "SELECT\n  time_index AS \"time\",\n  availablespotnumber AS \"availablespotnumber\",\n  longitude(location_centroid) AS \"longitude\",\n  latitude(location_centroid) AS \"latitude\",\n  entity_id AS \"id\",\n  time_index AS \"created_at\",\n  entity_type,\n  location\nFROM doc.example\nWHERE\n  $__timeFilter(time_index)\nORDER BY 1",
+                        "rawSql": "SELECT\n  time_index AS \"time\",\n  availablespotnumber AS \"availablespotnumber\",\n  longitude(location_centroid) AS \"longitude\",\n  latitude(location_centroid) AS \"latitude\",\n  entity_id AS \"id\",\n  time_index AS \"created_at\",\n  entity_type,\n  location\nFROM doc.example\nWHERE\n  $__timeFilter(time_index) AND\n  entity_type = 'EVChargingStation'\nORDER BY 1",
                         "refId": "B",
                         "resultFormat": "table",
                         "select": [
@@ -1044,6 +1082,16 @@
                                 "name": "$__timeFilter",
                                 "params": [],
                                 "type": "macro"
+                            },
+                            {
+                                "datatype": null,
+                                "name": "",
+                                "params": [
+                                    "entity_type",
+                                    "=",
+                                    "'EVChargingStation'"
+                                ],
+                                "type": "expression"
                             }
                         ],
                         "whereClauses": []
@@ -1092,6 +1140,6 @@
         "timezone": "",
         "title": "Map Dashboard",
         "uid": "QFqeHd57z",
-        "version": 26
+        "version": 2
     }
 }
