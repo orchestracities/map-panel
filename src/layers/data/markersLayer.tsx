@@ -12,7 +12,7 @@ import 'ol-ext/style/FontMakiDef.js';
 import { Cluster } from 'ol/source.js';
 import * as layer from 'ol/layer';
 import * as source from 'ol/source';
-import { BaseLayerOptions } from 'ol-layerswitcher';
+import { BaseLayerOptions, GroupLayerOptions } from 'ol-layerswitcher';
 
 import { getCenter } from 'ol/extent';
 
@@ -25,7 +25,7 @@ import { ObservablePropsWrapper } from '../../components/ObservablePropsWrapper'
 import { MarkersLegend, MarkersLegendProps } from './MarkersLegend';
 import { circleMarker, markerMakers } from '../../utils/regularShapes';
 import { ReplaySubject } from 'rxjs';
-import { Circle as CircleStyle, Fill, Stroke, Style, Text } from 'ol/style.js';
+import { Fill, Stroke, Style, Text } from 'ol/style.js';
 
 // Configuration options for Circle overlays
 export interface MarkersConfig {
@@ -61,7 +61,7 @@ const defaultOptions: MarkersConfig = {
   enableGradient: false,
   enableShadow: false,
   pinShape: 'marker',
-  iconSize: 20,
+  iconSize: 9,
   cluster: false,
   clusterDistance: 20,
   clusterMinDistance: 0,
@@ -112,46 +112,51 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
    */
   create: async (map: Map, options: ExtendMapLayerOptions<MarkersConfig>, theme: GrafanaTheme2) => {
     const matchers = await getLocationMatchers(options.location);
-    const styleCache: any = {};
 
-    const vectorLayer = new layer.Vector({
+    const singleLayer = new layer.Vector({
       title: options.name,
-      style: function (feature: any) {
-        let size = feature.get('features').length;
-        let newStyle = styleDecider(size, feature);
-        return newStyle;
-      },
     } as BaseLayerOptions);
 
-    const styleDecider = (size: number, elements: any) => {
-      let style = styleCache[size];
-      if (size <= 3) {
-        let features = elements.get('features');
-        for (let feature of features) {
-          return feature.get('customStyle');
+    const clusterLayer = new layer.Vector({
+      style: function (feature: any) {
+        let size = feature.get('features').length;
+        if (size > 3) {
+          let clusterStyle = feature.get('features')[0].get('clusterStyle');
+          let pin = options.config?.showPin ?? defaultOptions.showPin;
+          return new Style({
+            image: new FontSymbol({
+              radius: 20,
+              fontSize: 0.5,
+              form: 'circle',
+              color: '#fff',
+              glyph: pin ? config.selectIcon : '',
+              stroke: new Stroke({
+                color: clusterStyle.color,
+                width: 1,
+              }),
+              fill: new Fill({
+                color: clusterStyle.fillColor,
+              }),
+            }),
+            text: new Text({
+              text: pin ? '' : size.toString(),
+              scale: 2,
+              fill: new Fill({
+                color: '#fff',
+              }),
+            }),
+          });
         }
-      } else {
-        style = new Style({
-          image: new CircleStyle({
-            radius: 10,
-            stroke: new Stroke({
-              color: '#fff',
-            }),
-            fill: new Fill({
-              color: '#3399CC',
-            }),
-          }),
-          text: new Text({
-            text: size.toString(),
-            fill: new Fill({
-              color: '#fff',
-            }),
-          }),
-        });
-        styleCache[size] = style;
-        return style;
-      }
-    };
+        return new Style({});
+      },
+    });
+
+    const vectorLayer = new layer.Group({
+      layers: [singleLayer, clusterLayer],
+      title: options.name,
+      combine: true,
+    } as GroupLayerOptions);
+
     // Assert default values
     const config = {
       ...defaultOptions,
@@ -206,20 +211,16 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
                 const geoType = info.points[i].getType();
                 const dot = new Feature(info.points[i]);
                 if (geoType === GeometryType.POINT) {
-                  dot.set('customStyle', shape!.make(color, fillColor, radius));
+                  dot.setStyle(shape!.make(color, fillColor, radius));
                 } else {
-                  dot.set(
-                    'customStyle',
+                  dot.setStyle(
                     new Style({
-                      image: new CircleStyle({
-                        radius: 20,
-                        stroke: new Stroke({
-                          color: color,
-                          width: 3,
-                        }),
-                        fill: new Fill({
-                          color: fillColor,
-                        }),
+                      stroke: new Stroke({
+                        color: color,
+                        width: 3,
+                      }),
+                      fill: new Fill({
+                        color: fillColor,
                       }),
                     })
                   );
@@ -258,11 +259,13 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
                       }),
                     })
                   );
-                  pin.set('customStyle', styles);
+                  pin.setStyle(styles);
                   pin.setProperties({
                     frame,
                     rowIndex: i,
                   });
+                  pin.set('clusterStyle', { color: color, fillColor: fillColor, icon: config.selectIcon });
+
                   features.push(pin);
                 } else {
                   dot.setProperties({
@@ -270,12 +273,12 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
                     rowIndex: i,
                   });
                 }
+                dot.set('clusterStyle', { color: color, fillColor: fillColor, icon: config.selectIcon });
                 features.push(dot);
               } catch (error) {
                 console.log('empty geometry passed from the db');
               }
             }
-
             // Post updates to the legend component
             if (legend) {
               legendProps.next({
@@ -296,22 +299,14 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
           source: vectorSource,
           geometryFunction: function (feature) {
             let geom = feature.getGeometry();
-            let individualStyle = feature.getStyle();
             if (geom.getType() === 'Point') {
-              geom.individualStyle = individualStyle;
               return geom;
-            } else if (geom.getType() === 'Polygon') {
-              geom = geom.getInteriorPoint();
-              geom.individualStyle = individualStyle;
-              return geom;
-            } else if (geom.getType() === 'LineString') {
-              return null;
             }
-            return null;
           },
         });
 
-        vectorLayer.setSource(clusterSource);
+        clusterLayer.setSource(clusterSource);
+        singleLayer.setSource(vectorSource);
       },
     };
   },
