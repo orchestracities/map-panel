@@ -21,6 +21,11 @@
   border-left: 0;
 }
 
+.ol-control.layer-switcher li.layer {
+  list-style: none;
+}
+
+
 .data-layer-add { 
     display: flex;
     justify-content: flex-end;

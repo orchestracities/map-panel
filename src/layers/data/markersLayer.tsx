@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react';
 import { PanelData, GrafanaTheme2 } from '@grafana/data';
-import Map from 'ol/Map';
+import GeoMap from 'ol/Map';
 import Feature from 'ol/Feature';
 import { Geometry, Point } from 'ol/geom';
 import GeometryType from 'ol/geom/GeometryType';
@@ -25,7 +25,9 @@ import { ObservablePropsWrapper } from '../../components/ObservablePropsWrapper'
 import { MarkersLegend, MarkersLegendProps } from './MarkersLegend';
 import { circleMarker, markerMakers } from '../../utils/regularShapes';
 import { ReplaySubject } from 'rxjs';
-import { Fill, Stroke, Style, Text } from 'ol/style.js';
+import { Fill, Image, Stroke, Style, Text } from 'ol/style';
+import RenderFeature from 'ol/render/Feature';
+//import { stylesFactory } from '@grafana/ui';
 
 // Configuration options for Circle overlays
 export interface MarkersConfig {
@@ -42,6 +44,7 @@ export interface MarkersConfig {
   cluster?: boolean;
   clusterDistance?: number;
   clusterMinDistance?: number;
+  clusterValue?: string;
   selectIcon?: any;
 }
 
@@ -65,6 +68,7 @@ const defaultOptions: MarkersConfig = {
   cluster: false,
   clusterDistance: 20,
   clusterMinDistance: 0,
+  clusterValue: 'size',
 };
 
 export const MARKERS_LAYER_ID = 'markers';
@@ -110,49 +114,149 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
    * Function that configures transformation and returns a transformer
    * @param options
    */
-  create: async (map: Map, options: ExtendMapLayerOptions<MarkersConfig>, theme: GrafanaTheme2) => {
+  create: async (map: GeoMap, options: ExtendMapLayerOptions<MarkersConfig>, theme: GrafanaTheme2) => {
     const matchers = await getLocationMatchers(options.location);
 
-    const singleLayer = new layer.Vector({
+    const geometryLayer = new layer.Vector({
       title: options.name,
     } as BaseLayerOptions);
 
-    const clusterLayer = new layer.Vector({
-      style: function (feature: any) {
-        let size = feature.get('features').length;
-        if (size > 3) {
-          let clusterStyle = feature.get('features')[0].get('clusterStyle');
-          let pin = options.config?.showPin ?? defaultOptions.showPin;
-          return new Style({
-            image: new FontSymbol({
-              radius: 20,
-              fontSize: 0.5,
-              form: 'circle',
+    const styleCache = new Map<string, any>();
+
+    function clusterStyle(customStyle: any, customValue: string) {
+      let pin = options.config?.showPin ?? defaultOptions.showPin;
+      let style = styleCache.get('cluster');
+      if (!style) {
+        style = new Style({
+          image: new FontSymbol({
+            radius: 20,
+            fontSize: 0.3,
+            form: 'circle',
+            color: '#fff',
+            glyph: pin ? config.selectIcon : '',
+            stroke: new Stroke({
+              color: customStyle.color,
+              width: 0,
+            }),
+            fill: new Fill({
+              color: customStyle.fillColor,
+            }),
+            offsetY: -8,
+          }),
+          text: new Text({
+            font: '12px Verdana-Bold',
+            fill: new Fill({
               color: '#fff',
-              glyph: pin ? config.selectIcon : '',
-              stroke: new Stroke({
-                color: clusterStyle.color,
-                width: 1,
-              }),
-              fill: new Fill({
-                color: clusterStyle.fillColor,
-              }),
             }),
-            text: new Text({
-              text: pin ? '' : size.toString(),
-              scale: 2,
-              fill: new Fill({
-                color: '#fff',
-              }),
-            }),
-          });
+            offsetY: 6,
+          }),
+        });
+        styleCache.set('cluster', style);
+      }
+
+      style.getText().setText(customValue);
+      return style;
+    }
+
+    function computeSum(features: Array<Feature<Geometry>>) {
+      let sum = 0;
+      const configSize = config.size;
+      features.forEach(function (f: Feature<Geometry>) {
+        if (configSize.field) {
+          const properties = f.getProperties();
+          const fields = properties.frame.fields;
+          const rowIndex = properties.rowIndex;
+          if (Array.isArray(fields)) {
+            fields.forEach(function (field) {
+              if (field.name === configSize.field) {
+                sum += field.values.buffer[rowIndex];
+              }
+            });
+          }
         }
-        return new Style({});
-      },
-    });
+      });
+      return sum;
+    }
+
+    function computeClusterValue(features: Array<Feature<Geometry>>) {
+      switch (options.config?.clusterValue) {
+        case 'size':
+          return String(features.length);
+        case 'sum':
+          return String(computeSum(features));
+        case 'average':
+          return String((computeSum(features) / features.length).toFixed(2));
+        default:
+          return '';
+      }
+    }
+
+    function markerStyle(customStyle: any) {
+      const enableShadow = options.config?.enableShadow ?? defaultOptions.enableShadow;
+      const enableGradient = options.config?.enableGradient ?? defaultOptions.enableGradient;
+      let styles: Style[] = styleCache.get('marker');
+      if (!styles) {
+        styles = [];
+        if (enableShadow) {
+          styles.push(
+            new Style({
+              image: new Shadow({
+                radius: 10,
+                blur: 5,
+                offsetX: 0,
+                offsetY: 0,
+                fill: new Fill({
+                  color: 'rgba(255,255,255,0.4)',
+                }),
+              }),
+            })
+          );
+        }
+        styles.push(
+          new Style({
+            image: new FontSymbol({
+              form: config.pinShape,
+              fontSize: 0.5,
+              color: '#fff',
+              radius: config.iconSize,
+              glyph: config.selectIcon,
+              offsetY: enableShadow ? -(Number(config.iconSize) + 1) : -Number(config.iconSize),
+              gradient: enableGradient,
+              fill: new Fill({ color: customStyle.color }),
+              //stroke: new Stroke({ color: '#fff', width: 0 }),
+            }),
+          })
+        );
+      }
+      let image: Image = new FontSymbol({});
+      if (enableShadow) {
+        image = styles[1].getImage();
+      } else {
+        image = styles[0].getImage();
+      }
+      if (image && image instanceof FontSymbol) {
+        image.getFill().setColor(customStyle.color);
+      }
+      return styles;
+    }
+
+    const addOnLayer = options.config?.cluster
+      ? new layer.Vector({
+          style: function (feature: RenderFeature | Feature<Geometry>) {
+            let size = feature.get('features').length;
+            if (size > 1) {
+              let customStyle = feature.get('features')[0].get('style');
+              return clusterStyle(customStyle, computeClusterValue(feature.get('features')));
+            } else if (size === 1) {
+              let customStyle = feature.get('features')[0].get('style');
+              return markerStyle(customStyle);
+            }
+          },
+        })
+      : new layer.Vector({});
 
     const vectorLayer = new layer.Group({
-      layers: [singleLayer, clusterLayer],
+      layers: [geometryLayer, addOnLayer],
       title: options.name,
       combine: true,
     } as GroupLayerOptions);
@@ -179,7 +283,12 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
           return; // ignore empty
         }
 
-        const features: Array<Feature<Geometry>> = [];
+        const geometryFeatures: Array<Feature<Geometry>> = [];
+        const pinFeatures: Array<Feature<Point>> = [];
+        const opacity = options.config?.fillOpacity ?? defaultOptions.fillOpacity;
+
+        const showPin = options.config?.showPin ?? defaultOptions.showPin;
+        const cluster = options.config?.cluster ?? defaultOptions.cluster;
 
         for (const frame of data.series) {
           if (options.query === frame.refId) {
@@ -191,11 +300,6 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
 
             const colorDim = getColorDimension(frame, config.color, theme);
             const sizeDim = getScaledDimension(frame, config.size);
-            const opacity = options.config?.fillOpacity ?? defaultOptions.fillOpacity;
-
-            const showPin = options.config?.showPin ?? defaultOptions.showPin;
-            const enableShadow = options.config?.enableShadow ?? defaultOptions.enableShadow;
-            const enableGradient = options.config?.enableGradient ?? defaultOptions.enableGradient;
 
             // Map each data value into new points
             for (let i = 0; i < frame.length; i++) {
@@ -209,74 +313,44 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
               // Create a new Feature for each point returned from dataFrameToPoints
               try {
                 const geoType = info.points[i].getType();
-                const dot = new Feature(info.points[i]);
+                const geometry = new Feature(info.points[i]);
                 if (geoType === GeometryType.POINT) {
-                  dot.setStyle(shape!.make(color, fillColor, radius));
+                  geometry.setStyle(shape!.make(color, fillColor, radius));
                 } else {
-                  dot.setStyle(
-                    new Style({
+                  let style = styleCache.get('geometry');
+                  if (!style) {
+                    style = new Style({
                       stroke: new Stroke({
                         color: color,
-                        width: 3,
+                        width: 5,
                       }),
                       fill: new Fill({
                         color: fillColor,
                       }),
-                    })
-                  );
+                    });
+                  }
+                  styleCache.set('geometry', style);
+                  geometry.setStyle(style);
                 }
-                if (showPin) {
+                geometryFeatures.push(geometry);
+                if (showPin || cluster) {
                   const center = getCenter(info.points[i].getExtent());
                   const pin = new Feature(new Point(center));
-                  const styles: Style[] = [];
-                  if (enableShadow) {
-                    styles.push(
-                      new Style({
-                        image: new Shadow({
-                          radius: 10,
-                          blur: 5,
-                          offsetX: 0,
-                          offsetY: 0,
-                          fill: new Fill({
-                            color: 'rgba(255,255,255,0.4)',
-                          }),
-                        }),
-                      })
-                    );
-                  }
-                  styles.push(
-                    new Style({
-                      image: new FontSymbol({
-                        form: config.pinShape,
-                        fontSize: 0.5,
-                        color: '#fff',
-                        radius: config.iconSize,
-                        glyph: config.selectIcon,
-                        offsetY: enableShadow ? -Number(config.iconSize) : 0,
-                        gradient: enableGradient,
-                        fill: new Fill({ color: color }),
-                        stroke: new Stroke({ color: '#fff', width: 1 }),
-                      }),
-                    })
-                  );
-                  pin.setStyle(styles);
+                  pin.setStyle(markerStyle({ color: color }));
+                  pin.set('style', { color: color, fillColor: fillColor });
                   pin.setProperties({
                     frame,
                     rowIndex: i,
                   });
-                  pin.set('clusterStyle', { color: color, fillColor: fillColor, icon: config.selectIcon });
-
-                  features.push(pin);
+                  pinFeatures.push(pin);
                 } else {
-                  dot.setProperties({
+                  geometry.setProperties({
                     frame,
                     rowIndex: i,
                   });
                 }
-                dot.set('clusterStyle', { color: color, fillColor: fillColor, icon: config.selectIcon });
-                features.push(dot);
               } catch (error) {
-                console.log('empty geometry passed from the db');
+                console.log(error);
               }
             }
             // Post updates to the legend component
@@ -291,22 +365,27 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
         }
 
         // Source reads the data and provides a set of features to visualize
-        const vectorSource = new source.Vector({
-          features: features,
+        const geometrySource = new source.Vector({
+          features: geometryFeatures,
         });
-        const clusterSource = new Cluster({
-          distance: 40,
-          source: vectorSource,
-          geometryFunction: function (feature) {
-            let geom = feature.getGeometry();
-            if (geom.getType() === 'Point') {
-              return geom;
-            }
-          },
-        });
+        geometryLayer.setSource(geometrySource);
 
-        clusterLayer.setSource(clusterSource);
-        singleLayer.setSource(vectorSource);
+        if (showPin || cluster) {
+          const pinSource = new source.Vector({
+            features: pinFeatures,
+          });
+
+          if (cluster) {
+            const clusterSource = new Cluster({
+              distance: options.config?.clusterDistance ?? defaultOptions.clusterDistance,
+              minDistance: options.config?.clusterMinDistance ?? defaultOptions.clusterMinDistance,
+              source: pinSource,
+            });
+            addOnLayer.setSource(clusterSource);
+          } else {
+            addOnLayer.setSource(pinSource);
+          }
+        }
       },
     };
   },
@@ -452,6 +531,21 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
           min: 0,
           max: 50,
           step: 1,
+        },
+        showIf: (cfg) => cfg.config?.cluster === true,
+      })
+      .addSelect({
+        path: 'config.clusterValue',
+        name: 'Value to display',
+        description: 'Value to display in the cluster',
+        defaultValue: defaultOptions.clusterValue,
+        settings: {
+          options: [
+            { value: 'none', label: 'none' },
+            { value: 'size', label: 'size' },
+            { value: 'average', label: 'average' },
+            { value: 'sum', label: 'sum' },
+          ],
         },
         showIf: (cfg) => cfg.config?.cluster === true,
       });

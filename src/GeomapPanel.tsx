@@ -34,7 +34,6 @@ import { Portal, stylesFactory, VizTooltipContainer } from '@grafana/ui';
 import { GeomapOverlay, OverlayProps } from './GeomapOverlay';
 import { DebugOverlay } from './components/DebugOverlay';
 import { getGlobalStyles } from './globalStyles';
-//import { Global } from '@emotion/react';
 import { GeomapHoverFeature, GeomapHoverPayload } from './event';
 import { DataHoverView } from './components/DataHoverView';
 import { ExtendMapLayerOptions } from './extension';
@@ -375,6 +374,34 @@ export class GeomapPanel extends Component<Props, State> {
         })
       );
     }
+
+    const map = this.map;
+
+    var zoomCluster = function (pixel: number[]) {
+      var feature = map.forEachFeatureAtPixel(pixel, function (feature) {
+        return feature;
+      });
+
+      if (feature) {
+        var features = feature.get('features');
+        if (features && features.length > 1) {
+          var extent = createEmpty();
+          features.forEach(function (f: any) {
+            extend(extent, f.getGeometry().getExtent());
+          });
+          const view = map.getView();
+          view.fit(extent);
+          const currentZoom = view.getZoom();
+          if (currentZoom) {
+            map.getView().setZoom(currentZoom - 2);
+          }
+        }
+      }
+    };
+
+    this.map.on('click', function (evt: MapBrowserEvent<any>) {
+      zoomCluster(evt.pixel);
+    });
 
     this.mouseWheelZoom!.setActive(Boolean(options.mouseWheelZoom));
 
