@@ -119,6 +119,7 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
 
     const geometryLayer = new layer.Vector({
       title: options.name,
+      displayProperties: options.displayProperties,
     } as BaseLayerOptions);
 
     const styleCache = new Map<string, any>();

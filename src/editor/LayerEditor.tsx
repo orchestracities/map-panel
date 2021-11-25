@@ -162,6 +162,7 @@ export const LayerEditor: FC<LayerEditorProps> = ({ options, onChange, data, fil
               return options;
             },
           },
+          showIf: (opts) => typeof opts.query !== 'undefined',
           defaultValue: '',
         });
     }

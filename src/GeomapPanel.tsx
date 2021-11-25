@@ -216,17 +216,28 @@ export class GeomapPanel extends Component<Props, State> {
       lon: hover[0],
     };
     hoverPayload.data = undefined;
-    hoverPayload.columnIndex = undefined;
     hoverPayload.rowIndex = undefined;
-
+    hoverPayload.propsToShow = undefined;
     let ttip: GeomapHoverPayload = {} as GeomapHoverPayload;
     const features: GeomapHoverFeature[] = [];
     this.map.forEachFeatureAtPixel(pixel, (feature, layer, geo) => {
+      let propsToShow = [];
       if (!hoverPayload.data) {
         const props = feature.getProperties();
         const frame = props['frame'];
+        const thisLayer = layer.getProperties();
+
+        for (let thisLayerName of typeof thisLayer.displayProperties !== 'undefined'
+          ? thisLayer.displayProperties
+          : []) {
+          let found = frame.fields.filter((obj: { name: string }) => {
+            return obj.name === thisLayerName;
+          });
+          propsToShow.push(found[0]);
+        }
         if (frame) {
           hoverPayload.data = ttip.data = frame as DataFrame;
+          hoverPayload.propsToShow = propsToShow;
           hoverPayload.rowIndex = ttip.rowIndex = props['rowIndex'];
         }
       }
