@@ -224,21 +224,20 @@ export class GeomapPanel extends Component<Props, State> {
       let propsToShow = [];
       if (!hoverPayload.data) {
         let props = feature.getProperties();
-        if(props['features'] && isArray(props['features']) && props['features'].length===1){
+        if (props['features'] && isArray(props['features']) && props['features'].length === 1) {
           props = props['features'][0].getProperties();
         }
         let frame = props['frame'];
         const thisLayer = layer.getProperties();
-
-        for (let thisLayerName of typeof thisLayer.displayProperties !== 'undefined'
-          ? thisLayer.displayProperties
-          : []) {
-          let found = frame.fields.filter((obj: { name: string }) => {
-            return obj.name === thisLayerName;
-          });
-          propsToShow.push(found[0]);
-        }
         if (frame) {
+          for (let thisLayerName of typeof thisLayer.displayProperties !== 'undefined'
+            ? thisLayer.displayProperties
+            : []) {
+            let found = frame.fields.filter((obj: { name: string }) => {
+              return obj.name === thisLayerName;
+            });
+            propsToShow.push(found[0]);
+          }
           hoverPayload.data = ttip.data = frame as DataFrame;
           hoverPayload.propsToShow = propsToShow;
           hoverPayload.rowIndex = ttip.rowIndex = props['rowIndex'];
@@ -445,11 +444,15 @@ export class GeomapPanel extends Component<Props, State> {
           <GeomapOverlay bottomLeft={bottomLeft} topRight={topRight} />
         </div>
         <Portal>
-          {ttip && ttip.data && (
-            <VizTooltipContainer position={{ x: ttip.pageX, y: ttip.pageY }} offset={{ x: 10, y: 10 }}>
-              <DataHoverView {...ttip} />
-            </VizTooltipContainer>
-          )}
+          {ttip &&
+            ttip.data &&
+            (ttip.propsToShow.length > 0 ? (
+              <VizTooltipContainer position={{ x: ttip.pageX, y: ttip.pageY }} offset={{ x: 10, y: 10 }}>
+                <DataHoverView {...ttip} />
+              </VizTooltipContainer>
+            ) : (
+              ''
+            ))}
         </Portal>
       </>
     );

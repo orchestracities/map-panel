@@ -243,6 +243,7 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
 
     const addOnLayer = options.config?.cluster
       ? new layer.Vector({
+          displayProperties: options.displayProperties,
           style: function (feature: RenderFeature | Feature<Geometry>) {
             let size = feature.get('features').length;
             if (size > 1) {
@@ -253,9 +254,8 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
               return markerStyle(customStyle);
             }
           },
-          displayProperties: options.displayProperties,
         } as BaseLayerOptions)
-      : new layer.Vector({});
+      : new layer.Vector({ displayProperties: options.displayProperties } as BaseLayerOptions);
 
     const vectorLayer = new layer.Group({
       layers: [geometryLayer, addOnLayer],

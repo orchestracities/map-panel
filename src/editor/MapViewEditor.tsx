@@ -47,7 +47,6 @@ export const MapViewEditor: FC<StandardEditorProps<MapViewConfig, any, GeomapPan
     }
   }, [value, onChange]);
 
-
   const computeExtent: any = (layer: any, extent: number[]) => {
     if (layer instanceof VectorLayer) {
       let source = layer.getSource();
@@ -61,7 +60,7 @@ export const MapViewEditor: FC<StandardEditorProps<MapViewConfig, any, GeomapPan
         }
       }
     }
-  }
+  };
 
   const onSelectView = useCallback(
     (selection: SelectableValue<string>) => {
@@ -82,13 +81,13 @@ export const MapViewEditor: FC<StandardEditorProps<MapViewConfig, any, GeomapPan
           for (var layer of layers) {
             computeExtent(layer, extent);
             if (layer instanceof LayerGroup) {
-              const groupLayers = layer.getLayersArray()
+              const groupLayers = layer.getLayersArray();
               for (var l of groupLayers) {
                 computeExtent(l, extent);
               }
             }
           }
-          if(!isEqual(extent, createEmpty())){
+          if (!isEqual(extent, createEmpty())) {
             let view = map.getView();
             let coords = view.getCenter();
             coords = getCenter(extent);
