@@ -9,6 +9,7 @@ export interface Props {
   rowIndex?: number; // the hover row
   columnIndex?: number; // the hover column
   propsToShow?: any;
+  icon?: string;
   titleField?: any;
   timeField?: any;
 }
@@ -17,7 +18,7 @@ export class DataHoverView extends PureComponent<Props> {
   style = getStyles(config.theme2);
 
   render() {
-    const { data, rowIndex, columnIndex, propsToShow, timeField, titleField } = this.props;
+    const { data, rowIndex, columnIndex, propsToShow, timeField, titleField, icon } = this.props;
     if (!data || rowIndex == null) {
       return null;
     }
@@ -27,15 +28,14 @@ export class DataHoverView extends PureComponent<Props> {
           {titleField.map((f: Field<any, Vector<any>>, i: number | undefined) => (
             <div key={`${i}/${rowIndex}`}>
               <div className={this.style.singleDisplay}>
-                <h3>{fmt(f, rowIndex)}</h3>
+                <h4>{fmt(f, rowIndex)}</h4>
               </div>
             </div>
           ))}
           {propsToShow.map((f: Field<any, Vector<any>>, i: number | undefined) => (
-            <div key={`${i}/${rowIndex}`} className={i === columnIndex ? this.style.highlight : ''}>
-              <p>
-                <span>{getFieldDisplayName(f, data)}:</span> <span>{fmt(f, rowIndex)}</span>
-              </p>
+            <div key={`${i}/${rowIndex}`} className={this.style.row}>
+              <span>{getFieldDisplayName(f, data)}:</span>
+              <span>{fmt(f, rowIndex)}</span>
             </div>
           ))}
         </div>
@@ -47,25 +47,21 @@ export class DataHoverView extends PureComponent<Props> {
             <div key={`${i}/${rowIndex}`} className={i === columnIndex ? this.style.highlight : ''}>
               <div className={this.style.singleDisplay}>
                 {' '}
-                <h3>{getFieldDisplayName(f, data)}</h3>
+                <h4>{getFieldDisplayName(f, data)}</h4>
               </div>
               <div className={this.style.singleDisplay}>
-                <h2>{fmt(f, rowIndex)}</h2>
+                <h1><i className={'fas '+icon}></i> &nbsp; {fmt(f, rowIndex)}</h1>
               </div>
             </div>
           ))}
           {timeField.map((f: Field<any, Vector<any>>, i: number | undefined) => (
-            <div key={`${i}/${rowIndex}`}>
-              <div className={this.style.rightDisplay}>
+            <div key={`${i}/${rowIndex}`} className={this.style.rightDisplay}>
                 <h6>{fmt(f, rowIndex)}</h6>
-              </div>
             </div>
           ))}
           {titleField.map((f: Field<any, Vector<any>>, i: number | undefined) => (
-            <div key={`${i}/${rowIndex}`}>
-              <div className={this.style.rightDisplay}>
+            <div key={`${i}/${rowIndex}`} className={this.style.rightDisplay}>
                 <h6>{fmt(f, rowIndex)}</h6>
-              </div>
             </div>
           ))}
         </div>
@@ -89,19 +85,28 @@ const getStyles = stylesFactory((theme: GrafanaTheme2) => ({
       font-weight: ${theme.typography.fontWeightMedium};
       padding: ${theme.spacing(0.25, 2)};
     }
-    p {
-      display: flex;
-      justify-content: space-between;
-    }
+  `,
+  row: css`
+    padding: 8px;
+    display: flex;
+    justify-content: space-between;
   `,
   highlight: css`
     background: ${theme.colors.action.hover};
   `,
   singleDisplay: css`
     text-align: center;
+    h1 {
+      font-size: 4rem;
+      margin: 0px
+    }
   `,
   rightDisplay: css`
     text-align: right;
+    h6 {
+      font-height: 1;
+      margin: 0px
+    }
   `,
   leftDisplay: css`
     text-align: left;

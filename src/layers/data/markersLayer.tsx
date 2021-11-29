@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import { PanelData, GrafanaTheme2 } from '@grafana/data';
+import { PanelData, GrafanaTheme2, formattedValueToString } from '@grafana/data';
 import GeoMap from 'ol/Map';
 import Feature from 'ol/Feature';
 import { Geometry, Point } from 'ol/geom';
@@ -121,6 +121,7 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
     const geometryLayer = new layer.Vector({
       title: options.name,
       displayProperties: options.displayProperties,
+      icon: options.config?.selectIcon,
       titleField: options.titleField,
       timeField: options.timeField,
     } as BaseLayerOptions);
@@ -187,12 +188,31 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
         case 'size':
           return String(features.length);
         case 'sum':
-          return String(computeSum(features));
+          return String(formatValue(features, computeSum(features)));
         case 'average':
-          return String((computeSum(features) / features.length).toFixed(2));
+          return String(formatValue(features, (computeSum(features) / features.length).toFixed(2)));
         default:
           return '';
       }
+    }
+
+    function formatValue(features: Array<Feature<Geometry>>, value: any){
+      const configSize = config.size;
+      let output = value;
+      features.forEach(function (f: Feature<Geometry>) {
+        if (configSize.field) {
+          const properties = f.getProperties();
+          const fields = properties.frame.fields;
+          if (Array.isArray(fields)) {
+            fields.forEach(function (field) {
+              if (field.name === configSize.field && field.display) {
+                output = formattedValueToString(field.display(value));
+              }
+            });
+          }
+        }
+      });
+      return output;
     }
 
     function markerStyle(customStyle: any) {
@@ -247,6 +267,7 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
     const addOnLayer = options.config?.cluster
       ? new layer.Vector({
           displayProperties: options.displayProperties,
+          icon: options.config?.selectIcon,
           titleField: options.titleField,
           timeField: options.timeField,
           style: function (feature: RenderFeature | Feature<Geometry>) {
@@ -262,6 +283,7 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
         } as BaseLayerOptions)
       : new layer.Vector({
           displayProperties: options.displayProperties,
+          icon: options.config?.selectIcon,
           titleField: options.titleField,
           timeField: options.timeField,
         } as BaseLayerOptions);

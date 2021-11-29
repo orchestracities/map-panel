@@ -15,6 +15,7 @@ export interface GeomapHoverPayload extends DataHoverPayload {
   propsToShow?: any;
   titleField?: string;
   timeField?: string;
+  icon?: string;
   pageX: number;
   pageY: number;
 }
