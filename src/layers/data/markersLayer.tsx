@@ -120,6 +120,8 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
     const geometryLayer = new layer.Vector({
       title: options.name,
       displayProperties: options.displayProperties,
+      titleField: options.titleField,
+      timeField: options.timeField,
     } as BaseLayerOptions);
 
     const styleCache = new Map<string, any>();
@@ -244,6 +246,8 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
     const addOnLayer = options.config?.cluster
       ? new layer.Vector({
           displayProperties: options.displayProperties,
+          titleField: options.titleField,
+          timeField: options.timeField,
           style: function (feature: RenderFeature | Feature<Geometry>) {
             let size = feature.get('features').length;
             if (size > 1) {
@@ -255,7 +259,11 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
             }
           },
         } as BaseLayerOptions)
-      : new layer.Vector({ displayProperties: options.displayProperties } as BaseLayerOptions);
+      : new layer.Vector({
+          displayProperties: options.displayProperties,
+          titleField: options.titleField,
+          timeField: options.timeField,
+        } as BaseLayerOptions);
 
     const vectorLayer = new layer.Group({
       layers: [geometryLayer, addOnLayer],

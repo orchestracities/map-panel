@@ -238,8 +238,15 @@ export class GeomapPanel extends Component<Props, State> {
             });
             propsToShow.push(found[0]);
           }
+
           hoverPayload.data = ttip.data = frame as DataFrame;
-          hoverPayload.propsToShow = propsToShow;
+          hoverPayload.propsToShow = propsToShow.length > 0 ? propsToShow : frame.fields;
+          hoverPayload.titleField = frame.fields.filter((obj: { name: any }) => {
+            return obj.name === thisLayer.titleField;
+          });
+          hoverPayload.timeField = frame.fields.filter((obj: { name: any }) => {
+            return obj.name === thisLayer.timeField;
+          });
           hoverPayload.rowIndex = ttip.rowIndex = props['rowIndex'];
         }
       }
@@ -444,15 +451,11 @@ export class GeomapPanel extends Component<Props, State> {
           <GeomapOverlay bottomLeft={bottomLeft} topRight={topRight} />
         </div>
         <Portal>
-          {ttip &&
-            ttip.data &&
-            (ttip.propsToShow.length > 0 ? (
-              <VizTooltipContainer position={{ x: ttip.pageX, y: ttip.pageY }} offset={{ x: 10, y: 10 }}>
-                <DataHoverView {...ttip} />
-              </VizTooltipContainer>
-            ) : (
-              ''
-            ))}
+          {ttip && ttip.data && (
+            <VizTooltipContainer position={{ x: ttip.pageX, y: ttip.pageY }} offset={{ x: 10, y: 10 }}>
+              <DataHoverView {...ttip} />
+            </VizTooltipContainer>
+          )}
         </Portal>
       </>
     );
