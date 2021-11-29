@@ -11,7 +11,7 @@ import { createEmpty, extend } from 'ol/extent';
 import VectorLayer from 'ol/layer/Vector';
 import { Vector } from 'ol/source';
 import LayerSwitcher from 'ol-layerswitcher';
-import { isEqual } from 'lodash';
+import { isArray, isEqual } from 'lodash';
 import './GeomapPanel.css';
 
 import {
@@ -223,8 +223,11 @@ export class GeomapPanel extends Component<Props, State> {
     this.map.forEachFeatureAtPixel(pixel, (feature, layer, geo) => {
       let propsToShow = [];
       if (!hoverPayload.data) {
-        const props = feature.getProperties();
-        const frame = props['frame'];
+        let props = feature.getProperties();
+        if(props['features'] && isArray(props['features']) && props['features'].length===1){
+          props = props['features'][0].getProperties();
+        }
+        let frame = props['frame'];
         const thisLayer = layer.getProperties();
 
         for (let thisLayerName of typeof thisLayer.displayProperties !== 'undefined'

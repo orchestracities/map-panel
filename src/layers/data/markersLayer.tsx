@@ -253,7 +253,8 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
               return markerStyle(customStyle);
             }
           },
-        })
+          displayProperties: options.displayProperties,
+        } as BaseLayerOptions)
       : new layer.Vector({});
 
     const vectorLayer = new layer.Group({
