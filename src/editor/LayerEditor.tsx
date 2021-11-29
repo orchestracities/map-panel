@@ -136,6 +136,22 @@ export const LayerEditor: FC<LayerEditorProps> = ({ options, onChange, data, fil
           editor: GazetteerPathEditor,
           showIf: (opts) => opts.location?.mode === ExtendFrameGeometrySourceMode.Lookup,
         })
+        .addFieldNamePicker({
+          path: 'titleField',
+          name: 'Pop up title',
+          settings: {
+            filter: (f: Field) => f.type === FieldType.string,
+            noFieldsMessage: 'No string fields found',
+          },
+        })
+        .addFieldNamePicker({
+          path: 'timeField',
+          name: 'Pop up Time',
+          settings: {
+            filter: (f: Field) => f.type === FieldType.time,
+            noFieldsMessage: 'No time fields found',
+          },
+        })
         .addMultiSelect({
           path: 'displayProperties',
           name: 'Properties',

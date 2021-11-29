@@ -43,6 +43,8 @@ export interface ExtendMapLayerOptions<TConfig = any> {
   opacity?: number;
   query?: string;
   displayProperties?: string[];
+  titleField?: string;
+  timeField?: string;
   apiKey?: string;
 }
 
