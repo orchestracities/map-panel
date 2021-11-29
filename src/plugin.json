@@ -1,18 +1,36 @@
 {
   "type": "panel",
-  "name": "OC Map",
-  "id": "oc-map-panel",
+  "name": "Orchestra Cities Map",
+  "id": "orchestracities-map-panel",
   "state": "beta",
 
   "info": {
-    "description": "Geomap panel",
+    "description": "Orchestra Cities Map",
     "author": {
-      "name": "Grafana Labs",
-      "url": "https://grafana.com"
+      "name": "Orchestra Cities",
+      "url": "https://github.com/orchestracities"
     },
+    "keywords": ["map", "geojson", "icons"],
     "logos": {
       "small": "img/icn-geomap.svg",
       "large": "img/icn-geomap.svg"
-    }
+    },
+    "links": [
+      {
+        "name": "Website",
+        "url": "https://github.com/orchestracities/grafana-map-plugin/"
+      },
+      {
+        "name": "License",
+        "url": "https://github.com/orchestracities/grafana-map-plugin/blob/master/LICENSE"
+      }
+    ],
+    "screenshots": [{"name": "example", "path": "example.png"}],
+    "version": "%VERSION%",
+    "updated": "%TODAY%"
+  },
+  "dependencies": {
+    "grafanaDependency": ">=7.0.0",
+    "plugins": []
   }
 }

@@ -7,6 +7,8 @@ panel with several functionalities:
 * Support for pop up visualizations of data from a specific point
 * Multiple layers for the different queries
 
+![Example](/example.png)
+
 ## What is Grafana Panel Plugin?
 
 Panels are the building blocks of Grafana. They allow you to visualize data in different ways. While Grafana has several types of panels already built-in, you can also build your own panel, to add support for other visualizations.
