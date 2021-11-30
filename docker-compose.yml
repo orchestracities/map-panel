@@ -1,14 +1,13 @@
-
 version: '2'
 services:
   grafana:
-    image: grafana/grafana:7.3.7
+    image: grafana/grafana:8.2.3
     ports:
       - '3000:3000'
     volumes:
       - grafana-storage:/var/lib/grafana
-      - .:/var/lib/grafana/plugins/map-panel/
-      - ./crate-datasource:/var/lib/grafana/plugins/crate-datasource/
+      - ./angular-version:/var/lib/grafana/plugins/map-panel/
+      - .:/var/lib/grafana/plugins/orchestracities-map-panel/
       - ./etc/grafana/grafana.ini:/etc/grafana/grafana.ini
     environment:
       - GF_SECURITY_ADMIN_USER=${GRAFANA_USERNAME}

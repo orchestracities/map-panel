@@ -1,28 +1,36 @@
 {
   "type": "panel",
-  "name": "Map Panel",
-  "id": "grafana-traffic-env-panel",
+  "name": "Orchestra Cities Map",
+  "id": "orchestracities-map-panel",
+  "state": "beta",
 
   "info": {
-    "description": "Grafana Map panel for analysing timeseries geolocated data (eg.traffic and environment data)",
+    "description": "Orchestra Cities Map",
     "author": {
-      "name": "Ubiwhere",
-      "url": ""
+      "name": "Orchestra Cities",
+      "url": "https://github.com/orchestracities"
     },
-    "keywords": ["map", "panel", "geoJSON"],
+    "keywords": ["map", "geojson", "icons"],
     "logos": {
-      "small": "img/icon.svg",
-      "large": "img/icon.svg"
+      "small": "img/icn-geomap.svg",
+      "large": "img/icn-geomap.svg"
     },
     "links": [
-      {"name": "Project site", "url": ""},
-      {"name": "MIT License", "url": ""}
+      {
+        "name": "Website",
+        "url": "https://github.com/orchestracities/grafana-map-plugin/"
+      },
+      {
+        "name": "License",
+        "url": "https://github.com/orchestracities/grafana-map-plugin/blob/master/LICENSE"
+      }
     ],
-    "version": "1.3.4"
+    "screenshots": [{"name": "example", "path": "example.png"}],
+    "version": "%VERSION%",
+    "updated": "%TODAY%"
   },
-
   "dependencies": {
-    "grafanaVersion": "5.x.x",
-    "plugins": [ ]
+    "grafanaDependency": ">=7.0.0",
+    "plugins": []
   }
 }

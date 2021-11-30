@@ -1,0 +1,40 @@
+.ol-control.layer-switcher {
+  top: 0.5em;
+  right: 0.5em;
+  text-align: right;
+}
+.ol-control.layer-switcher.shown.layer-switcher-activation-mode-click {
+  padding-right: 0.5em;
+}
+.ol-control.layer-switcher.shown.layer-switcher-activation-mode-click > button {
+  right: 0;
+  border-left: 0;
+}
+.ol-control.layer-switcher.shown.layer-switcher-activation-mode-click > .panel {
+  display: block;
+}
+.ol-control.layer-switcher.layer-switcher-activation-mode-click > .panel {
+  display: none;
+}
+.ol-control.layer-switcher button {
+  right: 0;
+  border-left: 0;
+}
+
+.ol-control.layer-switcher li.layer {
+  list-style: none;
+}
+
+
+.data-layer-add { 
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 10px;
+}
+
+.data-layer-remove { 
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+  margin-top: 10px;
+}
