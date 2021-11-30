@@ -238,7 +238,7 @@ export class GeomapPanel extends Component<Props, State> {
             });
             propsToShow.push(found[0]);
           }
-          hoverPayload.icon = thisLayer.icon? thisLayer.icon: '';
+          hoverPayload.icon = thisLayer.icon ? thisLayer.icon : '';
           hoverPayload.data = ttip.data = frame as DataFrame;
           hoverPayload.propsToShow = propsToShow.length > 0 ? propsToShow : frame.fields;
           hoverPayload.titleField = frame.fields.filter((obj: { name: any }) => {

@@ -196,7 +196,7 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
       }
     }
 
-    function formatValue(features: Array<Feature<Geometry>>, value: any){
+    function formatValue(features: Array<Feature<Geometry>>, value: any) {
       const configSize = config.size;
       let output = value;
       features.forEach(function (f: Feature<Geometry>) {

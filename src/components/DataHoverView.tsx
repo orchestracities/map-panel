@@ -50,18 +50,20 @@ export class DataHoverView extends PureComponent<Props> {
                 <h4>{getFieldDisplayName(f, data)}</h4>
               </div>
               <div className={this.style.singleDisplay}>
-                <h1><i className={'fas '+icon}></i> &nbsp; {fmt(f, rowIndex)}</h1>
+                <h1>
+                  <i className={'fas ' + icon}></i> &nbsp; {fmt(f, rowIndex)}
+                </h1>
               </div>
             </div>
           ))}
           {timeField.map((f: Field<any, Vector<any>>, i: number | undefined) => (
             <div key={`${i}/${rowIndex}`} className={this.style.rightDisplay}>
-                <h6>{fmt(f, rowIndex)}</h6>
+              <h6>{fmt(f, rowIndex)}</h6>
             </div>
           ))}
           {titleField.map((f: Field<any, Vector<any>>, i: number | undefined) => (
             <div key={`${i}/${rowIndex}`} className={this.style.rightDisplay}>
-                <h6>{fmt(f, rowIndex)}</h6>
+              <h6>{fmt(f, rowIndex)}</h6>
             </div>
           ))}
         </div>
@@ -98,14 +100,14 @@ const getStyles = stylesFactory((theme: GrafanaTheme2) => ({
     text-align: center;
     h1 {
       font-size: 4rem;
-      margin: 0px
+      margin: 0px;
     }
   `,
   rightDisplay: css`
     text-align: right;
     h6 {
       font-height: 1;
-      margin: 0px
+      margin: 0px;
     }
   `,
   leftDisplay: css`
