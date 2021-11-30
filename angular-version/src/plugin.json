@@ -1,0 +1,28 @@
+{
+  "type": "panel",
+  "name": "Map Panel",
+  "id": "grafana-traffic-env-panel",
+
+  "info": {
+    "description": "Grafana Map panel for analysing timeseries geolocated data (eg.traffic and environment data)",
+    "author": {
+      "name": "Ubiwhere",
+      "url": ""
+    },
+    "keywords": ["map", "panel", "geoJSON"],
+    "logos": {
+      "small": "img/icon.svg",
+      "large": "img/icon.svg"
+    },
+    "links": [
+      {"name": "Project site", "url": ""},
+      {"name": "MIT License", "url": ""}
+    ],
+    "version": "1.3.4"
+  },
+
+  "dependencies": {
+    "grafanaVersion": "5.x.x",
+    "plugins": [ ]
+  }
+}

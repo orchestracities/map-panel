@@ -1,0 +1,259 @@
+<div class="section gf-form-group">
+  <h5 class="section-heading">Map Layout</h5>
+
+  <div class="gf-form">
+    <label class="gf-form-label width-10">Center</label>
+    <div class="gf-form-select-wrapper max-width-12">
+      <select class="input-small gf-form-input" 
+        ng-model="ctrl.panel.mapCenter" 
+        ng-options="mapLocation for mapLocation in ctrl.mapLocationsLabels" 
+        ng-change="ctrl.setNewMapCenter()"
+        >
+      </select>
+    </div>
+  </div>
+<!--
+  <div ng-show="ctrl.panel.mapCenter==='Location Variable'">
+    <div class="gf-form">
+      <span class="width-2 empty-space-margin">&nbsp;</span>
+      <label class="gf-form-label width-8">Variable Name</label>
+      <div class="gf-form-select-wrapper max-width-12">
+        <select class="gf-form-input"
+          ng-model="ctrl.panel.cityEnvVariable"
+          ng-options="environmentVar for environmentVar in ctrl.environmentVars"
+          ng-change="ctrl.render()"
+          >
+        </select>
+      </div>
+    </div>
+  </div>
+-->
+  <div ng-show="ctrl.panel.mapCenter==='Custom'">
+    <div class="gf-form">
+      <span class="width-2 empty-space-margin"></span>
+      <label class="gf-form-label width-8">Latitude</label>
+      <input type="text"
+        class="input-small gf-form-input width-12"
+        ng-model="ctrl.panel.mapCenterLatitude"
+        ng-change="ctrl.setNewMapCenter()"
+        ng-model-onblur />
+    </div>
+    <div class="gf-form">
+      <span class="width-2 empty-space-margin"></span>
+      <label class="gf-form-label width-8">Longitude</label>
+      <input type="text"
+        class="input-small gf-form-input width-12"
+        ng-model="ctrl.panel.mapCenterLongitude"
+        ng-change="ctrl.setNewMapCenter()"
+        ng-model-onblur />
+    </div>
+  </div>
+
+  <gf-form-switch 
+    class="gf-form"
+    label="Render Buildings" label-class="width-10"
+    checked="ctrl.panel.buildings"
+    on-change="this.render();"
+    >
+  </gf-form-switch>
+
+  <div class="gf-form">
+    <label class="gf-form-label width-10">Initial Zoom</label>
+    <input type="text" 
+      class="input-small gf-form-input width-12" 
+      placeholder="1"
+      ng-model="ctrl.panel.initialZoom" 
+      ng-change="ctrl.setZoom()"
+      ng-model-onblur />
+  </div>
+
+  <div class="gf-form">
+    <label class="gf-form-label width-10">GeoJSON Zoom Level</label>
+    <input type="text" 
+      class="input-small gf-form-input width-12" 
+      placeholder="1"
+      ng-model="ctrl.panel.minZoomShapes" 
+      ng-change="ctrl.render()"
+      ng-model-onblur />
+  </div>
+
+  <div class="gf-form">
+    <label class="gf-form-label width-10">Clustering Zoom Level</label>
+    <input type="text" 
+      class="input-small gf-form-input width-12" 
+      placeholder="1"
+      ng-model="ctrl.panel.disableClusterLevel" 
+      ng-change="ctrl.render()"
+      ng-model-onblur />
+  </div>
+
+  <gf-form-switch 
+    class="gf-form"
+    label="Sticky Labels" label-class="width-10"
+    checked="ctrl.panel.stickyLabels" 
+    on-change="ctrl.toggleStickyLabels()"
+    >
+  </gf-form-switch>
+</div>
+
+<div class="section gf-form-group">
+  <h5 class="section-heading" title="Map between the fieldname from the query and the alias and units associated. (eg. fieldname is 'p', alias is 'pressure', units are 'hPa'">
+    Map Metrics Details
+  </h5>
+
+  <div class="gf-form">
+    <h5 class="width-10 section-heading">Parameter</h5>
+    <h5 class="width-10 section-heading">Alias</h5>
+    <h5 class="width-10 section-heading">Units</h5>
+  </div>
+
+  <div ng-repeat="metric in ctrl.panel.metrics">
+    <div class="gf-form">
+      <input type="text"
+        class="gf-form-input width-10"
+        ng-model="metric[0]"
+        ng-blur="ctrl.refresh()"
+        ng-model-onblur required
+        >
+      </input>
+
+      <input type="text"
+        class="gf-form-input width-10"
+        ng-init="metric[1] = (!metric[1] ? ctrl.defaultMetrics[metric[0]].name : metric[1])"
+        ng-model="metric[1]"
+        ng-blur="ctrl.refresh()"
+        ng-model-onblur required
+        >
+      </input>
+
+      <input type="text" 
+        class="gf-form-input width-10"
+        ng-init="metric[2] = (!metric[2]? ctrl.defaultMetrics[metric[0]].unit : metric[2])"
+        ng-model="metric[2]"
+        ng-blur="ctrl.refresh()"
+        ng-model-onblur 
+        >
+      </input>
+
+      <label class="gf-form-label">
+        <a class="pointer" ng-click="ctrl.handleRemoveMetric($index)">
+          <i class="fa fa-minus"></i>
+        </a>
+      </label>
+    </div>
+  </div>
+  <div class="gf-form">
+    <label class="gf-form-label">
+      <a class="pointer" ng-click="ctrl.handleClickAddMetric()">
+        <i class="fa fa-plus"></i>
+      </a>
+    </label>
+  </div>    
+</div>
+
+<div class="section gf-form-group">
+  <h5 class="section-heading">Map Layers</h5>
+  <div ng-repeat="layerName in ctrl.layerNames" class="m-b-1">
+    <h5 class="section-heading">{{layerName}}</h5>
+    <div class="gf-form">
+      <div class="row">
+        <span class="gf-form-label width-10">Icon
+          <info-popover mode="right-normal">
+            <div ng-repeat="iconType in ctrl.iconTypes">
+              <i class="fa fa-{{iconType}}"></i> - {{iconType}}
+            </div>
+          </info-popover>
+        </span>
+
+        <select class="gf-form-input width-10"
+          ng-model="ctrl.panel.layersIcons[layerName]"
+          ng-options="iconType for iconType in ctrl.iconTypes"
+          ng-change="ctrl.render()" title="Choose the marker icon for this layer"
+          >
+          <option value=""></option>
+        </select>
+      </div>
+<!--
+      <div class="row">
+        <span class="gf-form-label width-10">Variable
+          <info-popover mode="right-normal">
+            This is the variable that will be set when you click on a map object.
+          </info-popover>
+        </span>
+        <select class="gf-form-input width-10"
+          ng-model="ctrl.panel.layersVariables[layerName]"
+          ng-options="variable for variable in ctrl.environmentVars"
+          ng-change="ctrl.render()" title="Choose the variable to set on click"
+          >
+          <option value=""></option>
+        </select>
+      </div>
+-->
+      <div class="row">
+        <span class="gf-form-label width-10">Cluster Type</span>
+        <select class="gf-form-input width-10"
+          ng-model="ctrl.panel.layersClusterType[layerName]"
+          ng-options="clusterType for clusterType in ctrl.clusterTypes"
+          ng-change="ctrl.render()" title="Select cluster numberig behaviour: count, total, average"
+          >
+          <option value=""></option>
+        </select>
+      </div>
+      <div class="row">
+        <span class="gf-form-label width-10">Color Type</span>
+        <select class="gf-form-input width-10"
+          ng-model="ctrl.panel.layersColorType[layerName]"
+          ng-options="colorType for colorType in ctrl.colorTypes"
+          ng-change="ctrl.render()" title="Select fix color or threshold based colouring"
+          >
+          <option value=""></option>
+        </select>
+      </div>
+      <div class="row">
+        <label class="gf-form-label width-10">Column for value</label>
+        <input type="text" 
+          class="input-small gf-form-input width-10" 
+          ng-model="ctrl.panel.layersColorsBinding[layerName]"
+          ng-change="ctrl.render()" ng-model-onblur />
+      </div>
+      <div class="row" ng-if="ctrl.panel.layersColorType[layerName]=='fix'">
+        <label class="gf-form-label width-10">Marker Color</label>
+        <select class="gf-form-input width-10"
+          ng-model="ctrl.panel.layersColors[layerName]"
+          ng-options="color for color in ctrl.markerColors"
+          ng-change="ctrl.render()" title="Select fix color or threshold based colouring"
+          >
+          <option value=""></option>
+        </select>
+      </div>
+      <div class="row" ng-if="ctrl.panel.layersColorType[layerName]=='threshold'">
+        <label class="gf-form-label width-10">Color Thresholds</label>
+        <input type="text" 
+          class="input-small gf-form-input width-10" 
+          placeholder="50, 100"
+          ng-model="ctrl.panel.layersColorsThresholds[layerName]" 
+          ng-change="ctrl.render()" ng-model-onblur />
+      </div>
+      <div class="row" ng-if="ctrl.panel.layersColorType[layerName]=='threshold'">
+        <label class="gf-form-label width-9">Low Color</label>
+        <spectrum-picker class="gf-form-input width-9" ng-model="ctrl.panel.layersColorsLow[layerName]" ng-change="ctrl.render()" ></spectrum-picker>
+      </div>
+      <div class="row" ng-if="ctrl.panel.layersColorType[layerName]=='threshold'">
+        <label class="gf-form-label width-9">Medium Color</label>
+        <spectrum-picker class="gf-form-input width-9" ng-model="ctrl.panel.layersColorsMedium[layerName]" ng-change="ctrl.render()" ></spectrum-picker>
+      </div>
+      <div class="row" ng-if="ctrl.panel.layersColorType[layerName]=='threshold'">
+        <label class="gf-form-label width-9">High Color</label>
+        <spectrum-picker class="gf-form-input width-9" ng-model="ctrl.panel.layersColorsHigh[layerName]" ng-change="ctrl.render()" ></spectrum-picker>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div>
+  <h5>Help</h5>
+  <p>- Adding this panel for the first time to your dashboard will pre-fill Metrics fields.<br/>
+  Replace empty fieldname with the field you want to use as the default for map render</p>
+  <p>- You have to select a default datasource or select one from the availables in metrics tab.</p>
+  <p>- You can replace your query fieldnames by something more intuitive. (Section <b>Field Mappings/Units</b>)</p>
+</div>
