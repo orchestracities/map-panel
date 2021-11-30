@@ -7,7 +7,7 @@ panel with several functionalities:
 * Support for pop up visualizations of data from a specific point
 * Multiple layers for the different queries
 
-![Example](/example.png)
+![Example](example.png)
 
 ## Usage with PostGis
 
