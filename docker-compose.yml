@@ -16,12 +16,21 @@ services:
     image: crate:4.1.4
     ports:
       - "4200:4200"
-      - "5432:5432"
     volumes:
       - crate-storage:/data
     environment:
       CRATE_HEAP_SIZE: 1g
     command: crate -Cnode.name=crate
+  timescale:
+    image: timescale/timescaledb-postgis:${TIMESCALE_VERSION:-1.7.1-pg12}
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=*
+    volumes:
+      - timescale-storage:/data
+      - ./db-init:/db-init
 volumes:
   grafana-storage:
   crate-storage:
+  timescale-storage:
