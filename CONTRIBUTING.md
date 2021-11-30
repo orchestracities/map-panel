@@ -86,6 +86,16 @@ docker run -it --rm -v "$PWD":/usr/src/app -w /usr/src/app node:14 yarn build
 docker-compose restart grafana
 ```
 
+## Releasing a new version
+
+1. Update the CHANGELOG.md document to include changes of the new release
+1. Tag the master with the new version:
+    ```sh
+    git tag v1.4.0
+    git push origin v1.4.0
+    ```
+1. Complete the release information in github.
+
 ## Notes
 
 Default start page url: http://localhost:3000
