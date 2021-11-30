@@ -8,11 +8,11 @@
         "slug": "map-dashboard-timescaledb",
         "url": "/d/LIj5tq57z/map-dashboard-timescaledb",
         "expires": "0001-01-01T00:00:00Z",
-        "created": "2021-11-19T08:31:21Z",
-        "updated": "2021-11-19T09:45:52Z",
+        "created": "2021-11-30T17:34:20Z",
+        "updated": "2021-11-30T17:46:59Z",
         "updatedBy": "admin",
         "createdBy": "admin",
-        "version": 13,
+        "version": 2,
         "hasAcl": false,
         "isFolder": false,
         "folderId": 0,
@@ -299,25 +299,36 @@
                                 "cluster": false,
                                 "clusterDistance": 20,
                                 "clusterMinDistance": 0,
+                                "clusterValue": "size",
                                 "color": {
                                     "fixed": "dark-green"
                                 },
+                                "enableGradient": true,
+                                "enableShadow": true,
                                 "fillOpacity": 0.4,
+                                "iconSize": 20,
                                 "pinShape": "marker",
+                                "selectIcon": "fa-tree",
                                 "shape": "circle",
                                 "showLegend": true,
-                                "showPin": false,
+                                "showPin": true,
                                 "size": {
-                                    "fixed": 5,
+                                    "fixed": 1,
                                     "max": 15,
                                     "min": 2
                                 }
                             },
+                            "displayProperties": [
+                                "pm10"
+                            ],
                             "location": {
-                                "mode": "auto"
+                                "geojson": "geojson",
+                                "mode": "geojson"
                             },
                             "name": "test",
                             "query": "A",
+                            "timeField": "time",
+                            "titleField": "metric",
                             "type": "markers"
                         }
                     ],
@@ -426,7 +437,7 @@
                     }
                 ],
                 "title": "Original",
-                "type": "oc-map-panel"
+                "type": "orchestracities-map-panel"
             }
         ],
         "refresh": "",
@@ -468,6 +479,6 @@
         "timezone": "",
         "title": "Map Dashboard - TimescaleDB",
         "uid": "LIj5tq57z",
-        "version": 13
+        "version": 2
     }
 }

@@ -1,20 +1,20 @@
 {
-    "id": 2,
-    "uid": "OkpmPupnz",
+    "id": 1,
+    "uid": "5higPXt7z",
     "orgId": 1,
-    "name": "PostgreSQL",
+    "name": "cratedb",
     "type": "postgres",
     "typeLogoUrl": "",
     "access": "proxy",
-    "url": "timescale:5432",
-    "password": "*",
-    "user": "postgres",
-    "database": "ecom",
+    "url": "crate:5432",
+    "password": "",
+    "user": "crate",
+    "database": "doc",
     "basicAuth": false,
     "basicAuthUser": "",
     "basicAuthPassword": "",
     "withCredentials": false,
-    "isDefault": false,
+    "isDefault": true,
     "jsonData": {
         "postgresVersion": 1100,
         "sslmode": "disable",
@@ -26,6 +26,6 @@
     "secureJsonFields": {
         "password": true
     },
-    "version": 6,
+    "version": 3,
     "readOnly": false
 }
