@@ -1,0 +1,79 @@
+/*Leaflet Specific*/
+.map-container .map-darken img.leaflet-tile {
+  -webkit-filter: brightness(1.6) grayscale(1) contrast(1);
+  filter: brightness(1.6) grayscale(1) contrast(1);
+}
+
+.map-container .leaflet-container .leaflet-control-attribution,
+.map-container .leaflet-control-scale-line,
+/*.map-container .leaflet-div-icon,*/
+.map-container .leaflet-control-layers-expanded {
+  background-color: #333;
+}
+
+.map-container .worldmap-popup .leaflet-popup-content-wrapper, 
+.map-container .worldmap-popup .leaflet-popup-tip,
+.map-container .leaflet-control-layers,
+.map-container .leaflet-control-zoom a {
+  background-color: #333;
+  color: white;
+}
+
+.leaflet-touch .leaflet-control-layers, 
+.leaflet-touch .leaflet-bar {
+  border: 1px solid black !important;
+}
+
+/*map popups specific*/
+.map-container table tr, 
+.map-container .info-container {
+  color: white;
+}
+
+.map-container table.stripes tbody > tr:nth-child(odd) {
+  background-color: #181819;
+}
+.map-container table.stripes tbody > tr:nth-child(even) {
+  background-color: #212124;
+}
+
+.map-container .info-container {
+  border: grey solid 1px;
+}
+
+.map-container thead > tr, 
+.map-container .info-container {
+  background-color: #212124;
+}
+
+.map-container .info-container .header {
+}
+.map-container .info-container .body {
+}
+
+
+/*highcharts customization*/
+.chart-container .highcharts-button-box {
+  color: white;
+  fill: #333;
+  stroke: #181819;
+}
+.chart-container .highcharts-reset-zoom > text {
+  /*color: white;*/
+  fill: white !important;
+/*  stroke: white;*/
+}
+
+.chart-container .highcharts-menu {
+  box-shadow: none !important;
+  background-color: #181819 !important;
+}
+
+.chart-container .highcharts-menu .highcharts-menu-item {
+  color: white !important;
+}
+
+.chart-container .parameters-dropdown {
+  /*border: 1px solid #171819;*/
+  background-color: #181819;
+}
