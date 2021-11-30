@@ -25,6 +25,9 @@ artifacts/
 work/
 ci/
 e2e-results/
+orchestracities-map-panel-1.4.0.zip
+orchestracities-map-panel-1.4.0
+plugin-validator
 
 # Editors
 .idea
