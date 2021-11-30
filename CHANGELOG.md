@@ -1,5 +1,8 @@
 # Changelog
 
+## v1.4.0
+- Migrate to react for compatibility with Grafana 7+
+
 ## v1.3.1
 - Map centered at location updated when changing coordinates.
 
