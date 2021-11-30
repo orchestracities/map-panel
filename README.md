@@ -7,7 +7,7 @@ panel with several functionalities:
 * Support for pop up visualizations of data from a specific point
 * Multiple layers for the different queries
 
-![Example](example.png)
+![Example](https://github.com/orchestracities/grafana-map-plugin/raw/master/example.png)
 
 ## Usage with PostGis
 
@@ -35,58 +35,7 @@ For more information about panels, refer to the documentation on [Panels](https:
 
 ## Set up dev environment
 
-1. Launch services
-
-    ```bash
-    docker-compose up -d
-    ```
-
-2. Import database
-
-    ```bash
-    sh populate_db.sh
-    ```
-
-
-3. Set-up grafana
-
-    ```bash
-    sh set-up-grafana.sh
-    ```
-
-
-4. In case of changes to code to restart grafana
-
-    ```bash
-    yarn dev && docker-compose restart grafana
-    ```
-
-
-## Getting started
-
-1. Install dependencies
-
-   ```bash
-   yarn install
-   ```
-
-2. Build plugin in development mode or run in watch mode
-
-   ```bash
-   yarn dev
-   ```
-
-   or
-
-   ```bash
-   yarn watch
-   ```
-
-3. Build plugin in production mode
-
-   ```bash
-   yarn build
-   ```
+See [Contributing](https://github.com/orchestracities/grafana-map-plugin/blob/master/CONTRIBUTING.md)
 
 ## Learn more
 

@@ -2,7 +2,7 @@
 
 ## Requirements
 - git
-- npm / yarn
+- node v14+ and yarn
 
 ## Install process
 
@@ -10,10 +10,6 @@
 
 - Install plugin package dependencies
 
-```sh
-$ npm install
-```
-or
 ```
 $ yarn install
 ```
@@ -21,50 +17,72 @@ $ yarn install
 If you are using Docker, the two steps above can be done as follows:
 ```
 # First cd into this plugin's folder.
-docker run -it --rm -v "$PWD":/usr/src/app -w /usr/src/app node:8 npm install
-docker run -it --rm -v "$PWD":/usr/src/app -w /usr/src/app node:8 yarn install
+docker run -it --rm -v "$PWD":/usr/src/app -w /usr/src/app node:14 yarn install
 ```
+
+## Build process
+
+1. Build plugin in development mode or run in watch mode
+
+   ```bash
+   yarn dev
+   ```
+
+   or
+
+   ```bash
+   yarn dev --watch
+   ```
+
+2. Build plugin in production mode
+
+   ```bash
+   yarn build
+   ```
 
 ## Test / Run
 
-- Start docker-compose.
+1. Launch services
 
-    ```sh
-    $ docker-compose up -d
+    ```bash
+    docker-compose up -d
     ```
 
-Once the services are up and running, set-up the data as follows:
+2. Import database
 
-- Populate the database:
-
-    ```sh
-    $ sh create-table.sh
+    ```bash
+    sh populate_db.sh
     ```
 
-- Set-up grafana:
+3. Set-up grafana
 
-    ```sh
-    $ sh set-up-grafana.sh
+    ```bash
+    sh set-up-grafana.sh
+    ```
+
+4. In case of changes to code to restart grafana
+
+    ```bash
+    yarn dev && docker-compose restart grafana
     ```
 
 **NOTE:** Unless you remove the docker volumes, you need to run the last two
 steps above only the first time)
 
 At this point in time login in grafana using admin/admin and you should be
-able to see a dashboard called `Dashboard Map`. If there is an error regarding
-the datasource metadata, just go to the `datasource` menu, open the datasource
-and click `save & test`.
+able to see a dashboard called `Dashboard Map`.
+
 
 ## Other Tasks
 
 - `Compile the code` + restart grafana
 ```sh
-$ yarn build && docker-compose restart grafana
+$ yarn dev && docker-compose restart grafana
 ```
 
 Or using docker:
 ```
-docker run -it --rm -v "$PWD":/usr/src/app -w /usr/src/app node:8 yarn build
+docker run -it --rm -v "$PWD":/usr/src/app -w /usr/src/app node:14 yarn build
 docker-compose restart grafana
 ```
 
@@ -72,5 +90,3 @@ docker-compose restart grafana
 
 Default start page url: http://localhost:3000
 Default user/pass is admin/admin.
-
-If you are trying to install packages and you get console permissions errors, it could be related with grafana changing owner from dist files.
