@@ -6,7 +6,6 @@ services:
       - '3000:3000'
     volumes:
       - grafana-storage:/var/lib/grafana
-      - ./angular-version:/var/lib/grafana/plugins/map-panel/
       - .:/var/lib/grafana/plugins/orchestracities-map-panel/
       - ./etc/grafana/grafana.ini:/etc/grafana/grafana.ini
     environment:
