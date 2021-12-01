@@ -9,6 +9,36 @@ panel with several functionalities:
 
 ![Example](https://github.com/orchestracities/grafana-map-plugin/raw/master/example.png)
 
+
+New customization options available for the layer:
+
+* Cluster support with a lot of customization like distance and value to display
+* A fully customizable pin with the possibility to change colors, shapes and sizes
+* The possibility to select which properties to be displayed on the popup
+
+![Example2](https://github.com/orchestracities/grafana-map-plugin/raw/master/example2.png)
+
+Cluster options:
+
+* Distance
+* Min distance
+
+Pin Options:
+
+* Shape
+* Size
+* Customizable icon
+* Shadow
+* Gradient
+
+Pupup Options:
+
+* Display a title
+* Display the Timestamp
+* Selectable properties
+
+![Example3](https://github.com/orchestracities/grafana-map-plugin/raw/master/example3.png)
+
 ## Usage with PostGis
 
 To use the plugin with PostGis, you need either to query longitude and latitude from a stored `Point`, e.g.:
