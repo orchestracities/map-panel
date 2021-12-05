@@ -350,9 +350,7 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
                 if (geoType === GeometryType.POINT) {
                   geometry.setStyle(shape!.make(color, fillColor, radius));
                 } else {
-                  let style = styleCache.get('geometry');
-                  if (!style) {
-                    style = new Style({
+                  let style = new Style({
                       stroke: new Stroke({
                         color: color,
                         width: 5,
@@ -361,8 +359,6 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
                         color: fillColor,
                       }),
                     });
-                  }
-                  styleCache.set('geometry', style);
                   geometry.setStyle(style);
                 }
                 geometryFeatures.push(geometry);
