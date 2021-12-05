@@ -306,6 +306,7 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
               let customStyle = feature.get('features')[0].get('style');
               return markerStyle(customStyle);
             }
+            return null;
           },
         } as BaseLayerOptions)
       : new layer.Vector({
