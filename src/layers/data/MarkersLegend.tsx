@@ -1,7 +1,6 @@
 import React from 'react';
 import { Label, stylesFactory, useTheme2, VizLegendItem } from '@grafana/ui';
-//* formattedValueToString, *//
-import { getFieldColorModeForField, GrafanaTheme2 } from '@grafana/data';
+import { getFieldColorModeForField, formattedValueToString, GrafanaTheme2, ReducerID, reduceField } from '@grafana/data';
 import { css } from '@emotion/css';
 import { config } from '../../config';
 import { DimensionSupplier } from '../../dimensions';
@@ -21,22 +20,22 @@ export function MarkersLegend(props: MarkersLegendProps) {
   }
 
   const style = getStyles(theme);
-  //const fmt = (v: any) => `${formattedValueToString(color.field!.display!(v))}`;
+  const fmt = (v: any) => `${formattedValueToString(color.field!.display!(v))}`;
   const colorMode = getFieldColorModeForField(color!.field!);
 
   if (colorMode.isContinuous && colorMode.getColors) {
     const colors = colorMode.getColors(config.theme2);
     //const colorRange = color.field!;
     // TODO: explore showing mean on the gradiant scale
-    // const stats = reduceField({
-    //   field: color.field!,
-    //   reducers: [
-    //     ReducerID.min,
-    //     ReducerID.max,
-    //     ReducerID.mean,
-    //     // std dev?
-    //   ]
-    // })
+    const colorRange = reduceField({
+      field: color.field!,
+      reducers: [
+        ReducerID.min,
+        ReducerID.max,
+        ReducerID.mean,
+        // std dev?
+      ]
+    })
 
     return (
       <>
@@ -45,10 +44,8 @@ export function MarkersLegend(props: MarkersLegendProps) {
           className={style.gradientContainer}
           style={{ backgroundImage: `linear-gradient(to right, ${colors.map((c) => c).join(', ')}` }}
         >
-          {
-            //<div style={{ color: theme.colors.getContrastText(colors[0]) }}>{fmt(colorRange.min)}</div>
-            //<div style={{ color: theme.colors.getContrastText(colors[colors.length - 1]) }}>{fmt(colorRange.max)}</div>
-          }
+          <div style={{ color: theme.colors.getContrastText(colors[0]) }}>{fmt(colorRange.min)}</div>
+          <div style={{ color: theme.colors.getContrastText(colors[colors.length - 1]) }}>{fmt(colorRange.max)}</div>
         </div>
       </>
     );
@@ -62,6 +59,7 @@ export function MarkersLegend(props: MarkersLegendProps) {
   const items = getThresholdItems(color.field!.config, config.theme2);
   return (
     <div className={style.infoWrap}>
+      <Label>{color?.field?.name}</Label>
       <div className={style.legend}>
         {items.map((item: VizLegendItem, idx: number) => (
           <div key={`${idx}/${item.label}`} className={style.legendItem}>
