@@ -29,7 +29,10 @@ export class DataHoverView extends PureComponent<Props> {
           {titleField.map((f: Field<any, Vector<any>>, i: number | undefined) => (
             <div key={`${i}/${rowIndex}`}>
               <div className={this.style.singleDisplay}>
-                <h5><i className={'fa ' + icon + ' ' + this.style.icon}/>{fmt(f, rowIndex)}</h5>
+                <h5>
+                  <i className={'fa ' + icon + ' ' + this.style.icon} />
+                  {fmt(f, rowIndex)}
+                </h5>
               </div>
             </div>
           ))}
@@ -51,7 +54,8 @@ export class DataHoverView extends PureComponent<Props> {
               </div>
               <div className={this.style.singleDisplay}>
                 <h1>
-                <i className={'fa ' + icon + ' ' + this.style.icon}/>{fmt(f, rowIndex)}
+                  <i className={'fa ' + icon + ' ' + this.style.icon} />
+                  {fmt(f, rowIndex)}
                 </h1>
               </div>
             </div>

@@ -1,6 +1,12 @@
 import React from 'react';
 import { Label, stylesFactory, useTheme2, VizLegendItem } from '@grafana/ui';
-import { getFieldColorModeForField, formattedValueToString, GrafanaTheme2, ReducerID, reduceField } from '@grafana/data';
+import {
+  getFieldColorModeForField,
+  formattedValueToString,
+  GrafanaTheme2,
+  ReducerID,
+  reduceField,
+} from '@grafana/data';
 import { css } from '@emotion/css';
 import { config } from '../../config';
 import { DimensionSupplier } from '../../dimensions';
@@ -34,8 +40,8 @@ export function MarkersLegend(props: MarkersLegendProps) {
         ReducerID.max,
         ReducerID.mean,
         // std dev?
-      ]
-    })
+      ],
+    });
 
     return (
       <>
