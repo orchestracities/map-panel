@@ -1,5 +1,8 @@
 # Changelog
 
+## v1.4.1
+- fix icon visualisation in pop-up and improve pop-up format
+
 ## v1.4.0
 - Migrate to react for compatibility with Grafana 7+
 
