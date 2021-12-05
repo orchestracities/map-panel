@@ -19,6 +19,7 @@ export class DataHoverView extends PureComponent<Props> {
 
   render() {
     const { data, rowIndex, columnIndex, propsToShow, timeField, titleField, icon } = this.props;
+
     if (!data || rowIndex == null) {
       return null;
     }
@@ -28,7 +29,7 @@ export class DataHoverView extends PureComponent<Props> {
           {titleField.map((f: Field<any, Vector<any>>, i: number | undefined) => (
             <div key={`${i}/${rowIndex}`}>
               <div className={this.style.singleDisplay}>
-                <h4>{fmt(f, rowIndex)}</h4>
+                <h5><i className={'fa ' + icon + ' ' + this.style.icon}/>{fmt(f, rowIndex)}</h5>
               </div>
             </div>
           ))}
@@ -46,12 +47,11 @@ export class DataHoverView extends PureComponent<Props> {
           {propsToShow.map((f: Field<any, Vector<any>>, i: number | undefined) => (
             <div key={`${i}/${rowIndex}`} className={i === columnIndex ? this.style.highlight : ''}>
               <div className={this.style.singleDisplay}>
-                {' '}
-                <h4>{getFieldDisplayName(f, data)}</h4>
+                <h5>{getFieldDisplayName(f, data)}</h5>
               </div>
               <div className={this.style.singleDisplay}>
                 <h1>
-                  <i className={'fas ' + icon}></i> &nbsp; {fmt(f, rowIndex)}
+                <i className={'fa ' + icon + ' ' + this.style.icon}/>{fmt(f, rowIndex)}
                 </h1>
               </div>
             </div>
@@ -82,14 +82,14 @@ function fmt(field: Field, row: number): string {
 
 const getStyles = stylesFactory((theme: GrafanaTheme2) => ({
   infoWrap: css`
-    padding: 8px;
+    padding: 0px;
     div {
       font-weight: ${theme.typography.fontWeightMedium};
       padding: ${theme.spacing(0.25, 2)};
     }
   `,
   row: css`
-    padding: 8px;
+    padding: 2px;
     display: flex;
     justify-content: space-between;
   `,
@@ -99,11 +99,14 @@ const getStyles = stylesFactory((theme: GrafanaTheme2) => ({
   singleDisplay: css`
     text-align: center;
     h1 {
-      font-size: 4rem;
+      font-size: 3.5rem;
+      font-weight: ${theme.typography.fontWeightBold};
       margin: 0px;
     }
   `,
   rightDisplay: css`
+    padding-top: 0px;
+    padding-bottom: 0px;
     text-align: right;
     h6 {
       font-height: 1;
@@ -112,5 +115,8 @@ const getStyles = stylesFactory((theme: GrafanaTheme2) => ({
   `,
   leftDisplay: css`
     text-align: left;
+  `,
+  icon: css`
+    margin-right: 5px;
   `,
 }));
