@@ -1,5 +1,11 @@
 import React, { ReactNode } from 'react';
-import { PanelData, GrafanaTheme2, formattedValueToString, getScaleCalculator, getFieldColorModeForField } from '@grafana/data';
+import {
+  PanelData,
+  GrafanaTheme2,
+  formattedValueToString,
+  getScaleCalculator,
+  getFieldColorModeForField,
+} from '@grafana/data';
 import GeoMap from 'ol/Map';
 import Feature from 'ol/Feature';
 import { Geometry, Point } from 'ol/geom';
@@ -19,7 +25,13 @@ import { getCenter } from 'ol/extent';
 import tinycolor from 'tinycolor2';
 import { dataFrameToPoints, getLocationMatchers } from '../../utils/location';
 import { ExtendMapLayerRegistryItem, ExtendFrameGeometrySourceMode, ExtendMapLayerOptions } from '../../extension';
-import { ColorDimensionConfig, ScaleDimensionConfig, getScaledDimension, getColorDimension, DimensionSupplier, findField } from '../../dimensions';
+import {
+  ColorDimensionConfig,
+  ScaleDimensionConfig,
+  getScaledDimension,
+  getColorDimension,
+  findField,
+} from '../../dimensions';
 import { ScaleDimensionEditor, ColorDimensionEditor } from '../../dimensions/editors';
 import { ObservablePropsWrapper } from '../../components/ObservablePropsWrapper';
 import { MarkersLegend, MarkersLegendProps } from './MarkersLegend';
@@ -129,25 +141,25 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
     function clusterStyle(customStyle: any, customValue: string) {
       let pin = options.config?.showPin ?? defaultOptions.showPin;
       let style = new Style({
-          image: new FontSymbol({
-            radius: 20,
-            fontSize: 0.3,
-            form: 'circle',
+        image: new FontSymbol({
+          radius: 20,
+          fontSize: 0.3,
+          form: 'circle',
+          color: '#fff',
+          glyph: pin ? config.selectIcon : '',
+          fill: new Fill({
+            color: tinycolor(customStyle).setAlpha(0.4).toRgbString(),
+          }),
+          offsetY: -8,
+        }),
+        text: new Text({
+          font: '12px Verdana-Bold',
+          fill: new Fill({
             color: '#fff',
-            glyph: pin ? config.selectIcon : '',
-            fill: new Fill({
-              color: tinycolor(customStyle).setAlpha(0.4).toRgbString(),
-            }),
-            offsetY: -8,
           }),
-          text: new Text({
-            font: '12px Verdana-Bold',
-            fill: new Fill({
-              color: '#fff',
-            }),
-            offsetY: 6,
-          }),
-        });
+          offsetY: 6,
+        }),
+      });
 
       style.getText().setText(customValue);
       return style;
@@ -286,7 +298,10 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
             if (size > 1) {
               let config: any = feature.get('features')[0].get('config');
               let value = computeClusterValue(feature.get('features'));
-              return clusterStyle(computeColor(findField(config.frame, config.config.field), config.config, value), formatClusterValue(feature.get('features'), value));
+              return clusterStyle(
+                computeColor(findField(config.frame, config.config), config.config, value),
+                formatClusterValue(feature.get('features'), value)
+              );
             } else if (size === 1) {
               let customStyle = feature.get('features')[0].get('style');
               return markerStyle(customStyle);
@@ -363,14 +378,14 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
                   geometry.setStyle(shape!.make(color, fillColor, radius));
                 } else {
                   let style = new Style({
-                      stroke: new Stroke({
-                        color: color,
-                        width: 5,
-                      }),
-                      fill: new Fill({
+                    stroke: new Stroke({
+                      color: color,
+                      width: 5,
+                    }),
+                    fill: new Fill({
                       color: fillColor,
-                      }),
-                    });
+                    }),
+                  });
                   geometry.setStyle(style);
                 }
                 geometryFeatures.push(geometry);
@@ -380,7 +395,7 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
                   pin.setStyle(markerStyle({ color: color }));
                   pin.set('style', { color: color, fillColor: fillColor });
                   if (cluster) {
-                    pin.set('config', {frame: frame, config: config.color});
+                    pin.set('config', { frame: frame, config: config.color });
                   }
                   pin.setProperties({
                     frame,
