@@ -50,16 +50,16 @@ export function getColorDimensionForField(
   };
 }
 
-function computeColor(scale: ScaleCalculator, mapping: any, value: any, theme: GrafanaTheme2){
+function computeColor(scale: ScaleCalculator, mapping: any, value: any, theme: GrafanaTheme2) {
   let color = scale(value).color;
   mapping.forEach((map: any) => {
-    if(map.type === 'value'){
-      Object.keys(map.options).forEach(key => {
-        if (key === value && map.options[key].color){
-          let colorName = map.options[key].color ?? 'grey'
+    if (map.type === 'value') {
+      Object.keys(map.options).forEach((key) => {
+        if (key === value && map.options[key].color) {
+          let colorName = map.options[key].color ?? 'grey';
           color = theme.visualization.getColorByName(colorName);
         }
-     })
+      });
     }
   });
   return color;
