@@ -1,4 +1,5 @@
 import { DataFrame, Field, getFieldColorModeForField, getScaleCalculator, GrafanaTheme2 } from '@grafana/data';
+import { ScaleCalculator } from '@grafana/data/field/scale';
 import { ColorDimensionConfig, DimensionSupplier } from './types';
 import { findField, getLastNotNullFieldValue } from './utils';
 
@@ -42,9 +43,24 @@ export function getColorDimensionForField(
   return {
     get: (i) => {
       const val = field.values.get(i);
-      return scale(val).color;
+      return computeColor(scale, field.config?.mappings, val, theme);
     },
     field,
     value: () => scale(getLastNotNullFieldValue(field)).color,
   };
+}
+
+function computeColor(scale: ScaleCalculator, mapping: any, value: any, theme: GrafanaTheme2) {
+  let color = scale(value).color;
+  mapping.forEach((map: any) => {
+    if (map.type === 'value') {
+      Object.keys(map.options).forEach((key) => {
+        if (key === value && map.options[key].color) {
+          let colorName = map.options[key].color ?? 'grey';
+          color = theme.visualization.getColorByName(colorName);
+        }
+      });
+    }
+  });
+  return color;
 }
