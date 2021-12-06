@@ -1,5 +1,8 @@
 # Changelog
 
+## v1.4.2
+- allow to the define colours for specific values via mappings
+
 ## v1.4.1
 - fix icon visualisation in pop-up and improve pop-up format
 - support label for legends
