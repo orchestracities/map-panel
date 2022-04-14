@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.4.3
+- community signature
+- Bump follow-redirects from 1.14.5 to 1.14.8
+
 ## v1.4.2
 - allow to the define colours for specific values via mappings
 
