@@ -39,6 +39,8 @@ Pupup Options:
 
 ![Example3](https://github.com/orchestracities/grafana-map-plugin/raw/master/example3.png)
 
+It requires Grafana >=8.2.0
+
 ## Usage with PostGis
 
 To use the plugin with PostGis, you need either to query longitude and latitude from a stored `Point`, e.g.:
