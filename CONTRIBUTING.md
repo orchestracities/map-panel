@@ -100,3 +100,12 @@ docker-compose restart grafana
 
 Default start page url: http://localhost:3000
 Default user/pass is admin/admin.
+
+## Learn more
+
+- [Build a panel plugin tutorial](https://grafana.com/tutorials/build-a-panel-plugin)
+- [Grafana documentation](https://grafana.com/docs/)
+- [Grafana Tutorials](https://grafana.com/tutorials/) - Grafana Tutorials are step-by-step guides that help you make the most of Grafana
+- [Grafana UI Library](https://developers.grafana.com/ui) - UI components to help you build interfaces using Grafana Design System
+- [Using Font Awesome with React](https://fontawesome.com/v5.15/how-to-use/on-the-web/using-with/react)
+- [OpenLayers ext](https://github.com/Viglino/ol-ext)
