@@ -72,7 +72,6 @@ steps above only the first time)
 At this point in time login in grafana using admin/admin and you should be
 able to see a dashboard called `Dashboard Map`.
 
-
 ## Other Tasks
 
 - `Compile the code` + restart grafana
