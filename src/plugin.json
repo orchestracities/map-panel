@@ -3,17 +3,20 @@
   "name": "Orchestra Cities Map",
   "id": "orchestracities-map-panel",
   "state": "beta",
-
   "info": {
     "description": "Orchestra Cities Map",
     "author": {
       "name": "Orchestra Cities",
       "url": "https://github.com/orchestracities"
     },
-    "keywords": ["map", "geojson", "icons"],
+    "keywords": [
+      "map",
+      "geojson",
+      "icons"
+    ],
     "logos": {
-      "small": "img/icn-geomap.svg",
-      "large": "img/icn-geomap.svg"
+      "small": "img/icn-map-panel.svg",
+      "large": "img/icn-map-panel.svg"
     },
     "links": [
       {
@@ -25,7 +28,20 @@
         "url": "https://github.com/orchestracities/grafana-map-plugin/blob/master/LICENSE"
       }
     ],
-    "screenshots": [{"name": "example", "path": "example.png"}],
+    "screenshots": [
+      {
+        "name": "Example",
+        "path": "img/example.png"
+      },
+      {
+        "name": "Configuration Options",
+        "path": "img/options.png"
+      },
+      {
+        "name": "Popup example",
+        "path": "img/popup.png"
+      }
+    ],
     "version": "%VERSION%",
     "updated": "%TODAY%"
   },
