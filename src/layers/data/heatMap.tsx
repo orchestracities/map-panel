@@ -1,4 +1,4 @@
-import { FieldType, getFieldColorModeForField, GrafanaTheme2, PanelData } from '@grafana/data';
+import { FieldType, getFieldColorModeForField, getScaleCalculator, GrafanaTheme2, PanelData } from '@grafana/data';
 import Map from 'ol/Map';
 import Point from 'ol/geom/Point';
 import * as layer from 'ol/layer';
@@ -7,6 +7,7 @@ import { FrameVectorSource } from '../../utils/frameVectorSource';
 import { ScaleDimensionConfig, getScaledDimension } from '../../dimensions';
 import { ScaleDimensionEditor } from '../../dimensions/editors';
 import { ExtendMapLayerRegistryItem, ExtendMapLayerOptions } from 'extension';
+import { isNumber } from 'lodash';
 
 // Configuration options for Heatmap overlays
 export interface HeatmapConfig {
@@ -83,6 +84,25 @@ export const heatmapLayer: ExtendMapLayerRegistryItem<HeatmapConfig> = {
           if (colorMode.isContinuous && colorMode.getColors) {
             // getColors return an array of color string from the color scheme chosen
             colors = colorMode.getColors(theme);
+          }
+          if (colorMode.isByValue) {
+            const scale = getScaleCalculator(field, theme);
+            colors = [];
+            let min = field.config.min;
+            let max = field.config.max;
+            if (!isNumber(min)) {
+              min = 0;
+            }
+            if (!isNumber(max)) {
+              max = 100;
+            }
+            let delta = max! - min!;
+            let steps = 10;
+            for (let i = 0; i < steps; i++) {
+              let value = i * (delta / steps);
+              let color = scale(value).color;
+              colors.push(color);
+            }
           }
         }
         vectorLayer.setGradient(colors);

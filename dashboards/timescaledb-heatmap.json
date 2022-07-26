@@ -58,6 +58,8 @@
                   "mode": "thresholds"
                 },
                 "mappings": [],
+                "max": 501,
+                "min": 0,
                 "thresholds": {
                   "mode": "absolute",
                   "steps": [
@@ -66,8 +68,24 @@
                       "value": null
                     },
                     {
+                      "color": "yellow",
+                      "value": 51
+                    },
+                    {
+                      "color": "orange",
+                      "value": 101
+                    },
+                    {
                       "color": "red",
-                      "value": 40
+                      "value": 151
+                    },
+                    {
+                      "color": "purple",
+                      "value": 201
+                    },
+                    {
+                      "color": "#800000",
+                      "value": 301
                     }
                   ]
                 }
@@ -101,7 +119,7 @@
                     "blur": 15,
                     "radius": 8,
                     "weight": {
-                      "field": "pm10",
+                      "field": "airqualityindex",
                       "fixed": 1,
                       "max": 1,
                       "min": 0
@@ -157,7 +175,7 @@
                 "metricColumn": "entity_id",
                 "queryType": "randomWalk",
                 "rawQuery": false,
-                "rawSql": "SELECT\n  time_index AS \"time\",\n  entity_id AS metric,\n  ST_X(ST_GeomFromEWKT(location_centroid)) AS \"longitude\",\n  ST_Y(ST_GeomFromEWKT(location_centroid)) AS \"latitude\",\n  pm10\nFROM \"mtekz\".\"etairqualityobserved\"\nWHERE\n  $__timeFilter(time_index)\nORDER BY 1,2",
+                "rawSql": "SELECT\n  time_index AS \"time\",\n  entity_id AS metric,\n  ST_X(ST_GeomFromEWKT(location_centroid)) AS \"longitude\",\n  ST_Y(ST_GeomFromEWKT(location_centroid)) AS \"latitude\",\n  airqualityindex\nFROM \"mtekz\".\"etairqualityobserved\"\nWHERE\n  $__timeFilter(time_index)\nORDER BY 1,2",
                 "refId": "A",
                 "resultFormat": "table",
                 "select": [
@@ -192,7 +210,7 @@
                   [
                     {
                       "params": [
-                        "pm10"
+                        "airqualityindex"
                       ],
                       "type": "column"
                     }
@@ -230,8 +248,24 @@
                       "value": null
                     },
                     {
+                      "color": "yellow",
+                      "value": 51
+                    },
+                    {
+                      "color": "orange",
+                      "value": 101
+                    },
+                    {
                       "color": "red",
-                      "value": 40
+                      "value": 151
+                    },
+                    {
+                      "color": "purple",
+                      "value": 201
+                    },
+                    {
+                      "color": "#800000",
+                      "value": 301
                     }
                   ]
                 }
@@ -266,7 +300,7 @@
                     "blur": 20,
                     "radius": 10,
                     "weight": {
-                      "field": "pm10",
+                      "field": "airqualityindex",
                       "fixed": 1,
                       "max": 1,
                       "min": 0
@@ -327,7 +361,7 @@
                 "metricColumn": "entity_id",
                 "queryType": "randomWalk",
                 "rawQuery": false,
-                "rawSql": "SELECT\n  time_index AS \"time\",\n  entity_id AS metric,\n  ST_X(ST_GeomFromEWKT(location_centroid)) AS \"longitude\",\n  ST_Y(ST_GeomFromEWKT(location_centroid)) AS \"latitude\",\n  pm10\nFROM \"mtekz\".\"etairqualityobserved\"\nWHERE\n  $__timeFilter(time_index) AND\n  pm10 != 0\nORDER BY 1,2",
+                "rawSql": "SELECT\n  time_index AS \"time\",\n  entity_id AS metric,\n  ST_X(ST_GeomFromEWKT(location_centroid)) AS \"longitude\",\n  ST_Y(ST_GeomFromEWKT(location_centroid)) AS \"latitude\",\n  airqualityindex\nFROM \"mtekz\".\"etairqualityobserved\"\nWHERE\n  $__timeFilter(time_index) AND\n  airqualityindex != 0\nORDER BY 1,2",
                 "refId": "A",
                 "resultFormat": "table",
                 "select": [
@@ -362,7 +396,7 @@
                   [
                     {
                       "params": [
-                        "pm10"
+                        "airqualityindex"
                       ],
                       "type": "column"
                     }
@@ -381,7 +415,7 @@
                     "datatype": "float8",
                     "name": "",
                     "params": [
-                      "pm10",
+                      "airqualityindex",
                       "!=",
                       "0"
                     ],
@@ -403,8 +437,8 @@
           "list": []
         },
         "time": {
-          "from": "2020-11-20T08:00:00.000Z",
-          "to": "2020-11-20T08:01:00.000Z"
+          "from": "now-5y",
+          "to": "now"
         },
         "timepicker": {
           "refresh_intervals": [
@@ -434,6 +468,6 @@
         "timezone": "",
         "title": "HeatMap Dashboard - TimescaleDB",
         "uid": "Af_vJ6gVz",
-        "version": 2
+        "version": 6
       }
 }
