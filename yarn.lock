@@ -1974,7 +1974,7 @@
   resolved "https://registry.yarnpkg.com/@types/normalize-package-data/-/normalize-package-data-2.4.1.tgz#d3357479a0fdfdd5907fe67e17e0a85c906e1301"
   integrity sha512-Gj7cI7z+98M282Tqmp2K5EIsoouUEzbBJhQQzDE3jSIRk6r9gsz0oUokqIUR4u1R3dMHo0pDHM7sNOHyhulypw==
 
-"@types/ol-ext@npm:@siedlerchr/types-ol-ext@2.1.2":
+"@types/ol-ext@npm:@siedlerchr/types-ol-ext@^2.1.2":
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/@siedlerchr/types-ol-ext/-/types-ol-ext-2.1.2.tgz#4ad0b02ac93cc4c10b7808fb0e70cc3cbb46f1f3"
   integrity sha512-gW1OKUM1QMynXv3/gndR/1bAaSGjJLs9SSa5ZLrrIn/xw+t3N3d0qFuuo7LHzefsmN691egmFO1rV3i795Odsg==
@@ -3376,9 +3376,9 @@ caniuse-api@^3.0.0:
     lodash.uniq "^4.5.0"
 
 caniuse-lite@^1.0.0, caniuse-lite@^1.0.30000981, caniuse-lite@^1.0.30001109, caniuse-lite@^1.0.30001125, caniuse-lite@^1.0.30001274:
-  version "1.0.30001280"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001280.tgz#066a506046ba4be34cde5f74a08db7a396718fb7"
-  integrity sha512-kFXwYvHe5rix25uwueBxC569o53J6TpnGu0BEEn+6Lhl2vsnAumRFWEBhDft1fwyo6m1r4i+RqA4+163FpeFcA==
+  version "1.0.30001370"
+  resolved "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001370.tgz"
+  integrity sha512-3PDmaP56wz/qz7G508xzjx8C+MC2qEm4SYhSEzC9IBROo+dGXFWRuaXkWti0A9tuI00g+toiriVqxtWMgl350g==
 
 canvg@^3.0.6:
   version "3.0.9"
@@ -8526,7 +8526,7 @@ object.values@^1.1.0, object.values@^1.1.1:
     define-properties "^1.1.3"
     es-abstract "^1.19.1"
 
-ol-ext@^3.2.28:
+ol-ext@^3.2.25:
   version "3.2.28"
   resolved "https://registry.yarnpkg.com/ol-ext/-/ol-ext-3.2.28.tgz#6842ab0c71f3d9b726d6d138bd4714d0426f6a1b"
   integrity sha512-sfY25AWztCVyLXewB6EYtjCnzl2SYISdzQlKhfFb1gXTEWSwSDvBYNCGVWKU8mc7uisjploYOMfG7hi4+DNDWQ==
