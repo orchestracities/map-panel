@@ -56,6 +56,7 @@ export const heatmapLayer: ExtendMapLayerRegistryItem<HeatmapConfig> = {
         return feature.get(WEIGHT_KEY);
       },
     });
+    vectorLayer.set('title', options.name);
 
     return {
       init: () => vectorLayer,
