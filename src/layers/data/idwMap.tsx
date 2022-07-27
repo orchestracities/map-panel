@@ -65,26 +65,26 @@ export const idwmapLayer: ExtendMapLayerRegistryItem<IdwMapConfig> = {
     // Create a new Image layer
     const imageLayer = new layer.Image({
       source: idw,
-      opacity: .5
+      opacity: 0.5,
     });
 
     let dataLayer = new layer.Vector();
 
-    if(config.showData){
+    if (config.showData) {
       dataLayer = new layer.Vector({
         title: options.name,
         displayProperties: options.displayProperties,
-//        icon: options.config?.selectIcon,
+        //icon: options.config?.selectIcon,
         titleField: options.titleField,
         timeField: options.timeField,
         source: idw.getSource(),
-        style: function(f: any) {
+        style: function (f: any) {
           return new Style({
             // image: new ol.style.Circle({ radius: 2, fill: new ol.style.Fill({ color: '#000' }) }),
             text: new Text({
               text: f.get(WEIGHT_KEY).toString(),
-              stroke: new Stroke({ color: [255,255,255,128], width: 1.25 }),
-            })
+              stroke: new Stroke({ color: [255, 255, 255, 128], width: 1.25 }),
+            }),
           });
         },
       } as BaseLayerOptions);
@@ -104,12 +104,12 @@ export const idwmapLayer: ExtendMapLayerRegistryItem<IdwMapConfig> = {
           return;
         }
         source.update(frame);
-        
+
         const weightDim = getScaledDimension(frame, config.weight);
         source.forEachFeature((f) => {
           const idx = f.get('rowIndex') as number;
           if (idx != null) {
-            let value = weightDim.get(idx)
+            let value = weightDim.get(idx);
             f.set(WEIGHT_KEY, value);
           }
         });
@@ -120,15 +120,14 @@ export const idwmapLayer: ExtendMapLayerRegistryItem<IdwMapConfig> = {
           const colorMode = getFieldColorModeForField(field);
           if (colorMode.isByValue) {
             const scale = getScaleCalculator(field, theme);
-            idw.getColor = function(v) {
-              console.log(v);
+            idw.getColor = function (v) {
               let color = scale(v).color;
               return [
-                parseInt(color.slice(1, 3), 16), 
+                parseInt(color.slice(1, 3), 16),
                 parseInt(color.slice(3, 5), 16),
                 parseInt(color.slice(5, 7), 16),
-                255
-              ]
+                255,
+              ];
             };
           }
         }
@@ -166,16 +165,12 @@ export const idwmapLayer: ExtendMapLayerRegistryItem<IdwMapConfig> = {
           max: 100,
           step: 1,
         },
-      }).addBooleanSwitch({
+      })
+      .addBooleanSwitch({
         path: 'config.showData',
         name: 'Show data',
         description: 'Show data',
         defaultValue: defaultOptions.showData,
-      }).addBooleanSwitch({
-        path: 'config.showPopup',
-        name: 'Show pop up',
-        description: 'Show pop up',
-        defaultValue: defaultOptions.showPopup,
       });
   },
   // fill in the default values

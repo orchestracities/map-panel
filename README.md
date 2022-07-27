@@ -35,7 +35,7 @@ Pin Options:
 * Shadow
 * Gradient
 
-Pupup Options:
+Popup Options:
 
 * Display a title
 * Display the Timestamp
