@@ -23,7 +23,7 @@ export class DataHoverView extends PureComponent<Props> {
     if (!data || rowIndex == null) {
       return null;
     }
-    if (propsToShow.length > 1) {
+    if (propsToShow && propsToShow.length > 1) {
       return (
         <div className={this.style.infoWrap}>
           {titleField.map((f: Field<any, Vector<any>>, i: number | undefined) => (
@@ -44,7 +44,7 @@ export class DataHoverView extends PureComponent<Props> {
           ))}
         </div>
       );
-    } else {
+    } else if (propsToShow) {
       return (
         <div className={this.style.infoWrap}>
           {propsToShow.map((f: Field<any, Vector<any>>, i: number | undefined) => (
@@ -60,6 +60,21 @@ export class DataHoverView extends PureComponent<Props> {
               </div>
             </div>
           ))}
+          {timeField.map((f: Field<any, Vector<any>>, i: number | undefined) => (
+            <div key={`${i}/${rowIndex}`} className={this.style.rightDisplay}>
+              <h6>{fmt(f, rowIndex)}</h6>
+            </div>
+          ))}
+          {titleField.map((f: Field<any, Vector<any>>, i: number | undefined) => (
+            <div key={`${i}/${rowIndex}`} className={this.style.rightDisplay}>
+              <h6>{fmt(f, rowIndex)}</h6>
+            </div>
+          ))}
+        </div>
+      );
+    } else {
+      return (
+        <div className={this.style.infoWrap}>
           {timeField.map((f: Field<any, Vector<any>>, i: number | undefined) => (
             <div key={`${i}/${rowIndex}`} className={this.style.rightDisplay}>
               <h6>{fmt(f, rowIndex)}</h6>
