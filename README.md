@@ -6,17 +6,21 @@ panel with several functionalities:
 * Support for icons (icons supported are from [FontAwesome](https://fontawesome.com/))
 * Support for pop up visualizations of data from a specific point
 * Multiple layers for the different queries
+* A new map layer leveraging [Inverse distance weighting](https://en.wikipedia.org/wiki/Inverse_distance_weighting)
+  (IDW) interpolation for scattered data points using Shepard's method.
 
-![Example](https://github.com/orchestracities/grafana-map-plugin/raw/master/example.png)
+![Marker layer](https://github.com/orchestracities/grafana-map-plugin/raw/master/example.png)
+
+![IDW layer](https://github.com/orchestracities/grafana-map-plugin/raw/master/example4.png)
 
 
-New customization options available for the layer:
+New customization options available for the markers layer:
 
 * Cluster support with a lot of customization like distance and value to display
 * A fully customizable pin with the possibility to change colors, shapes and sizes
 * The possibility to select which properties to be displayed on the popup
 
-![Example2](https://github.com/orchestracities/grafana-map-plugin/raw/master/example2.png)
+![Marker layer options](https://github.com/orchestracities/grafana-map-plugin/raw/master/example2.png)
 
 Cluster options:
 
@@ -37,7 +41,25 @@ Pupup Options:
 * Display the Timestamp
 * Selectable properties
 
-![Example3](https://github.com/orchestracities/grafana-map-plugin/raw/master/example3.png)
+![Marker layer options](https://github.com/orchestracities/grafana-map-plugin/raw/master/example3.png)
+
+Options available for the IDW layer:
+
+IDW options:
+
+* Weight value to be used to create the interpolation,
+  including min and max range
+* Scale factor of the precision of the interpolation
+* Show data values over the map
+
+Pupup Options:
+
+* Display a title
+* Display the Timestamp
+* Selectable properties
+
+
+![Marker layer options](https://github.com/orchestracities/grafana-map-plugin/raw/master/example5.png)
 
 It requires Grafana >=8.2.0
 
