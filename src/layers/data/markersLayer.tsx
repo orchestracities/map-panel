@@ -9,7 +9,6 @@ import {
 import GeoMap from 'ol/Map';
 import Feature from 'ol/Feature';
 import { Geometry, Point } from 'ol/geom';
-import GeometryType from 'ol/geom/GeometryType';
 import FontSymbol from 'ol-ext/style/FontSymbol';
 import Shadow from 'ol-ext/style/Shadow';
 import 'ol-ext/style/FontAwesomeDef.js';
@@ -375,7 +374,7 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
               try {
                 const geoType = info.points[i].getType();
                 const geometry = new Feature(info.points[i]);
-                if (geoType === GeometryType.POINT) {
+                if (geoType === 'Point') {
                   geometry.setStyle(shape!.make(color, fillColor, radius));
                 } else {
                   let style = new Style({

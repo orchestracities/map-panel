@@ -9,10 +9,10 @@ services:
       - .:/var/lib/grafana/plugins/orchestracities-map-panel/
       - ./etc/grafana/grafana.ini:/etc/grafana/grafana.ini
     environment:
-      - GF_SECURITY_ADMIN_USER=${GRAFANA_USERNAME}
-      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USERNAME:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
   crate:
-    image: crate:4.1.4
+    image: crate:4.8.2
     ports:
       - "4200:4200"
     volumes:
@@ -25,7 +25,8 @@ services:
     ports:
       - "5432:5432"
     environment:
-      - POSTGRES_PASSWORD=*
+      - POSTGRES_PASSWORD=${PGPASSWORD:-*}
+      - PGPASSWORD=${PGPASSWORD:-*}
     volumes:
       - timescale-storage:/data
       - ./db-init:/db-init

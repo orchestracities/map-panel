@@ -244,7 +244,7 @@
                         "whereClauses": []
                     }
                 ],
-                "title": "Original",
+                "title": "Grafana Geo Map",
                 "type": "geomap"
             },
             {
@@ -436,7 +436,7 @@
                         "whereClauses": []
                     }
                 ],
-                "title": "Original",
+                "title": "Orchestracities Map Panel",
                 "type": "orchestracities-map-panel"
             }
         ],

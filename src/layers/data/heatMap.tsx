@@ -1,12 +1,13 @@
-import { FieldType, getFieldColorModeForField, GrafanaTheme2, PanelData } from '@grafana/data';
+import { FieldType, getFieldColorModeForField, getScaleCalculator, GrafanaTheme2, PanelData } from '@grafana/data';
 import Map from 'ol/Map';
-import Feature from 'ol/Feature';
+import Point from 'ol/geom/Point';
 import * as layer from 'ol/layer';
-import * as source from 'ol/source';
-import { dataFrameToPoints, getLocationMatchers } from '../../utils/location';
+import { getLocationMatchers } from '../../utils/location';
+import { FrameVectorSource } from '../../utils/frameVectorSource';
 import { ScaleDimensionConfig, getScaledDimension } from '../../dimensions';
 import { ScaleDimensionEditor } from '../../dimensions/editors';
 import { ExtendMapLayerRegistryItem, ExtendMapLayerOptions } from 'extension';
+import { isNumber } from 'lodash';
 
 // Configuration options for Heatmap overlays
 export interface HeatmapConfig {
@@ -42,53 +43,37 @@ export const heatmapLayer: ExtendMapLayerRegistryItem<HeatmapConfig> = {
   create: async (map: Map, options: ExtendMapLayerOptions<HeatmapConfig>, theme: GrafanaTheme2) => {
     const config = { ...defaultOptions, ...options.config };
     const matchers = await getLocationMatchers(options.location);
-
-    const vectorSource = new source.Vector();
+    const source = new FrameVectorSource<Point>(matchers);
+    const WEIGHT_KEY = '_weight';
 
     // Create a new Heatmap layer
     // Weight function takes a feature as attribute and returns a normalized weight value
     const vectorLayer = new layer.Heatmap({
-      source: vectorSource,
+      source: source,
       blur: config.blur,
       radius: config.radius,
       weight: function (feature) {
-        var weight = feature.get('value');
-        return weight;
+        return feature.get(WEIGHT_KEY);
       },
     });
+    vectorLayer.set('title', options.name);
 
     return {
       init: () => vectorLayer,
       update: (data: PanelData) => {
         const frame = data.series[0];
-
-        // Remove previous data before updating
-        const features = vectorLayer.getSource().getFeatures();
-        features.forEach((feature) => {
-          vectorLayer.getSource().removeFeature(feature);
-        });
-
         if (!frame) {
           return;
         }
-        // Get data points (latitude and longitude coordinates)
-        const info = dataFrameToPoints(frame, matchers);
-        if (info.warning) {
-          console.log('WARN', info.warning);
-          return; // ???
-        }
+        source.update(frame);
 
         const weightDim = getScaledDimension(frame, config.weight);
-
-        // Map each data value into new points
-        for (let i = 0; i < frame.length; i++) {
-          const cluster = new Feature({
-            geometry: info.points[i],
-            value: weightDim.get(i),
-          });
-          vectorSource.addFeature(cluster);
-        }
-        vectorLayer.setSource(vectorSource);
+        source.forEachFeature((f) => {
+          const idx = f.get('rowIndex') as number;
+          if (idx != null) {
+            f.set(WEIGHT_KEY, weightDim.get(idx));
+          }
+        });
 
         // Set heatmap gradient colors
         let colors = ['#00f', '#0ff', '#0f0', '#ff0', '#f00'];
@@ -100,6 +85,25 @@ export const heatmapLayer: ExtendMapLayerRegistryItem<HeatmapConfig> = {
           if (colorMode.isContinuous && colorMode.getColors) {
             // getColors return an array of color string from the color scheme chosen
             colors = colorMode.getColors(theme);
+          }
+          if (colorMode.isByValue) {
+            const scale = getScaleCalculator(field, theme);
+            colors = [];
+            let min = field.config.min;
+            let max = field.config.max;
+            if (!isNumber(min)) {
+              min = 0;
+            }
+            if (!isNumber(max)) {
+              max = 100;
+            }
+            let delta = max! - min!;
+            let steps = 10;
+            for (let i = 0; i < steps; i++) {
+              let value = i * (delta / steps);
+              let color = scale(value).color;
+              colors.push(color);
+            }
           }
         }
         vectorLayer.setGradient(colors);
