@@ -50,7 +50,6 @@ export const DataLayersEditor: React.FC<StandardEditorProps<ExtendMapLayerOption
                 onChange={(cfg) => {
                   let newData: ExtendMapLayerOptions[] = value ? _.cloneDeep(value) : [];
                   newData[index] = cfg;
-                  console.log('Change overlays:', newData);
                   onChange(newData);
                 }}
                 filter={dataLayerFilter}

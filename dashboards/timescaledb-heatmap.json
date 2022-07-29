@@ -240,6 +240,8 @@
                   "mode": "thresholds"
                 },
                 "mappings": [],
+                "max": 501,
+                "min": 0,
                 "thresholds": {
                   "mode": "absolute",
                   "steps": [
@@ -297,17 +299,18 @@
               "layers": [
                 {
                   "config": {
-                    "blur": 20,
-                    "radius": 10,
+                    "scale": 100,
+                    "showData": true,
+                    "showPopup": false,
                     "weight": {
                       "field": "airqualityindex",
                       "fixed": 1,
-                      "max": 1,
+                      "max": 501,
                       "min": 0
                     }
                   },
                   "displayProperties": [
-                    "pm10"
+                    "airqualityindex"
                   ],
                   "location": {
                     "mode": "auto"
@@ -316,7 +319,7 @@
                   "query": "A",
                   "timeField": "time",
                   "titleField": "metric",
-                  "type": "heatmap"
+                  "type": "idwmap"
                 }
               ],
               "view": {

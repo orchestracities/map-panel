@@ -34,6 +34,10 @@
         "path": "img/example.png"
       },
       {
+        "name": "IDW Interpolation",
+        "path": "img/idw.png"
+      },
+      {
         "name": "Configuration Options",
         "path": "img/options.png"
       },

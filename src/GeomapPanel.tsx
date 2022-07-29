@@ -104,26 +104,21 @@ export class GeomapPanel extends Component<Props, State> {
   optionsChanged(options: GeomapPanelOptions): boolean {
     let layersChanged = false;
     const oldOptions = this.props.options;
-    console.log('options changed!', options);
 
     if (options.view !== oldOptions.view) {
-      console.log('View changed');
       this.map!.setView(this.initMapView(options.view));
     }
 
     if (options.controls !== oldOptions.controls) {
-      console.log('Controls changed');
       this.initControls(options.controls ?? { showZoom: true, showAttribution: true, showLayercontrol: true });
     }
 
     if (options.basemap !== oldOptions.basemap) {
-      console.log('Basemap changed');
       this.initBasemap(options.basemap);
       layersChanged = true;
     }
 
     if (options.layers !== oldOptions.layers) {
-      console.log('layers changed');
       this.initLayers(options.layers ?? []); // async
       layersChanged = true;
     }
