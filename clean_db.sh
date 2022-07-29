@@ -8,4 +8,4 @@ curl -sS -H 'Content-Type: application/json' \
   -d '{"stmt":"drop table example;"}'
 
 echo 'clean timescaledb'
-docker exec -ti grafana-map-plugin-timescale-1 dropdb ecom -U postgres
+docker exec -ti map-plugin-timescale-1 dropdb ecom -U postgres
