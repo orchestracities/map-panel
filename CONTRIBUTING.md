@@ -45,7 +45,7 @@ docker run -it --rm -v "$PWD":/usr/src/app -w /usr/src/app node:14 yarn install
 1. Launch services
 
     ```bash
-    docker compose up -d
+    docker compose -p map-panel up -d
     ```
 
 2. Import database
@@ -63,7 +63,7 @@ docker run -it --rm -v "$PWD":/usr/src/app -w /usr/src/app node:14 yarn install
 4. In case of changes to code to restart grafana
 
     ```bash
-    yarn dev && docker compose restart grafana
+    yarn dev && docker compose -p map-panel restart grafana
     ```
 
 **NOTE:** Unless you remove the docker volumes, you need to run the last two
@@ -76,7 +76,7 @@ able to see a dashboard called `Dashboard Map`.
 
 - `Compile the code` + restart grafana
 ```sh
-$ yarn dev && docker compose restart grafana
+$ yarn dev && docker compose -p map-panel restart grafana
 ```
 
 Or using docker:
