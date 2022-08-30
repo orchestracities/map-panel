@@ -3000,10 +3000,10 @@
   resolved "https://registry.yarnpkg.com/@types/node/-/node-16.11.26.tgz#63d204d136c9916fb4dcd1b50f9740fe86884e47"
   integrity sha512-GZ7bu5A6+4DtG7q9GsoHXy3ALcgeIHP4NnL0Vv2wu0uUB/yQex26v0tf6/na1mm0+bS9Uw+0DFex7aaKr2qawQ==
 
-"@types/ol-ext@npm:@siedlerchr/types-ol-ext@^2.1.2":
-  version "2.1.2"
-  resolved "https://registry.yarnpkg.com/@siedlerchr/types-ol-ext/-/types-ol-ext-2.1.2.tgz#4ad0b02ac93cc4c10b7808fb0e70cc3cbb46f1f3"
-  integrity sha512-gW1OKUM1QMynXv3/gndR/1bAaSGjJLs9SSa5ZLrrIn/xw+t3N3d0qFuuo7LHzefsmN691egmFO1rV3i795Odsg==
+"@types/ol-ext@npm:@siedlerchr/types-ol-ext@^2.3.0":
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/@siedlerchr/types-ol-ext/-/types-ol-ext-2.3.0.tgz#a0cf9283fe8eee41048263091133126fa1dae64e"
+  integrity sha512-+SZdXXesFM58fjtug7Ejw2ZB9hO18z8/MecSB7gFv5E6jMlDHzdwz47YLk2Lug8MO1uBkZqsIAZhAJ4mIXINyw==
   dependencies:
     jspdf "^2.5.1"
 
@@ -7633,10 +7633,10 @@ object.values@^1.1.5:
     define-properties "^1.1.3"
     es-abstract "^1.19.1"
 
-ol-ext@^3.2.25:
-  version "3.2.28"
-  resolved "https://registry.yarnpkg.com/ol-ext/-/ol-ext-3.2.28.tgz#6842ab0c71f3d9b726d6d138bd4714d0426f6a1b"
-  integrity sha512-sfY25AWztCVyLXewB6EYtjCnzl2SYISdzQlKhfFb1gXTEWSwSDvBYNCGVWKU8mc7uisjploYOMfG7hi4+DNDWQ==
+ol-ext@^3.2.30:
+  version "3.2.30"
+  resolved "https://registry.yarnpkg.com/ol-ext/-/ol-ext-3.2.30.tgz#d747b937dc95ef8f6a8ef1fc26162fed3d9b38db"
+  integrity sha512-2Ls6FxfSRHzn7RzBAdeooiwcgA+dfR5a7it9xKLMgzIdVJhqSC1IyVSnPMmaX8yoLFEwywQHEzTQXlfGzUoEOw==
 
 ol-layerswitcher@^3.8.3:
   version "3.8.3"
@@ -7651,7 +7651,7 @@ ol-mapbox-style@^8.0.5:
     "@mapbox/mapbox-gl-style-spec" "^13.23.1"
     mapbox-to-css-font "^2.4.1"
 
-ol@6.15.1, ol@^6.14.1:
+ol@6.15.1, ol@^6.15.1:
   version "6.15.1"
   resolved "https://registry.yarnpkg.com/ol/-/ol-6.15.1.tgz#364f459939ef71f970b2376a821a896529f65e3a"
   integrity sha512-ZG2CKTpJ8Q+tPywYysVwPk+yevwJzlbwjRKhoCvd7kLVWMbfBl1O/+Kg/yrZZrhG9FNXbFH4GeOZ5yVRqo3P4w==
