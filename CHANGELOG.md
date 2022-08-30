@@ -1,5 +1,9 @@
 # Changelog
 
+- Support value mapping colors (#75)
+- Support GeoJSON stroke configuration (#76)
+- Support Grafana 9.1.1
+
 ## v1.4.4
 - Support for IDW Interpolation
 - Update OpenLayer libraries
