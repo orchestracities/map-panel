@@ -15,7 +15,7 @@ import { setOptionImmutably } from './PanelEditor/utils';
 import { fillOptionsPaneItems } from './PanelEditor/getVizualizationOptions';
 import { GazetteerPathEditor } from './GazetteerPathEditor';
 import { ExtendMapLayerRegistryItem, ExtendMapLayerOptions, ExtendFrameGeometrySourceMode } from '../extension';
-import { QuerySelector } from './PanelEditor/QuerySelector';
+import { FrameSelectionEditor } from './FrameSelectionEditor';
 
 export interface LayerEditorProps<TConfig = any> {
   options?: ExtendMapLayerOptions<TConfig>;
@@ -64,8 +64,8 @@ export const LayerEditor: FC<LayerEditorProps> = ({ options, onChange, data, fil
           id: 'query',
           path: 'query',
           name: 'Query',
-          editor: QuerySelector,
-          settings: {},
+          editor: FrameSelectionEditor,
+          defaultValue: undefined,
         })
         .addRadio({
           path: 'location.mode',
@@ -162,10 +162,10 @@ export const LayerEditor: FC<LayerEditorProps> = ({ options, onChange, data, fil
             placeholder: 'All Properties',
             getOptions: async (context: FieldOverrideContext) => {
               const options = [];
-              if (context && context.data && context.data.length > 0 && context.options && context.options.query) {
+              if (context && context.data && context.data.length > 0 && context.options && context.options.query && context.options.query.options) {
                 const frames = context.data;
                 for (let i = 0; i < frames.length; i++) {
-                  if (frames[i].refId && frames[i].refId === context.options.query) {
+                  if (frames[i].refId && frames[i].refId === context.options.query.options) {
                     const frame = context.data[i];
                     for (const field of frame.fields) {
                       const name = getFieldDisplayName(field, frame, context.data);
@@ -175,10 +175,21 @@ export const LayerEditor: FC<LayerEditorProps> = ({ options, onChange, data, fil
                   }
                 }
               }
+              else if (context && context.data && context.data.length > 0 && context.data[0].meta) {
+                const frames = context.data;
+                for (let i = 0; i < frames.length; i++) {
+                  const frame = context.data[i];
+                  for (const field of frame.fields) {
+                    const name = getFieldDisplayName(field, frame, context.data);
+                    const value = field.name;
+                    options.push({ value, label: name } as any);
+                  }
+                }
+              }
               return options;
             },
           },
-          showIf: (opts) => typeof opts.query !== 'undefined',
+          //showIf: (opts) => typeof opts.query !== 'undefined',
           defaultValue: '',
         });
     }
