@@ -73,7 +73,7 @@ const defaultOptions: MarkersConfig = {
   geoJsonStrokeSize: {
     fixed: 5,
     min: 1,
-    max: 5,
+    max: 10,
   },
   fillOpacity: 0.4,
   shape: 'circle',
