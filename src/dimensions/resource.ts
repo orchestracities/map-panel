@@ -1,60 +1,55 @@
-import { DataFrame, Field } from '@grafana/data';
-
-import { DimensionSupplier, ScalarDimensionConfig, ScalarDimensionMode } from './types';
+import { DataFrame } from '@grafana/data';
+import { DimensionSupplier, ResourceDimensionConfig, ResourceDimensionMode } from './types';
 import { findField, getLastNotNullFieldValue } from './utils';
 
 //---------------------------------------------------------
-// Scalar dimension
+// Resource dimension
 //---------------------------------------------------------
-export function getScalarDimension(
-  frame: DataFrame | undefined,
-  config: ScalarDimensionConfig
-): DimensionSupplier<number> {
-  return getScalarDimensionForField(findField(frame, config?.field), config);
+export function getPublicOrAbsoluteUrl(v: string): string {
+  if (!v) {
+    return '';
+  }
+  return v.indexOf(':/') > 0 ? v : (window as any).__grafana_public_path__ + v;
 }
-export function getScalarDimensionForField(
-  field: Field | undefined,
-  cfg: ScalarDimensionConfig
-): DimensionSupplier<number> {
-  if (!field) {
-    const v = cfg.fixed ?? 0;
+
+export function getResourceDimension(
+  frame: DataFrame | undefined,
+  config: ResourceDimensionConfig
+): DimensionSupplier<string> {
+  const mode = config.mode ?? ResourceDimensionMode.Fixed;
+  if (mode === ResourceDimensionMode.Fixed) {
+    const v = getPublicOrAbsoluteUrl(config.fixed!);
     return {
-      isAssumed: Boolean(cfg.field?.length) || !cfg.fixed,
+      isAssumed: !Boolean(v),
       fixed: v,
       value: () => v,
-      get: () => v,
+      get: (i) => v,
     };
   }
 
-  //mod mode as default
-  let validated = (value: number) => {
-    return value % cfg.max;
-  };
-
-  //capped mode
-  if (cfg.mode === ScalarDimensionMode.Clamped) {
-    validated = (value: number) => {
-      if (value < cfg.min) {
-        return cfg.min;
-      }
-      if (value > cfg.max) {
-        return cfg.max;
-      }
-      return value;
+  const field = findField(frame, config.field);
+  if (!field) {
+    const v = '';
+    return {
+      isAssumed: true,
+      fixed: v,
+      value: () => v,
+      get: (i) => v,
     };
   }
 
-  const get = (i: number) => {
-    const v = field.values.get(i);
-    if (v === null || typeof v !== 'number') {
-      return 0;
-    }
-    return validated(v);
-  };
+  if (mode === ResourceDimensionMode.Mapping) {
+    const mapper = (v: any) => getPublicOrAbsoluteUrl(`${v}`);
+    return {
+      field,
+      get: (i) => mapper(field.values.get(i)),
+      value: () => mapper(getLastNotNullFieldValue(field)),
+    };
+  }
 
   return {
     field,
-    get,
+    get: field.values.get,
     value: () => getLastNotNullFieldValue(field),
   };
 }
