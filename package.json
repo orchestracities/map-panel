@@ -13,10 +13,10 @@
   "author": "Federico M. Facca",
   "license": "AGPL-3.0",
   "devDependencies": {
-    "@grafana/data": "^8.1.1",
-    "@grafana/runtime": "^8.1.1",
-    "@grafana/toolkit": "^8.1.1",
-    "@grafana/ui": "^8.1.1",
+    "@grafana/data": "^9.1.1",
+    "@grafana/runtime": "^9.1.1",
+    "@grafana/toolkit": "^9.1.1",
+    "@grafana/ui": "^9.1.1",
     "@types/lodash": "^4.14.176",
     "@types/ol-ext": "npm:@siedlerchr/types-ol-ext@^2.1.2",
     "tslib": "2.2.0"
