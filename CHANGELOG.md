@@ -1,5 +1,6 @@
 # Changelog
 
+## v1.4.5
 - Support data frames resulting from transformations (#77)
 - Support value mapping colors (#75)
 - Support GeoJSON stroke configuration (#76)
