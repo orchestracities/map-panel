@@ -19,6 +19,7 @@
     "@grafana/ui": "^9.1.1",
     "@types/lodash": "^4.14.176",
     "@types/ol-ext": "npm:@siedlerchr/types-ol-ext@^2.1.2",
+    "jest-environment-jsdom": "^27.0.1",
     "tslib": "2.2.0"
   },
   "engines": {
