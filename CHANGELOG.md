@@ -1,6 +1,9 @@
 # Changelog
 
-## v1.4.5
+- Support data frames resulting from transformations (#77)
+- Support value mapping colors (#75)
+- Support GeoJSON stroke configuration (#76)
+- Support Grafana 9.1.1
 
 ## v1.4.4
 - Support for IDW Interpolation

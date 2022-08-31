@@ -1,25 +1,16 @@
-import {
-  DataFrame,
-  PanelData,
-  Field,
-  FieldType,
-  NumericRange,
-  getFieldDisplayName,
-  reduceField,
-  ReducerID,
-} from '@grafana/data';
+import { DataFrame, PanelData, Field, FieldType, NumericRange, getFieldDisplayName, reduceField, ReducerID } from '@grafana/data';
+import { config } from '@grafana/runtime';
 import {
   getColorDimension,
   getScaledDimension,
   getTextDimension,
-  getResourceDimension,
   ColorDimensionConfig,
   DimensionSupplier,
-  ResourceDimensionConfig,
   ScaleDimensionConfig,
   TextDimensionConfig,
+  ScalarDimensionConfig,
 } from '.';
-import { config } from '@grafana/runtime';
+
 import { isNumber } from 'lodash';
 
 export function getMinMaxAndDelta(field: Field): NumericRange {
@@ -53,6 +44,8 @@ export function getMinMaxAndDelta(field: Field): NumericRange {
   };
 }
 
+import { getScalarDimension } from './scalar';
+
 export function getColorDimensionFromData(
   data: PanelData | undefined,
   cfg: ColorDimensionConfig
@@ -83,19 +76,19 @@ export function getScaleDimensionFromData(
   return getScaledDimension(undefined, cfg);
 }
 
-export function getResourceDimensionFromData(
+export function getScalarDimensionFromData(
   data: PanelData | undefined,
-  cfg: ResourceDimensionConfig
-): DimensionSupplier<string> {
+  cfg: ScalarDimensionConfig
+): DimensionSupplier<number> {
   if (data?.series && cfg.field) {
     for (const frame of data.series) {
-      const d = getResourceDimension(frame, cfg);
+      const d = getScalarDimension(frame, cfg);
       if (!d.isAssumed || data.series.length === 1) {
         return d;
       }
     }
   }
-  return getResourceDimension(undefined, cfg);
+  return getScalarDimension(undefined, cfg);
 }
 
 export function getTextDimensionFromData(

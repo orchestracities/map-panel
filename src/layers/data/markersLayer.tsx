@@ -45,6 +45,7 @@ import 'static/css/fontmaki.css';
 export interface MarkersConfig {
   size: ScaleDimensionConfig;
   color: ColorDimensionConfig;
+  geoJsonStrokeSize: ScaleDimensionConfig;
   fillOpacity: number;
   shape?: string;
   showLegend?: boolean;
@@ -68,6 +69,11 @@ const defaultOptions: MarkersConfig = {
   },
   color: {
     fixed: 'dark-green', // picked from theme
+  },
+  geoJsonStrokeSize: {
+    fixed: 5,
+    min: 1,
+    max: 10,
   },
   fillOpacity: 0.4,
   shape: 'circle',
@@ -351,7 +357,7 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
         const cluster = options.config?.cluster ?? defaultOptions.cluster;
 
         for (const frame of data.series) {
-          if (options.query === frame.refId) {
+          if ((options.query && options.query.options === frame.refId) || (frame.meta)) {
             const info = dataFrameToPoints(frame, matchers);
             if (info.warning) {
               console.log('Could not find locations', info.warning);
@@ -377,10 +383,11 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
                 if (geoType === 'Point') {
                   geometry.setStyle(shape!.make(color, fillColor, radius));
                 } else {
+                  const strokeSize = getScaledDimension(frame, config.geoJsonStrokeSize);
                   let style = new Style({
                     stroke: new Stroke({
                       color: color,
-                      width: 5,
+                      width: strokeSize.get(i),
                     }),
                     fill: new Fill({
                       color: fillColor,
@@ -535,6 +542,22 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
         name: 'Pin size',
         defaultValue: defaultOptions.iconSize,
         showIf: (cfg) => cfg.config?.showPin === true,
+      })
+      .addCustomEditor({
+        id: 'config.geoJsonStrokeSize',
+        path: 'config.geoJsonStrokeSize',
+        name: 'Geometry Stroke Size',
+        editor: ScaleDimensionEditor,
+        settings: {
+          min: 1,
+          max: 10, // possible in the UI
+        },
+        defaultValue: {
+          // Configured values
+          fixed: 5,
+          min: 1,
+          max: 10,
+        },
       })
       .addSelect({
         path: 'config.selectIcon',

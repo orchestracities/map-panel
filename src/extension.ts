@@ -8,6 +8,11 @@ import {
 } from '@grafana/data';
 import Map from 'ol/Map';
 
+export interface MatcherConfig<TOptions = any> {
+  id: string;
+  options?: TOptions;
+}
+
 export enum GeojsonFrameGeometrySourceMode {
   Geojson = 'geojson',
   Auto = 'auto',
@@ -41,7 +46,7 @@ export interface ExtendMapLayerOptions<TConfig = any> {
   config?: TConfig;
   location?: ExtendFrameGeometrySource;
   opacity?: number;
-  query?: string;
+  query?: MatcherConfig;
   displayProperties?: string[];
   titleField?: string;
   timeField?: string;
