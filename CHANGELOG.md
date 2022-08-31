@@ -1,5 +1,7 @@
 # Changelog
 
+## v1.4.5
+
 ## v1.4.4
 - Support for IDW Interpolation
 - Update OpenLayer libraries
