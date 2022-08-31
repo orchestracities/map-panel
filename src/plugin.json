@@ -12,7 +12,8 @@
     "keywords": [
       "map",
       "geojson",
-      "icons"
+      "icons",
+      "idw"
     ],
     "logos": {
       "small": "img/icn-map-panel.svg",
